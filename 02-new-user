@@ -5,6 +5,7 @@ if [ "${USER}" != 'pi' ]; then
     exit 1
 fi
 
+printf "Enter new username: "
 read USERNAME
 
 if id -u "${USERNAME}"; then
