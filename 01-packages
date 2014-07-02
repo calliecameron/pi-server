@@ -1,0 +1,5 @@
+#!/bin/bash
+
+sudo apt-get remove --purge --auto-remove x11-common alsa-base alsa-utils cifs-utils dbus desktop-file-utils fontconfig fonts-freefont-ttf fontconfig-config gconf2-common gnome-themes-standard-data gsfonts gsfonts-x11 java-common libasound2 libxdmcp6 libxfont1 lxde-icon-theme menu-xdg nfs-common omxplayer penguinspuzzle samba-common smbclient v4l-utils whiptail xdg-utils xfonts-utils xkb-data libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0
+
+sudo tasksel remove desktop
