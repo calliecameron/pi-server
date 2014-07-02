@@ -1,0 +1,26 @@
+#!/bin/bash
+
+THISUSER="$(id -un)"
+if [ "${THISUSER}" = 'pi' ]; then
+    echo "Run this as the new user!"
+    exit 1
+fi
+
+function remove-if-exists()
+{
+    if id -u "${1}" &>/dev/null; then
+        sudo deluser --remove-all-files "${1}"
+    fi
+}
+
+remove-if-exists pi &&
+remove-if-exists games &&
+remove-if-exists lp &&
+remove-if-exists mail &&
+remove-if-exists news &&
+remove-if-exists uucp &&
+remove-if-exists irc &&
+remove-if-exists gnats &&
+remove-if-exists messagebus &&
+
+sudo rm -rf /home/pi

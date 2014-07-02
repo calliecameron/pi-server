@@ -15,3 +15,5 @@ fi
 
 sudo adduser "${USERNAME}"
 sudo adduser "${USERNAME}" sudo
+
+echo "Now logout and ssh in as the new user"
