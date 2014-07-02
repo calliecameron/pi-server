@@ -1,0 +1,16 @@
+#!/bin/bash
+
+if [ "${USER}" != 'pi' ]; then
+    echo "This should be run as the default 'pi' user"
+    exit 1
+fi
+
+read USERNAME
+
+if id -u "${USERNAME}"; then
+    echo "User already exists"
+    exit 1
+fi
+
+sudo adduser "${USERNAME}"
+sudo adduser "${USERNAME}" sudo

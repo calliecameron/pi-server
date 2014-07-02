@@ -6,4 +6,9 @@ sudo tasksel remove desktop &&
 
 sudo apt-get update &&
 sudo apt-get upgrade &&
-sudo apt-get dist-upgrade
+sudo apt-get dist-upgrade &&
+
+sudo rm -rf /etc/X11 &&
+
+echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
+echo "Reboot at this point to make sure nothing is broken, and also check ps -elf to see what's running"
