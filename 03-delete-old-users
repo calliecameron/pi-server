@@ -22,5 +22,8 @@ remove-if-exists uucp &&
 remove-if-exists irc &&
 remove-if-exists gnats &&
 remove-if-exists messagebus &&
+remove-if-exists statd &&
+remove-if-exists usbmux &&
+remove-if-exists list &&
 
 sudo rm -rf /home/pi
