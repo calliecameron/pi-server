@@ -1,11 +1,6 @@
 #!/bin/bash
 
-if [ "${USER}" != 'pi' ]; then
-    echo "This should be run as the default 'pi' user"
-    exit 1
-fi
-
-printf "Enter new username: "
+printf "Enter new username: " &&
 read USERNAME
 
 if id -u "${USERNAME}" &>/dev/null; then
@@ -13,7 +8,8 @@ if id -u "${USERNAME}" &>/dev/null; then
     exit 1
 fi
 
-sudo adduser "${USERNAME}"
-sudo adduser "${USERNAME}" sudo
+sudo adduser "${USERNAME}" &&
+sudo adduser "${USERNAME}" sudo &&
+sudo ecryptfs-migrate-home -u "${USERNAME}"
 
 echo "Now logout and ssh in as the new user"
