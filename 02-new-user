@@ -10,6 +10,7 @@ fi
 
 sudo adduser "${USERNAME}" &&
 sudo adduser "${USERNAME}" sudo &&
-sudo ecryptfs-migrate-home -u "${USERNAME}"
+sudo chmod go-rwx "/home/${USERNAME}" &&
+sudo ecryptfs-migrate-home -u "${USERNAME}" &&
 
 echo "Now logout and ssh in as the new user"
