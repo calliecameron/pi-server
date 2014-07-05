@@ -9,6 +9,14 @@ fi
 
 SSH_CONFIG='/etc/ssh/sshd_config'
 
+mkdir -p "${HOME}/.ssh" &&
+chmod go-rwx "${HOME}/.ssh" &&
+
+if [ ! -e "${HOME}/.ssh/id_rsa" ]; then
+    ssh-keygen -t rsa
+fi
+
+
 TMPFILE="$(mktemp)" &&
 sed 's/@@@@@1@@@@@/$(id -un)/g' < "${DIR}/sshd-config-template" > "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
