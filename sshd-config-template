@@ -17,6 +17,7 @@ UsePAM yes
 UsePrivilegeSeparation yes
 X11Forwarding no
 IgnoreRhosts yes
+PrintMotd no
 
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
