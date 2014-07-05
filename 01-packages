@@ -6,7 +6,7 @@ function update-ssh()
     if ! grep "${DEB_LINE}" '/etc/apt/sources.list' &>/dev/null; then
         sudo echo "${DEB_LINE}" >> '/etc/apt/sources.list' &&
         sudo apt-get-update &&
-        sudo apt-get -t wheezy-backports install openssh-server
+        sudo apt-get -t wheezy-backports install openssh-server openssh-client
     fi
 }
 
