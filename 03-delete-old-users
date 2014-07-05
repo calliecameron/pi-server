@@ -45,7 +45,7 @@ lockout www-data &&
 lockout backup &&
 lockout nobody &&
 lockout libuuid &&
-lockour sshd &&
+lockout sshd &&
 lockout ntp &&
 
 echo "Remove all references to user 'pi' from /etc/sudoers"
