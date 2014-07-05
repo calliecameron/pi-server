@@ -5,7 +5,7 @@ function update-ssh()
     DEB_LINE='deb http://ftp.debian.org/debian/ wheezy-backports main non-free contrib'
     if ! grep "${DEB_LINE}" '/etc/apt/sources.list' &>/dev/null; then
         echo "${DEB_LINE}" | sudo tee -a '/etc/apt/sources.list' >/dev/null &&
-        sudo apt-get-update &&
+        sudo apt-get update &&
         sudo apt-get -t wheezy-backports install openssh-server openssh-client
     fi
 }
