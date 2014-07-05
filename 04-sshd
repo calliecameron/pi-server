@@ -1,8 +1,8 @@
 #!/bin/bash
 
-DIR="$(basename "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ ! -e "${HOME}/.ssh/authorized_keys"]; then
+if [ ! -e "${HOME}/.ssh/authorized_keys" ]; then
     echo "No SSH keys are authorised for login; not going any further!"
     exit 1
 fi
