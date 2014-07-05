@@ -9,6 +9,11 @@ fi
 
 SSH_CONFIG='/etc/ssh/sshd_config'
 
+# Generate new host keys
+sudo rm -f /etc/ssh_host_* &&
+sudo dpkg-reconfigure openssh-server &&
+
+# Setup user's config
 mkdir -p "${HOME}/.ssh" &&
 chmod go-rwx "${HOME}/.ssh" &&
 
@@ -16,7 +21,7 @@ if [ ! -e "${HOME}/.ssh/id_rsa" ]; then
     ssh-keygen -t rsa
 fi
 
-
+# Setup server config
 TMPFILE="$(mktemp)" &&
 sed 's/@@@@@1@@@@@/$(id -un)/g' < "${DIR}/sshd-config-template" > "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
