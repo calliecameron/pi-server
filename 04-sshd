@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIR="$(basename "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )")"
+
+if [ ! -e "${HOME}/.ssh/authorized_keys"]; then
+    echo "No SSH keys are authorised for login; not going any further!"
+    exit 1
+fi
+
+SSH_CONFIG='/etc/ssh/sshd_config'
+
+TMPFILE="$(mktemp)" &&
+sed 's/@@@@@1@@@@@/$(id -un)/g' < "${DIR}/sshd-config-template" > "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
+sudo chown root:root "${SSH_CONFIG}" &&
+sudo chmod go-rwx "${SSH_CONFIG}" &&
+rm "${TMPFILE}"
