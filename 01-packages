@@ -1,5 +1,15 @@
 #!/bin/bash
 
+function update-ssh()
+{
+    DEB_LINE='deb http://ftp.debian.org/debian/ wheezy-backports main non-free contrib'
+    if ! grep "${DEB_LINE}" '/etc/apt/sources.list' &>/dev/null; then
+        sudo echo "${DEB_LINE}" >> '/etc/apt/sources.list' &&
+        sudo apt-get-update &&
+        sudo apt-get -t wheezy-backports install openssh-server
+    fi
+}
+
 sudo apt-get remove --purge --auto-remove x11-common alsa-base alsa-utils cifs-utils dbus desktop-file-utils fontconfig fonts-freefont-ttf fontconfig-config gconf2-common gnome-themes-standard-data gsfonts gsfonts-x11 java-common libasound2 libxdmcp6 libxfont1 lxde-icon-theme menu-xdg nfs-common omxplayer penguinspuzzle samba-common smbclient v4l-utils whiptail xdg-utils xfonts-utils xkb-data libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 fbset ncdu parted build-essential debconf-utils gdb linux-libc-dev pkg-config debian-reference-en info install-info lua5.1 luajit plymouth python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-numpy python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork python-serial python3-serial &&
 
 sudo tasksel remove desktop &&
@@ -10,7 +20,9 @@ sudo apt-get dist-upgrade &&
 
 sudo rm -rf /etc/X11 &&
 
-sudo apt-get install dialog ecryptfs-utils lsof &&
+sudo apt-get install dialog ecryptfs-utils lsof etckeeper &&
+update-ssh &&
+
 
 echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
 echo "Reboot at this point to make sure nothing is broken, and also check ps -elf to see what's running"
