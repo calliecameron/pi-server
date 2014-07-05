@@ -22,4 +22,4 @@ PrintMotd no
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
-AuthorizedKeysFile %h/.ssh/authorized_keys
+AuthorizedKeysFile /etc/ssh/authorized_keys
