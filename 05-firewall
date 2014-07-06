@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+RULES="${DIR}/iptables.rules"
+RULES_TARGET='/etc/iptables.rules'
+SCRIPT="${DIR}/iptables"
+SCRIPT_TARGET='/etc/network/if-pre-up.d/iptables'
+
+sudo cp "${RULES}" "${RULES_TARGET}" &&
+sudo chown root:root "${RULES_TARGET}" &&
+sudo chmod u=r "${RULES_TARGET}" &&
+sudo chmod go-rwx "${RULES_TARGET}" &&
+
+sudo cp "${SCRIPT}" "${SCRIPT_TARGET}" &&
+sudo chown root:root "${SCRIPT_TARGET}" &&
+sudo chmod u=rx "${SCRIPT_TARGET}" &&
+sudo chmod go-rwx "${SCRIPT_TARGET}"
