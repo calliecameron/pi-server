@@ -21,7 +21,7 @@ sudo apt-get dist-upgrade &&
 
 sudo rm -rf /etc/X11 &&
 
-sudo apt-get install dialog ecryptfs-utils lsof etckeeper &&
+sudo apt-get install dialog ecryptfs-utils lsof etckeeper knockd &&
 #update-ssh &&
 
 

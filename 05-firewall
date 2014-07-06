@@ -2,10 +2,33 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-RULES="${DIR}/iptables.rules"
-RULES_TARGET='/etc/iptables.rules'
-SCRIPT="${DIR}/iptables"
-SCRIPT_TARGET='/etc/network/if-pre-up.d/iptables'
+# Port knocker
+KNOCKD="${DIR}/knockd"
+KNOCKD_TARGET='/etc/default/knockd'
+KNOCKD_CONF="${DIR}/knockd.conf"
+KNOCKD_CONF_TARGET='/etc/knockd.conf'
+
+printf "Enter port-knocking sequence for ssh; this should be a list of comma-separated ports (optionally postfixed with :tcp or :udp (TCP is the default)), with NO SPACES!" &&
+read SEQUENCE &&
+
+TMPFILE="$(mktemp)" &&
+sed "s/@@@@@1@@@@@/${SEQUENCE}/g" < "${KNOCKD_CONF}" > "${TMPFILE}" &&
+
+sudo cp "${TMPFILE}" "${KNOCKD_CONF_TARGET}" &&
+sudo chown root:root "${KNOCKD_CONF_TARGET}" &&
+sudo chmod a=r "${KNOCKD_CONF_TARGET}" &&
+sudo chmod go-rwx "${KNOCKD_CONF_TARGET}" &&
+
+sudo cp "${KNOCKD}" "${KNOCKD_TARGET}" &&
+sudo chown root:root "${KNOCKD_TARGET}" &&
+sudo chmod a=r "${KNOCKD_TARGET}" &&
+sudo chmod go-rwx "${KNOCKD_TARGET}" &&
+
+# IPtables
+RULES="${DIR}/iptables.rules" &&
+RULES_TARGET='/etc/iptables.rules' &&
+SCRIPT="${DIR}/iptables" &&
+SCRIPT_TARGET='/etc/network/if-pre-up.d/iptables' &&
 
 sudo cp "${RULES}" "${RULES_TARGET}" &&
 sudo chown root:root "${RULES_TARGET}" &&
