@@ -1,2 +1,2 @@
 START_KNOCKD=1
-KNOCKD_OPTS="-i eth0"
+KNOCKD_OPTS="-i @@@@@1@@@@@"

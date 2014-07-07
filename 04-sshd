@@ -9,6 +9,9 @@ fi
 
 SSH_CONFIG='/etc/ssh/sshd_config'
 
+printf "Enter port for SSH: " &&
+read SSH_PORT &&
+
 # Generate new host keys
 sudo rm -f /etc/ssh/ssh_host_* &&
 sudo dpkg-reconfigure openssh-server &&
@@ -23,10 +26,13 @@ fi
 
 # Setup server config
 TMPFILE="$(mktemp)" &&
+TMPFILE2="$(mktemp)" &&
 sed "s/@@@@@1@@@@@/$(id -un)/g" < "${DIR}/sshd-config-template" > "${TMPFILE}" &&
-sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
+sed "s/@@@@@2@@@@@/${SSH_PORT}/g" < "${TMPFILE}" > "${TMPFILE2}" &&
+sudo cp "${TMPFILE2}" "${SSH_CONFIG}" &&
 sudo chown root:root "${SSH_CONFIG}" &&
-sudo chmod go-rwx "${SSH_CONFIG}" &&
+sudo chmod a=r "${SSH_CONFIG}" &&
 rm "${TMPFILE}" &&
+rm "${TMPFILE2}" &&
 sudo chown root:root /etc/ssh/authorized_keys &&
 sudo chmod go-wx /etc/ssh/authorized_keys
