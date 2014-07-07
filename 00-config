@@ -1,5 +1,5 @@
 #!/bin/bash
 
-echo "Select 'expand filesystem', then make sure the machine is configured to boot to command line. Also change the hostname, and then generate new ssh keys. Reboot when prompted." &&
+echo "Select 'expand filesystem', then make sure the machine is configured to boot to command line. Also change the hostname, and give the GPU as little memory as possible. Reboot when prompted." &&
 read &&
 sudo raspi-config
