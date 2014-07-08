@@ -18,8 +18,8 @@ read FROM_SERVER &&
 TMPFILE="$(mktemp)" &&
 cp "${DIR}/ssmtp-conf-template" "${TMPFILE}" &&
 sed -i "s/@@@@@1@@@@@/${TARGET_ADDR}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/${SMTP_SERVER}" "${TMPFILE}" &&
-sed -i "s/@@@@@3@@@@@/${FROM_SERVER}" "${TMPFILE}" &&
+sed -i "s/@@@@@2@@@@@/${SMTP_SERVER}/g" "${TMPFILE}" &&
+sed -i "s/@@@@@3@@@@@/${FROM_SERVER}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${SSMTP_CONF}" &&
 sudo chown root:root "${SSMTP_CONF}" &&
 sudo chmod a=r "${SSMTP_CONF}" &&
