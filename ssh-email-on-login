@@ -1,0 +1,5 @@
+#!/bin/sh
+
+if [ "${PAM_TYPE}" != 'close_session' ]; then
+    /etc/ssmtp/notification-email "SSH login: ${PAM_USER} from ${PAM_RHOST}" "$(env)" &
+fi

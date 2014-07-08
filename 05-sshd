@@ -35,4 +35,15 @@ sudo chmod a=r "${SSH_CONFIG}" &&
 rm "${TMPFILE}" &&
 rm "${TMPFILE2}" &&
 sudo chown root:root /etc/ssh/authorized_keys &&
-sudo chmod go-wx /etc/ssh/authorized_keys
+sudo chmod go-wx /etc/ssh/authorized_keys &&
+
+# Email on login
+EMAIL_ON_LOGIN='/etc/ssh/ssh-email-on-login' &&
+sudo cp "${DIR}/ssh-email-on-login" "${EMAIL_ON_LOGIN}" &&
+sudo chown root:root "${EMAIL_ON_LOGIN}" &&
+sudo chmod a=rx "${EMAIL_ON_LOGIN}" &&
+
+PAM_STRING="session optional pam_exec.so seteuid ${EMAIL_ON_LOGIN}" &&
+if ! grep "${PAM_STRING}" /etc/pam.d/sshd; then
+    echo "${PAM_STRING}" | sudo tee -a /etc/pam.d/sshd >/dev/null
+fi
