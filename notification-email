@@ -25,9 +25,9 @@ test -z "${FROM}" && no-defaults
 test -z "${TO}" && no-defaults
 
 ssmtp "${TO}" <<EOF
-From: notifications@${FROM}
+From: Notification <notification@${FROM}>
 To: ${TO}
-Subject: [Notification from $(hostname)] ${1}
+Subject: [Notification from: $(hostname)] ${1}
 
 ${2}
 
