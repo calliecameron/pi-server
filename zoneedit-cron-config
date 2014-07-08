@@ -1,6 +1,8 @@
 #!/bin/bash
 # Configure the boot and cron zoneedit settings
 
+export EDITOR='nano'
+
 sudoedit '/etc/zoneedit-host' &&
 sudoedit '/etc/zoneedit-username' &&
 sudoedit '/etc/zoneedit-password'
