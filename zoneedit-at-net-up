@@ -1,0 +1,20 @@
+#!/bin/bash
+# Update a ZoneEdit record when the network goes up, and as a cron job
+
+HOST_FILE='/etc/zoneedit-host'
+USERNAME_FILE='/etc/zoneedit-username'
+PASSWORD_FILE='/etc/zoneedit-password'
+
+test ! -f "${HOST_FILE}" && exit 0
+test ! -f "${USERNAME_FILE}" && exit 0
+test ! -f "${PASSWORD_FILE}" && exit 0
+
+HOST="$(grep -v '^#' "${HOST_FILE}" | head -n 1)"
+USERNAME="$(grep -v '^#' "${USERNAME_FILE}" | head -n 1)"
+PASSWORD="$(grep -v '^#' "${PASSWORD_FILE}" | head -n 1)"
+
+test -z "${HOST}" && exit 0
+test -z "${USERNAME}" && exit 0
+test -z "${PASSWORD}" && exit 0
+
+wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}"

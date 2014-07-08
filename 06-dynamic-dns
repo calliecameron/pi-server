@@ -1,0 +1,38 @@
+#!/bin/bash
+# Make zoneedit run when the network goes up
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+SCRIPT_SRC="${DIR}/zoneedit-at-net-up"
+SCRIPT_DST='/etc/network/if-up.d/zoneedit-at-net-up'
+
+sudo cp "${SCRIPT_SRC}" "${SCRIPT_DST}" &&
+sudo chown root:root "${SCRIPT_DST}" &&
+sudo chmod go-rwx "${SCRIPT_DST}" &&
+sudo chmod u+x "${SCRIPT_DST}" &&
+
+if [ ! -e '/etc/cron.hourly/zoneedit-update' ]; then
+    sudo ln -s "${SCRIPT_DST}" '/etc/cron.hourly/zoneedit-update'
+fi
+
+
+# Config files
+HOST_FILE='zoneedit-host'
+USERNAME_FILE='zoneedit-username'
+PASSWORD_FILE='zoneedit-password'
+
+function doConfigFile()
+{
+    if [ ! -e "/etc/${1}" ]; then
+        sudo cp "${DIR}/${1}" "/etc/${1}"
+        sudo chown root:root "/etc/${1}"
+        sudo chmod go-rwx "/etc/${1}"
+    fi
+}
+
+doConfigFile "${HOST_FILE}" &&
+doConfigFile "${USERNAME_FILE}" &&
+doConfigFile "${PASSWORD_FILE}" &&
+
+echo &&
+echo "ZoneEdit settings can be configured with './zoneedit-cron-config'"
