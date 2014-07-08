@@ -17,4 +17,7 @@ test -z "${HOST}" && exit 0
 test -z "${USERNAME}" && exit 0
 test -z "${PASSWORD}" && exit 0
 
-wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}"
+OUTPUT_FILE='/etc/zoneedit-last-result'
+
+wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"
+chmod go-rwx "${OUTPUT_FILE}"
