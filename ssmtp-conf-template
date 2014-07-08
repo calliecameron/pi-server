@@ -1,0 +1,4 @@
+root=@@@@@1@@@@@
+mailhub=@@@@@2@@@@@:25
+rewritedomain=@@@@@3@@@@@
+fromlineoverride=no

@@ -1,0 +1,34 @@
+#!/bin/bash
+# Send a notification email to the default target address
+
+DEFAULTS_FILE='/etc/ssmtp/notification-defaults'
+
+function usage()
+{
+    echo "Usage: $(basename "${0}") subject body"
+    exit 1
+}
+
+test -z "${1}" && usage
+test -z "${2}" && usage
+
+FROM="$(grep -i '^From' "${DEFAULTS_FILE}" | awk '{print $2}')"
+TO="$(grep -i '^To' "${DEFAULTS_FILE}" | awk '{print $2}')"
+
+function no-defaults()
+{
+    echo 'Default values are invalid'
+    exit 1
+}
+
+test -z "${FROM}" && no-defaults
+test -z "${TO}" && no-defaults
+
+ssmtp "${TO}" <<EOF
+From: ${FROM}
+To: ${TO}
+Subject: [Notification from $(hostname)] ${1}
+
+${2}
+
+EOF
