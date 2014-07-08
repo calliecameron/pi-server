@@ -19,5 +19,8 @@ test -z "${PASSWORD}" && exit 0
 
 OUTPUT_FILE='/etc/zoneedit-last-result'
 
-wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"
+if ! wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"; then
+    echo 'ZoneEdit update failed; check the log file'
+fi
+
 chmod go-rwx "${OUTPUT_FILE}"
