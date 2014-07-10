@@ -1,0 +1,4 @@
+EMAIL="@@@@@1@@@@@"
+SYSTEM="@@@@@2@@@@@"
+CUSTOM_SUBJECT='[Notification from: $SYSTEM] $NUM_PACKAGES package update(s) available'
+CUSTOM_FROM="Notification <notification@@@@@@3@@@@@>"
