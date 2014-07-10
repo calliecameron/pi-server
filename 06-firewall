@@ -16,20 +16,22 @@ read SEQUENCE &&
 printf "Enter interface for port knocker; usually eth0: " &&
 read IFACE &&
 
-TMPFILE="$(mktemp)" &&
-sed "s/@@@@@1@@@@@/${SEQUENCE}/g" < "${KNOCKD_CONF}" > "${TMPFILE}" &&
-TMPFILE2="$(mktemp)" &&
-sed "s/@@@@@2@@@@@/${SSH_PORT}/g" < "${TMPFILE}" > "${TMPFILE2}" &&
+printf "Enter port for HTTPS (usually 443): " &&
+read HTTPS_PORT &&
 
-sudo cp "${TMPFILE2}" "${KNOCKD_CONF_TARGET}" &&
+TMPFILE="$(mktemp)" &&
+cp "${KNOCKD_CONF}" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${SEQUENCE}/g" "${TMPFILE}" &&
+sed -i "s/@@@@@2@@@@@/${SSH_PORT}/g" "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${KNOCKD_CONF_TARGET}" &&
 sudo chown root:root "${KNOCKD_CONF_TARGET}" &&
 sudo chmod a=r "${KNOCKD_CONF_TARGET}" &&
 sudo chmod go-rwx "${KNOCKD_CONF_TARGET}" &&
 rm "${TMPFILE}" &&
-rm "${TMPFILE2}" &&
 
 TMPFILE="$(mktemp)" &&
-sed "s/@@@@@1@@@@@/${IFACE}/g" < "${KNOCKD}" > "${TMPFILE}" &&
+cp "${KNOCKD}" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${IFACE}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${KNOCKD_TARGET}" &&
 sudo chown root:root "${KNOCKD_TARGET}" &&
 sudo chmod a=r "${KNOCKD_TARGET}" &&
@@ -42,10 +44,14 @@ RULES_TARGET='/etc/iptables.rules' &&
 SCRIPT="${DIR}/iptables" &&
 SCRIPT_TARGET='/etc/network/if-pre-up.d/iptables' &&
 
-sudo cp "${RULES}" "${RULES_TARGET}" &&
+TMPFILE="$(mktemp)" &&
+cp "${RULES}" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${HTTPS_PORT}/g" "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${RULES_TARGET}" &&
 sudo chown root:root "${RULES_TARGET}" &&
 sudo chmod u=r "${RULES_TARGET}" &&
 sudo chmod go-rwx "${RULES_TARGET}" &&
+rm "${TMPFILE}" &&
 
 sudo cp "${SCRIPT}" "${SCRIPT_TARGET}" &&
 sudo chown root:root "${SCRIPT_TARGET}" &&

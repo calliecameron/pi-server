@@ -5,6 +5,7 @@
 :OUTPUT ACCEPT [0:0]
 -A INPUT -i lo -j ACCEPT
 -A INPUT -d 127.0.0.0/8 ! -i lo -j DROP
+-A INPUT -p tcp --dport @@@@@1@@@@@ -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -j DROP
 -A FORWARD -j DROP
