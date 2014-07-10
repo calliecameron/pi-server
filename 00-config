@@ -1,5 +1,9 @@
 #!/bin/bash
 
+echo "Select the correct time zone when prompted; usually 'Europe/London'" &&
+read &&
+sudo dpkg-reconfigure tzdata &&
+
 echo "Select 'expand filesystem', then make sure the machine is configured to boot to command line. Also change the hostname, and give the GPU as little memory as possible. Reboot when prompted." &&
 read &&
 sudo raspi-config
