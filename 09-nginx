@@ -16,3 +16,7 @@ sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
 rm "${TMPFILE}"
+
+sudo mkdir -p /var/www &&
+sudo chown www-data:www-data /var/www &&
+sudo chmod go-rwx /var/www
