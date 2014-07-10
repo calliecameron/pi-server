@@ -14,5 +14,5 @@ sed -i "s/@@@@@1@@@@@/${HTTPS_PORT}/g" "${TMPFILE}" &&
 sed -i "s/@@@@@2@@@@@/192.168.0.22/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
-sudo a=r "${CONF_TARGET}" &&
+sudo chmod a=r "${CONF_TARGET}" &&
 rm "${TMPFILE}"
