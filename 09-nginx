@@ -2,21 +2,9 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-CONF="${DIR}/nginx-conf-template"
+CONF="${DIR}/nginx.conf"
 CONF_TARGET='/etc/nginx/nginx.conf'
 
-printf "Enter port for HTTPS (usually 443; must match the one set for the firewall!): " &&
-read HTTPS_PORT &&
-
-TMPFILE="$(mktemp)" &&
-cp "${CONF}" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/${HTTPS_PORT}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/192.168.0.22/g" "${TMPFILE}" &&
-sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
+sudo cp "${CONF}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
-sudo chmod a=r "${CONF_TARGET}" &&
-rm "${TMPFILE}"
-
-sudo mkdir -p /var/www &&
-sudo chown www-data:www-data /var/www &&
-sudo chmod go-rwx /var/www
+sudo chmod a=r "${CONF_TARGET}"
