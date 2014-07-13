@@ -26,7 +26,7 @@ sudo rm -rf /etc/X11 &&
 sudo apt-get install ecryptfs-utils lsof etckeeper knockd ssmtp apticron
 
 # Owncloud packages
-sudo apt-get install nginx-naxsi php5-fpm &&
+sudo apt-get install nginx-naxsi php5-fpm php5-gd php5-sqlite php-xml-parser php5-intl php5-mcrypt php5-curl php5-json &&
 #update-ssh &&
 
 
