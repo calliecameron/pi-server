@@ -8,3 +8,7 @@ CONF_TARGET='/etc/nginx/nginx.conf'
 sudo cp "${CONF}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}"
+
+ls -1 '/etc/nginx/sites-enabled' | while read line; do
+    sudo rm "${line}"
+done

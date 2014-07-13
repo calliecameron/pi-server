@@ -23,7 +23,10 @@ sudo apt-get dist-upgrade &&
 
 sudo rm -rf /etc/X11 &&
 
-sudo apt-get install ecryptfs-utils lsof etckeeper knockd ssmtp apticron nginx-naxsi &&
+sudo apt-get install ecryptfs-utils lsof etckeeper knockd ssmtp apticron
+
+# Owncloud packages
+sudo apt-get install nginx-naxsi php5-fpm &&
 #update-ssh &&
 
 
