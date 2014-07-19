@@ -1,10 +1,9 @@
 server {
-#    listen @@@@@1@@@@@ ssl;
-    listen @@@@@1@@@@@;
+    listen @@@@@1@@@@@ ssl;
     server_name @@@@@2@@@@@;
 
-#    ssl_certificate /etc/ssl/nginx/cloud.example.com.crt;
-#    ssl_certificate_key /etc/ssl/nginx/cloud.example.com.key;
+    ssl_certificate /etc/nginx/@@@@@2@@@@@.crt;
+    ssl_certificate_key /etc/nginx/@@@@@2@@@@@.key;
 
     root /var/www/owncloud;
 
@@ -49,7 +48,7 @@ server {
         include fastcgi_params;
         fastcgi_param SCRIPT_FILENAME $document_root$fastcgi_script_name;
         fastcgi_param PATH_INFO $fastcgi_path_info;
-#        fastcgi_param HTTPS on;
+        fastcgi_param HTTPS on;
         fastcgi_pass php-handler;
     }
 

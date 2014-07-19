@@ -18,7 +18,10 @@ sed -i "s/@@@@@2@@@@@/${SERVER_NAME}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
-rm "${TMPFILE}"
+rm "${TMPFILE}" &&
+
+echo "Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key"
+
 
 WEB_ROOT='/var/www'
 OWNCLOUD_DIR="${WEB_ROOT}/owncloud"
@@ -31,7 +34,7 @@ if [ ! -d "${OWNCLOUD_DIR}" ]; then
     TMPDIR="$(mktemp -d)" &&
     TAR_FILE="${TMPDIR}/owncloud.tar.bz2" &&
     cd "${TMPDIR}" &&
-    wget -O "${TAR_FILE}" http://download.owncloud.org/community/testing/owncloud-7.0.0RC1.tar.bz2 &&
+    wget -O "${TAR_FILE}" http://download.owncloud.org/community/testing/owncloud-7.0.0RC3.tar.bz2 &&
     tar -xf "${TAR_FILE}" &&
     sudo cp -a "${TMPDIR}/owncloud" "${OWNCLOUD_DIR}" &&
     sudo chown -R www-data:www-data "${OWNCLOUD_DIR}" &&
