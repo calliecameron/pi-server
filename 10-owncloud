@@ -18,10 +18,7 @@ sed -i "s/@@@@@2@@@@@/${SERVER_NAME}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
-rm "${TMPFILE}" &&
-
-echo "Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key"
-
+rm "${TMPFILE}"
 
 WEB_ROOT='/var/www'
 OWNCLOUD_DIR="${WEB_ROOT}/owncloud"
@@ -42,3 +39,6 @@ if [ ! -d "${OWNCLOUD_DIR}" ]; then
     cd &&
     rm -r "${TMPDIR}"
 fi
+
+echo &&
+echo "Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key"
