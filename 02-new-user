@@ -1,5 +1,17 @@
 #!/bin/bash
 
+function yn_y()
+{
+    # Y is the default
+    local REPLY
+    read -p "${1} [Y/n] " -r
+    if [[ $REPLY =~ ^[Nn]$ ]]; then
+        return 1
+    else
+        return 0
+    fi
+}
+
 printf "Enter new username: " &&
 read USERNAME
 
@@ -13,4 +25,14 @@ sudo adduser "${USERNAME}" sudo &&
 sudo chmod go-rwx "/home/${USERNAME}" &&
 sudo ecryptfs-migrate-home -u "${USERNAME}" &&
 
-echo "Now logout and ssh in as the new user"
+echo &&
+echo "Login as the new user, check the files are readable, then log out again:" &&
+sudo login &&
+
+echo &&
+if yn_y "Were the files readable?"; then
+    sudo rm -rf /home/${USERNAME}.*
+    echo "Now reboot and ssh in as the new user"
+else
+    echo "Follow ecryptfs's instructions and fix things manually before rebooting"
+fi
