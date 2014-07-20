@@ -35,4 +35,5 @@ doConfigFile "${USERNAME_FILE}" &&
 doConfigFile "${PASSWORD_FILE}" &&
 
 echo &&
-echo "ZoneEdit settings can be configured with './zoneedit-cron-config'"
+echo "ZoneEdit settings can be configured with './zoneedit-cron-config'" &&
+echo "Reboot to test the ZoneEdit settings"
