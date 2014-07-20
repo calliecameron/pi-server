@@ -56,4 +56,6 @@ rm "${TMPFILE}" &&
 sudo cp "${SCRIPT}" "${SCRIPT_TARGET}" &&
 sudo chown root:root "${SCRIPT_TARGET}" &&
 sudo chmod u=rx "${SCRIPT_TARGET}" &&
-sudo chmod go-rwx "${SCRIPT_TARGET}"
+sudo chmod go-rwx "${SCRIPT_TARGET}" &&
+
+echo "Reboot to enable the firewall."
