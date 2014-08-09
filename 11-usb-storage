@@ -2,6 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+# Configure automatic mounting of drives inserted at runtime
 USBMOUNT_CONF='/etc/usbmount/usbmount.conf' &&
 WWW_UID="$(id -u www-data)" &&
 WWW_GID="$(id -g www-data)" &&
@@ -13,4 +14,29 @@ sed -i "s/@@@@@2@@@@@/${WWW_GID}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${USBMOUNT_CONF}" &&
 sudo chown root:root "${USBMOUNT_CONF}" &&
 sudo chmod a=r "${USBMOUNT_CONF}" &&
-rm "${TMPFILE}"
+rm "${TMPFILE}" &&
+
+
+# Configure mounting of the primary owncloud storage drive
+sudo mkdir -p '/mnt/owncloud-primary' &&
+echo "Please make sure the drive you want to store owncloud's data on is attached." &&
+echo "Press enter to continue..." &&
+read &&
+echo &&
+sudo blkid &&
+echo &&
+echo "Take a note of the UUID of the partition you want to store owncloud's data on" &&
+echo "You now need to edit /etc/fstab to mount the partition" &&
+echo "The correct format for an ext4 partition is:" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    ext4    defaults,sync,noatime,nofail    0    0" &&
+echo "The correct format for an NTFS partition is:" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),sync,noatime,nofail    0    0" &&
+echo &&
+echo "Press enter to edit the fstab..."
+read &&
+
+sudo nano /etc/fstab &&
+
+echo "Make sure you create a folder with appropriate permissions on that partition, for owncloud to use" &&
+echo &&
+echo "Reboot now, before configuring owncloud"
