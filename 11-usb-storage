@@ -1,5 +1,7 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
 USBMOUNT_CONF='/etc/usbmount/usbmount.conf' &&
 WWW_UID="$(id -u www-data)" &&
 WWW_GID="$(id -g www-data)" &&
