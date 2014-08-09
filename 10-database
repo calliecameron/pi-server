@@ -4,9 +4,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 printf "Enter the database password to give the newly-created owncloud user: " &&
 read -s DATABASE_USER_PW &&
+echo &&
 
 printf "Enter the database root password (created when installing mysql): " &&
 read -s DATABASE_ROOT_PW &&
+echo &&
 
 # PHP configuration
 CONF_SRC="${DIR}/php-mysql.ini"
@@ -15,6 +17,7 @@ CONF_DST='/etc/php5/conf.d/mysql.ini'
 sudo cp "${CONF_SRC}" "${CONF_DST}" &&
 sudo chown root:root "${CONF_DST}" &&
 sudo chmod a=r "${CONF_DST}" &&
+sudo service php5-fpm restart &&
 
 
 # Database configuration
