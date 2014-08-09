@@ -15,7 +15,7 @@ sudo rm -rf /etc/X11 &&
 sudo apt-get -y install ecryptfs-utils lsof etckeeper knockd ssmtp apticron
 
 # Owncloud dependencies
-sudo apt-get -y install nginx-naxsi php5-fpm php5-gd php5-mysqlnd php-xml-parser php5-intl php5-mcrypt php5-curl php5-json &&
+sudo apt-get -y install mysql-server mysql-client nginx-naxsi php5 php5-fpm php5-gd php5-sqlite php5-mysqlnd php5-psql php-xml-parser php5-intl php5-mcrypt php5-curl php5-json &&
 
 echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
 echo "Reboot at this point to make sure nothing is broken, and also check ps -elf to see what's running"
