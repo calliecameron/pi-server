@@ -1,0 +1,14 @@
+#!/bin/bash
+
+USBMOUNT_CONF='/etc/usbmount/usbmount.conf' &&
+WWW_UID="$(id -u www-data)" &&
+WWW_GID="$(id -g www-data)" &&
+
+TMPFILE="$(mktemp)" &&
+cp "${DIR}/usbmount-conf-template" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${WWW_UID}/g" "${TMPFILE}" &&
+sed -i "s/@@@@@2@@@@@/${WWW_GID}/g" "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${USBMOUNT_CONF}" &&
+sudo chown root:root "${USBMOUNT_CONF}" &&
+sudo chmod a=r "${USBMOUNT_CONF}" &&
+rm "${TMPFILE}"

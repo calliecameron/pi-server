@@ -70,4 +70,7 @@ From address: owncloud@<whatever hostname you entered in script 04-email>
 
 
 Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
+
+
+Go to apps, enable the 'external storage' app, then go back to admin and configure it (TODO...)
 EOF
