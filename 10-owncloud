@@ -2,14 +2,37 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-CONF="${DIR}/owncloud-nginx-template"
-CONF_TARGET='/etc/nginx/sites-enabled/owncloud'
-
 printf "Enter the HTTPS port for OwnCloud (usually 443, but must match the one set in the firewall script): " &&
 read HTTPS_PORT &&
 
 printf "Enter the fully-qualified domain name (or IP address, for testing) on which this server will be accessed: " &&
 read SERVER_NAME &&
+
+
+# Install owncloud
+APT_SRC="${DIR}/owncloud.list" &&
+APT_DIR='/etc/apt/sources.list.d' &&
+APT_DST="${APT_DIR}/owncloud.list" &&
+
+sudo mkdir -p "${APT_DIR}" &&
+sudo chmod go-w "${APT_DIR}" &&
+sudo cp "${APT_SRC}" "${APT_DST}" &&
+sudo chown root:root "${APT_DST}" &&
+sudo chmod a=r "${APT_DST}" &&
+
+TMPFILE="$(mktemp)" &&
+wget http://download.opensuse.org/repositories/isv:ownCloud:community/Debian_7.0/Release.key -O "${TMPFILE}" &&
+sudo apt-key add - < "${TMPFILE}" &&
+rm "${TMPFILE}" &&
+
+sudo apt-get update &&
+sudo apt-get install owncloud &&
+
+
+# Configure nginx
+
+CONF="${DIR}/owncloud-nginx-template" &&
+CONF_TARGET='/etc/nginx/sites-enabled/owncloud' &&
 
 TMPFILE="$(mktemp)" &&
 cp "${CONF}" "${TMPFILE}" &&
@@ -18,27 +41,8 @@ sed -i "s/@@@@@2@@@@@/${SERVER_NAME}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
-rm "${TMPFILE}"
+rm "${TMPFILE}" &&
 
-WEB_ROOT='/var/www'
-OWNCLOUD_DIR="${WEB_ROOT}/owncloud"
-
-if [ ! -d "${OWNCLOUD_DIR}" ]; then
-    sudo mkdir -p "${WEB_ROOT}" &&
-    sudo chown www-data:www-data "${WEB_ROOT}" &&
-    sudo chmod go-rwx "${WEB_ROOT}" &&
-
-    TMPDIR="$(mktemp -d)" &&
-    TAR_FILE="${TMPDIR}/owncloud.tar.bz2" &&
-    cd "${TMPDIR}" &&
-    wget -O "${TAR_FILE}" http://download.owncloud.org/community/testing/owncloud-7.0.0RC3.tar.bz2 &&
-    tar -xf "${TAR_FILE}" &&
-    sudo cp -a "${TMPDIR}/owncloud" "${OWNCLOUD_DIR}" &&
-    sudo chown -R www-data:www-data "${OWNCLOUD_DIR}" &&
-    sudo chmod -R go-rwx "${OWNCLOUD_DIR}" &&
-    cd &&
-    rm -r "${TMPDIR}"
-fi
 
 echo &&
 echo "Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key"
