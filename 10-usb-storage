@@ -38,5 +38,6 @@ read &&
 sudo nano /etc/fstab &&
 
 echo "Make sure you create a folder with appropriate permissions on that partition, for owncloud to use" &&
+echo "On ext4, the easiest way is just to have a folder owned by www-data (on NTFS no permissions are being used, so it can be owned by anyone)" &&
 echo &&
 echo "Reboot now, before configuring owncloud"

@@ -48,7 +48,7 @@ cat <<EOF
 
 Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
 
-To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier
+To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier. The data directory should be /mnt/owncloud-primary/<wherever you want to store it>.
 
 Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
 
