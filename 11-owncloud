@@ -26,7 +26,7 @@ sudo apt-key add - < "${TMPFILE}" &&
 rm "${TMPFILE}" &&
 
 sudo apt-get update &&
-sudo apt-get install owncloud &&
+sudo apt-get -y install owncloud &&
 
 
 # Configure nginx
@@ -44,5 +44,30 @@ sudo chmod a=r "${CONF_TARGET}" &&
 rm "${TMPFILE}" &&
 
 
-echo &&
-echo "Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key"
+cat <<EOF
+
+Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
+
+To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier
+
+Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
+
+[Remote Shares]
+Untick 'Allow other instances to mount public links shared from this server' -- there won't be any public links...
+
+[Cron]
+Tick 'cron'
+
+[Sharing]
+Untick 'Allow users to share via link'
+Untick 'Allow resharing'
+
+[Security]
+Tick 'Enforce HTTPS'
+
+[Email Server]
+From address: owncloud@<whatever hostname you entered in script 04-email>
+
+
+Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
+EOF
