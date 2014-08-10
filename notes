@@ -1,0 +1,8 @@
+to purge an owncloud installation:
+sudo apt-get remove owncloud
+sudo rm -rf /var/www/owncloud
+
+in mysql --user=root --password=<whatever>:
+   drop database owncloud;
+
+remove the mount entry from fstab, if desired
