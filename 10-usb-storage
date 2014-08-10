@@ -28,9 +28,11 @@ echo &&
 echo "Take a note of the UUID of the partition you want to store owncloud's data on" &&
 echo "You now need to edit /etc/fstab to mount the partition" &&
 echo "The correct format for an ext4 partition is:" &&
-echo "UUID=<UUID>    /mnt/owncloud-primary    ext4    defaults,sync,noatime,nofail    0    0" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    ext4    defaults,sync,noatime,nofail    0    2" &&
 echo "The correct format for an NTFS partition is:" &&
-echo "UUID=<UUID>    /mnt/owncloud-primary    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),sync,noatime,nofail    0    0" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),sync,noatime,nofail    0    2" &&
+echo "The correct format for a FAT partition is:" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    vfat    defaults,uid=$(id -u www-data),gid=$(id -g www-data),noatime,nofail    0    2" &&
 echo &&
 echo "Press enter to edit the fstab..."
 read &&
