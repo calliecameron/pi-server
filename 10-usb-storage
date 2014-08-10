@@ -63,7 +63,7 @@ if yn_n "Is the partition used by owncloud on a spinning disk? (i.e. should it b
     read DRIVE &&
     TMPFILE="$(mktemp)" &&
     cp "${HDPARM_CONF_SRC}" "${TMPFILE}" &&
-    sed -i "s/@@@@@1@@@@@/${DRIVE}/g" "${TMPFILE}" &&
+    sed -i "s|@@@@@1@@@@@|${DRIVE}|g" "${TMPFILE}" &&
     sudo cp "${TMPFILE}" "${HDPARM_CONF_DST}" &&
     sudo chown root:root "${HDPARM_CONF_DST}" &&
     sudo chmod go-wx "${HDPARM_CONF_DST}" &&
