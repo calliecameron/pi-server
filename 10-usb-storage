@@ -53,14 +53,21 @@ read &&
 sudo nano /etc/fstab &&
 
 echo &&
-HD_SPINDOWN_SRC="${DIR}/hd-spindown" &&
-HD_SPINDOWN_DST='/etc/network/if-up.d/hd-spindown' &&
-sudo rm -f "${HD_SPINDOWN_DST}" &&
+HDPARM_CONF_SRC="${DIR}/hdparm-conf-template" &&
+HDPARM_CONF_DST='/etc/hdparm.conf' &&
+
+sudo rm -f "${HDPARM_CONF_DST}" &&
 
 if yn_n "Is the partition used by owncloud on a spinning disk? (i.e. should it be spun down when idle?)"; then
-    sudo cp "${HD_SPINDOWN_SRC}" "${HD_SPINDOWN_DST}" &&
-    sudo chown root:root "${HD_SPINDOWN_DST}" &&
-    sudo chmod go-rwx "${HD_SPINDOWN_DST}"
+    echo "Which device will the drive be? Usually /dev/sda: " &&
+    read DRIVE &&
+    TMPFILE="$(mktemp)" &&
+    cp "${HDPARM_CONF_SRC}" "${TMPFILE}" &&
+    sed -i "s/@@@@@1@@@@@/${DRIVE}/g" "${TMPFILE}" &&
+    sudo cp "${TMPFILE}" "${HDPARM_CONF_DST}" &&
+    sudo chown root:root "${HDPARM_CONF_DST}" &&
+    sudo chmod go-wx "${HDPARM_CONF_DST}" &&
+    rm "${TMPFILE}"
 fi
 
 echo "Make sure you create a folder with appropriate permissions on that partition, for owncloud to use" &&
