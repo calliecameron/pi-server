@@ -8,6 +8,14 @@ read HTTPS_PORT &&
 printf "Enter the fully-qualified domain name (or IP address, for testing) on which this server will be accessed: " &&
 read SERVER_NAME &&
 
+printf "Enter the relative path under /mnt/owncloud-primary where data should be stored: " &&
+read OWNCLOUD_PATH &&
+
+OWNCLOUD_FULL_PATH="/mnt/owncloud-primary/${OWNCLOUD_PATH}" &&
+sudo mkdir -p "${OWNCLOUD_FULL_PATH}" &&
+sudo chown www-data:www-data "${OWNCLOUD_FULL_PATH}" &&
+sudo chmod o-rwx "${OWNCLOUD_FULL_PATH}" &&
+
 
 # Install owncloud
 APT_SRC="${DIR}/owncloud.list" &&
@@ -44,11 +52,12 @@ sudo chmod a=r "${CONF_TARGET}" &&
 rm "${TMPFILE}" &&
 
 
-cat <<EOF
+TMPFILE="$(mktemp)" &&
+cat >"${TMPFILE}" && <<EOF
 
 Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
 
-To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier. The data directory should be /mnt/owncloud-primary/<wherever you want to store it>.
+To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier. The database user is 'ownclouduser', the database name is 'owncloud', and the password is whatever you chose. The data directory should be ${OWNCLOUD_FULL_PATH}.
 
 Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
 
@@ -74,3 +83,6 @@ Go to the menu, select 'personal', and fill in the email address field with the 
 
 Go to apps, enable the 'external storage' app, then go back to admin and configure it (TODO...)
 EOF
+
+less "${TMPFILE}" &&
+rm "${TMPFILE}"
