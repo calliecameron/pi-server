@@ -51,6 +51,8 @@ sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
 rm "${TMPFILE}" &&
 
+sudo service php5-fpm restart &&
+sudo service nginx restart &&
 
 TMPFILE="$(mktemp)" &&
 cat >"${TMPFILE}" <<EOF
