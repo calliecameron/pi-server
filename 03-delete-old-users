@@ -15,7 +15,6 @@ function remove-if-exists()
 
 remove-if-exists pi &&
 remove-if-exists games &&
-remove-if-exists lp &&
 remove-if-exists mail &&
 remove-if-exists news &&
 remove-if-exists uucp &&
@@ -47,5 +46,6 @@ lockout nobody &&
 lockout libuuid &&
 lockout sshd &&
 lockout ntp &&
+lockout lp &&
 
 echo "Remove all references to user 'pi' from /etc/sudoers"
