@@ -1,5 +1,5 @@
-quiet 
+quiet
 
 @@@@@1@@@@@ {
-    spindown_time = 3
+    spindown_time = 242
 }
