@@ -2,6 +2,18 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+function yn_n()
+{
+    # N is the default
+    local REPLY
+    read -p "${1} [y/N] " -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
 # Configure automatic mounting of drives inserted at runtime
 USBMOUNT_CONF='/etc/usbmount/usbmount.conf' &&
 WWW_UID="$(id -u www-data)" &&
@@ -29,17 +41,29 @@ echo "Take a note of the UUID of the partition you want to store owncloud's data
 echo "You now need to edit /etc/fstab to mount the partition" &&
 echo "The correct format for an ext4 partition is:" &&
 echo "UUID=<UUID>    /mnt/owncloud-primary    ext4    defaults,sync,noatime,nofail    0    2" &&
+echo "with the owncloud directory permissions: chmod go-rwx" &&
 echo "The correct format for an NTFS partition is:" &&
-echo "UUID=<UUID>    /mnt/owncloud-primary    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),sync,noatime,nofail    0    2" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,sync,noatime,nofail    0    2" &&
 echo "The correct format for a FAT partition is:" &&
-echo "UUID=<UUID>    /mnt/owncloud-primary    vfat    defaults,uid=$(id -u www-data),gid=$(id -g www-data),noatime,nofail    0    2" &&
+echo "UUID=<UUID>    /mnt/owncloud-primary    vfat    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,noatime,nofail    0    2" &&
 echo &&
 echo "Press enter to edit the fstab..."
 read &&
 
 sudo nano /etc/fstab &&
 
+echo &&
+HD_SPINDOWN_SRC="${DIR}/hd-spindown" &&
+HD_SPINDOWN_DST='/etc/network/if-up.d/hd-spindown' &&
+sudo rm -f "${HD_SPINDOWN_DST}" &&
+
+if yn_n "Is the partition used by owncloud on a spinning disk? (i.e. should it be spun down when idle?)"; then
+    sudo cp "${HD_SPINDOWN_SRC}" "${HD_SPINDOWN_DST}" &&
+    sudo chown root:root "${HD_SPINDOWN_DST}" &&
+    sudo chmod go-rwx "${HD_SPINDOWN_DST}"
+fi
+
 echo "Make sure you create a folder with appropriate permissions on that partition, for owncloud to use" &&
-echo "On ext4, the easiest way is just to have a folder owned by www-data (on NTFS no permissions are being used, so it can be owned by anyone)" &&
+echo "On ext4, the easiest way is just to have a folder owned by www-data, chmod go-rwx. On NTFS or FAT, no permissions are being used, so it can be owned by anyone." &&
 echo &&
 echo "Reboot now, before configuring owncloud"
