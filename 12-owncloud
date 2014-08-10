@@ -53,7 +53,7 @@ rm "${TMPFILE}" &&
 
 
 TMPFILE="$(mktemp)" &&
-cat >"${TMPFILE}" && <<EOF
+cat >"${TMPFILE}" <<EOF
 
 Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
 
