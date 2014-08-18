@@ -1,11 +1,9 @@
 server {
-    listen @@@@@1@@@@@ ssl;
-    server_name @@@@@2@@@@@;
+    listen 443 ssl;
+    server_name @@@@@1@@@@@;
 
-    ssl_certificate /etc/nginx/@@@@@2@@@@@.crt;
-    ssl_certificate_key /etc/nginx/@@@@@2@@@@@.key;
-#    ssl_client_certificate /etc/nginx/ca.crt;
-#    ssl_verify_client on;
+    ssl_certificate /etc/nginx/@@@@@1@@@@@.crt;
+    ssl_certificate_key /etc/nginx/@@@@@1@@@@@.key;
 
     root /var/www/owncloud;
 

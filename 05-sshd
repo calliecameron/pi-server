@@ -8,9 +8,7 @@ if [ ! -e '/etc/ssh/authorized_keys' ]; then
 fi
 
 SSH_CONFIG='/etc/ssh/sshd_config'
-
-printf "Enter port for SSH (usually 22): " &&
-read SSH_PORT &&
+SSH_PORT='22' &&
 
 # Generate new host keys
 sudo rm -f /etc/ssh/ssh_host_* &&
@@ -26,14 +24,12 @@ fi
 
 # Setup server config
 TMPFILE="$(mktemp)" &&
-TMPFILE2="$(mktemp)" &&
-sed "s/@@@@@1@@@@@/$(id -un)/g" < "${DIR}/sshd-config-template" > "${TMPFILE}" &&
-sed "s/@@@@@2@@@@@/${SSH_PORT}/g" < "${TMPFILE}" > "${TMPFILE2}" &&
-sudo cp "${TMPFILE2}" "${SSH_CONFIG}" &&
+cp "${DIR}/sshd-config-template" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/$(id -un)/g" < "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
 sudo chown root:root "${SSH_CONFIG}" &&
 sudo chmod a=r "${SSH_CONFIG}" &&
 rm "${TMPFILE}" &&
-rm "${TMPFILE2}" &&
 sudo chown root:root /etc/ssh/authorized_keys &&
 sudo chmod go-wx /etc/ssh/authorized_keys &&
 
@@ -47,5 +43,12 @@ PAM_STRING="session optional pam_exec.so seteuid ${EMAIL_ON_LOGIN}" &&
 if ! grep "${PAM_STRING}" /etc/pam.d/sshd; then
     echo "${PAM_STRING}" | sudo tee -a /etc/pam.d/sshd >/dev/null
 fi
+
+# Avahi daemon for local name resolution
+AVAHI_SRC="${DIR}/avahi-daemon.conf" &&
+AVAHI_DST='/etc/avahi/avahi-daemon.conf' &&
+sudo cp "${AVAHI_SRC}" "${AVAHI_DST}" &&
+sudo chown root:root "${AVAHI_DST}" &&
+sudo chmod a=r "${AVAHI_DST}" &&
 
 echo "Reboot now and make sure you can still log in! (You'll need to delete known_hosts on the client because the host keys have changed.)"

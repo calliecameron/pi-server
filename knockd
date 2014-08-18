@@ -1,2 +1,0 @@
-START_KNOCKD=1
-KNOCKD_OPTS="-D -i @@@@@1@@@@@"

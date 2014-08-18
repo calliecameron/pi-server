@@ -2,11 +2,7 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-printf "Enter the HTTPS port for OwnCloud (usually 443, but must match the one set in the firewall script): " &&
-read HTTPS_PORT &&
-
-printf "Enter the fully-qualified domain name (or IP address, for testing) on which this server will be accessed: " &&
-read SERVER_NAME &&
+SERVER_NAME="$(hostname).local" &&
 
 printf "Enter the relative path under /mnt/owncloud-primary where data should be stored: " &&
 read OWNCLOUD_PATH &&
@@ -44,8 +40,7 @@ CONF_TARGET='/etc/nginx/sites-enabled/owncloud' &&
 
 TMPFILE="$(mktemp)" &&
 cp "${CONF}" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/${HTTPS_PORT}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/${SERVER_NAME}/g" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${SERVER_NAME}/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${CONF_TARGET}" &&
 sudo chown root:root "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
@@ -59,7 +54,7 @@ cat >"${TMPFILE}" <<EOF
 
 Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
 
-To configure owncloud, go to https://${SERVER_NAME}:${HTTPS_PORT}, create an admin user, and setup the database as MySQL using the credentials created earlier. The database user is 'ownclouduser', the database name is 'owncloud', and the password is whatever you chose. The data directory should be ${OWNCLOUD_FULL_PATH}.
+To configure owncloud, go to https://${SERVER_NAME}, create an admin user, and setup the database as MySQL using the credentials created earlier. The database user is 'ownclouduser', the database name is 'owncloud', and the password is whatever you chose. The data directory should be ${OWNCLOUD_FULL_PATH}.
 
 Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
 

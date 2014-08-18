@@ -1,5 +1,5 @@
 Protocol 2
-Port @@@@@2@@@@@
+Port 22
 
 AllowUsers @@@@@1@@@@@
 
@@ -23,3 +23,5 @@ HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
 AuthorizedKeysFile /etc/ssh/authorized_keys
+
+Subsystem sftp /usr/lib/openssh/sftp-server
