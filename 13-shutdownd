@@ -1,0 +1,37 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+NEW_USER='shutdownd'
+
+if ! grep "${NEW_USER}" '/etc/passwd' &>/dev/null; then
+    sudo adduser --disabled-login --no-create-home --shell /usr/sbin/nologin --gecos shutdownd "${NEW_USER}"
+fi
+
+sudo passwd -l "${NEW_USER}" &&
+sudo chsh -s /usr/sbin/nologin "${NEW_USER}" &&
+
+SCRIPT_DIR='/etc/shutdownd' &&
+SCRIPT_SRC="${DIR}/shutdownd" &&
+SCRIPT_DST="${SCRIPT_DIR}/shutdownd" &&
+sudo mkdir -p "${SCRIPT_DIR}" &&
+sudo cp "${SCRIPT_SRC}" "${SCRIPT_DST}" &&
+sudo chown "${NEW_USER}:${NEW_USER}" "${SCRIPT_DST}" &&
+sudo chmod u=rx "${SCRIPT_DST}" &&
+sudo chmod go-rwx "${SCRIPT_DST}" &&
+
+SUDOERS_SRC="${DIR}/sudoers-shutdownd-template" &&
+SUDOERS_DST='/etc/sudoers.d/shutdownd' &&
+TMPFILE="$(mktemp)" &&
+cp "${SUDOERS_SRC}" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/$(hostname)/g" "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${SUDOERS_DST}" &&
+sudo chown root:root "${SUDOERS_DST}" &&
+sudo chmod ug=r "${SUDOERS_DST}" &&
+sudo chmod o-rwx "${SUDOERS_DST}" &&
+rm "${TMPFILE}" &&
+
+SUPERVISOR_SRC="${DIR}/supervisor-shutdownd" &&
+SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd' &&
+sudo cp "${SUPERVISOR_SRC}" "${SUPERVISOR_DST}" &&
+sudo chown root:root "${SUPERVISOR_DST}" &&
+sudo chmod a=r "${SUPERVISOR_DST}"

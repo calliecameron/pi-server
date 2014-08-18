@@ -1,0 +1,2 @@
+shutdownd @@@@@1@@@@@ = (root) NOPASSWD: /sbin/shutdown
+shutdownd @@@@@1@@@@@ = (root) NOPASSWD: /sbin/reboot

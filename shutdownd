@@ -1,0 +1,34 @@
+#!/usr/bin/env python
+
+import BaseHTTPServer
+import subprocess
+import sys
+
+class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
+    def respond_success(self, title, message):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write("<html><head><title>%s</title></head><body>%s</body></html>" % (title, message))
+
+    def respond_fail(self):
+        self.send_response(404)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write("<html><head><title>Unknown Request</title></head><body>Unknown request</body></html>")
+
+    def do_GET(self):
+        if self.path == "/shutdown":
+            self.respond_success("Shutting down the Raspberry Pi", "<p>Shutting down the Raspberry Pi...</p><p>When all the lights are off except the red one, it's safe to turn it off at the plug.</p><p>To start it up again, turn it off and on at the plug.</p>")
+            subprocess.call(["sudo", "shutdown", "-h", "now"])
+            sys.exit(0)
+        elif self.path == "/reboot":
+            self.respond_success("Rebooting the Raspberry Pi", "<p>Rebooting the Raspberry Pi...</p><p>This takes a few minutes.</p>")
+            subprocess.call(["sudo", "reboot"])
+            sys.exit(0)
+        else:
+            self.respond_fail()
+
+server_address = ('', 23145)
+httpd = BaseHTTPServer.HTTPServer(server_address, Responder)
+httpd.serve_forever()
