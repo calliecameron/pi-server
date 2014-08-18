@@ -31,7 +31,7 @@ sudo chmod o-rwx "${SUDOERS_DST}" &&
 rm "${TMPFILE}" &&
 
 SUPERVISOR_SRC="${DIR}/supervisor-shutdownd" &&
-SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd' &&
+SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf' &&
 sudo cp "${SUPERVISOR_SRC}" "${SUPERVISOR_DST}" &&
 sudo chown root:root "${SUPERVISOR_DST}" &&
 sudo chmod a=r "${SUPERVISOR_DST}"
