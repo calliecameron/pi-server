@@ -2,12 +2,17 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-if [ ! -e '/etc/ssh/authorized_keys' ]; then
-    echo "No SSH keys are authorised for login in /etc/ssh/authorized_keys; not going any further!"
+KEYS='/etc/ssh/authorized_keys'
+
+if [ ! -e "${KEYS}" ]; then
+    echo "No SSH keys are authorised for login in ${KEYS}; not going any further!"
     exit 1
 fi
 
-SSH_CONFIG='/etc/ssh/sshd_config'
+sudo chown root:root "${KEYS}" &&
+sudo chmod a=r "${KEYS}" &&
+
+SSH_CONFIG='/etc/ssh/sshd_config' &&
 SSH_PORT='22' &&
 
 # Generate new host keys
@@ -30,8 +35,6 @@ sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
 sudo chown root:root "${SSH_CONFIG}" &&
 sudo chmod a=r "${SSH_CONFIG}" &&
 rm "${TMPFILE}" &&
-sudo chown root:root /etc/ssh/authorized_keys &&
-sudo chmod go-wx /etc/ssh/authorized_keys &&
 
 # Email on login
 EMAIL_ON_LOGIN='/etc/ssh/ssh-email-on-login' &&
