@@ -2,7 +2,7 @@
 
 sudo apt-get -y install dialog &&
 
-sudo apt-get -y remove --purge --auto-remove x11-common alsa-base alsa-utils cifs-utils dbus desktop-file-utils fontconfig fonts-freefont-ttf gconf2-common gnome-themes-standard-data gsfonts gsfonts-x11 java-common libasound2 libxdmcp6 libxfont1 lxde-icon-theme menu-xdg nfs-common samba-common smbclient v4l-utils whiptail xdg-utils xfonts-utils xkb-data fbset ncdu parted build-essential debconf-utils gdb linux-libc-dev pkg-config debian-reference-en info install-info lua5.1 plymouth python3-numpy python-serial python3-serial dpkg-dev make cpp libwibble-dev &&
+sudo apt-get -y remove --purge --auto-remove x11-common alsa-base alsa-utils cifs-utils desktop-file-utils fontconfig fonts-freefont-ttf gconf2-common gnome-themes-standard-data gsfonts gsfonts-x11 java-common libasound2 libxdmcp6 libxfont1 lxde-icon-theme menu-xdg nfs-common samba-common smbclient v4l-utils whiptail xdg-utils xfonts-utils xkb-data fbset ncdu parted build-essential debconf-utils gdb linux-libc-dev pkg-config debian-reference-en info install-info lua5.1 plymouth python3-numpy python-serial python3-serial dpkg-dev make cpp libwibble-dev +fontconfig-config +libfontconfig1 +libgd2-xpm +libjpeg8 +libx11-6 +libx11-data +libxau6 +libxcb1 +libxdmcp6 +libxpm4 +php5-gd +ttf-dejavu-core &&
 
 # Make sure this is a real pi (and not a debian VM for testing)
 if [ "$(uname -m)" = 'armv6l' ]; then
