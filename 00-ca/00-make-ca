@@ -14,18 +14,44 @@ test -e "${1}" && usage
 
 CA_DIR="${1}"
 
+
+printf "Enter the new password for the root CA key: " &&
+read -s PASSWD &&
+echo &&
+
+printf "Enter the password again to confirm: " &&
+read -s PASSWD2 &&
+echo &&
+
+if [ "${PASSWD}" != "${PASSWD2}" ]; then
+    echo "Error: the passwords do not match"
+    exit 1
+fi
+
+
 mkdir -p "${CA_DIR}" &&
 mkdir -p "${CA_DIR}/ca" &&
 mkdir -p "${CA_DIR}/data" &&
 cp -a "${DIR}/scripts" "${CA_DIR}/scripts" &&
 cp "${DIR}/openssl.conf" "${CA_DIR}/openssl.conf" &&
 touch "${CA_DIR}/data/index.txt" &&
-echo 0 > "${CA_DIR}/data/serial.txt" &&
+echo 00 > "${CA_DIR}/data/serial.txt" &&
+chmod -R go-rwx "${CA_DIR}" &&
 
 export CA_DIR &&
-openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM &&
+
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3 &&
+
 chmod u=r "${CA_DIR}/ca/ca.crt" "${CA_DIR}/ca/ca.key" &&
 chmod go-rwx "${CA_DIR}/ca/ca.key" &&
-chmod go=r "${CA_DIR}/ca/ca.crt"
+chmod go=r "${CA_DIR}/ca/ca.crt" &&
 
-# openssl ca -config "${CA_DIR}/openssl.conf" -gencrl
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3

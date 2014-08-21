@@ -1,1 +1,46 @@
 #!/bin/bash
+
+export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
+
+printf "Enter the domain name or IP address on which the server's owncloud instance will be accessed: " &&
+read SERVER_ADDR &&
+
+if [ -z "${SERVER_ADDR}" ]; then
+    echo "Server address must not be empty"
+    exit 1
+fi
+
+printf "Enter the password for the root CA key: " &&
+read -s PASSWD &&
+echo &&
+
+CERT_DIR="${CA_DIR}/certs/server/${SERVER_ADDR}__$(date '+%Y_%m_%d_%H_%M_%S')" &&
+mkdir -p "${CERT_DIR}" &&
+
+function do-cert()
+{
+    # Certificate request
+    openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=Callum J. Cameron/CN=${1}" -newkey rsa -keyout "${CERT_DIR}/${2}.key" -out "${CERT_DIR}/${2}.csr" -outform PEM -nodes &&
+
+    # Sign
+    exec 3<<EOF
+${PASSWD}
+EOF
+    openssl ca -config "${CA_DIR}/openssl.conf" -in "${CERT_DIR}/${2}.csr" -out "${CERT_DIR}/${2}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
+
+    # Cleanup
+    rm "${CERT_DIR}/${2}.csr" &&
+    chmod u=r "${CERT_DIR}/${2}.key" "${CERT_DIR}/${2}.crt" &&
+    chmod go=r "${CERT_DIR}/${2}.crt" &&
+    chmod go-rwx "${CERT_DIR}/${2}.key"
+}
+
+do-cert "${SERVER_ADDR}" 'nginx' &&
+do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
+
+
+openssl dhparam -outform PEM -out "${CERT_DIR}/dh2048.pem" 2048 &&
+chmod u=r "${CERT_DIR}/dh2048.pem" &&
+chmod go=r "${CERT_DIR}/dh2048.pem" &&
+cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}" &&
+cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
