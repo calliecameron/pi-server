@@ -20,7 +20,6 @@ remove-if-exists news &&
 remove-if-exists uucp &&
 remove-if-exists irc &&
 remove-if-exists gnats &&
-remove-if-exists messagebus &&
 remove-if-exists statd &&
 remove-if-exists usbmux &&
 remove-if-exists list &&
@@ -47,5 +46,6 @@ lockout libuuid &&
 lockout sshd &&
 lockout ntp &&
 lockout lp &&
+lockout messagebus &&
 
 echo "Remove all references to user 'pi' from /etc/sudoers"
