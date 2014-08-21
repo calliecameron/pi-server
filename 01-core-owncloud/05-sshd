@@ -25,7 +25,7 @@ fi
 # Setup server config
 TMPFILE="$(mktemp)" &&
 cp "${DIR}/sshd-config-template" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/$(id -un)/g" < "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/$(id -un)/g" "${TMPFILE}" &&
 sudo cp "${TMPFILE}" "${SSH_CONFIG}" &&
 sudo chown root:root "${SSH_CONFIG}" &&
 sudo chmod a=r "${SSH_CONFIG}" &&
