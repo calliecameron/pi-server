@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+CONFIG_SRC="${DIR}/openvpn-server.conf" &&
+CONFIG_DST='/etc/openvpn/conf.d/openvpn-server.conf' &&
+
+sudo cp "${CONFIG_SRC}" "${CONFIG_DST}" &&
+sudo chown root:root "${CONFIG_DST}" &&
+sudo chmod u=r "${CONFIG_DST}" &&
+sudo chmod go-rwx "${CONFIG_DST}" &&
+
+echo "Place the server's certificate at /etc/pi-certs/openvpn.crt, the private key at /etc/pi-certs/openvpn.key, and the CA certificate at /etc/pi-certs/ca.crt"

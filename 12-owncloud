@@ -52,7 +52,7 @@ sudo service nginx restart &&
 TMPFILE="$(mktemp)" &&
 cat >"${TMPFILE}" <<EOF
 
-Please place the server's certificate at /etc/nginx/${SERVER_NAME}.crt, and the private key at /etc/nginx/${SERVER_NAME}.key
+Please place the server's certificate at /etc/pi-certs/nginx.crt, the private key at /etc/pi-certs/nginx.key, and the CA certificate at /etc/pi-certs/ca.crt
 
 To configure owncloud, go to https://${SERVER_NAME}, create an admin user, and setup the database as MySQL using the credentials created earlier. The database user is 'ownclouduser', the database name is 'owncloud', and the password is whatever you chose. The data directory should be ${OWNCLOUD_FULL_PATH}.
 
