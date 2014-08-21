@@ -1,0 +1,29 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+function usage()
+{
+    echo "Usage: $(basename "${0}") new_ca_dir"
+    echo "    new_ca_dir must not already exist, and should probably be somewhere encrypted!"
+    exit 1
+}
+
+test -z "${1}" && usage
+test -e "${1}" && usage
+
+CA_DIR="${1}"
+
+mkdir -p "${CA_DIR}" &&
+cp -a "${DIR}/scripts" "${CA_DIR}/scripts" &&
+cp "${DIR}/openssl.conf" "${CA_DIR}/openssl.conf" &&
+touch "${CA_DIR}/index.txt" &&
+echo 0 > "${CA_DIR}/serial.txt" &&
+
+export CA_DIR &&
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca.key" -out "${CA_DIR}/ca.crt" -outform PEM
+# create the folders
+# create the index file (empty), and the serial file (containing a serial number?)
+# req to create the CA cert
+
+# ca to sign certs
