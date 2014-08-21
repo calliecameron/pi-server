@@ -4,6 +4,7 @@ server {
 
     ssl_certificate /etc/pi-certs/nginx.crt;
     ssl_certificate_key /etc/pi-certs/nginx.key;
+    ssl_crl /etc/pi-certs/crl;
 
     root /var/www/owncloud;
 

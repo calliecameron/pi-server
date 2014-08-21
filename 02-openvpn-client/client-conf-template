@@ -1,0 +1,21 @@
+client
+proto udp
+dev tun
+
+ca /etc/pi-certs/ca.crt
+cert /etc/pi-certs/openvpn.crt
+key /etc/pi-certs/openvpn.key
+crl-verify /etc/pi-certs/crl
+
+# Host port
+remote @@@@@1@@@@@ 1194
+
+resolv-retry infinite
+nobind
+user nobody
+group nogroup
+persist-key
+persist-tun
+ns-cert-type server
+comp-lzo
+verb 3

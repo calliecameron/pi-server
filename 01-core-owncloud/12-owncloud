@@ -5,6 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 NGINX_CERT='/etc/pi-certs/nginx.crt'
 NGINX_KEY='/etc/pi-certs/nginx.key'
 CA_CERT='/etc/pi-certs/ca.crt'
+CRL='/etc/pi-certs/crl'
 
 function cert-check()
 {
@@ -13,17 +14,19 @@ function cert-check()
     echo "    Server certificate: ${NGINX_CERT}"
     echo "    Server private key: ${NGINX_KEY}"
     echo "    CA certificate: ${CA_CERT}"
+    echo "    CRL: ${CRL}"
     exit 1
 }
 
 test ! -e "${NGINX_CERT}" && cert-check
 test ! -e "${NGINX_KEY}" && cert-check
 test ! -e "${CA_CERT}" && cert-check
+test ! -e "${CRL}" && cert-check
 
-sudo chown root:root "${NGINX_CERT}" "${NGINX_KEY}" "${CA_CERT}" &&
-sudo chmod u=r "${NGINX_CERT}" "${NGINX_KEY}" "${CA_CERT}" &&
+sudo chown root:root "${NGINX_CERT}" "${NGINX_KEY}" "${CA_CERT}" "${CRL}" &&
+sudo chmod u=r "${NGINX_CERT}" "${NGINX_KEY}" "${CA_CERT}" "${CRL}" &&
 sudo chmod go-rwx "${NGINX_KEY}" &&
-sudo chmod go-wx "${NGINX_CERT}" "${CA_CERT}" &&
+sudo chmod go-wx "${NGINX_CERT}" "${CA_CERT}" "${CRL}" &&
 
 
 SERVER_NAME="$(hostname).local" &&

@@ -4,7 +4,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 OPENVPN_CERT='/etc/pi-certs/openvpn.crt'
 OPENVPN_KEY='/etc/pi-certs/openvpn.key'
-DH='/etc/pi-certs/dh2048.pem'
 CA_CERT='/etc/pi-certs/ca.crt'
 CRL='/etc/pi-certs/crl'
 
@@ -14,7 +13,6 @@ function cert-check()
     echo "Put the certificates at:"
     echo "    Server certificate: ${OPENVPN_CERT}"
     echo "    Server private key: ${OPENVPN_KEY}"
-    echo "    Diffie-Helman parameters: ${DH}"
     echo "    CA certificate: ${CA_CERT}"
     echo "    CRL: ${CRL}"
     exit 1
@@ -22,20 +20,25 @@ function cert-check()
 
 test ! -e "${OPENVPN_CERT}" && cert-check
 test ! -e "${OPENVPN_KEY}" && cert-check
-test ! -e "${DH}" && cert-check
 test ! -e "${CA_CERT}" && cert-check
 test ! -e "${CRL}" && cert-check
 
-sudo chown root:root "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${DH}" "${CA_CERT}" "${CRL}" &&
-sudo chmod u=r "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${DH}" "${CA_CERT}" "${CRL}" &&
+sudo chown root:root "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${CA_CERT}" "${CRL}" &&
+sudo chmod u=r "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${CA_CERT}" "${CRL}" &&
 sudo chmod go-rwx "${OPENVPN_KEY}" &&
-sudo chmod go-wx "${OPENVPN_CERT}" "${CA_CERT}" "${DH}" "${CRL}" &&
+sudo chmod go-wx "${OPENVPN_CERT}" "${CA_CERT}" "${CRL}" &&
 
 
-CONFIG_SRC="${DIR}/openvpn-server.conf" &&
-CONFIG_DST='/etc/openvpn/openvpn-server.conf' &&
+echo "Enter the address of the server to connect to: " &&
+read VPN_SERVER &&
 
-sudo cp "${CONFIG_SRC}" "${CONFIG_DST}" &&
+CONFIG_SRC="${DIR}/client-conf-template" &&
+CONFIG_DST='/etc/openvpn/openvpn-client.conf' &&
+
+TMPFILE="$(mktemp)" &&
+cp "${CONFIG_SRC}" "${TMPFILE}" &&
+sed -i "s/@@@@@1@@@@@/${VPN_SERVER}/g" "${TMPFILE}" &&
+sudo cp "${TMPFILE}" "${CONFIG_DST}" &&
 sudo chown root:root "${CONFIG_DST}" &&
 sudo chmod u=r "${CONFIG_DST}" &&
 sudo chmod go-rwx "${CONFIG_DST}" &&
