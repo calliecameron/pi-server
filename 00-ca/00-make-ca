@@ -15,15 +15,17 @@ test -e "${1}" && usage
 CA_DIR="${1}"
 
 mkdir -p "${CA_DIR}" &&
+mkdir -p "${CA_DIR}/ca" &&
+mkdir -p "${CA_DIR}/data" &&
 cp -a "${DIR}/scripts" "${CA_DIR}/scripts" &&
 cp "${DIR}/openssl.conf" "${CA_DIR}/openssl.conf" &&
-touch "${CA_DIR}/index.txt" &&
-echo 0 > "${CA_DIR}/serial.txt" &&
+touch "${CA_DIR}/data/index.txt" &&
+echo 0 > "${CA_DIR}/data/serial.txt" &&
 
 export CA_DIR &&
-openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca.key" -out "${CA_DIR}/ca.crt" -outform PEM
-# create the folders
-# create the index file (empty), and the serial file (containing a serial number?)
-# req to create the CA cert
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM &&
+chmod u=r "${CA_DIR}/ca/ca.crt" "${CA_DIR}/ca/ca.key" &&
+chmod go-rwx "${CA_DIR}/ca/ca.key" &&
+chmod go=r "${CA_DIR}/ca/ca.crt"
 
-# ca to sign certs
+# openssl ca -config "${CA_DIR}/openssl.conf" -gencrl
