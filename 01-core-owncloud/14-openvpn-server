@@ -40,4 +40,10 @@ sudo chown root:root "${CONFIG_DST}" &&
 sudo chmod u=r "${CONFIG_DST}" &&
 sudo chmod go-rwx "${CONFIG_DST}" &&
 
+EMAIL_SRC="${DIR}/openvpn-email-on-connect" &&
+EMAIL_DST='/etc/openvpn-email-on-connect' &&
+sudo cp "${EMAIL_SRC}" "${EMAIL_DST}" &&
+sudo chown root:root "${EMAIL_DST}" &&
+sudo chmod a=rx "${EMAIL_DST}" &&
+
 sudo service openvpn restart
