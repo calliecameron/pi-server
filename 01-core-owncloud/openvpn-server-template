@@ -7,10 +7,12 @@ cert /etc/pi-certs/openvpn.crt
 key /etc/pi-certs/openvpn.key
 dh /etc/pi-certs/dh2048.pem
 crl-verify /etc/pi-certs/crl
+client-config-dir /etc/openvpn/client-config.d
 
 server @@@@@1@@@@@ 255.255.255.0
 ifconfig-pool-persist /etc/openvpn/ipp.txt
 client-to-client
+push "route @@@@@2@@@@@ 255.255.255.0"
 
 keepalive 10 120
 comp-lzo
@@ -23,3 +25,5 @@ verb 3
 
 script-security 2
 client-connect /etc/openvpn-email-on-connect
+
+config /etc/openvpn/server-to-server-clients

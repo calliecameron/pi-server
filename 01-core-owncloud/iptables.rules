@@ -13,7 +13,7 @@
 -A INPUT -p tcp --dport 23145 -j ACCEPT
 -A INPUT -m state --state RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -j DROP
--A FORWARD -j DROP
+-A FORWARD -j ACCEPT
 -A OUTPUT -j ACCEPT
 COMMIT
 # Completed on Sun Jul  6 13:00:09 2014
