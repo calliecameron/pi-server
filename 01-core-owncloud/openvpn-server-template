@@ -8,7 +8,7 @@ key /etc/pi-certs/openvpn.key
 dh /etc/pi-certs/dh2048.pem
 crl-verify /etc/pi-certs/crl
 
-server 10.8.0.0 255.255.255.0
+server @@@@@1@@@@@ 255.255.255.0
 ifconfig-pool-persist /etc/openvpn/ipp.txt
 client-to-client
 
