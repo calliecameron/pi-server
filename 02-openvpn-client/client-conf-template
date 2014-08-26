@@ -3,12 +3,13 @@ proto udp
 dev tun
 
 ca /etc/pi-certs/ca.crt
-cert /etc/pi-certs/openvpn.crt
-key /etc/pi-certs/openvpn.key
+cert /etc/pi-certs/openvpn-client.crt
+key /etc/pi-certs/openvpn-client.key
 crl-verify /etc/pi-certs/crl
 
 # Host port
 remote @@@@@1@@@@@ 1194
+float
 
 resolv-retry infinite
 nobind

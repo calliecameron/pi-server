@@ -2,8 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-OPENVPN_CERT='/etc/pi-certs/openvpn.crt'
-OPENVPN_KEY='/etc/pi-certs/openvpn.key'
+OPENVPN_CERT='/etc/pi-certs/openvpn-client.crt'
+OPENVPN_KEY='/etc/pi-certs/openvpn-client.key'
 CA_CERT='/etc/pi-certs/ca.crt'
 CRL='/etc/pi-certs/crl'
 
@@ -11,8 +11,8 @@ function cert-check()
 {
     echo "Certificates not present; not going any further"
     echo "Put the certificates at:"
-    echo "    Server certificate: ${OPENVPN_CERT}"
-    echo "    Server private key: ${OPENVPN_KEY}"
+    echo "    Client certificate: ${OPENVPN_CERT}"
+    echo "    Client private key: ${OPENVPN_KEY}"
     echo "    CA certificate: ${CA_CERT}"
     echo "    CRL: ${CRL}"
     exit 1

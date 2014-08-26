@@ -32,7 +32,7 @@ sudo chmod go-rwx "${OPENVPN_KEY}" &&
 sudo chmod go-wx "${OPENVPN_CERT}" "${CA_CERT}" "${DH}" "${CRL}" &&
 
 
-echo "Enter the subnet to be managed by this server (typically a /24 in the 10.x.x.x range). This must be unique to this server to avoid IP address conflicts when doing a server-to-server connection! " &&
+printf "Enter the subnet to be managed by this server (typically a /24 in the 10.x.x.x range). This must be unique to this server to avoid IP address conflicts when doing a server-to-server connection!: " &&
 read SUBNET &&
 
 CONFIG_SRC="${DIR}/openvpn-server-template" &&
