@@ -8,7 +8,7 @@ sudo apt-get -y remove --purge --auto-remove x11-common alsa-base alsa-utils cif
 
 # Make sure this is a real pi (and not a debian VM for testing)
 if [ "$(uname -m)" = 'armv6l' ]; then
-    sudo apt-get -y remove --purge --autoremove omxplayer penguinspuzzle libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork
+    sudo apt-get -y remove --purge --auto-remove omxplayer penguinspuzzle libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork
 fi
 
 sudo tasksel remove desktop &&
