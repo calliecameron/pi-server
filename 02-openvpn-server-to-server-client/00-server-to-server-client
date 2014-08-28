@@ -58,4 +58,7 @@ On the server, add the following lines to /etc/openvpn/server-to-server-clients:
 
 route ${LAN_SUBNET} 255.255.255.0
 push "route ${LAN_SUBNET} 255.255.255.0"
+
+
+Setup routes on both routers directing traffic to the other network through the Pi.
 EOF
