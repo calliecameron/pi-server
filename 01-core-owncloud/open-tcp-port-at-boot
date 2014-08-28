@@ -1,0 +1,26 @@
+#!/bin/bash
+# Set a TCP port to open at boot
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+PORTFILE='/etc/iptables.tcp_open_boot'
+
+function valid_port()
+{
+    if [ ! -z "${1}" ]; then
+        if [[ "${1}" != *[!0-9]* ]]; then
+            if (( "${1}" >= 0 && "${1}" <= 65535 )); then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
+if validPort "${1}"; then
+    if ! "${DIR}/tcp-port-opens-at-boot" "${1}" >/dev/null; then
+        echo "${1}" | sudo tee -a "${PORTFILE}" >/dev/null
+    fi
+else
+    echo 'Invalid port'
+    exit 1
+fi

@@ -1,2 +1,39 @@
-#!/bin/sh
-/sbin/iptables-restore < /etc/iptables.rules
+#!/bin/bash
+# This file runs at boot to initialise the firewall
+
+function valid_port()
+{
+    if [ ! -z "${1}" ]; then
+        if [[ "${1}" != *[!0-9]* ]]; then
+            if (( "${1}" >= 0 && "${1}" <= 65535 )); then
+                return 0
+            fi
+        fi
+    fi
+    return 1
+}
+
+TCPFILE='/etc/iptables.tcp_open_boot'
+UDPFILE='/etc/iptables.udp_open_boot'
+
+/sbin/iptables-restore < '/etc/iptables.rules'
+
+if [ -f "${TCPFILE}" ]; then
+    while read port; do
+        if valid_port "${port}"; then
+            /sbin/iptables -I INPUT -p tcp --dport "${port}" -j ACCEPT
+        fi
+    done < "${TCPFILE}"
+fi
+
+
+if [ -f "${UDPFILE}" ]; then
+    while read port; do
+        if valid_port "${port}"; then
+            /sbin/iptables -I INPUT -p udp --dport "${port}" -j ACCEPT
+        fi
+    done < "${UDPFILE}"
+fi
+
+
+exit 0
