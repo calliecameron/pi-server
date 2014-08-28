@@ -1,4 +1,4 @@
-proto udp
+proto tcp
 port 1194
 dev tun
 
