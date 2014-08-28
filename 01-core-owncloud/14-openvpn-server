@@ -63,8 +63,8 @@ SERV_SERV_DST='/etc/openvpn/server-to-server-clients' &&
 if [ ! -e "${SERV_SERV_DST}" ]; then
     sudo cp "${SERV_SERV_SRC}" "${SERV_SERV_DST}"
 fi
-chown root:root "${SERV_SERV_DST}" &&
-chmod a=r "${SERV_SERV_DST}" &&
+sudo chown root:root "${SERV_SERV_DST}" &&
+sudo chmod a=r "${SERV_SERV_DST}" &&
 
 CCD='/etc/openvpn/client-config.d' &&
 sudo mkdir -p "${CCD}" &&
