@@ -18,7 +18,7 @@ All but FakeInternet will have no valid internet connection during installation.
 
 
 FakeInternet:
-As root: comment out the CD-ROM line in /etc/apt/sources.list, then 'apt-get update; apt-get -y install sudo git; usermod -a -G sudo <real user>'
+As root: comment out the CD-ROM line in /etc/apt/sources.list, then 'apt-get update; apt-get -y install sudo git; usermod -a -G sudo ${REAL_USER}'
 Log back in as the normal user.
 Clone this repository, 'cd pi-server/zz-vm-testing'.
 ./fakeInternet-00-setup.sh
@@ -26,9 +26,19 @@ Reboot.
 
 
 FakeRouter*:
-As root: 'ip route add default via <FakeInternet's addr> dev eth0; echo nameserver 8.8.8.8 > /etc/resolv.conf', then edit /etc/apt/sources.list to match FakeInternet's.
-As root: 'apt-get update; apt-get -y install sudo git; usermod -a -G sudo <real user>'
+As root: 'ip route add default via ${FakeInternet's addr} dev eth0; echo nameserver 8.8.8.8 > /etc/resolv.conf', then edit /etc/apt/sources.list to match FakeInternet's.
+As root: 'apt-get update; apt-get -y install sudo git; usermod -a -G sudo ${REAL_USER}'
 Log back in as the normal user.
 Clone this repository, 'cd pi-server/zz-vm-testing'.
 ./fakeRouter-00-setup.sh
 Reboot.
+
+
+FakePi*:
+As root: 'ip route add default via ${corresponding FakeRouter's addr} dev eth0; echo nameserver 8.8.8.8 > /etc/resolv.conf', then edit /etc/apt/sources.list to match FakeInternet's.
+As root: 'apt-get update; apt-get -y install sudo git; usermod -a -G sudo ${REAL_USER}'
+Log back in as the normal user.
+Clone this repository, 'cd pi-server/zz-vm-testing'.
+./fakePi-00-setup.sh
+Reboot.
+Set the Pi up normally as per 01-core-owncloud
