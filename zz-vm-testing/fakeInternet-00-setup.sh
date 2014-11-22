@@ -6,7 +6,7 @@ sudo apt-get update &&
 sudo apt-get upgrade &&
 sudo apt-get dist-upgrade
 
-if ! grep eth1 /etc/network/interfaces; then
+if ! grep eth1 /etc/network/interfaces &>/dev/null; then
     sudo tee -a /etc/network/interfaces &>/dev/null <<EOF
 
 # The fake internet
