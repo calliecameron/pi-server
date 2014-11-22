@@ -3,10 +3,14 @@
 ip route add default via @@@@@1@@@@@ dev eth0
 sysctl -w net.ipv4.ip_forward=1
 
-iptables -A INPUT -i lo ACCEPT
-ipatbles -A INPUT -i eth1 ACCEPT
-iptables -A FORWARD -i eth1 ACCEPT
-iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
-iptables -A INPUT -j DROP
-iptables -A FORWARD -j DROP
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+if [ ! -e /tmp/fakeRouter.done ]; then
+    iptables -A INPUT -i lo ACCEPT
+    ipatbles -A INPUT -i eth1 ACCEPT
+    iptables -A FORWARD -i eth1 ACCEPT
+    iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    iptables -A INPUT -j DROP
+    iptables -A FORWARD -j DROP
+    iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+
+    touch /tmp/fakeRouter.done
+fi
