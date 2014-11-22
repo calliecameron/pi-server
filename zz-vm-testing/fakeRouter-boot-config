@@ -8,6 +8,7 @@ if [ ! -e /tmp/fakeRouter.done ]; then
     ipatbles -A INPUT -i eth1 -j ACCEPT
     iptables -A FORWARD -i eth1 -j ACCEPT
     iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+    iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
     iptables -A INPUT -j DROP
     iptables -A FORWARD -j DROP
     iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
