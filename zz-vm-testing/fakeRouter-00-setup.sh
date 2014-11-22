@@ -3,10 +3,21 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 sudo apt-get update &&
-sudo apt-get upgrade &&
-sudo apt-get dist-upgrade
+sudo apt-get -y upgrade &&
+sudo apt-get -y dist-upgrade
+
+if ! grep eth1 /etc/network/interfaces &>/dev/null; then
+    sudo tee -a /etc/network/interfaces &>/dev/null <<EOF
+
+# The fake LAN
+allow-hotplug eth1
+iface eth1 inet dhcp
+EOF
+
+fi
 
 
+echo &&
 printf "Enter the address of the default route (FakeInternet): " &&
 read DEFAULT_ROUTE &&
 

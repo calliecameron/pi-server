@@ -3,8 +3,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 sudo apt-get update &&
-sudo apt-get upgrade &&
-sudo apt-get dist-upgrade
+sudo apt-get -y upgrade &&
+sudo apt-get -y dist-upgrade
 
 if ! grep eth1 /etc/network/interfaces &>/dev/null; then
     sudo tee -a /etc/network/interfaces &>/dev/null <<EOF
