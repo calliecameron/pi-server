@@ -1,39 +1,15 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
 
 SSMTP_CONF='/etc/ssmtp/ssmtp.conf'
-NOTIFICATION_DEFAULTS="${DIR}/notification-defaults"
-NOTIFICATION_DEFAULTS_TARGET='/etc/ssmtp/notification-defaults'
+sed-install "${DIR}/ssmtp-conf-template" "${SSMTP_CONF}" "${PI_SERVER_EMAIL_TARGET}" "${PI_SERVER_EMAIL_SMTP}" "${PI_SERVER_FQDN}" &&
+sudo chmod a=r "${SSMTP_CONF}"
+
+
 NOTIFICATION_EMAIL="${DIR}/notification-email"
-NOTIFICATION_EMAIL_TARGET='/etc/ssmtp/notification-email'
-
-printf "Enter the target address for notifications: " &&
-read TARGET_ADDR &&
-printf "Enter the SMTP server to send to (usually your ISP's): " &&
-read SMTP_SERVER &&
-printf "Enter the FQDN of this machine (the value used as the 'from' for emails): " &&
-read FROM_SERVER &&
-
-TMPFILE="$(mktemp)" &&
-cp "${DIR}/ssmtp-conf-template" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/${TARGET_ADDR}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/${SMTP_SERVER}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@3@@@@@/${FROM_SERVER}/g" "${TMPFILE}" &&
-sudo cp "${TMPFILE}" "${SSMTP_CONF}" &&
-sudo chown root:root "${SSMTP_CONF}" &&
-sudo chmod a=r "${SSMTP_CONF}" &&
-rm "${TMPFILE}" &&
-
-TMPFILE="$(mktemp)" &&
-cp "${NOTIFICATION_DEFAULTS}" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/${FROM_SERVER}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/${TARGET_ADDR}/g" "${TMPFILE}" &&
-sudo cp "${TMPFILE}" "${NOTIFICATION_DEFAULTS_TARGET}" &&
-sudo chown root:root "${NOTIFICATION_DEFAULTS_TARGET}" &&
-sudo chmod a=r "${NOTIFICATION_DEFAULTS_TARGET}" &&
-rm "${TMPFILE}" &&
-
-sudo cp "${NOTIFICATION_EMAIL}" "${NOTIFICATION_EMAIL_TARGET}" &&
-sudo chown root:root "${NOTIFICATION_EMAIL_TARGET}" &&
-sudo chmod a=rx "${NOTIFICATION_EMAIL_TARGET}"
+NOTIFICATION_EMAIL_TARGET='/notification-email'
+sed-install "${DIR}/send-notification-email" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" "${PI_SERVER_FROM}" "${PI_SERVER_EMAIL_TARGET}" &&
+sudo chmod a=rx "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}"

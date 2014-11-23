@@ -1,7 +1,8 @@
 #!/bin/bash
 # Send a notification email to the default target address
 
-DEFAULTS_FILE='/etc/ssmtp/notification-defaults'
+FROM_FILE='@@@@@1@@@@@'
+TO_FILE='@@@@@2@@@@@'
 
 function usage()
 {
@@ -12,17 +13,17 @@ function usage()
 test -z "${1}" && usage
 test -z "${2}" && usage
 
-FROM="$(grep -i '^From' "${DEFAULTS_FILE}" | awk '{print $2}')"
-TO="$(grep -i '^To' "${DEFAULTS_FILE}" | awk '{print $2}')"
+FROM="$(cat "${FROM_FILE}")"
+TO="$(cat "${TO_FILE}")"
 
-function no-defaults()
+function no-values()
 {
     echo 'Default values are invalid'
     exit 1
 }
 
-test -z "${FROM}" && no-defaults
-test -z "${TO}" && no-defaults
+test -z "${FROM}" && no-values
+test -z "${TO}" && no-values
 
 ssmtp "${TO}" <<EOF
 From: Notification <notification@${FROM}>
