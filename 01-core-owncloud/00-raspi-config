@@ -10,7 +10,7 @@ sudo dpkg-reconfigure tzdata &&
 
 echo "Select the correct locale when prompted; usually en_GB.UTF-8" &&
 enter-to-continue &&
-sudo dpgk-reconfigure locales &&
+sudo dpkg-reconfigure locales &&
 
 
 if real-pi; then
