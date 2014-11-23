@@ -11,5 +11,5 @@ sudo chmod a=r "${SSMTP_CONF}"
 
 NOTIFICATION_EMAIL="${DIR}/notification-email"
 NOTIFICATION_EMAIL_TARGET='/notification-email'
-sed-install "${DIR}/send-notification-email" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" "${PI_SERVER_FROM}" "${PI_SERVER_EMAIL_TARGET}" &&
+sed-install "${DIR}/send-notification-email" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" "${PI_SERVER_FQDN_FILE}" "${PI_SERVER_EMAIL_TARGET_FILE}" &&
 sudo chmod a=rx "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}"
