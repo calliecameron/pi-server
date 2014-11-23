@@ -40,6 +40,9 @@ export PI_SERVER_ZONEEDIT_PASSWORD_FILE="${PI_SERVER_DIR}/zoneedit-password"
 export PI_SERVER_ZONEEDIT_LOG_FILE="${PI_SERVER_DIR}/zoneedit-last-attempt.log"
 export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_DIR}/zoneedit-config"
 
+export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
+
+
 function real-pi()
 {
     # Is this really a Pi, or is it a Debian VM for testing?
