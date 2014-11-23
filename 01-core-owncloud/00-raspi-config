@@ -4,11 +4,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-echo "Select the correct time zone when prompted; usually 'Europe/London'" &&
+echo "Select the correct time zone when prompted: 'Europe/London'" &&
 enter-to-continue &&
 sudo dpkg-reconfigure tzdata &&
 
-echo "Select the correct locale when prompted; usually en_GB.UTF-8" &&
+echo "Select the correct locale when prompted: en_GB.UTF-8, and nothing else" &&
 enter-to-continue &&
 sudo dpkg-reconfigure locales &&
 
