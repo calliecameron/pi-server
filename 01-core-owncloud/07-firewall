@@ -8,8 +8,7 @@ source "${DIR}/common.bash" &&
 SCRIPT='/etc/network/if-pre-up.d/iptables' &&
 
 sed-install "${DIR}/iptables-rules" "${PI_SERVER_IPTABLES_RULES}" &&
-sudo chmod u=r "${PI_SERVER_IPTABLES_RULES}" &&
-sudo chmod go-rwx "${PI_SERVER_IPTABLES_RULES}" &&
+sudo chmod a=r "${PI_SERVER_IPTABLES_RULES}" &&
 
 sed-install "${DIR}/iptables" "${SCRIPT}" "${PI_SERVER_IPTABLES_TCP_OPEN_BOOT}" "${PI_SERVER_IPTABLES_UDP_OPEN_BOOT}" "${PI_SERVER_IPTABLES_RULES}" &&
 sudo chmod u=rx "${SCRIPT}" &&
