@@ -1,16 +1,20 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
-CONF="${DIR}/nginx.conf"
-CONF_TARGET='/etc/nginx/nginx.conf'
 
-sudo cp "${CONF}" "${CONF_TARGET}" &&
-sudo chown root:root "${CONF_TARGET}" &&
+# Setup generic nginx config (not a specific site)
+CONF_TARGET='/etc/nginx/nginx.conf' &&
+sed-install "${DIR}/nginx.conf" "${CONF_TARGET}" &&
 sudo chmod a=r "${CONF_TARGET}" &&
 
+
+# Delete the pre-installed default site
 sudo rm -f '/etc/nginx/sites-enabled/default' &&
 
+
+# Configure generic php settings
 PHP_INI='/etc/php5/fpm/php.ini' &&
 
 if ! grep '^cgi.fix_pathinfo' "${PHP_INI}" &>/dev/null; then
