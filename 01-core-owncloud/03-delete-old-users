@@ -1,8 +1,11 @@
 #!/bin/bash
 
-THISUSER="$(id -un)"
-if [ "${THISUSER}" = 'pi' ]; then
-    echo "Run this as the new user!"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+if [ "$(id -un)" = 'pi' ]; then
+    echo "Run this as the new user - can't delete 'pi' while still logged in as it!"
     exit 1
 fi
 
@@ -48,4 +51,6 @@ lockout ntp &&
 lockout lp &&
 lockout messagebus &&
 
-echo "Remove all references to user 'pi' from /etc/sudoers"
+echo &&
+echo "Now remove all references to user 'pi' from /etc/sudoers" &&
+enter-to-continue

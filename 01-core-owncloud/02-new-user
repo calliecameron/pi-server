@@ -1,19 +1,16 @@
 #!/bin/bash
 
-function yn_y()
-{
-    # Y is the default
-    local REPLY
-    read -p "${1} [Y/n] " -r
-    if [[ $REPLY =~ ^[Nn]$ ]]; then
-        return 1
-    else
-        return 0
-    fi
-}
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
-printf "Enter new username: " &&
-read USERNAME
+
+if ! real-pi; then
+    echo 'This script does nothing on a fake pi VM, since the proper user was set up during installation.'
+    exit 0
+fi
+
+
+read -p "Enter new username: " USERNAME &&
 
 if id -u "${USERNAME}" &>/dev/null; then
     echo "User already exists"
@@ -22,17 +19,4 @@ fi
 
 sudo adduser "${USERNAME}" &&
 sudo adduser "${USERNAME}" sudo &&
-sudo chmod go-rwx "/home/${USERNAME}" &&
-sudo ecryptfs-migrate-home -u "${USERNAME}" &&
-
-echo &&
-echo "Login as the new user, check the files are readable, then log out again:" &&
-sudo login &&
-
-echo &&
-if yn_y "Were the files readable?"; then
-    sudo rm -rf /home/${USERNAME}.*
-    echo "Now reboot and ssh in as the new user"
-else
-    echo "Follow ecryptfs's instructions and fix things manually before rebooting"
-fi
+sudo chmod go-rwx "/home/${USERNAME}"
