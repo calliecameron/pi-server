@@ -53,7 +53,7 @@ function sed-install()
 
     local i='1'
     while (($#)); do
-        sed -i "s/@@@@@${i}@@@@@/${1}/g" "${TMPFILE}"
+        sed -i "s|@@@@@${i}@@@@@|${1}|g" "${TMPFILE}"
         shift
         i=$(( i + 1 ))
     done
