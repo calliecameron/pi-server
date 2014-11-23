@@ -1,13 +1,16 @@
 #!/bin/bash
 
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
 sudo apt-get update &&
 
 sudo apt-get -y install dialog &&
 
 sudo apt-get -y remove --purge --auto-remove x11-common alsa-base alsa-utils cifs-utils desktop-file-utils fontconfig fonts-freefont-ttf gconf2-common gnome-themes-standard-data gsfonts gsfonts-x11 java-common libasound2 libxdmcp6 libxfont1 lxde-icon-theme menu-xdg nfs-common samba-common smbclient v4l-utils whiptail xdg-utils xfonts-utils xkb-data fbset ncdu parted build-essential debconf-utils gdb linux-libc-dev pkg-config debian-reference-en info install-info lua5.1 plymouth python3-numpy python-serial python3-serial dpkg-dev make cpp libwibble-dev fontconfig-config+ libfontconfig1+ libgd2-xpm+ libjpeg8+ libx11-6+ libx11-data+ libxau6+ libxcb1+ libxdmcp6+ libxpm4+ php5-gd+ ttf-dejavu-core+ avahi-daemon+ ecryptfs-utils+ lsof+ etckeeper+ ssmtp+ apticron+ mysql-server+ mysql-client+ nginx-naxsi+ php5+ php5-fpm+ php5-gd+ php5-sqlite+ php5-mysqlnd+ php5-pgsql+ php-xml-parser+ php5-intl+ php5-mcrypt+ php5-curl+ php5-json+ ntfs-3g+ usbmount+ hdparm+ supervisor+ openvpn+ &&
 
-# Make sure this is a real pi (and not a debian VM for testing)
-if [ "$(uname -m)" = 'armv6l' ]; then
+if real-pi; then
     sudo apt-get -y remove --purge --auto-remove omxplayer penguinspuzzle libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork || exit 1
 fi
 
@@ -19,5 +22,6 @@ sudo apt-get -y dist-upgrade &&
 
 sudo rm -rf /etc/X11 &&
 
+echo &&
 echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
 echo "Reboot at this point to make sure nothing is broken, and also check ps -elf to see what's running"
