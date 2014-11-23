@@ -31,8 +31,10 @@ sudo rm -rf /home/pi &&
 
 function lockout()
 {
-    sudo passwd -l "${1}" &&
-    sudo chsh -s /usr/sbin/nologin "${1}"
+    if id -u "${1}" &>/dev/null; then
+        sudo passwd -l "${1}" &&
+        sudo chsh -s /usr/sbin/nologin "${1}"
+    fi
 }
 
 sudo passwd -l root &&

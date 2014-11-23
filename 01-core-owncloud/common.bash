@@ -9,6 +9,7 @@ function get-pi-server-param()
     fi
 }
 
+
 export PI_SERVER_DIR='/etc/pi-server'
 
 # export PI_SERVER_IP_FILE

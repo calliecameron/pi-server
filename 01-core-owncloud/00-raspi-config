@@ -7,14 +7,17 @@ source "${DIR}/common.bash" &&
 echo "Select the correct time zone when prompted: 'Europe/London'" &&
 enter-to-continue &&
 sudo dpkg-reconfigure tzdata &&
+echo &&
 
 echo "Select the correct locale when prompted: en_GB.UTF-8, and nothing else" &&
 enter-to-continue &&
 sudo dpkg-reconfigure locales &&
+echo &&
 
 echo "Select the correct keyboard layout when prompted: Generic 105-key (Intl) PC, then English (UK)" &&
 enter-to-continue &&
 sudo dpkg-reconfigure keyboard-configuration &&
+echo &&
 
 
 if real-pi; then
