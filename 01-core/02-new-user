@@ -19,6 +19,7 @@ fi
 
 sudo adduser "${USERNAME}" &&
 sudo adduser "${USERNAME}" sudo &&
+sudo adduser "${USERNAME}" plugdev &&
 sudo chmod go-rwx "/home/${USERNAME}" &&
 
 
