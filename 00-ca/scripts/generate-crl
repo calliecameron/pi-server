@@ -1,0 +1,23 @@
+#!/bin/bash
+
+export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
+
+if tty -s; then
+    read -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
+else
+    read PASSWD
+fi
+
+
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3 &&
+
+chmod u=rw "${CA_DIR}/ca/crl" &&
+chmod go=r "${CA_DIR}/ca/crl"
+
+ls -1 "${CA_DIR}/certs/server" | while read line; do
+    cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/server/${line}"
+done
