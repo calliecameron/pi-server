@@ -44,7 +44,7 @@ exec 3<<EOF
 ${PASSWD}
 EOF
 
-openssl req -config "${CA_DIR}/openssl.conf" -x509 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3 &&
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -days 3650 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3 &&
 
 chmod u=r "${CA_DIR}/ca/ca.crt" "${CA_DIR}/ca/ca.key" &&
 chmod go-rwx "${CA_DIR}/ca/ca.key" &&
