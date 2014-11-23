@@ -12,7 +12,13 @@ function get-pi-server-param()
 export PI_SERVER_DIR='/etc/pi-server'
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
+export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
+
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
+export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
+
+export PI_SERVER_EMAIL_TARGET_FILE="${PI_SERVER_DIR}/email-target"
+export PI_SERVER_EMAIL_TARGET="$(get-pi-server-param "${PI_SERVER_EMAIL_TARGET_FILE}")"
 
 
 function real-pi()
