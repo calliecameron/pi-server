@@ -2,26 +2,16 @@
 
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-printf "Enter the certificate's name: " &&
-read CERT_NAME &&
+read -p "Enter the certificate's name (arbitrary, but should be unique and descriptive, i.e. the client's hostname): " CERT_NAME &&
 
 if [ -z "${CERT_NAME}" ]; then
     echo "Certificate name must not be empty"
     exit 1
 fi
 
-printf "Enter the password for the root CA key: " &&
-read -s PASSWD &&
-echo &&
-
-
-printf "Enter the password for the new PKCS#12 file: " &&
-read -s PKCS_PASSWD &&
-echo &&
-
-printf "Enter the new PKCS#12 password again: " &&
-read -s PKCS_PASSWD2 &&
-echo &&
+read -s -p "Enter the password to unlock the root CA key: " PASSWD && echo &&
+read -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo &&
+read -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo &&
 
 if [ "${PKCS_PASSWD}" != "${PKCS_PASSWD2}" ]; then
     echo "The passwords do not match"
@@ -29,8 +19,11 @@ if [ "${PKCS_PASSWD}" != "${PKCS_PASSWD2}" ]; then
 fi
 
 
+# Create directory structure
 CERT_DIR="${CA_DIR}/certs/client/${CERT_NAME}__$(date '+%Y_%m_%d_%H_%M_%S')" &&
 mkdir -p "${CERT_DIR}" &&
+chmod go-rwx "${CERT_DIR}" &&
+
 
 # Certificate request
 openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=Callum J. Cameron/CN=${CERT_NAME}" -newkey rsa -keyout "${CERT_DIR}/${CERT_NAME}.key" -out "${CERT_DIR}/${CERT_NAME}.csr" -outform PEM -nodes &&

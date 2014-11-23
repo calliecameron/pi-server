@@ -14,24 +14,23 @@ test -e "${1}" && usage
 
 CA_DIR="${1}"
 
-
-printf "Enter the new password for the root CA key: " &&
-read -s PASSWD &&
-echo &&
-
-printf "Enter the password again to confirm: " &&
-read -s PASSWD2 &&
-echo &&
+read -s -p "Enter the new password for the root CA key: " PASSWD && echo &&
+read -s -p "Enter the password again to confirm: " PASSWD2 && echo &&
 
 if [ "${PASSWD}" != "${PASSWD2}" ]; then
     echo "Error: the passwords do not match"
     exit 1
+else
+    echo
 fi
 
 
+# Create the directory structure
 mkdir -p "${CA_DIR}" &&
 mkdir -p "${CA_DIR}/ca" &&
 mkdir -p "${CA_DIR}/data" &&
+mkdir -p "${CA_DIR}/certs/server" &&
+mkdir -p "${CA_DIR}/certs/client" &&
 cp -a "${DIR}/scripts" "${CA_DIR}/scripts" &&
 cp "${DIR}/openssl.conf" "${CA_DIR}/openssl.conf" &&
 touch "${CA_DIR}/data/index.txt" &&
@@ -40,6 +39,8 @@ chmod -R go-rwx "${CA_DIR}" &&
 
 export CA_DIR &&
 
+
+# Create the root CA certificate; valid for 10 years
 exec 3<<EOF
 ${PASSWD}
 EOF
@@ -50,8 +51,13 @@ chmod u=r "${CA_DIR}/ca/ca.crt" "${CA_DIR}/ca/ca.key" &&
 chmod go-rwx "${CA_DIR}/ca/ca.key" &&
 chmod go=r "${CA_DIR}/ca/ca.crt" &&
 
+
+# Create the CRL
 exec 3<<EOF
 ${PASSWD}
 EOF
 
-openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3
+openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3 &&
+
+chmod u=rw "${CA_DIR}/ca/crl" &&
+chmod go=r "${CA_DIR}/ca/crl"

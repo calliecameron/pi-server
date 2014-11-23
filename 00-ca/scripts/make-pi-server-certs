@@ -2,20 +2,21 @@
 
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-printf "Enter the domain name or IP address on which the server's owncloud instance will be accessed: " &&
-read SERVER_ADDR &&
+read -p "Enter the IP address on the LAN on which the server's owncloud instance will be accessed (MUST be correct, or nginx will not work!): " SERVER_ADDR &&
 
 if [ -z "${SERVER_ADDR}" ]; then
     echo "Server address must not be empty"
     exit 1
 fi
 
-printf "Enter the password for the root CA key: " &&
-read -s PASSWD &&
-echo &&
+read -s -p "Enter the password for the root CA key: " PASSWD && echo &&
 
+
+# Create directory structure
 CERT_DIR="${CA_DIR}/certs/server/${SERVER_ADDR}__$(date '+%Y_%m_%d_%H_%M_%S')" &&
 mkdir -p "${CERT_DIR}" &&
+chmod go-rwx "${CERT_DIR}" &&
+
 
 function do-cert()
 {
@@ -39,8 +40,9 @@ do-cert "${SERVER_ADDR}" 'nginx' &&
 do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
 
 
+# Diffie-Helman parameters for nginx
 openssl dhparam -outform PEM -out "${CERT_DIR}/dh2048.pem" 2048 &&
-chmod u=r "${CERT_DIR}/dh2048.pem" &&
-chmod go=r "${CERT_DIR}/dh2048.pem" &&
+chmod ugo=r "${CERT_DIR}/dh2048.pem" &&
+
 cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}" &&
 cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
