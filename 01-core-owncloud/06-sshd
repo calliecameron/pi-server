@@ -38,6 +38,7 @@ chmod u=r "${PRIVATE_KEY}" &&
 chmod go-rwx "${PRIVATE_KEY}" &&
 chmod a=r "${PUBLIC_KEY}" &&
 chmod a=r "${KEYS}" &&
+chmod u+w "${KEYS}" &&
 
 
 # Setup server config
