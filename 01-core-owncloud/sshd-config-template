@@ -22,6 +22,5 @@ PrintMotd no
 HostKey /etc/ssh/ssh_host_rsa_key
 HostKey /etc/ssh/ssh_host_dsa_key
 HostKey /etc/ssh/ssh_host_ecdsa_key
-AuthorizedKeysFile /etc/ssh/authorized_keys
 
 Subsystem sftp /usr/lib/openssh/sftp-server
