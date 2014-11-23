@@ -1,39 +1,53 @@
 #!/bin/bash
-# Make zoneedit run when the network goes up
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
-SCRIPT_SRC="${DIR}/zoneedit-at-net-up"
-SCRIPT_DST='/etc/network/if-up.d/zoneedit-at-net-up'
 
-sudo cp "${SCRIPT_SRC}" "${SCRIPT_DST}" &&
-sudo chown root:root "${SCRIPT_DST}" &&
-sudo chmod go-rwx "${SCRIPT_DST}" &&
-sudo chmod u+x "${SCRIPT_DST}" &&
+# Avahi daemon for local name resolution
+AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
+sed-install "${DIR}/avahi-daemon.conf" "${AVAHI_CONF}" &&
+sudo chmod a=r "${AVAHI_CONF}" &&
+
+
+# ZoneEdit boot and cron setup
+SCRIPT='/etc/network/if-up.d/zoneedit-at-net-up'
+sed-install "${DIR}/zoneedit-at-net-up" "${SCRIPT}" "${PI_SERVER_FQDN_FILE}" "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" "${PI_SERVER_ZONEEDIT_LOG_FILE}" &&
+sudo chmod a=rx "${SCRIPT}" &&
 
 if [ ! -e '/etc/cron.hourly/zoneedit-update' ]; then
-    sudo ln -s "${SCRIPT_DST}" '/etc/cron.hourly/zoneedit-update'
+    sudo ln -s "${SCRIPT}" '/etc/cron.hourly/zoneedit-update'
 fi
 
 
-# Config files
-HOST_FILE='zoneedit-host'
-USERNAME_FILE='zoneedit-username'
-PASSWORD_FILE='zoneedit-password'
+# ZoneEdit configuration script
+sed-install "${DIR}/zoneedit-config" "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" &&
+sudo chmod a=rx "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" &&
 
-function doConfigFile()
+
+# Config files
+function do-config-file()
 {
-    if [ ! -e "/etc/${1}" ]; then
-        sudo cp "${DIR}/${1}" "/etc/${1}"
-        sudo chown root:root "/etc/${1}"
-        sudo chmod go-rwx "/etc/${1}"
+    local NAME="${1}"
+    local TARGET="${2}"
+
+    if [ ! -e "${TARGET}" ]; then
+        echo "# The first non-comment line in this file is used as the ${NAME} for boot-time and cron zoneedit. Leave that line blank to disable." | sudo tee "${TARGET}" &>/dev/null
+        sudo chown root:root "${TARGET}"
+        sudo chmod u=rw "${TARGET}"
+        sudo chmod go-rwx "${TARGET}"
     fi
 }
 
-doConfigFile "${HOST_FILE}" &&
-doConfigFile "${USERNAME_FILE}" &&
-doConfigFile "${PASSWORD_FILE}" &&
+do-config-file 'username' "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" &&
+do-config-file 'password' "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" &&
+
+
+# Configuration
+echo "About to configure ZoneEdit" &&
+enter-to-continue &&
+"${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" &&
 
 echo &&
-echo "ZoneEdit settings can be configured with './zoneedit-cron-config'" &&
-echo "Reboot to test the ZoneEdit settings"
+echo "ZoneEdit settings can be configured with '${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}'" &&
+enter-to-continue

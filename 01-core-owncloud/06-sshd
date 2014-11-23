@@ -56,11 +56,5 @@ if ! grep "${PAM_STRING}" /etc/pam.d/sshd; then
 fi
 
 
-# Avahi daemon for local name resolution
-AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
-sed-install "${DIR}/avahi-daemon.conf" "${AVAHI_CONF}" &&
-sudo chmod a=r "${AVAHI_CONF}" &&
-
-
 echo "Reboot now and make sure you can still log in! (You'll need to delete known_hosts on the client because the host keys have changed.)" &&
 enter-to-continue

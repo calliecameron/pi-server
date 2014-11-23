@@ -35,6 +35,10 @@ export PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/open-udp-por
 export PI_SERVER_IPTABLES_TCP_OPENS_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/tcp-port-opens-at-boot"
 export PI_SERVER_IPTABLES_UDP_OPENS_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/udp-port-opens-at-boot"
 
+export PI_SERVER_ZONEEDIT_USERNAME_FILE="${PI_SERVER_DIR}/zoneedit-username"
+export PI_SERVER_ZONEEDIT_PASSWORD_FILE="${PI_SERVER_DIR}/zoneedit-password"
+export PI_SERVER_ZONEEDIT_LOG_FILE="${PI_SERVER_DIR}/zoneedit-last-attempt.log"
+export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_DIR}/zoneedit-config"
 
 function real-pi()
 {

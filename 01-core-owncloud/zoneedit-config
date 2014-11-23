@@ -1,0 +1,7 @@
+#!/bin/bash
+# Configure the boot and cron zoneedit settings
+
+export EDITOR='nano'
+
+sudoedit '@@@@@1@@@@@'
+sudoedit '@@@@@2@@@@@'
