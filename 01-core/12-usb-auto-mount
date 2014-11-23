@@ -1,0 +1,10 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+# Configure automatic mounting of drives inserted at runtime
+USBMOUNT_CONF='/etc/usbmount/usbmount.conf' &&
+sed-install "${DIR}/usbmount-conf-template" "${USBMOUNT_CONF}" "$(id -u www-data)" "$(id -g www-data)" &&
+sudo chmod a=r "${USBMOUNT_CONF}"
