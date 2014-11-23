@@ -1,0 +1,9 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+APTICRON_CONF='/etc/apticron/apticron.conf' &&
+sed-install "${DIR}/apticron-conf-template" "${APTICRON_CONF}" "${PI_SERVER_EMAIL_TARGET}" "$(hostname)" "${PI_SERVER_FQDN}" &&
+sudo chmod a=r "${APTICRON_CONF}"
