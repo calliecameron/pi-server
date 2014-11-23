@@ -19,4 +19,9 @@ fi
 
 sudo adduser "${USERNAME}" &&
 sudo adduser "${USERNAME}" sudo &&
-sudo chmod go-rwx "/home/${USERNAME}"
+sudo chmod go-rwx "/home/${USERNAME}" &&
+
+
+echo &&
+echo "Now log in as the new user (${USERNAME}), clone this repo again, and continue with 03-delete-old-users." &&
+enter-to-continue

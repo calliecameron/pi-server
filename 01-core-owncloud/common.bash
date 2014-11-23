@@ -9,10 +9,10 @@ function get-pi-server-param()
     fi
 }
 
-
 export PI_SERVER_DIR='/etc/pi-server'
 
-# export PI_SERVER_IP_FILE
+export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
+export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 
 
 function real-pi()

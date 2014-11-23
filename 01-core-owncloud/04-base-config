@@ -1,0 +1,38 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+function set-pi-param()
+{
+    local OUTPUT_FILE="${1}"
+    local PROMPT="${2}"
+
+    if [ -z "${OUTPUT_FILE}" ] || [ -z "${PROMPT}" ]; then
+        echo "Bad input to set-pi-param"
+        exit 1
+    fi
+
+    read -p "${PROMPT}" VALUE
+
+    if [ -z "${VALUE}" ]; then
+        echo "Error: ${OUTPUT_FILE} must have a valid value"
+        exit 1
+    fi
+
+    if [ ! -e "${PI_SERVER_DIR}" ]; then
+        sudo mkdir -p "${PI_SERVER_DIR}"
+        sudo chown root:root "${PI_SERVER_DIR}"
+        sudo chmod u=rwx "${PI_SERVER_DIR}"
+        sudo chmod go-w "${PI_SERVER_DIR}"
+    fi
+
+    echo "${VALUE}" | sudo tee "${OUTPUT_FILE}" &>/dev/null
+    sudo chown root:root "${OUTPUT_FILE}"
+    sudo chmod u=rw "${OUTPUT_FILE}"
+    sudo chmod go-wx "${OUTPUT_FILE}"
+}
+
+
+set-pi-param "${PI_SERVER_IP_FILE}" "Enter the server's LAN IP address (MUST be correct, or nothing will work!): "
+set-pi-param "${PI_SERVER_FQDN_FILE}" "Enter the fully-qualified domain name of the server, as visible externally (the address to be managed by ZoneEdit, and also used as the 'From' in any email sent by the server): "
