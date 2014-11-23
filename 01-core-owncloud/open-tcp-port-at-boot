@@ -2,7 +2,7 @@
 # Set a TCP port to open at boot
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-PORTFILE='/etc/iptables.tcp_open_boot'
+PORTFILE='@@@@@1@@@@@'
 
 function valid_port()
 {

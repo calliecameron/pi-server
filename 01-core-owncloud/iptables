@@ -13,10 +13,10 @@ function valid_port()
     return 1
 }
 
-TCPFILE='/etc/iptables.tcp_open_boot'
-UDPFILE='/etc/iptables.udp_open_boot'
+TCPFILE='@@@@@1@@@@@'
+UDPFILE='@@@@@2@@@@@'
 
-/sbin/iptables-restore < '/etc/iptables.rules'
+/sbin/iptables-restore < '@@@@@3@@@@@'
 
 if [ -f "${TCPFILE}" ]; then
     while read port; do

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Test whether a UDP port will be opened at boot
 
-PORTFILE='/etc/iptables.udp_open_boot'
+PORTFILE='@@@@@1@@@@@'
 
 if [ ! -z "${1}" ]; then
     if [ -f "${PORTFILE}" ]; then

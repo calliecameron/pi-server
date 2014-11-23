@@ -27,6 +27,14 @@ export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
 
+export PI_SERVER_IPTABLES_RULES="${PI_SERVER_DIR}/iptables-rules"
+export PI_SERVER_IPTABLES_TCP_OPEN_BOOT="${PI_SERVER_DIR}/iptables-tcp-open-boot"
+export PI_SERVER_IPTABLES_UDP_OPEN_BOOT="${PI_SERVER_DIR}/iptables-udp-open-boot"
+export PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/open-tcp-port-at-boot"
+export PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/open-udp-port-at-boot"
+export PI_SERVER_IPTABLES_TCP_OPENS_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/tcp-port-opens-at-boot"
+export PI_SERVER_IPTABLES_UDP_OPENS_AT_BOOT_SCRIPT="${PI_SERVER_DIR}/udp-port-opens-at-boot"
+
 
 function real-pi()
 {
