@@ -23,5 +23,9 @@ if [ ! -e /tmp/fakeRouter.done ] &&
     iptables -A FORWARD -j DROP
     iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 
+    # Port forward for VPN connection
+    iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 1194 -j DNAT --to @@@@@2@@@@@:1194
+    iptables -I FORWARD -p tcp -d @@@@@2@@@@@ --dport 1194 -j ACCEPT
+
     touch /tmp/fakeRouter.done
 fi
