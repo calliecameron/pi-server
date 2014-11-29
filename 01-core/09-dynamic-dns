@@ -49,5 +49,5 @@ enter-to-continue &&
 "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" &&
 
 echo &&
-echo "ZoneEdit settings can be configured with '${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}'" &&
+echo "ZoneEdit settings can be changed with '${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}'" &&
 enter-to-continue

@@ -2,7 +2,7 @@
 
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-read -p "Enter the IP address on the LAN on which the server's owncloud instance will be accessed (MUST be correct, or nginx will not work!): " SERVER_ADDR &&
+read -p "Enter the IP address on the LAN on which the server's owncloud instance will be accessed (MUST be correct, or owncloud will not work!): " SERVER_ADDR &&
 
 if [ -z "${SERVER_ADDR}" ]; then
     echo "Server address must not be empty"
@@ -36,7 +36,7 @@ EOF
     chmod go-rwx "${CERT_DIR}/${2}.key"
 }
 
-do-cert "${SERVER_ADDR}" 'nginx' &&
+do-cert "${SERVER_ADDR}" 'owncloud' &&
 do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
 
 

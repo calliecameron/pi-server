@@ -1,0 +1,35 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/../../01-core/common.bash" &&
+
+
+read -p "Enter the address of the server to connect to (the externally-visible address; can be a domain name or an IP): " VPN_SERVER &&
+
+if [ -z "${VPN_SERVER}" ]; then
+    echo 'Empty VPN server address; not going any further'
+    exit 1
+fi
+
+
+# Make sure the certs are in place, and have the correct permissions
+CERT_NAME='openvpn-client'
+check-pi-server-cert "OpenVPN client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AUTH}"
+
+
+# Config file
+CONFIG='/etc/openvpn/openvpn-single-client.conf'
+sed-install "${DIR}/openvpn-client-template" "${CONFIG}" \
+            "${PI_SERVER_CA_CERT}" \
+            "$(pi-server-cert "${CERT_NAME}")" \
+            "$(pi-server-key "${CERT_NAME}")" \
+            "${PI_SERVER_CRL}" \
+            "${PI_SERVER_OPENVPN_TLS_AUTH}" \
+            "${VPN_SERVER}" &&
+sudo chmod u=r "${CONFIG}" &&
+sudo chmod go-rwx "${CONFIG}" &&
+
+
+echo 'Will now restart OpenVPN and try to connect' &&
+enter-to-continue &&
+sudo service openvpn restart
