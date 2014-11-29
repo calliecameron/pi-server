@@ -1,0 +1,6 @@
+# Add any server-to-server client-specific stuff here, as directed by
+# the appropriate scripts, e.g. for a client on a LAN subnet of
+# 192.168.4.0/24, add:
+#
+# route 192.168.4.0 255.255.255.0
+# push "route 192.168.4.0 255.255.255.0"

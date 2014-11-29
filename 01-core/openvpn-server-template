@@ -2,19 +2,21 @@ proto tcp
 port 1194
 dev tun
 
-ca /etc/pi-certs/ca.crt
-cert /etc/pi-certs/openvpn.crt
-key /etc/pi-certs/openvpn.key
-dh /etc/pi-certs/dh2048.pem
-crl-verify /etc/pi-certs/crl
-client-config-dir /etc/openvpn/client-config.d
+ca @@@@@1@@@@@
+cert @@@@@2@@@@@
+key @@@@@3@@@@@
+dh @@@@@4@@@@@
+crl-verify @@@@@5@@@@@
+tls-auth @@@@@6@@@@@
+client-config-dir @@@@@7@@@@@
 
-server @@@@@1@@@@@ 255.255.255.0
+server @@@@@8@@@@@ 255.255.255.0
 ifconfig-pool-persist /etc/openvpn/ipp.txt
 client-to-client
-push "route @@@@@2@@@@@ 255.255.255.0"
+push "route @@@@@9@@@@@ 255.255.255.0"
 
 keepalive 10 120
+tls-cipher DHE-RSA-AES256-SHA256
 comp-lzo
 user nobody
 group nogroup
@@ -24,6 +26,6 @@ status /etc/openvpn/openvpn-status.log
 verb 3
 
 script-security 2
-client-connect /etc/openvpn-email-on-connect
+client-connect @@@@@10@@@@@
 
-config /etc/openvpn/server-to-server-clients
+config @@@@@11@@@@@

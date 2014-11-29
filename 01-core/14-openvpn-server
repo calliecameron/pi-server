@@ -1,73 +1,46 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-
-OPENVPN_CERT='/etc/pi-certs/openvpn.crt'
-OPENVPN_KEY='/etc/pi-certs/openvpn.key'
-DH='/etc/pi-certs/dh2048.pem'
-CA_CERT='/etc/pi-certs/ca.crt'
-CRL='/etc/pi-certs/crl'
-
-function cert-check()
-{
-    echo "Certificates not present; not going any further"
-    echo "Put the certificates at:"
-    echo "    Server certificate: ${OPENVPN_CERT}"
-    echo "    Server private key: ${OPENVPN_KEY}"
-    echo "    Diffie-Helman parameters: ${DH}"
-    echo "    CA certificate: ${CA_CERT}"
-    echo "    CRL: ${CRL}"
-    exit 1
-}
-
-test ! -e "${OPENVPN_CERT}" && cert-check
-test ! -e "${OPENVPN_KEY}" && cert-check
-test ! -e "${DH}" && cert-check
-test ! -e "${CA_CERT}" && cert-check
-test ! -e "${CRL}" && cert-check
-
-sudo chown root:root "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${DH}" "${CA_CERT}" "${CRL}" &&
-sudo chmod u=r "${OPENVPN_CERT}" "${OPENVPN_KEY}" "${DH}" "${CA_CERT}" "${CRL}" &&
-sudo chmod go-rwx "${OPENVPN_KEY}" &&
-sudo chmod go-wx "${OPENVPN_CERT}" "${CA_CERT}" "${DH}" "${CRL}" &&
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
 
-printf "Enter the subnet to be managed by this server (typically a /24 in the 10.x.x.x range). This must be unique to this server to avoid IP address conflicts when doing a server-to-server connection!: " &&
-read SUBNET &&
-
-printf "Enter the LAN subnet that this server is on, to be made accessible to the clients. (The config file assumes this is a /24): "
-read LAN_SUBNET &&
+# Make sure the certs are in place, and have the correct permissions
+CERT_NAME='openvpn'
+check-pi-server-cert "OpenVPN server" "${CERT_NAME}" "${PI_SERVER_OPENVPN_DH_PARAMS}" "${PI_SERVER_OPENVPN_TLS_AUTH}"
 
 
-CONFIG_SRC="${DIR}/openvpn-server-template" &&
-CONFIG_DST='/etc/openvpn/openvpn-server.conf' &&
+# Setup the config file
+CONFIG='/etc/openvpn/openvpn-server.conf'
+sed-install "${DIR}/openvpn-server-template" "${CONFIG}" \
+            "${PI_SERVER_CA_CERT}" \
+            "$(pi-server-cert "${CERT_NAME}")" \
+            "$(pi-server-key "${CERT_NAME}")" \
+            "${PI_SERVER_OPENVPN_DH_PARAMS}" \
+            "${PI_SERVER_CRL}" \
+            "${PI_SERVER_OPENVPN_TLS_AUTH}" \
+            "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" \
+            "${PI_SERVER_VPN_NETWORK}" \
+            "${PI_SERVER_LAN_NETWORK}" \
+            "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" \
+            "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" &&
+sudo chmod u=r "${CONFIG}" &&
+sudo chmod go-rwx "${CONFIG}" &&
 
-TMPFILE="$(mktemp)" &&
-cp "${CONFIG_SRC}" "${TMPFILE}" &&
-sed -i "s/@@@@@1@@@@@/${SUBNET}/g" "${TMPFILE}" &&
-sed -i "s/@@@@@2@@@@@/${LAN_SUBNET}/g" "${TMPFILE}" &&
-sudo cp "${TMPFILE}" "${CONFIG_DST}" &&
-sudo chown root:root "${CONFIG_DST}" &&
-sudo chmod u=r "${CONFIG_DST}" &&
-sudo chmod go-rwx "${CONFIG_DST}" &&
-rm "${TMPFILE}" &&
 
-EMAIL_SRC="${DIR}/openvpn-email-on-connect" &&
-EMAIL_DST='/etc/openvpn-email-on-connect' &&
-sudo cp "${EMAIL_SRC}" "${EMAIL_DST}" &&
-sudo chown root:root "${EMAIL_DST}" &&
-sudo chmod a=rx "${EMAIL_DST}" &&
+# Email notifications on login
+sed-install "${DIR}/openvpn-email-on-login" "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" &&
 
-SERV_SERV_SRC="${DIR}/server-to-server-clients" &&
-SERV_SERV_DST='/etc/openvpn/server-to-server-clients' &&
-if [ ! -e "${SERV_SERV_DST}" ]; then
-    sudo cp "${SERV_SERV_SRC}" "${SERV_SERV_DST}"
+
+# Server-to-server client configuration
+if [ ! -e "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" ]; then
+    sed-install "${DIR}/openvpn-server-to-server-clients" "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}"
 fi
-sudo chown root:root "${SERV_SERV_DST}" &&
-sudo chmod a=r "${SERV_SERV_DST}" &&
+sudo chmod a=r "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" &&
 
-CCD='/etc/openvpn/client-config.d' &&
-sudo mkdir -p "${CCD}" &&
-sudo chown root:root "${CCD}" &&
+sudo mkdir -p "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
+sudo chown root:root "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
 
-sudo service openvpn restart
+
+echo 'Reboot now to start OpenVPN' &&
+enter-to-continue

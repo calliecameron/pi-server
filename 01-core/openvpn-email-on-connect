@@ -1,4 +1,0 @@
-#!/bin/sh
-
-/etc/ssmtp/notification-email "OpenVPN connection: ${common_name} from ${trusted_ip}" "Connected at ${time_ascii}" &
-exit 0

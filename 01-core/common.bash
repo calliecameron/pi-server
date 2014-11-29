@@ -14,6 +14,12 @@ export PI_SERVER_DIR='/etc/pi-server'
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
 
+export PI_SERVER_LAN_NETWORK_FILE="${PI_SERVER_DIR}/lan-network-addr"
+export PI_SERVER_LAN_NETWORK="$(get-pi-server-param "${PI_SERVER_LAN_NETWORK_FILE}")"
+
+export PI_SERVER_VPN_NETWORK_FILE="${PI_SERVER_DIR}/vpn-network-addr"
+export PI_SERVER_VPN_NETWORK="$(get-pi-server-param "${PI_SERVER_VPN_NETWORK_FILE}")"
+
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
 
@@ -26,6 +32,7 @@ export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
+export PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/openvpn-email-on-login"
 
 export PI_SERVER_IPTABLES_RULES="${PI_SERVER_DIR}/iptables-rules"
 export PI_SERVER_IPTABLES_TCP_OPEN_BOOT="${PI_SERVER_DIR}/iptables-tcp-open-boot"
@@ -42,6 +49,70 @@ export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_DIR}/zoneedit-config"
 
 export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
 
+export PI_SERVER_CA_CERT="${PI_SERVER_DIR}/ca.crt"
+export PI_SERVER_CRL="${PI_SERVER_DIR}/crl"
+
+export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_DIR}/openvpn-dh2048.pem"
+export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_DIR}/openvpn-tls-auth.key"
+export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-server-to-server-clients"
+export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
+
+function pi-server-cert()
+{
+    echo "${PI_SERVER_DIR}/${1}.crt"
+}
+
+function pi-server-key()
+{
+    echo "${PI_SERVER_DIR}/${1}.key"
+}
+
+function check-pi-server-cert()
+{
+    local NAME="${1}"
+    local CERT="$(pi-server-cert "${2}")"
+    local KEY="$(pi-server-key "${2}")"
+
+    if [ ! -e "${PI_SERVER_CA_CERT}" ] ||
+       [ ! -e "${PI_SERVER_CRL}" ] ||
+       [ ! -e "${CERT}" ] ||
+       [ ! -e "${KEY}" ]; then
+        cat <<EOF
+Certificates are missing; not going any further
+Put the certificates at:
+    CA ceritificate: ${PI_SERVER_CA_CERT}
+    CRL: ${PI_SERVER_CRL}
+    ${1} certificate: ${CERT}
+    ${1} private key: ${KEY}
+EOF
+        exit 1
+    else
+        sudo chown root:root "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}"
+        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}"
+        sudo chmod go-rwx "${KEY}"
+        sudo chmod go-wx "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}"
+    fi
+
+    # Check extra files
+    shift
+    shift
+
+    while (($#)); do
+        if [ ! -e "${1}" ]; then
+            cat <<EOF
+Missing file; not going any further:
+    ${1}
+EOF
+            exit 1
+        else
+            sudo chown root:root "${1}"
+            sudo chmod u=r "${1}"
+            sudo chmod go-rwx "${1}"
+        fi
+
+        shift
+    done
+}
 
 function real-pi()
 {

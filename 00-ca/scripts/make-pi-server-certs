@@ -40,9 +40,10 @@ do-cert "${SERVER_ADDR}" 'nginx' &&
 do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
 
 
-# Diffie-Helman parameters for nginx
-openssl dhparam -outform PEM -out "${CERT_DIR}/dh2048.pem" 2048 &&
-chmod ugo=r "${CERT_DIR}/dh2048.pem" &&
+# Diffie-Helman parameters for OpenVPN
+openssl dhparam -outform PEM -out "${CERT_DIR}/openvpn-dh2048.pem" 2048 &&
+chmod ugo=r "${CERT_DIR}/openvpn-dh2048.pem" &&
 
 cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}" &&
-cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
+cp "${CA_DIR}/ca/crl" "${CERT_DIR}" &&
+cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}"

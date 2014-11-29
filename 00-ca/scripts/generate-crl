@@ -21,3 +21,7 @@ chmod go=r "${CA_DIR}/ca/crl"
 ls -1 "${CA_DIR}/certs/server" | while read line; do
     cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/server/${line}"
 done
+
+ls -1 "${CA_DIR}/certs/client" | while read line; do
+    cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/client/${line}"
+done
