@@ -1,0 +1,35 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+INTERFACES='/etc/network/interfaces'
+WPA_SUPPLICANT_CONF='/etc/wpa_supplicant/wpa_supplicant.conf'
+sed-install "${DIR}/interfaces" "${INTERFACES}" &&
+
+
+read -p "Enter the WiFi network SSID (leave blank to disable WiFi): " SSID &&
+
+if [ ! -z "${SSID}" ]; then
+    read -p "Enter the WiFi network password (assumes WPA2 security; if different, the config file will need to be edited by hand): " PASSWORD &&
+
+    if [ -z "${PASSWORD}" ]; then
+        echo "Error: A WiFi password must be provided"
+        exit 1
+    fi
+
+    exec 3<<EOF
+${PASSWORD}
+EOF
+
+    PSK_LINE="$(wpa_passphrase "${SSID}" <&3 | sed 's/\t//g' | grep '^psk')"
+
+    sed-install "${DIR}/wpa-supplicant-enabled" "${WPA_SUPPLICANT_CONF}" "${SSID}" "${PSK_LINE}"
+else
+    # Disabling WiFi
+    sed-install "${DIR}/wpa-supplicant-disabled" "${WPA_SUPPLICANT_CONF}"
+fi
+
+sudo chmod u=rw "${WPA_SUPPLICANT_CONF}" &&
+sudo chmod go-rwx "${WPA_SUPPLICANT_CONF}"

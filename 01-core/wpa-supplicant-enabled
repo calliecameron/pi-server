@@ -1,0 +1,11 @@
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+
+network={
+       ssid="@@@@@1@@@@@"
+       scan_ssid=1
+       proto=WPA RSN
+       key_mgmt=WPA-PSK
+       pairwise=CCMP TKIP
+       group=CCMP TKIP
+       @@@@@2@@@@@
+}
