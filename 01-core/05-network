@@ -7,6 +7,7 @@ source "${DIR}/common.bash" &&
 INTERFACES='/etc/network/interfaces'
 WPA_SUPPLICANT_CONF='/etc/wpa_supplicant/wpa_supplicant.conf'
 sed-install "${DIR}/interfaces" "${INTERFACES}" &&
+sudo chmod a=r "${INTERFACES}" &&
 
 
 read -p "Enter the WiFi network SSID (leave blank to disable WiFi): " SSID &&
