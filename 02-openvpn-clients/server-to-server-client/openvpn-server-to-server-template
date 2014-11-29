@@ -2,13 +2,14 @@ client
 proto tcp
 dev tun
 
-ca /etc/pi-certs/ca.crt
-cert /etc/pi-certs/openvpn-client.crt
-key /etc/pi-certs/openvpn-client.key
-crl-verify /etc/pi-certs/crl
+ca @@@@@1@@@@@
+cert @@@@@2@@@@@
+key @@@@@3@@@@@
+crl-verify @@@@@4@@@@@
+tls-auth @@@@@5@@@@@
 
 # Host port
-remote @@@@@1@@@@@ 1194
+remote @@@@@6@@@@@ 1194
 float
 
 resolv-retry infinite
@@ -18,5 +19,6 @@ group nogroup
 persist-key
 persist-tun
 ns-cert-type server
+tls-cipher DHE-RSA-AES256-SHA
 comp-lzo
 verb 3

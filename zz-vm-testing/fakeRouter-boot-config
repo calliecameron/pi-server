@@ -30,5 +30,10 @@ if [ ! -e /tmp/fakeRouter.done ] &&
     # Route for FakePi's VPN subnet (needed for single-machine clients)
     ip route add @@@@@3@@@@@/24 via @@@@@2@@@@@ dev eth1
 
+    EXTRA_SETUP='/etc/pi-server/fake-router-extra-setup'
+    if [ -e "${EXTRA_SETUP}" ]; then
+        source "${EXTRA_SETUP}"
+    fi
+
     touch /tmp/fakeRouter.done
 fi
