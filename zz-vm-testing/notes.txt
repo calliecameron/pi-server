@@ -9,10 +9,11 @@ Need 7 VMs:
 FakeInternet - Debian, two network interfaces: NAT and vboxnet0
 FakeRouter1 - Debian, two network interfaces: vboxnet0 and vboxnet1
 FakeRouter2 - Debian, two network interfaces: vboxnet0 and vboxnet2
-FakePi1 - Debian, vboxnet1 only; VPN subnet set to 10.0.1.0/24
-FakePi2 - Debian, vboxnet2 only; VPN subnet set to 10.0.2.0/24
-FakeClient1 - a desktop OS, vboxnet1 only
-FakeClient2 - a desktop OS, vboxnet2 only
+FakePi1 - Debian, vboxnet1 only; VPN subnet set to 10.30.1.0/24
+FakePi2 - Debian, vboxnet2 only; VPN subnet set to 10.30.2.0/24
+FakeClient1 - a desktop OS, vboxnet1 only (FakePi1's LAN)
+FakeClient2 - a desktop OS, vboxnet2 only (FakePi2's LAN)
+FakeClient3 - a desktop OS, vboxnet0 only (a client elsewhere on the Internet)
 
 All but FakeInternet will have no valid internet connection during installation. The Debian installations should be command-line only, with only system tools selected during tasksel.
 
