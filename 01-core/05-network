@@ -6,6 +6,7 @@ source "${DIR}/common.bash" &&
 
 INTERFACES='/etc/network/interfaces'
 WPA_SUPPLICANT_CONF='/etc/wpa_supplicant/wpa_supplicant.conf'
+sudo mkdir -p '/etc/wpa_supplicant'
 sed-install "${DIR}/interfaces" "${INTERFACES}" &&
 sudo chmod a=r "${INTERFACES}" &&
 
