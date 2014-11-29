@@ -27,5 +27,8 @@ if [ ! -e /tmp/fakeRouter.done ] &&
     iptables -t nat -A PREROUTING -i eth0 -p tcp --dport 1194 -j DNAT --to @@@@@2@@@@@:1194
     iptables -I FORWARD -p tcp -d @@@@@2@@@@@ --dport 1194 -j ACCEPT
 
+    # Route for FakePi's VPN subnet (needed for single-machine clients)
+    ip route add @@@@@3@@@@@/24 via @@@@@2@@@@@ dev eth1
+
     touch /tmp/fakeRouter.done
 fi
