@@ -1,9 +1,19 @@
 #!/bin/bash
 
-ip route add default via @@@@@1@@@@@ dev eth0
 sysctl -w net.ipv4.ip_forward=1
 
-if [ ! -e /tmp/fakeRouter.done ]; then
+function iface-exists()
+{
+    /sbin/ifconfig -s | grep "${1}"
+}
+
+if [ ! -e /tmp/fakeRouter.done ] &&
+   iface-exists lo &&
+   iface-exists eth0 &&
+   iface-exists eth1; then
+
+    ip route add default via @@@@@1@@@@@ dev eth0
+
     iptables -A INPUT -i lo -j ACCEPT
     ipatbles -A INPUT -i eth1 -j ACCEPT
     iptables -A FORWARD -i eth1 -j ACCEPT
