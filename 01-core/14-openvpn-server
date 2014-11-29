@@ -42,5 +42,8 @@ sudo mkdir -p "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
 sudo chown root:root "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
 
 
+echo "Log in to your router, and setup a static route to ${PI_SERVER_VPN_NETWORK}/24 via ${PI_SERVER_IP}" &&
+enter-to-continue &&
+
 echo 'Reboot now to start OpenVPN' &&
 enter-to-continue
