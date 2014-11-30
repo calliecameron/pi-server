@@ -194,16 +194,16 @@ function get-new-password()
     local PASSWD_2
 
     read -s -p "Enter the ${1}: " PASSWD_1
-    echo
+    echo 1>&2
     if [ -z "${PASSWD_1}" ]; then
-        echo 'Error: password must not be empty'
+        echo 'Error: password must not be empty' 1>&2
         exit 1
     fi
 
     read -s -p 'Enter the new password again: ' PASSWD_2
-    echo
+    echo 1>&2
     if [ "${PASSWD_1}" != "${PASSWD_2}" ]; then
-        echo 'Error: the passwords do not match'
+        echo 'Error: the passwords do not match' 1>&2
         exit 1
     fi
 
