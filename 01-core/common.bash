@@ -10,6 +10,8 @@ function get-pi-server-param()
 }
 
 export PI_SERVER_DIR='/etc/pi-server'
+export PI_SERVER_DATA_MOUNT_DIR='/mnt/data'
+export PI_SERVER_BACKUP_MOUNT_DIR='/mnt/backup'
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
@@ -28,6 +30,18 @@ export PI_SERVER_EMAIL_TARGET="$(get-pi-server-param "${PI_SERVER_EMAIL_TARGET_F
 
 export PI_SERVER_EMAIL_SMTP_FILE="${PI_SERVER_DIR}/email-smtp-server"
 export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}")"
+
+export PI_SERVER_STORAGE_DRIVE_DEV_FILE="${PI_SERVER_DIR}/storage-drive-dev"
+export PI_SERVER_STORAGE_DRIVE_DEV="$(get-pi-server-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}")"
+
+export PI_SERVER_STORAGE_DATA_PARTITION_FILE="${PI_SERVER_DIR}/storage-data-partition"
+export PI_SERVER_STORAGE_DATA_PARTITION="$(get-pi-server-param "${PI_SERVER_STORAGE_DATA_PARTITION}")"
+
+export PI_SERVER_STORAGE_BACKUP_PARTITION_FILE="${PI_SERVER_DIR}/storage-backup-partition"
+export PI_SERVER_STORAGE_BACKUP_PARTITION="$(get-pi-server-param "${PI_SERVER_STORAGE_BACKUP_PARTITION}")"
+
+export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-disk"
+export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
@@ -160,4 +174,38 @@ function yn_y()
     else
         return 0
     fi
+}
+
+function yn_n()
+{
+    # N is the default
+    local REPLY
+    read -p "${1} [y/N] " -r
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+function get-new-password()
+{
+    local PASSWD_1
+    local PASSWD_2
+
+    read -s -p "Enter the ${1}: " PASSWD_1
+    echo
+    if [ -z "${PASSWD_1}" ]; then
+        echo 'Error: password must not be empty'
+        exit 1
+    fi
+
+    read -s -p 'Enter the new password again: ' PASSWD_2
+    echo
+    if [ "${PASSWD_1}" != "${PASSWD_2}" ]; then
+        echo 'Error: the passwords do not match'
+        exit 1
+    fi
+
+    echo "${PASSWD_1}"
 }

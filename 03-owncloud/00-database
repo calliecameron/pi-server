@@ -1,0 +1,33 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+DATABASE_USER_PW="$(get-new-password 'database password to give the newly-created owncloud user')" &&
+read -s -p 'Enter the database root password (created when installing mysql): ' DATABASE_ROOT_PW && echo &&
+
+
+# PHP database configuration
+PHP_CONF='/etc/php5/conf.d/mysql.ini' &&
+sed-install "${DIR}/php-mysql.ini" "${PHP_CONF}" &&
+sudo chmod a=r "${PHP_CONF}" &&
+
+
+# Database configuration
+mysql --user=root "--password=${DATABASE_ROOT_PW}" <<EOF &&
+CREATE DATABASE IF NOT EXISTS ${PI_SERVER_OWNCLOUD_DB};
+GRANT ALL PRIVILEGES ON ${PI_SERVER_OWNCLOUD_DB}.* TO '${PI_SERVER_OWNCLOUD_DB_USER}'@'localhost' IDENTIFIED BY '${DATABASE_USER_PW}';
+EOF
+
+
+echo 'About to restart services' &&
+enter-to-continue &&
+sudo service nginx stop &&
+sudo service php5-fpm stop &&
+sudo service mysql restart &&
+sudo service php5-fpm start &&
+sudo service nginx start &&
+
+echo "When configuring owncloud, log into the mysql database using the username '${PI_SERVER_OWNCLOUD_DB_USER}' and the password you specified here." &&
+enter-to-continue

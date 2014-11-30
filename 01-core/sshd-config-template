@@ -15,7 +15,7 @@ PermitRootLogin no
 StrictModes yes
 UsePAM yes
 UsePrivilegeSeparation yes
-X11Forwarding no
+X11Forwarding yes
 IgnoreRhosts yes
 PrintMotd no
 

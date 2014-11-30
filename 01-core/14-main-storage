@@ -1,0 +1,108 @@
+#!/bin/bash
+# For reference, the correct fstab entries for various filesystems:
+#
+# ext4:
+# UUID=<UUID>    <mountpoint>    ext4    defaults,sync,noatime,nofail    0    0
+#
+# NTFS:
+# UUID=<UUID>    <mountpoint>    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,sync,noatime,nofail    0    0
+#
+# FAT:
+# UUID=<UUID>    <mountpoint>    vfat    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,noatime,nofail    0    0
+#
+# Permissions are crazy on NTFS and FAT, so don't use them! The backup
+# partition needs an additional 'noauto' option, and if the partition
+# is on a flash drive it might be worth removing 'sync'.
+#
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+# Initial setup
+cat <<EOF &&
+Make sure the external storage is attached and correctly formatted: should have two ext4 partitions, one for primary data storage, and one for backups. (Additional partitions for other things are OK.) The /dev nodes for these partitions should have been set already in ./04-base-config.
+
+If things aren't set up right, press Ctrl-C to cancel.
+EOF
+enter-to-continue &&
+
+
+# Sanity check
+if [ -z "${PI_SERVER_STORAGE_DRIVE_DEV}" ] ||
+   [ -z "${PI_SERVER_STORAGE_DATA_PARTITION}" ] ||
+   [ -z "${PI_SERVER_STORAGE_BACKUP_PARTITION}" ]; then
+    echo 'Drive partition parameters are unset; rerun ./04-base-config'
+    exit 1
+fi
+
+if [ "${PI_SERVER_STORAGE_DATA_PARTITION}" = "${PI_SERVER_STORAGE_BACKUP_PARTITION}" ]; then
+    echo 'The data partition and backup partition are the same; rerun ./04-base-config'
+    exit 1
+fi
+
+if [ ! -e "${PI_SERVER_STORAGE_DRIVE_DEV}" ] ||
+   [ ! -e "${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_DATA_PARTITION}" ] ||
+   [ ! -e "${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_BACKUP_PARTITION}" ]; then
+    cat <<EOF
+At least one of the following doesn't exist; fix it!
+    External hard drive: ${PI_SERVER_STORAGE_DRIVE_DEV}
+    Data partition: ${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_DATA_PARTITION}
+    Backup partition: ${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_BACKUP_PARTITION}
+EOF
+    exit 1
+fi
+
+
+function setup-fstab()
+{
+    local DEV="${1}"
+    local MOUNTPOINT="${2}"
+    local EXTRA_OPTIONS
+
+    if [ -z "${3}" ]; then
+        EXTRA_OPTIONS=''
+    else
+        EXTRA_OPTIONS=",${3}"
+    fi
+
+    local UUID="$(sudo blkid "${DEV}" -o export | grep 'UUID' | sed 's/^UUID=//g')"
+    local TYPE="$(sudo blkid "${DEV}" -o export | grep 'TYPE' | sed 's/^TYPE=//g')"
+
+    if [ "${TYPE}" != 'ext4' ]; then
+        echo "${DEV} is not an ext4 partition; exiting."
+        exit 1
+    fi
+
+    sudo mkdir -p "${MOUNTPOINT}"
+
+    if grep "${MOUNTPOINT}" '/etc/fstab' &>/dev/null; then
+        if ! grep "${MOUNTPOINT}" '/etc/fstab' | grep "UUID=${UUID}" &>/dev/null; then
+            echo "Error: mountpoint ${MOUNTPOINT} is already set up in /etc/fstab, but the UUID is different from the one being set up here; fix it manually!"
+            exit 1
+        fi
+    else
+        echo "UUID=${UUID}    ${MOUNTPOINT}    ext4    defaults,sync,noatime,nofail${EXTRA_OPTIONS}    0    0" | sudo tee -a '/etc/fstab' &>/dev/null
+    fi
+}
+
+setup-fstab "${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_DATA_PARTITION}" "${PI_SERVER_DATA_MOUNT_DIR}" &&
+setup-fstab "${PI_SERVER_STORAGE_DRIVE_DEV}${PI_SERVER_STORAGE_BACKUP_PARTITION}" "${PI_SERVER_BACKUP_MOUNT_DIR}" 'noauto' &&
+
+echo 'Will now display the fstab; make sure it is correct' &&
+enter-to-continue &&
+less '/etc/fstab' &&
+
+
+# Drive spindown
+HDPARM_CONF='/etc/hdparm.conf' &&
+if [ "${PI_SERVER_STORAGE_SPINNING_DRIVE}" = 'y' ]; then
+    sed-install "${DIR}/hdparm-conf-template" "${HDPARM_CONF}" "${PI_SERVER_STORAGE_DRIVE_DEV}"
+else
+    sed-install "${DIR}/hdparm-disabled" "${HDPARM_CONF}"
+fi
+sudo chmod go-wx "${HDPARM_CONF_DST}" &&
+
+
+echo 'Reboot now, and make sure the data partition (but not the backup partition) are auto-mounted' &&
+enter-to-continue
