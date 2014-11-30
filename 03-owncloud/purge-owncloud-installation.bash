@@ -12,7 +12,7 @@ read -s -p 'Enter the database root password (created when installing mysql): ' 
 sudo service nginx stop &&
 sudo service php5-fpm stop &&
 
-sudo apt-get --auto-remove --purge owncloud &&
+sudo apt-get remove --auto-remove --purge owncloud &&
 sudo rm -rf /var/www/owncloud &&
 sudo rm -rf "${PI_SERVER_OWNCLOUD_DATA_PATH}" &&
 
