@@ -101,7 +101,7 @@ if [ "${PI_SERVER_STORAGE_SPINNING_DRIVE}" = 'y' ]; then
 else
     sed-install "${DIR}/hdparm-disabled" "${HDPARM_CONF}"
 fi
-sudo chmod go-wx "${HDPARM_CONF_DST}" &&
+sudo chmod go-wx "${HDPARM_CONF}" &&
 
 
 echo 'Reboot now, and make sure the data partition (but not the backup partition) are auto-mounted' &&
