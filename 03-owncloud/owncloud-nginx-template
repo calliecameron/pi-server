@@ -2,9 +2,9 @@ server {
     listen 443 ssl;
     server_name @@@@@1@@@@@;
 
-    ssl_certificate /etc/pi-certs/nginx.crt;
-    ssl_certificate_key /etc/pi-certs/nginx.key;
-    ssl_crl /etc/pi-certs/crl;
+    ssl_certificate @@@@@2@@@@@;
+    ssl_certificate_key @@@@@3@@@@@;
+    ssl_crl @@@@@4@@@@@;
 
     root /var/www/owncloud;
 
@@ -25,7 +25,7 @@ server {
         access_log off;
     }
 
-    location ~ ^/(?:\.|data|config|db_structure\.xml|README) {
+    location ~ ^/(?:\.htaccess|data|config|db_structure\.xml|README) {
         deny all;
     }
 
@@ -39,7 +39,7 @@ server {
 
         rewrite ^(/core/doc/[^\/]+/)$ $1/index.html;
 
-        try_files $uri $uri/ index.php;
+        try_files $uri $uri/ /index.php;
     }
 
     location ~ \.php(?:$|/) {
@@ -51,10 +51,10 @@ server {
         fastcgi_pass php-handler;
     }
 
-    # # Optional: set long EXPIRES header on static assets
-    # location ~* \.(?:jpg|jpeg|gif|bmp|ico|png|css|js|swf)$ {
-    #     expires 30d;
-    #     # Optional: Don't log access to assets
-    #     access_log off;
-    # }
+    # Set long EXPIRES header on static assets
+    location ~* \.(?:jpg|jpeg|gif|bmp|ico|png|css|js|swf)$ {
+        expires 30d;
+        # Don't log access to assets
+        access_log off;
+    }
 }
