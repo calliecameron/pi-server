@@ -89,25 +89,35 @@ To configure owncloud, go to https://${PI_SERVER_IP} and login as admin, with th
 
 Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
 
-[Remote Shares]
-Untick 'Allow other instances to mount public links shared from this server' -- there won't be any public links...
+[Server-to-Server Sharing]
+Tick both boxes
+
+[Contact]
+Untick 'Enable LDAP backend'
+
+[Documents]
+Disabled
 
 [Cron]
 Tick 'cron'
 
 [Sharing]
-Untick 'Allow users to share via link'
-Untick 'Allow resharing'
+Untick 'Allow apps to use the Share API', and all the other boxes should disappear
 
 [Security]
 Tick 'Enforce HTTPS'
 
 [Email Server]
-From address: owncloud@<whatever hostname you entered in script 04-email>
+Mode: php
+From address: owncloud@${PI_SERVER_FQDN}
 
 
 Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
 
+Set up users as desired.
 
-Go to apps, enable the 'external storage' app, then go back to admin and configure it (TODO...)
+
+Go to apps, enable the 'external storage' app, then go back to admin and configure it:
+Tick 'Enable user external storage', and tick 'ownCloud' in the submenu
+Go back to personal, 
 EOF

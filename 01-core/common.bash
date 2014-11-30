@@ -126,6 +126,10 @@ EOF
 
         shift
     done
+
+    # Install the CA cert for OS use
+    sudo cp -t '/usr/local/share/ca-certificates' "${PI_SERVER_CA_CERT}"
+    sudo update-ca-certificates
 }
 
 function real-pi()
