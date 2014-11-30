@@ -82,6 +82,8 @@ fi
 # Cleanup
 sudo service php5-fpm start &&
 sudo service nginx start &&
+echo 'About to display instructions' &&
+enter-to-continue &&
 
 
 less <<EOF
@@ -114,10 +116,10 @@ From address: owncloud@${PI_SERVER_FQDN}
 
 Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
 
-Set up users as desired.
+Set up users as desired; in each one, delete the pre-existing default files.
 
 
 Go to apps, enable the 'external storage' app, then go back to admin and configure it:
-Tick 'Enable user external storage', and tick 'ownCloud' in the submenu
-Go back to personal, 
+Untick 'Enable user external storage'
+Add the share as an ownCloud server
 EOF
