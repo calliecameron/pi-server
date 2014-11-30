@@ -5,6 +5,7 @@ source "${DIR}/common.bash" &&
 
 
 # Make sure the certs are in place, and have the correct permissions
+OWNCLOUD_CONFIG='/var/www/owncloud/config/config.php' &&
 CERT_NAME='owncloud' &&
 check-pi-server-cert "Owncloud" "${CERT_NAME}" &&
 
@@ -15,17 +16,20 @@ sudo service php5-fpm stop &&
 
 
 # Database configuration
-DATABASE_USER_PW="$(get-new-password 'database password to give the newly-created owncloud user')" &&
-read -s -p 'Enter the database root password (created when installing mysql): ' DATABASE_ROOT_PW && echo &&
-
 PHP_CONF='/etc/php5/conf.d/mysql.ini' &&
 sed-install "${DIR}/php-mysql.ini" "${PHP_CONF}" &&
 sudo chmod a=r "${PHP_CONF}" &&
 
-mysql --user=root "--password=${DATABASE_ROOT_PW}" <<EOF &&
+if [ ! -e "${OWNCLOUD_CONFIG}" ]; then
+    DATABASE_USER_PW="$(get-new-password 'database password to give the newly-created owncloud user')" &&
+    read -s -p 'Enter the database root password (created when installing mysql): ' DATABASE_ROOT_PW && echo &&
+
+    mysql --user=root "--password=${DATABASE_ROOT_PW}" <<EOF
 CREATE DATABASE IF NOT EXISTS ${PI_SERVER_OWNCLOUD_DB};
 GRANT ALL PRIVILEGES ON ${PI_SERVER_OWNCLOUD_DB}.* TO '${PI_SERVER_OWNCLOUD_DB_USER}'@'localhost' IDENTIFIED BY '${DATABASE_USER_PW}';
 EOF
+
+fi
 
 sudo service mysql restart &&
 
@@ -61,7 +65,7 @@ sudo chmod a=r "${CONF}" &&
 
 
 # First-time owncloud config
-if [ ! -e '/var/www/owncloud/config/config.php' ]; then
+if [ ! -e "${OWNCLOUD_CONFIG}" ]; then
     OWNCLOUD_ADMIN_PW="$(get-new-password 'new password for the owncloud admin user')" &&
     AUTOCONFIG='/var/www/owncloud/config/autoconfig.php' &&
     sed-install "${DIR}/autoconfig-template" "${AUTOCONFIG}" \
