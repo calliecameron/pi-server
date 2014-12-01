@@ -8,20 +8,26 @@ sudo apt-get update &&
 
 sudo apt-get -y install dialog &&
 
-sudo apt-get -y remove --purge --auto-remove alsa-base alsa-utils apt-listchanges apticron+ avahi-daemon+ build-essential cifs-utils console-setup+ cpp debconf-utils debian-reference-en desktop-file-utils dpkg-dev ecryptfs-utils etckeeper+ fbset fontconfig fontconfig-config+ fonts-freefont-ttf gconf2-common gdb gnome-themes-standard-data gsfonts gsfonts-x11 hdparm+ info install-info java-common libasound2 libfontconfig1+ libgd2-xpm+ libjpeg8+ libwibble-dev libx11-6+ libx11-data+ libxau6+ libxcb1+ libxdmcp6 libxdmcp6+ libxfont1 libxpm4+ linux-libc-dev lsof+ lua5.1 lxde-icon-theme make menu-xdg mysql-client+ mysql-server+ ncdu nfs-common nginx-naxsi+ ntfs-3g+ openssh-server+ openvpn+ parted php-xml-parser+ php5+ php5-curl+ php5-fpm+ php5-gd+ php5-gd+ php5-intl+ php5-json+ php5-mcrypt+ php5-mysqlnd+ php5-pgsql+ php5-sqlite+ pkg-config plymouth python-serial python3-numpy python3-serial samba-common smbclient ssmtp+ supervisor+ tmux+ ttf-dejavu-core+ usbmount+ v4l-utils whiptail wpasupplicant+ x11-common xdg-utils xfonts-utils &&
 
-if real-pi; then
-    sudo apt-get -y remove --purge --auto-remove libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit omxplayer penguinspuzzle python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork || exit 1
+if [ ! -e "${PI_SERVER_DIR}" ]; then
+    # Aggressively remove all the preinstalled stuff - but only the
+    # first time! Some of this will probably come back later.
+    sudo apt-get -y remove --purge --auto-remove alsa-base alsa-utils apt-listchanges build-essential cifs-utils cpp debconf-utils debian-reference-en desktop-file-utils dpkg-dev ecryptfs-utils fbset fontconfig fonts-freefont-ttf gconf2-common gdb gnome-themes-standard-data gsfonts-x11 info install-info java-common libasound2 libwibble-dev libx11-6 libx11-data libxau6 libxcb1 libxdmcp6 libxdmcp6 libxfont1 libxpm4 linux-libc-dev lsof lua5.1 lxde-icon-theme make menu-xdg ncdu nfs-common parted pkg-config plymouth python-serial python3-numpy python3-serial samba-common smbclient v4l-utils whiptail x11-common xdg-utils xfonts-utils &&
+
+    if real-pi; then
+        sudo apt-get -y remove --purge --auto-remove libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit omxplayer penguinspuzzle python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork || exit 1
+    fi
+
+    sudo tasksel remove desktop &&
+    sudo rm -f '/etc/apt/sources.list.d/wolfram.list' || exit 1
 fi
 
-sudo tasksel remove desktop &&
-sudo rm -f '/etc/apt/sources.list.d/wolfram.list' &&
+
+sudo apt-get -y install apticron avahi-daemon console-setup etckeeper hdparm mysql-client mysql-server nginx-naxsi ntfs-3g openssh-server openvpn php-xml-parser php5 php5-curl php5-fpm php5-gd php5-intl php5-json php5-mcrypt php5-mysqlnd php5-pgsql php5-sqlite ssmtp supervisor tmux usbmount wpasupplicant &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
 sudo apt-get -y dist-upgrade &&
-
-sudo rm -rf /etc/X11 &&
 
 echo &&
 echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
