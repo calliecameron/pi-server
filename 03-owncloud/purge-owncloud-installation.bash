@@ -21,6 +21,7 @@ DROP DATABASE ${PI_SERVER_OWNCLOUD_DB};
 EOF
 
 sudo rm -f '/etc/nginx/sites-enabled/owncloud' &&
+sudo rm -f '/etc/apt/sources.list.d/owncloud.list' &&
 
 
 sudo service mysql restart &&
