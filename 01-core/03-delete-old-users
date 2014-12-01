@@ -54,6 +54,8 @@ lockout lp &&
 lockout messagebus &&
 lockout mysql &&
 lockout avahi &&
+lockout colord &&
+lockout saned &&
 
 echo &&
 echo "Now remove all references to user 'pi' from /etc/sudoers" &&
