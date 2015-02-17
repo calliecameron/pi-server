@@ -1,28 +1,24 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+source "${DIR}/../01-core/common.bash"
 
 function usage()
 {
-    echo "Usage: $(basename "${0}") new_ca_dir"
+    echo "Usage: $(basename "${0}") new_ca_dir your_name"
     echo "    new_ca_dir must not already exist, and should probably be somewhere encrypted!"
+    echo "    your_name will be used as the 'organisation' field in the created certificates"
     exit 1
 }
 
 test -z "${1}" && usage
 test -e "${1}" && usage
+test -z "${2}" && usage
 
 CA_DIR="${1}"
+YOUR_NAME="${2}"
 
-read -s -p "Enter the new password for the root CA key: " PASSWD && echo &&
-read -s -p "Enter the password again to confirm: " PASSWD2 && echo &&
-
-if [ "${PASSWD}" != "${PASSWD2}" ]; then
-    echo "Error: the passwords do not match"
-    exit 1
-else
-    echo
-fi
+PASSWD="$(get-new-password 'new password for the root CA key')"
 
 
 # Create the directory structure
@@ -32,7 +28,16 @@ mkdir -p "${CA_DIR}/data" &&
 mkdir -p "${CA_DIR}/certs/server" &&
 mkdir -p "${CA_DIR}/certs/client" &&
 cp -a "${DIR}/scripts" "${CA_DIR}/scripts" &&
-cp "${DIR}/openssl.conf" "${CA_DIR}/openssl.conf" &&
+
+cp "${DIR}/openssl-conf-template" "${CA_DIR}/openssl.conf" &&
+sed -i "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${CA_DIR}/openssl.conf" &&
+
+cp "${DIR}/script-templates/make-client-cert" "${CA_DIR}/scripts/make-client-cert" &&
+sed -i "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${CA_DIR}/scripts/make-client-cert" &&
+
+cp "${DIR}/script-templates/make-pi-server-certs" "${CA_DIR}/scripts/make-pi-server-certs" &&
+sed -i "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${CA_DIR}/scripts/make-pi-server-certs" &&
+
 touch "${CA_DIR}/data/index.txt" &&
 echo 00 > "${CA_DIR}/data/serial.txt" &&
 chmod -R go-rwx "${CA_DIR}" &&

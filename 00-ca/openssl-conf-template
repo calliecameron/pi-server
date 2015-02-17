@@ -51,7 +51,7 @@ countryName_min = 2
 countryName_max = 2
 
 organizationName = Organization Name
-organizationName_default = Callum J. Cameron
+organizationName_default = @@@@@1@@@@@
 
 commonName = Common Name (address/hostname of the server, or of the client this certificate belongs to)
 commonName_max = 64

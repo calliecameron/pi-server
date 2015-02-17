@@ -21,7 +21,7 @@ chmod go-rwx "${CERT_DIR}" &&
 function do-cert()
 {
     # Certificate request
-    openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=Callum J. Cameron/CN=${1}" -newkey rsa -keyout "${CERT_DIR}/${2}.key" -out "${CERT_DIR}/${2}.csr" -outform PEM -nodes &&
+    openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${1}" -newkey rsa -keyout "${CERT_DIR}/${2}.key" -out "${CERT_DIR}/${2}.csr" -outform PEM -nodes &&
 
     # Sign
     exec 3<<EOF
