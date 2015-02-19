@@ -1,0 +1,16 @@
+Unattended-Upgrade::Origins-Pattern {
+        "o=Debian,a=wheezy";
+        "o=Debian,a=wheezy-updates";
+//      "o=Debian,a=proposed-updates";
+        "origin=Debian,archive=wheezy,label=Debian-Security";
+};
+
+Unattended-Upgrade::Package-Blacklist {
+};
+
+Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+Unattended-Upgrade::MinimalSteps "true";
+Unattended-Upgrade::Mail "root";
+Unattended-Upgrade::MailOnlyOnError "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Automatic-Reboot "true";

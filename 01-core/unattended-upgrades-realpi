@@ -1,0 +1,16 @@
+Unattended-Upgrade::Origins-Pattern {
+        "o=Raspbian,a=wheezy";
+        "o=Raspbian,a=wheezy-updates";
+//      "o=Raspbian,a=proposed-updates";
+        "origin=Raspbian,archive=wheezy,label=Raspbian-Security";
+};
+
+Unattended-Upgrade::Package-Blacklist {
+};
+
+Unattended-Upgrade::AutoFixInterruptedDpkg "true";
+Unattended-Upgrade::MinimalSteps "true";
+Unattended-Upgrade::Mail "root";
+Unattended-Upgrade::MailOnlyOnError "false";
+Unattended-Upgrade::Remove-Unused-Dependencies "true";
+Unattended-Upgrade::Automatic-Reboot "true";

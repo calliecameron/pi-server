@@ -23,7 +23,7 @@ if [ ! -e "${PI_SERVER_DIR}" ]; then
 fi
 
 
-sudo apt-get -y install apticron avahi-daemon console-setup etckeeper hdparm mysql-client mysql-server nginx-naxsi ntfs-3g openssh-server openvpn php5 php5-fpm php5-mysqlnd ssmtp supervisor tmux wpasupplicant &&
+sudo apt-get -y install avahi-daemon console-setup etckeeper hdparm mysql-client mysql-server nginx-naxsi ntfs-3g openssh-server openvpn php5 php5-fpm php5-mysqlnd ssmtp supervisor tmux unattended-upgrades wpasupplicant &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
