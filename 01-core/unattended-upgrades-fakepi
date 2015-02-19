@@ -1,8 +1,8 @@
 Unattended-Upgrade::Origins-Pattern {
-        "o=Debian,a=wheezy";
-        "o=Debian,a=wheezy-updates";
+        "o=Debian,a=stable";
+        "o=Debian,a=stable-updates";
 //      "o=Debian,a=proposed-updates";
-        "origin=Debian,archive=wheezy,label=Debian-Security";
+        "origin=Debian,archive=stable,label=Debian-Security";
 };
 
 Unattended-Upgrade::Package-Blacklist {
