@@ -3,15 +3,91 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
+
 sudo apt-get update &&
-sudo apt-get -y install minidlna &&
+sudo apt-get -y install minidlna wget curl xsltproc &&
+
+
+# Give the server read-access to files in owncloud
+sudo adduser minidlna www-data &&
+
 
 MINIDLNA_CONF='/etc/minidlna.conf' &&
-sed-install "${DIR}/minidlna.conf" "${MINIDLNA_CONF}" &&
+sed-install "${DIR}/minidlna-conf-template" "${MINIDLNA_CONF}" \
+            "${PI_SERVER_MINIDLNA_MEDIA}" \
+            "${PI_SERVER_MINIDLNA_DB}" &&
+
+
+function minidlna-dir()
+{
+    while (($#)); do
+        sudo mkdir -p "${1}"
+        sudo chown minidlna:minidlna "${1}"
+        sudo chmod o-rwx "${1}"
+        shift
+    done
+}
+
+minidlna-dir "${PI_SERVER_MINIDLNA_ROOT}" \
+             "${PI_SERVER_MINIDLNA_MEDIA}" \
+             "${PI_SERVER_MINIDLNA_DB}" \
+             "${PI_SERVER_MINIDLNA_PODCASTS}" &&
+
 
 "${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8200 &&
 "${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 1900 &&
 
+
+
+
+# Setup mashpodder
+TMPDIR="$(mktemp -d)" &&
+REPO="${TMPDIR}/mashpodder" &&
+MASHPODDER="${REPO}/mashpodder.sh"
+git clone https://github.com/chessgriffin/mashpodder.git "${REPO}" &&
+cd "${REPO}" &&
+git checkout 0.4.9 &&
+
+sed -i "s|^#BASEDIR=\"\\\$HOME/mashpodder\"\$|BASEDIR='${PI_SERVER_MASHPODDER_SCRIPT_DIR}'|g" "${MASHPODDER}" &&
+sed -i "s|^PODCASTDIR=\"\\\$BASEDIR/podcasts\"\$|PODCASTDIR='${PI_SERVER_MINIDLNA_PODCASTS}'|g" "${MASHPODDER}" &&
+sed -i "s|^TMPDIR=\"\\\$BASEDIR/tmp\"\$|TMPDIR='${PI_SERVER_MASHPODDER_TMP_DIR}'|g" "${MASHPODDER}" &&
+sed -i "s|^RSSFILE=\"\\\$BASEDIR/mp.conf\"\$|RSSFILE='${PI_SERVER_MASHPODDER_RSS_FILE}'|g" "${MASHPODDER}" &&
+sed -i "s|^PODLOG=\"\\\$BASEDIR/podcast.log\"\$|PODLOG='${PI_SERVER_MASHPODDER_ROOT}/podcast.log'|g" "${MASHPODDER}" &&
+
+sudo mkdir -p "${PI_SERVER_MASHPODDER_SCRIPT_DIR}" &&
+
+XSLT="${PI_SERVER_MASHPODDER_SCRIPT_DIR}/parse_enclosure.xsl" &&
+sed-install "${MASHPODDER}" "${PI_SERVER_MASHPODDER_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_MASHPODDER_SCRIPT}" &&
+sed-install "${REPO}/parse_enclosure.xsl" "${XSLT}" &&
+sudo chmod a=r "${XSLT}" &&
+
+minidlna-dir "${PI_SERVER_MASHPODDER_ROOT}" \
+             "${PI_SERVER_MASHPODDER_TMP_DIR}" &&
+
+PODCASTS_HELP="${PI_SERVER_MASHPODDER_ROOT}/instructions.txt" &&
+sudo cp "${DIR}/podcast-instructions.txt" "${PODCASTS_HELP}" &&
+sudo chown minidlna:minidlna "${PODCASTS_HELP}" &&
+sudo chmod a=r "${PODCASTS_HELP}" &&
+
+CRONJOB='/etc/cron.daily/mashpodder' &&
+sed-install "${DIR}/mashpodder-cron" "${CRONJOB}" \
+            "${PI_SERVER_MASHPODDER_RSS_FILE}" \
+            "${PI_SERVER_MASHPODDER_SCRIPT}" \
+            "${PI_SERVER_MASHPODDER_ROOT}/daily-download.log" &&
+sudo chown a=rx "${CRONJOB}" &&
+
+cd &&
+rm -rf "${TMPDIR}" &&
+
+
 sudo service minidlna force-reload &&
 
-echo "Reboot now to start everything up properly"
+
+cat <<EOF
+To add media to the server, place or symlink it in '${PI_SERVER_MINIDLNA_MEDIA}'.
+Things in owncloud should be symlinked; the server has permission to read (but not write) files owned by owncloud.
+To setup podcasts, see '${PODCASTS_HELP}'.
+Reboot now to finish configuration.
+EOF
+enter-to-continue

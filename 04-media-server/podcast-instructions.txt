@@ -1,0 +1,1 @@
+To enable automatic podcast downloading, place (or symlink from owncloud) a file 'podcasts.conf' in this directory. This file should be a mashpodder configuration, as described at https://github.com/chessgriffin/mashpodder/blob/0.4.9/mp.conf.

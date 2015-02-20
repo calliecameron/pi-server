@@ -1,3 +1,14 @@
 # Common stuff; should be sourced, not run!
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../01-core/common.bash"
+
+export PI_SERVER_MINIDLNA_ROOT="${PI_SERVER_DATA_MOUNT_DIR}/minidlna-main"
+export PI_SERVER_MINIDLNA_MEDIA="${PI_SERVER_MINIDLNA_ROOT}/media"
+export PI_SERVER_MINIDLNA_DB="${PI_SERVER_MINIDLNA_ROOT}/db"
+export PI_SERVER_MINIDLNA_PODCASTS="${PI_SERVER_MINIDLNA_MEDIA}/Podcasts"
+
+export PI_SERVER_MASHPODDER_SCRIPT_DIR="${PI_SERVER_DIR}/mashpodder"
+export PI_SERVER_MASHPODDER_SCRIPT="${PI_SERVER_MASHPODDER_SCRIPT_DIR}/mashpodder.sh"
+export PI_SERVER_MASHPODDER_ROOT="${PI_SERVER_MINIDLNA_ROOT}/mashpodder"
+export PI_SERVER_MASHPODDER_TMP_DIR="${PI_SERVER_MASHPODDER_ROOT}/tmp"
+export PI_SERVER_MASHPODDER_RSS_FILE="${PI_SERVER_MASHPODDER_ROOT}/podcasts.conf"

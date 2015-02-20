@@ -1,0 +1,6 @@
+#!/bin/bash
+# Download podcasts using mashpodder.
+
+if [ -e '@@@@@1@@@@@' ]; then
+    su -c "'@@@@@2@@@@@' -v > '@@@@@3@@@@@'" minidlna
+fi
