@@ -1,0 +1,17 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+sudo apt-get update &&
+sudo apt-get -y install minidlna &&
+
+MINIDLNA_CONF='/etc/minidlna.conf' &&
+sed-install "${DIR}/minidlna.conf" "${MINIDLNA_CONF}" &&
+
+"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8200 &&
+"${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 1900 &&
+
+sudo service minidlna force-reload &&
+
+echo "Reboot now to start everything up properly"
