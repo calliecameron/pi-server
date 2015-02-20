@@ -15,7 +15,7 @@ sudo adduser minidlna www-data &&
 MINIDLNA_CONF='/etc/minidlna.conf' &&
 sed-install "${DIR}/minidlna-conf-template" "${MINIDLNA_CONF}" \
             "${PI_SERVER_MINIDLNA_MEDIA}" \
-            "${PI_SERVER_MINIDLNA_DB}" &&
+            "${PI_SERVER_MINIDLNA_DB}" || exit 1
 
 
 function minidlna-dir()
@@ -75,7 +75,7 @@ sed-install "${DIR}/mashpodder-cron" "${CRONJOB}" \
             "${PI_SERVER_MASHPODDER_RSS_FILE}" \
             "${PI_SERVER_MASHPODDER_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_ROOT}/daily-download.log" &&
-sudo chown a=rx "${CRONJOB}" &&
+sudo chmod a=rx "${CRONJOB}" &&
 
 cd &&
 rm -rf "${TMPDIR}" &&
@@ -84,10 +84,13 @@ rm -rf "${TMPDIR}" &&
 sudo service minidlna force-reload &&
 
 
-cat <<EOF
+cat <<EOF &&
+
 To add media to the server, place or symlink it in '${PI_SERVER_MINIDLNA_MEDIA}'.
 Things in owncloud should be symlinked; the server has permission to read (but not write) files owned by owncloud.
+
 To setup podcasts, see '${PODCASTS_HELP}'.
+
 Reboot now to finish configuration.
 EOF
 enter-to-continue
