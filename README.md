@@ -12,5 +12,4 @@ It's also set up so that a second Pi on another LAN somewhere else can connect t
 To do:
 
 - finish the OwnCloud backup thing
-- install a media server
 - convert the custom shell scripts to something standard, e.g. ansible and jinja2
