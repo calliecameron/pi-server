@@ -1,0 +1,4 @@
+#!/bin/bash
+# Send an email when the network connects; intended to monitor reboots
+
+'@@@@@1@@@@@' "Connected to network" "$(uptime)"

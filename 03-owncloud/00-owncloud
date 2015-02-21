@@ -52,6 +52,7 @@ wget http://download.opensuse.org/repositories/isv:ownCloud:community/Debian_7.0
 
 sudo apt-get update &&
 sudo apt-get -y install owncloud &&
+sudo chown www-data:www-data /var/www/owncloud/apps &&
 
 
 # Configure nginx
@@ -117,6 +118,10 @@ From address: owncloud@${PI_SERVER_FQDN}
 Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
 
 Set up users as desired; in each one, delete the pre-existing default files.
+Create three folders in the root:
+    main         - data here will be synced with this server's clients, and backed up on the other server
+    local-only   - data here will only be synced with this server's clients
+    remote       - folder containing mount points to other server's 'main'
 
 
 Go to apps, enable the 'external storage' app, then go back to admin and configure it:
