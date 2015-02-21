@@ -51,7 +51,8 @@ sudo chmod a=r "${APT_DST}" &&
 wget http://download.opensuse.org/repositories/isv:ownCloud:community/Debian_7.0/Release.key -O - | sudo apt-key add - &&
 
 sudo apt-get update &&
-sudo apt-get -y install owncloud &&
+# Get manual confirmation in case there is an update, which might break things
+sudo apt-get install owncloud &&
 sudo chown www-data:www-data /var/www/owncloud/apps &&
 
 

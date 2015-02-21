@@ -110,7 +110,7 @@ sed-install "${DIR}/check-disk-usage" "${DISK_CHECK}" \
             "${PI_SERVER_DATA_MOUNT_DIR}" \
             "${PI_SERVER_BACKUP_MOUNT_DIR}" \
             "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
-chmod a=rx "${DISK_CHECK}" &&
+sudo chmod a=rx "${DISK_CHECK}" &&
 
 
 echo 'Reboot now, and make sure the data partition (but not the backup partition) are auto-mounted' &&

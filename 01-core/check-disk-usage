@@ -8,7 +8,7 @@ function check-path()
 {
     if [ -e "${1}" ]; then
         local USAGE="$(df "${1}" | grep -o '[0-9]\+%' | grep -o '[0-9]\+')"
-        if [ "${USAGE}" -gt "{THRESHOLD}" ]; then
+        if [ "${USAGE}" -gt "${THRESHOLD}" ]; then
             SEND_EMAIL='t'
         fi
     fi
@@ -16,7 +16,10 @@ function check-path()
 
 check-path /
 check-path '@@@@@1@@@@@'
+
+mount '@@@@@2@@@@@'
 check-path '@@@@@2@@@@@'
+umount '@@@@@2@@@@@'
 
 if [ ! -z "${SEND_EMAIL}" ]; then
     '@@@@@3@@@@@' 'Storage space alert' "$(printf "A partition is above %s%% full.\n\n%s\n" "${THRESHOLD}" "$(df -h)")"
