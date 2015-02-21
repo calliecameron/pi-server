@@ -8,7 +8,7 @@ source "${DIR}/common.bash" &&
 NEW_USER='shutdownd'
 
 if ! grep "${NEW_USER}" '/etc/passwd' &>/dev/null; then
-    sudo adduser --disabled-login --no-create-home --shell /usr/sbin/nologin --gecos shutdownd "${NEW_USER}" || exit 1
+    sudo adduser --disabled-login --no-create-home --shell /usr/sbin/nologin --gecos "${NEW_USER}" "${NEW_USER}" || exit 1
 fi
 
 sudo passwd -l "${NEW_USER}" &&

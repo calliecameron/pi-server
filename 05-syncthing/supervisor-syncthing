@@ -1,0 +1,3 @@
+[program:syncthing]
+command=@@@@@1@@@@@ -gui-address="0.0.0.0:8080" -home="@@@@@2@@@@@" -no-browser
+user=@@@@@3@@@@@

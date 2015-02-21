@@ -1,0 +1,91 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+# Setup user
+NEW_USER='syncthing'
+
+if ! grep "${NEW_USER}" '/etc/passwd' &>/dev/null; then
+    sudo adduser --disabled-login --no-create-home --shell /usr/sbin/nologin --gecos "${NEW_USER}" "${NEW_USER}" || exit 1
+fi
+
+sudo passwd -l "${NEW_USER}" &&
+sudo chsh -s /usr/sbin/nologin "${NEW_USER}" &&
+
+
+# Install syncthing
+if [ ! -e "${PI_SERVER_SYNCTHING_BINARY}" ]; then
+    TMPDIR="$(mktemp -d)" || exit 1
+    TARBALL="${TMPDIR}/syncthing.tar.gz"
+    if real-pi; then
+        URL='https://github.com/syncthing/syncthing/releases/download/v0.10.23/syncthing-linux-armv6-v0.10.23.tar.gz'
+        FOLDER='syncthing-linux-armv6-v0.10.23'
+    else
+        URL='https://github.com/syncthing/syncthing/releases/download/v0.10.23/syncthing-linux-386-v0.10.23.tar.gz'
+        FOLDER='syncthing-linux-386-v0.10.23'
+    fi
+
+    cd "${TMPDIR}" &&
+    wget "${URL}" -O "${TARBALL}" &&
+    tar -xf "${TARBALL}" &&
+    sed-install "${TMPDIR}/${FOLDER}/syncthing" "${PI_SERVER_SYNCTHING_BINARY}" &&
+    sudo chmod a=rx "${PI_SERVER_SYNCTHING_BINARY}" &&
+    cd &&
+    rm -rf "${TMPDIR}" || exit 1
+fi
+
+
+# Prepare directories
+function syncthing-dir()
+{
+    while (($#)); do
+        sudo mkdir -p "${1}"
+        sudo chown "${NEW_USER}:${NEW_USER}" "${1}"
+        sudo chmod o-rwx "${1}"
+        shift
+    done
+}
+
+syncthing-dir "${PI_SERVER_SYNCTHING_ROOT}" &&
+syncthing-dir "${PI_SERVER_SYNCTHING_CONFIG}" &&
+syncthing-dir "${PI_SERVER_SYNCTHING_DATA}" &&
+
+
+# Make it run at boot
+SUPERVISOR_DST='/etc/supervisor/conf.d/syncthing.conf' &&
+sed-install "${DIR}/supervisor-syncthing" "${SUPERVISOR_DST}" \
+            "${PI_SERVER_SYNCTHING_BINARY}" \
+            "${PI_SERVER_SYNCTHING_CONFIG}" \
+            "${NEW_USER}" &&
+sudo chmod a=r "${SUPERVISOR_DST}" &&
+
+
+# Generate initial setup if necessary
+if [ ! -e "${PI_SERVER_SYNCTHING_CONFIG}/config.xml" ]; then
+    sudo -u "${NEW_USER}" "${PI_SERVER_SYNCTHING_BINARY}" "-generate=${PI_SERVER_SYNCTHING_CONFIG}"
+fi
+
+
+# Firewall
+"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 22000 &&
+"${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 21025 &&
+"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8080 &&
+sudo iptables -I -p tcp --dport 8080 -j ACCEPT &&
+
+
+# Cleanup
+sudo service supervisor restart &&
+echo 'About to display instructions' &&
+enter-to-continue &&
+
+
+less <<EOF
+Syncthing should now be running on http://${PI_SERVER_IP}:8080.
+
+Configure settings as follows:
+
+
+
+EOF
