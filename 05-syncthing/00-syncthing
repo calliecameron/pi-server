@@ -4,6 +4,14 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
+# TODO certificates for https
+
+
+
+
+
+
+
 # Setup user
 NEW_USER='syncthing'
 
@@ -58,7 +66,8 @@ SUPERVISOR_DST='/etc/supervisor/conf.d/syncthing.conf' &&
 sed-install "${DIR}/supervisor-syncthing" "${SUPERVISOR_DST}" \
             "${PI_SERVER_SYNCTHING_BINARY}" \
             "${PI_SERVER_SYNCTHING_CONFIG}" \
-            "${NEW_USER}" &&
+            "${NEW_USER}" \
+            "${PI_SERVER_SYNCTHING_DATA}" &&
 sudo chmod a=r "${SUPERVISOR_DST}" &&
 
 
@@ -72,7 +81,7 @@ fi
 "${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 22000 &&
 "${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 21025 &&
 "${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8080 &&
-sudo iptables -I -p tcp --dport 8080 -j ACCEPT &&
+sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT &&
 
 
 # Cleanup
@@ -86,6 +95,22 @@ Syncthing should now be running on http://${PI_SERVER_IP}:8080.
 
 Configure settings as follows:
 
+GUI Listen Address:
+0.0.0.0:8080
+
+Untick 'Enable UPnP'
+Untick 'Global Discovery'
+Untick 'Automatic Upgrades'
+Untick 'Start Browser'
+
+Tick 'Use HTTPS for GUI', and fill in a username and password as desired.
 
 
+Delete the default folder.
+
+
+Restart syncthing.
+
+
+Reboot, and you can then add folders as desired.
 EOF
