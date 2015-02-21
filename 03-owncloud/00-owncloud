@@ -92,14 +92,8 @@ To configure owncloud, go to https://${PI_SERVER_IP} and login as admin, with th
 
 Once you can login and see the files on the server, go to the menu, select 'admin', and set the following settings:
 
-[Server-to-Server Sharing]
+[Federated Cloud Sharing]
 Tick both boxes
-
-[Contact]
-Untick 'Enable LDAP backend'
-
-[Documents]
-Disabled
 
 [Cron]
 Tick 'cron'
@@ -108,7 +102,7 @@ Tick 'cron'
 Untick 'Allow apps to use the Share API', and all the other boxes should disappear
 
 [Security]
-Tick 'Enforce HTTPS'
+Tick 'Enforce HTTPS' and 'Enforce HTTPS for subdomains'
 
 [Email Server]
 Mode: php
@@ -117,14 +111,18 @@ From address: owncloud@${PI_SERVER_FQDN}
 
 Go to the menu, select 'personal', and fill in the email address field with the address notifications should be sent to.
 
-Set up users as desired; in each one, delete the pre-existing default files.
-Create three folders in the root:
+
+Set up users as desired; in each one, make sure the quota is unlimited, and delete the pre-existing default files.
+
+
+For the user, create three folders in the root:
     main         - data here will be synced with this server's clients, and backed up on the other server
     local-only   - data here will only be synced with this server's clients
     remote       - folder containing mount points to other server's 'main'
 
 
-Go to apps, enable the 'external storage' app, then go back to admin and configure it:
+As admin, go to apps, enable the 'external storage' app, then go back to admin and configure it:
 Untick 'Enable user external storage'
-Add the share as an ownCloud server
+
+Add the share as an ownCloud server - folder name should be 'remote/<something>', remote folder should be 'main'.
 EOF

@@ -104,5 +104,14 @@ fi
 sudo chmod go-wx "${HDPARM_CONF}" &&
 
 
+# Disk space checking
+DISK_CHECK='/etc/cron.daily/check-disk-usage' &&
+sed-install "${DIR}/check-disk-usage" "${DISK_CHECK}" \
+            "${PI_SERVER_DATA_MOUNT_DIR}" \
+            "${PI_SERVER_BACKUP_MOUNT_DIR}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+chmod a=rx "${DISK_CHECK}" &&
+
+
 echo 'Reboot now, and make sure the data partition (but not the backup partition) are auto-mounted' &&
 enter-to-continue

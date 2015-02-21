@@ -1,0 +1,23 @@
+#!/bin/bash
+# Send an email if any of the partitions are above 90% usage
+
+THRESHOLD='90'
+SEND_EMAIL=''
+
+function check-path()
+{
+    if [ -e "${1}" ]; then
+        local USAGE="$(df "${1}" | grep -o '[0-9]\+%' | grep -o '[0-9]\+')"
+        if [ "${USAGE}" -gt "{THRESHOLD}" ]; then
+            SEND_EMAIL='t'
+        fi
+    fi
+}
+
+check-path /
+check-path '@@@@@1@@@@@'
+check-path '@@@@@2@@@@@'
+
+if [ ! -z "${SEND_EMAIL}" ]; then
+    '@@@@@3@@@@@' 'Storage space alert' "$(printf "A partition is above %s%% full.\n\n%s\n" "${THRESHOLD}" "$(df -h)")"
+fi
