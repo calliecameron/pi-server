@@ -8,8 +8,9 @@ sudo apt-get update &&
 sudo apt-get -y install minidlna wget curl xsltproc &&
 
 
-# Give the server read-access to files in owncloud
+# Give the server read-access to files in owncloud and syncthing
 sudo adduser minidlna www-data &&
+sudo adduser minidlna syncthing &&
 
 
 MINIDLNA_CONF='/etc/minidlna.conf' &&
@@ -74,7 +75,8 @@ CRONJOB='/etc/cron.daily/mashpodder' &&
 sed-install "${DIR}/mashpodder-cron" "${CRONJOB}" \
             "${PI_SERVER_MASHPODDER_RSS_FILE}" \
             "${PI_SERVER_MASHPODDER_SCRIPT}" \
-            "${PI_SERVER_MASHPODDER_ROOT}/daily-download.log" &&
+            "${PI_SERVER_MASHPODDER_ROOT}/daily-download.log" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
 sudo chmod a=rx "${CRONJOB}" &&
 
 cd &&
@@ -87,7 +89,7 @@ sudo service minidlna force-reload &&
 cat <<EOF &&
 
 To add media to the server, place or symlink it in '${PI_SERVER_MINIDLNA_MEDIA}'.
-Things in owncloud should be symlinked; the server has permission to read (but not write) files owned by owncloud.
+Things in syncthing/owncloud should be symlinked; the server has permission to read (but not write) files owned by these services.
 
 To setup podcasts, see '${PODCASTS_HELP}'.
 

@@ -1,9 +1,0 @@
-#!/bin/bash
-# Download podcasts using mashpodder.
-
-if [ -e '@@@@@1@@@@@' ]; then
-    if ! su -s /bin/bash -c "'@@@@@2@@@@@' -v &> '@@@@@3@@@@@'" minidlna; then
-        # Cron will send this as an email to make it clear something went wrong
-        cat '@@@@@3@@@@@'
-    fi
-fi
