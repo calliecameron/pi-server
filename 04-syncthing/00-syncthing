@@ -29,7 +29,7 @@ if [ ! -e "${PI_SERVER_SYNCTHING_BINARY}" ]; then
     TARBALL="${TMPDIR}/syncthing.tar.gz"
     if real-pi; then
         URL='https://github.com/syncthing/syncthing/releases/download/v0.10.23/syncthing-linux-armv6-v0.10.23.tar.gz'
-        FOLDER='syncthing-linux-armv6-v0.10.23'
+        FOLDER='syncthing-linux-arm-v0.10.23'
     else
         URL='https://github.com/syncthing/syncthing/releases/download/v0.10.23/syncthing-linux-386-v0.10.23.tar.gz'
         FOLDER='syncthing-linux-386-v0.10.23'
