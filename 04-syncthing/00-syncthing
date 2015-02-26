@@ -17,7 +17,7 @@ sudo chsh -s /usr/sbin/nologin "${NEW_USER}" &&
 
 # Make sure the certificates are in place, and have the correct permissions
 CERT_NAME='syncthing-https'
-check-pi-server-cert "${CERT_NAME}" &&
+check-pi-server-cert "SyncThing HTTPS" "${CERT_NAME}" &&
 sudo chown "${NEW_USER}:${NEW_USER}" "$(pi-server-key "${CERT_NAME}")" &&
 
 
