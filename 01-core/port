@@ -1,0 +1,30 @@
+#!/bin/bash
+# Manipulate ports
+
+source '@@@@@1@@@@@' || exit 1
+
+function is-open()
+{
+    if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null; then
+        echo 'Yes'
+        return 0
+    fi
+
+    echo 'No'
+    return 1
+}
+
+function open()
+{
+    if ! is-open &>/dev/null; then
+        sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT
+    fi
+}
+
+function close()
+{
+    sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null
+}
+
+COMMANDS='is-open|open|close'
+process-args "${@}"

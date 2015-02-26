@@ -35,7 +35,7 @@ name = optional
 emailAddress = optional
 
 [ req ]
-default_bits = 2048
+default_bits = 3072
 default_md = sha256
 x509_extensions = v3_ca
 req_extensions = v3_req

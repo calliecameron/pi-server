@@ -1,0 +1,4 @@
+#!/bin/bash
+# Force minidlna to reload, so deleted files go away cleanly.
+
+/usr/sbin/service minidlna force-reload &>/dev/null

@@ -2,17 +2,9 @@
 # For reference, the correct fstab entries for various filesystems:
 #
 # ext4:
-# UUID=<UUID>    <mountpoint>    ext4    defaults,sync,noatime,nofail    0    0
+# UUID=<UUID>    <mountpoint>    ext4    defaults,noatime,nofail    0    0
 #
-# NTFS:
-# UUID=<UUID>    <mountpoint>    ntfs-3g    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,sync,noatime,nofail    0    0
-#
-# FAT:
-# UUID=<UUID>    <mountpoint>    vfat    defaults,uid=$(id -u www-data),gid=$(id -g www-data),umask=0077,noatime,nofail    0    0
-#
-# Permissions are crazy on NTFS and FAT, so don't use them! The backup
-# partition needs an additional 'noauto' option, and if the partition
-# is on a flash drive it might be worth removing 'sync'.
+# The backup partition needs an additional 'noauto' option.
 #
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
@@ -82,7 +74,7 @@ function setup-fstab()
             exit 1
         fi
     else
-        echo "UUID=${UUID}    ${MOUNTPOINT}    ext4    defaults,sync,noatime,nofail${EXTRA_OPTIONS}    0    0" | sudo tee -a '/etc/fstab' &>/dev/null
+        echo "UUID=${UUID}    ${MOUNTPOINT}    ext4    defaults,noatime,nofail${EXTRA_OPTIONS}    0    0" | sudo tee -a '/etc/fstab' &>/dev/null
     fi
 }
 

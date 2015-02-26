@@ -4,14 +4,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-# TODO certificates for https
-
-
-
-
-
-
-
 # Setup user
 NEW_USER='syncthing'
 
@@ -21,6 +13,12 @@ fi
 
 sudo passwd -l "${NEW_USER}" &&
 sudo chsh -s /usr/sbin/nologin "${NEW_USER}" &&
+
+
+# Make sure the certificates are in place, and have the correct permissions
+CERT_NAME='syncthing-https'
+check-pi-server-cert "${CERT_NAME}" &&
+sudo chown "${NEW_USER}:${NEW_USER}" "$(pi-server-key "${CERT_NAME}")" &&
 
 
 # Install syncthing
@@ -56,9 +54,19 @@ function syncthing-dir()
     done
 }
 
+function cert-link()
+{
+    if [ ! -e "${2}" ]; then
+        sudo ln -s "${1}" "${2}"
+    fi
+}
+
 syncthing-dir "${PI_SERVER_SYNCTHING_ROOT}" &&
 syncthing-dir "${PI_SERVER_SYNCTHING_CONFIG}" &&
 syncthing-dir "${PI_SERVER_SYNCTHING_DATA}" &&
+
+cert-link "$(pi-server-cert "${CERT_NAME}")" "${PI_SERVER_SYNCTHING_CONFIG}/https-cert.pem" &&
+cert-link "$(pi-server-key "${CERT_NAME}")" "${PI_SERVER_SYNCTHING_CONFIG}/https-key.pem" &&
 
 
 # Make it run at boot
@@ -78,10 +86,12 @@ fi
 
 
 # Firewall
-"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 22000 &&
-"${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 21025 &&
-"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8080 &&
-sudo iptables -I INPUT -p tcp --dport 8080 -j ACCEPT &&
+"${PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT}" open 22000 tcp &&
+"${PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT}" open 21025 udp &&
+"${PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT}" open 8080 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 22000 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 21025 udp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 8080 tcp &&
 
 
 # Cleanup
@@ -112,5 +122,5 @@ Delete the default folder.
 Restart syncthing.
 
 
-Reboot, and you can then add folders as desired.
+You can then add folders as desired.
 EOF

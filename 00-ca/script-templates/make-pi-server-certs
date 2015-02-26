@@ -38,7 +38,7 @@ EOF
 
 do-cert "${SERVER_ADDR}" 'owncloud' &&
 do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
-
+do-cert "${SERVER_ADDR} SyncThing HTTPS" 'syncthing-https' &&
 
 # Diffie-Helman parameters for OpenVPN
 openssl dhparam -outform PEM -out "${CERT_DIR}/openvpn-dh2048.pem" 2048 &&

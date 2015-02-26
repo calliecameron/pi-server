@@ -9,7 +9,7 @@ if [ -e '@@@@@1@@@@@' ]; then
         # Send an email only if something new was downloaded
         if grep 'NEW' '@@@@@3@@@@@' &> /dev/null; then
             TOTAL_NEW="$(grep 'Total downloads: [0-9]\+' '@@@@@3@@@@@' | sed 's/Total downloads: //g')"
-            '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcasts" "$(cat '@@@@@3@@@@@')"
+            '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcast(s)" "$(cat '@@@@@3@@@@@')"
         fi
     fi
 fi

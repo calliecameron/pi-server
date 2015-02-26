@@ -35,10 +35,15 @@ minidlna-dir "${PI_SERVER_MINIDLNA_ROOT}" \
              "${PI_SERVER_MINIDLNA_PODCASTS}" &&
 
 
-"${PI_SERVER_IPTABLES_OPEN_TCP_AT_BOOT_SCRIPT}" 8200 &&
-"${PI_SERVER_IPTABLES_OPEN_UDP_AT_BOOT_SCRIPT}" 1900 &&
+"${PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT}" open 8200 tcp &&
+"${PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT}" open 1900 udp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 8200 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 1900 udp &&
 
 
+CRONJOB='/etc/cron.daily/minidlna-refresh' &&
+sed-install "${DIR}/minidlna-cron" "${CRONJOB}" &&
+sudo chmod a=rx "${CRONJOB}" &&
 
 
 # Setup mashpodder
@@ -93,6 +98,5 @@ Things in syncthing/owncloud should be symlinked; the server has permission to r
 
 To setup podcasts, see '${PODCASTS_HELP}'.
 
-Reboot now to finish configuration.
 EOF
 enter-to-continue

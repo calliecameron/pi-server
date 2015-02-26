@@ -27,7 +27,7 @@ sudo apt-get -y install avahi-daemon console-setup etckeeper hdparm mysql-client
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
-# No auto-confirm on dist-upgrade
+# No auto-confirm on dist-upgrade, for safety reasons
 sudo apt-get dist-upgrade &&
 
 echo &&

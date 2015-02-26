@@ -1,39 +1,25 @@
 #!/bin/bash
 # This file runs at boot to initialise the firewall
 
-function valid_port()
+source '@@@@@1@@@@@' || exit 1
+
+/sbin/iptables-restore < '@@@@@2@@@@@'
+
+function do-protocol()
 {
-    if [ ! -z "${1}" ]; then
-        if [[ "${1}" != *[!0-9]* ]]; then
-            if (( "${1}" >= 0 && "${1}" <= 65535 )); then
-                return 0
+    local PROTOCOL="${1}"
+    local FILE="$(open-at-boot-file "${PROTOCOL}")"
+
+    if [ -f "${FILE}" ]; then
+        while read port; do
+            if valid-port "${port}"; then
+                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" -j ACCEPT
             fi
-        fi
+        done < "${FILE}"
     fi
-    return 1
 }
 
-TCPFILE='@@@@@1@@@@@'
-UDPFILE='@@@@@2@@@@@'
-
-/sbin/iptables-restore < '@@@@@3@@@@@'
-
-if [ -f "${TCPFILE}" ]; then
-    while read port; do
-        if valid_port "${port}"; then
-            /sbin/iptables -I INPUT -p tcp --dport "${port}" -j ACCEPT
-        fi
-    done < "${TCPFILE}"
-fi
-
-
-if [ -f "${UDPFILE}" ]; then
-    while read port; do
-        if valid_port "${port}"; then
-            /sbin/iptables -I INPUT -p udp --dport "${port}" -j ACCEPT
-        fi
-    done < "${UDPFILE}"
-fi
-
+do-protocol 'tcp'
+do-protocol 'udp'
 
 exit 0
