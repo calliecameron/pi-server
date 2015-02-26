@@ -16,7 +16,8 @@ sudo adduser minidlna syncthing &&
 MINIDLNA_CONF='/etc/minidlna.conf' &&
 sed-install "${DIR}/minidlna-conf-template" "${MINIDLNA_CONF}" \
             "${PI_SERVER_MINIDLNA_MEDIA}" \
-            "${PI_SERVER_MINIDLNA_DB}" || exit 1
+            "${PI_SERVER_MINIDLNA_DB}" &&
+sudo chmod a=r "${MINIDLNA_CONF}" || exit 1
 
 
 function minidlna-dir()
