@@ -4,7 +4,7 @@ DEFAULT_PROTOCOL='tcp'
 
 function valid-protocol()
 {
-    if [ "${1}" = 'tcp'] || [ "${1}" = 'udp' ]; then
+    if [ "${1}" = 'tcp' ] || [ "${1}" = 'udp' ]; then
         return 0
     else
         return 1
