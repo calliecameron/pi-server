@@ -33,7 +33,8 @@ function minidlna-dir()
 minidlna-dir "${PI_SERVER_MINIDLNA_ROOT}" \
              "${PI_SERVER_MINIDLNA_MEDIA}" \
              "${PI_SERVER_MINIDLNA_DB}" \
-             "${PI_SERVER_MINIDLNA_PODCASTS}" &&
+             "${PI_SERVER_MINIDLNA_PODCASTS}" \
+             "${PI_SERVER_MINIDLNA_PODCASTS_LISTENED}" &&
 
 
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 8200 tcp &&
