@@ -9,6 +9,9 @@ AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
 sed-install "${DIR}/avahi-daemon.conf" "${AVAHI_CONF}" &&
 sudo chmod a=r "${AVAHI_CONF}" &&
 
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 5353 udp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 5353 udp &&
+
 
 # ZoneEdit boot and cron setup
 SCRIPT='/etc/network/if-up.d/zoneedit-at-net-up'

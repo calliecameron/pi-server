@@ -35,5 +35,11 @@ else
     fi
 fi
 
-stop-web-services
+
+# Firewall
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 443 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 443 tcp &&
+
+
+stop-web-services &&
 start-web-services

@@ -12,6 +12,7 @@ function get-pi-server-param()
 export PI_SERVER_DIR='/etc/pi-server'
 export PI_SERVER_DATA_MOUNT_DIR='/mnt/data'
 export PI_SERVER_BACKUP_MOUNT_DIR='/mnt/backup'
+export PI_SERVER_SCRATCH_DIR="${PI_SERVER_DATA_MOUNT_DIR}/scratch"
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
@@ -43,7 +44,6 @@ export PI_SERVER_STORAGE_BACKUP_PARTITION="$(get-pi-server-param "${PI_SERVER_ST
 export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-disk"
 export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
-
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
 export PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/openvpn-email-on-login"
@@ -53,7 +53,6 @@ export PI_SERVER_IPTABLES_RULES="${PI_SERVER_IPTABLES_DIR}/iptables-rules"
 export PI_SERVER_IPTABLES_TCP_OPEN_BOOT="${PI_SERVER_IPTABLES_DIR}/iptables-tcp-open-boot"
 export PI_SERVER_IPTABLES_UDP_OPEN_BOOT="${PI_SERVER_IPTABLES_DIR}/iptables-udp-open-boot"
 export PI_SERVER_IPTABLES_COMMON_BASH="${PI_SERVER_IPTABLES_DIR}/iptables-common.bash"
-export PI_SERVER_IPTABLES_PORT_BOOT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port-boot"
 export PI_SERVER_IPTABLES_PORT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port"
 
 export PI_SERVER_ZONEEDIT_USERNAME_FILE="${PI_SERVER_DIR}/zoneedit-username"

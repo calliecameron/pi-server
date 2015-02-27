@@ -1,0 +1,15 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+if ! mount | grep "${PI_SERVER_STORAGE_DATA_PARTITION}" &>/dev/null; then
+    echo "Data partition not mounted; not going any further!"
+    exit 1
+fi
+
+
+sudo mkdir -p "${PI_SERVER_SCRATCH_DIR}" &&
+sudo chown "$(id -nu):$(id -ng)" "${PI_SERVER_SCRATCH_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_SCRATCH_DIR}"
