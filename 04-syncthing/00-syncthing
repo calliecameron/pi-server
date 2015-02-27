@@ -56,7 +56,7 @@ function syncthing-dir()
 
 function cert-link()
 {
-    if [ ! -e "${2}" ]; then
+    if ! sudo test -e "${2}"; then
         sudo ln -s "${1}" "${2}"
     fi
 }
@@ -76,12 +76,12 @@ sed-install "${DIR}/supervisor-syncthing" "${SUPERVISOR_DST}" \
             "${PI_SERVER_SYNCTHING_CONFIG}" \
             "${NEW_USER}" \
             "${PI_SERVER_SYNCTHING_DATA}" &&
-sudo chmod a=r "${SUPERVISOR_DST}" &&
+sudo chmod a=r "${SUPERVISOR_DST}" || exit 1
 
 
 # Generate initial setup if necessary
-if [ ! -e "${PI_SERVER_SYNCTHING_CONFIG}/config.xml" ]; then
-    sudo -u "${NEW_USER}" "${PI_SERVER_SYNCTHING_BINARY}" "-generate=${PI_SERVER_SYNCTHING_CONFIG}"
+if ! sudo test -e "${PI_SERVER_SYNCTHING_CONFIG}/config.xml"; then
+    sudo -u "${NEW_USER}" "${PI_SERVER_SYNCTHING_BINARY}" "-generate=${PI_SERVER_SYNCTHING_CONFIG}" || exit 1
 fi
 
 
