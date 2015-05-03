@@ -2,10 +2,16 @@
 
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-read -p "Enter the IP address on the LAN on which the server's owncloud instance will be accessed (MUST be correct, or owncloud will not work!): " SERVER_ADDR &&
+read -p "Enter the server's LAN IP address (MUST be correct, or nothing will work!): " SERVER_ADDR &&
+read -p "Enter the server's hostname (MUST be correct, or nothing will work!): " SERVER_HOSTNAME &&
 
 if [ -z "${SERVER_ADDR}" ]; then
     echo "Server address must not be empty"
+    exit 1
+fi
+
+if [ -z "${SERVER_HOSTNAME}" ]; then
+    echo "Server hostname must not be empty"
     exit 1
 fi
 
@@ -14,31 +20,35 @@ read -s -p "Enter the password for the root CA key: " PASSWD && echo &&
 
 # Create directory structure
 CERT_DIR="${CA_DIR}/certs/server/${SERVER_ADDR}__$(date '+%Y_%m_%d_%H_%M_%S')" &&
+LOCAL_CONF="${CERT_DIR}/openssl.conf" &&
 mkdir -p "${CERT_DIR}" &&
 chmod go-rwx "${CERT_DIR}" &&
+cp "${CA_DIR}/openssl.conf" "${LOCAL_CONF}" &&
+chmod go-rwx "${LOCAL_CONF}" &&
+echo "DNS.1 = ${SERVER_HOSTNAME}.local" >> "${LOCAL_CONF}" &&
+echo "IP.1 = ${SERVER_ADDR}" >> "${LOCAL_CONF}" &&
 
 
 function do-cert()
 {
     # Certificate request
-    openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${1}" -newkey rsa -keyout "${CERT_DIR}/${2}.key" -out "${CERT_DIR}/${2}.csr" -outform PEM -nodes &&
+    openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes &&
 
     # Sign
     exec 3<<EOF
 ${PASSWD}
 EOF
-    openssl ca -config "${CA_DIR}/openssl.conf" -in "${CERT_DIR}/${2}.csr" -out "${CERT_DIR}/${2}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
+    openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
 
     # Cleanup
-    rm "${CERT_DIR}/${2}.csr" &&
-    chmod u=r "${CERT_DIR}/${2}.key" "${CERT_DIR}/${2}.crt" &&
-    chmod go=r "${CERT_DIR}/${2}.crt" &&
-    chmod go-rwx "${CERT_DIR}/${2}.key"
+    rm "${CERT_DIR}/${1}.csr" &&
+    chmod u=r "${CERT_DIR}/${1}.key" "${CERT_DIR}/${1}.crt" &&
+    chmod go=r "${CERT_DIR}/${1}.crt" &&
+    chmod go-rwx "${CERT_DIR}/${1}.key"
 }
 
-do-cert "${SERVER_ADDR}" 'owncloud' &&
-do-cert "${SERVER_ADDR} OpenVPN" 'openvpn' &&
-do-cert "${SERVER_ADDR} SyncThing HTTPS" 'syncthing-https' &&
+do-cert 'nginx' "${SERVER_ADDR}" &&
+do-cert 'openvpn' "${SERVER_ADDR} OpenVPN" &&
 
 # Diffie-Helman parameters for OpenVPN
 openssl dhparam -outform PEM -out "${CERT_DIR}/openvpn-dh2048.pem" 2048 &&
@@ -46,4 +56,6 @@ chmod ugo=r "${CERT_DIR}/openvpn-dh2048.pem" &&
 
 cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}" &&
 cp "${CA_DIR}/ca/crl" "${CERT_DIR}" &&
-cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}"
+cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}" &&
+
+ssh-keygen -t rsa -f "${CERT_DIR}/deployment-key"

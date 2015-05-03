@@ -65,10 +65,10 @@ EOF
 openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3 &&
 
 chmod u=rw "${CA_DIR}/ca/crl" &&
-chmod go=r "${CA_DIR}/ca/crl"
+chmod go=r "${CA_DIR}/ca/crl" &&
 
 
 # Create the OpenVPN pre-shared key (extra layer on top of TLS)
-openvpn --genkey --secret "${CA_DIR}/ca/openvpn-tls-auth.key"
-chmod u=r "${CA_DIR}/ca/openvpn-tls-auth.key"
+openvpn --genkey --secret "${CA_DIR}/ca/openvpn-tls-auth.key" &&
+chmod u=r "${CA_DIR}/ca/openvpn-tls-auth.key" &&
 chmod go-rwx "${CA_DIR}/ca/openvpn-tls-auth.key"

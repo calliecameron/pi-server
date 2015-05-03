@@ -1,0 +1,12 @@
+* Setup an encrypted file for CA storage
+sudo swapoff -a
+sudo tomb dig -s <size_MB> <file>
+sudo tomb forge <keyfile>
+sudo tomb lock -k <keyfile> <file>
+sudo swapon -a
+
+* Mount the file
+sudo tomb open -k <keyfile> <file>
+
+* Unmount the file
+sudo tomb close <name>
