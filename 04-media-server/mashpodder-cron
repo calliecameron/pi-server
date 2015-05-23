@@ -2,7 +2,7 @@
 # Download podcasts using mashpodder.
 
 if [ -e '@@@@@1@@@@@' ]; then
-    if ! su -s /bin/bash -c "'@@@@@2@@@@@' -v &> '@@@@@3@@@@@'" minidlna; then
+    if ! su -s /bin/bash -c "'@@@@@2@@@@@' -v &> '@@@@@3@@@@@'" www-data; then
         # Send an email to make it clear something went wrong
         '@@@@@4@@@@@' 'Failure downloading podcasts' "$(cat '@@@@@3@@@@@')"
     else
