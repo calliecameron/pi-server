@@ -4,6 +4,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
+# Make sure the certs are in place, and have the correct permissions
+CERT_NAME='nginx' &&
+check-pi-server-cert "Nginx" "${CERT_NAME}" &&
+
+
 # Setup generic nginx config (not a specific site)
 CONF_TARGET='/etc/nginx/nginx.conf' &&
 sed-install "${DIR}/nginx.conf" "${CONF_TARGET}" &&
@@ -36,7 +41,44 @@ else
 fi
 
 
+# Install the main pi-server site
+CONF_TARGET='/etc/nginx/sites-enabled/pi-server' &&
+sed-install "${DIR}/pi-server-nginx-template" "${CONF_TARGET}" \
+            "${PI_SERVER_WEB_PAGE_DIR}" &&
+sudo chmod a=r "${CONF_TARGET}" &&
+
+sudo mkdir -p "${PI_SERVER_WEB_PAGE_DIR}" &&
+sed-install "${DIR}/pi.png" "${PI_SERVER_WEB_PAGE_DIR}/pi.png" &&
+sudo chmod a=r "${PI_SERVER_WEB_PAGE_DIR}/pi.png" &&
+
+sudo mkdir -p "${PI_SERVER_WEB_PAGE_PARTS_DIR}" &&
+
+sed-install "${DIR}/web-page-header" "${PI_SERVER_WEB_PAGE_HEADER}" \
+            "${PI_SERVER_IP}" \
+            "$(hostname)" \
+            "${PI_SERVER_FQDN}" &&
+sudo chmod a=r "${PI_SERVER_WEB_PAGE_HEADER}" &&
+
+sed-install "${DIR}/web-page-footer" "${PI_SERVER_WEB_PAGE_FOOTER}" \
+            "${PI_SERVER_IP}" \
+            "$(hostname)" \
+            "${PI_SERVER_FQDN}" &&
+sudo chmod a=r "${PI_SERVER_WEB_PAGE_FOOTER}" &&
+
+sed-install "${DIR}/generate-main-web-page" "{PI_SERVER_WEB_PAGE_GENERATE}" \
+            "${PI_SERVER_WEB_PAGE_DIR}" \
+            "${PI_SERVER_WEB_PAGE_PARTS_DIR}" \
+            "${PI_SERVER_WEB_PAGE_HEADER}" \
+            "${PI_SERVER_WEB_PAGE_FOOTER}" &&
+sudo chmod a=rx "${PI_SERVER_WEB_PAGE_GENERATE}" &&
+
+sudo "${PI_SERVER_WEB_PAGE_GENERATE}" &&
+
+
 # Firewall
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 80 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 80 tcp &&
+
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 443 tcp &&
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 443 tcp &&
 

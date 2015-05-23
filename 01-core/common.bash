@@ -9,10 +9,18 @@ function get-pi-server-param()
     fi
 }
 
-export PI_SERVER_DIR='/etc/pi-server'
+# Stored data paths (on external drive)
 export PI_SERVER_DATA_MOUNT_DIR='/mnt/data'
 export PI_SERVER_BACKUP_MOUNT_DIR='/mnt/backup'
+export PI_SERVER_DATA_DIR="${PI_SERVER_DATA_MOUNT_DIR}/pi-server-data"
+export PI_SERVER_DATA_CONFIG_DIR="${PI_SERVER_DATA_DIR}/config"
+export PI_SERVER_DATA_MAIN_DIR="${PI_SERVER_DATA_DIR}/data"
 export PI_SERVER_SCRATCH_DIR="${PI_SERVER_DATA_MOUNT_DIR}/scratch"
+# TODO backup dirs...
+
+
+# Configuration paths (on SD card)
+export PI_SERVER_DIR='/etc/pi-server'
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
@@ -64,6 +72,12 @@ export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
 
 export PI_SERVER_CA_CERT="${PI_SERVER_DIR}/ca.crt"
 export PI_SERVER_CRL="${PI_SERVER_DIR}/crl"
+
+export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
+export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"
+export PI_SERVER_WEB_PAGE_HEADER="${PI_SERVER_DIR}/web-page-header"
+export PI_SERVER_WEB_PAGE_FOOTER="${PI_SERVER_DIR}/web-page-footer"
+export PI_SERVER_WEB_PAGE_GENERATE="${PI_SERVER_DIR}/generate-main-web-page"
 
 export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_DIR}/openvpn-dh2048.pem"
 export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_DIR}/openvpn-tls-auth.key"
@@ -167,7 +181,7 @@ function sed-install()
     rm "${TMPFILE}"
 }
 
-function yn_y()
+function yn-y()
 {
     # Y is the default
     local REPLY
@@ -179,7 +193,7 @@ function yn_y()
     fi
 }
 
-function yn_n()
+function yn-n()
 {
     # N is the default
     local REPLY

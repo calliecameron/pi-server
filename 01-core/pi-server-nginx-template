@@ -1,0 +1,8 @@
+server {
+    listen 80;
+    root @@@@@1@@@@@;
+
+    location / {
+        index index.html;
+    }
+}

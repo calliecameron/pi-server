@@ -10,6 +10,15 @@ if ! mount | grep "${PI_SERVER_STORAGE_DATA_PARTITION}" &>/dev/null; then
 fi
 
 
+sudo mkdir -p "${PI_SERVER_DATA_DIR}" &&
+sudo mkdir -p "${PI_SERVER_DATA_CONFIG_DIR}" &&
+sudo mkdir -p "${PI_SERVER_DATA_MAIN_DIR}" &&
+
+sudo chown -R www-data:www-data "${PI_SERVER_DATA_MAIN_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_DATA_MAIN_DIR}" &&
+
 sudo mkdir -p "${PI_SERVER_SCRATCH_DIR}" &&
 sudo chown "$(id -nu):$(id -ng)" "${PI_SERVER_SCRATCH_DIR}" &&
 sudo chmod go-rwx "${PI_SERVER_SCRATCH_DIR}"
+
+# TODO backup directories...
