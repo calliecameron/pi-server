@@ -15,11 +15,11 @@ if [ ! -e "${PI_SERVER_SYNCTHING_BINARY}" ]; then
     TMPDIR="$(mktemp -d)" || exit 1
     TARBALL="${TMPDIR}/syncthing.tar.gz"
     if real-pi; then
-        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.5/syncthing-linux-arm-v0.11.5.tar.gz'
-        FOLDER='syncthing-linux-arm-v0.11.5'
+        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.8/syncthing-linux-arm-v0.11.8.tar.gz'
+        FOLDER='syncthing-linux-arm-v0.11.8'
     else
-        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.5/syncthing-linux-386-v0.11.5.tar.gz'
-        FOLDER='syncthing-linux-386-v0.11.5'
+        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.8/syncthing-linux-386-v0.11.8.tar.gz'
+        FOLDER='syncthing-linux-386-v0.11.8'
     fi
 
     cd "${TMPDIR}" &&
