@@ -52,6 +52,7 @@ sed-install "${DIR}/pi.png" "${PI_SERVER_WEB_PAGE_DIR}/pi.png" &&
 sudo chmod a=r "${PI_SERVER_WEB_PAGE_DIR}/pi.png" &&
 
 sudo mkdir -p "${PI_SERVER_WEB_PAGE_PARTS_DIR}" &&
+sudo touch "${PI_SERVER_WEB_PAGE_PARTS_DIR}/placeholder" &&
 
 sed-install "${DIR}/web-page-header" "${PI_SERVER_WEB_PAGE_HEADER}" \
             "${PI_SERVER_IP}" \
