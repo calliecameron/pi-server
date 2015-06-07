@@ -3,6 +3,6 @@
 
 INDEX='@@@@@1@@@@@/index.html'
 
-chmod u+w "${INDEX}"
+test -f "${INDEX}" && chmod u+w "${INDEX}"
 cat '@@@@@3@@@@@' '@@@@@2@@@@@'/* '@@@@@4@@@@@' > "${INDEX}"
 chmod a=r "${INDEX}"
