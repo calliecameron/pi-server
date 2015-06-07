@@ -8,7 +8,9 @@ sudo apt-get update &&
 sudo apt-get -y install minidlna wget curl xsltproc &&
 
 
-# TODO make minidlna run as www-data
+MINIDLNA_DEFAULT='/etc/default/minidlna' &&
+sudo sed -i 's/^#USER="minidlna"$/USER="www-data"/g' "${MINIDLNA_DEFAULT}" &&
+sudo sed -i 's/^#GROUP="minidlna"$/GROUP="www-data"/g' "${MINIDLNA_DEFAULT}" &&
 
 
 MINIDLNA_CONF='/etc/minidlna.conf' &&
