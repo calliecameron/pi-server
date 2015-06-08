@@ -41,7 +41,7 @@ minidlna-dir "${PI_SERVER_MINIDLNA_MEDIA}" \
              "${PI_SERVER_MASHPODDER_TMP_DIR}" &&
 
 sudo touch "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
-sudo chown www-data:www-data "${PI_SERVER_MASHPODER_RSS_FILE}" &&
+sudo chown www-data:www-data "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
 
 
 # Setup webpage
