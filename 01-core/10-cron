@@ -1,0 +1,21 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+CRONTAB='/etc/crontab'
+
+sed-install "${DIR}/crontab" "${CRONTAB}" &&
+sudo chmod u=rw "${CRONTAB}" &&
+sudo chmod go=r "${CRONTAB}" &&
+
+
+sudo mkdir -p "${PI_SERVER_CRON_DIR}" &&
+sudo chmod go=rx "${PI_SERVER_CRON_DIR}" &&
+
+
+CRON_SCRIPT='/etc/cron.daily/pi-server' &&
+sed-install "${DIR}/pi-server-cron" "${CRON_SCRIPT}" \
+            "${PI_SERVER_CRON_DIR}" &&
+sudo chmod a=rx "${CRON_SCRIPT}" &&

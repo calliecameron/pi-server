@@ -60,11 +60,6 @@ sudo "${PI_SERVER_WEB_PAGE_GENERATE}" &&
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 1900 udp &&
 
 
-CRONJOB='/etc/cron.daily/minidlna-refresh' &&
-sed-install "${DIR}/minidlna-cron" "${CRONJOB}" &&
-sudo chmod a=rx "${CRONJOB}" &&
-
-
 # Setup mashpodder
 TMPDIR="$(mktemp -d)" &&
 REPO="${TMPDIR}/mashpodder" &&
@@ -92,8 +87,8 @@ sudo cp "${DIR}/podcast-instructions.txt" "${PODCASTS_HELP}" &&
 sudo chown www-data:www-data "${PODCASTS_HELP}" &&
 sudo chmod a=r "${PODCASTS_HELP}" &&
 
-CRONJOB='/etc/cron.daily/mashpodder' &&
-sed-install "${DIR}/mashpodder-cron" "${CRONJOB}" \
+CRONJOB="${PI_SERVER_CRON_DIR}/media-server" &&
+sed-install "${DIR}/media-server-cron" "${CRONJOB}" \
             "${PI_SERVER_MASHPODDER_RSS_FILE}" \
             "${PI_SERVER_MASHPODDER_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_ROOT}/daily-download.log" \

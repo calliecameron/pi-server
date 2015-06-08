@@ -1,6 +1,7 @@
 #!/bin/bash
-# Download podcasts using mashpodder.
+# Daily refresh of the media server
 
+# Download podcasts using mashpodder.
 if [ -e '@@@@@1@@@@@' ]; then
     if ! su -s /bin/bash -c "'@@@@@2@@@@@' -v &> '@@@@@3@@@@@'" www-data; then
         # Send an email to make it clear something went wrong
@@ -13,3 +14,6 @@ if [ -e '@@@@@1@@@@@' ]; then
         fi
     fi
 fi
+
+# Force minidlna to reload, so deleted files go away cleanly.
+/usr/sbin/service minidlna force-reload &>/dev/null

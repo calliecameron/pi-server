@@ -4,13 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-CRONTAB='/etc/crontab'
 AUTO_UPDATE='/etc/apt/apt.conf.d/20periodic'
 CONFIG_FILE='/etc/apt/apt.conf.d/50unattended-upgrades'
-
-sed-install "${DIR}/crontab" "${CRONTAB}" &&
-sudo chmod u=rw "${CRONTAB}" &&
-sudo chmod go=r "${CRONTAB}" &&
 
 sed-install "${DIR}/auto-update" "${AUTO_UPDATE}" &&
 sudo chmod a=r "${AUTO_UPDATE}" &&

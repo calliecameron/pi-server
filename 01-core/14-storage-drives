@@ -97,7 +97,7 @@ sudo chmod go-wx "${HDPARM_CONF}" &&
 
 
 # Disk space checking
-DISK_CHECK='/etc/cron.daily/check-disk-usage' &&
+DISK_CHECK="${PI_SERVER_CRON_DIR}/00-check-disk-usage" &&
 sed-install "${DIR}/check-disk-usage" "${DISK_CHECK}" \
             "${PI_SERVER_DATA_MOUNT_DIR}" \
             "${PI_SERVER_BACKUP_MOUNT_DIR}" \

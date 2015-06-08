@@ -70,6 +70,8 @@ export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_DIR}/zoneedit-config"
 
 export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
 
+export PI_SERVER_CRON_DIR="${PI_SERVER_DIR}/cron.daily"
+
 export PI_SERVER_CA_CERT="${PI_SERVER_DIR}/ca.crt"
 export PI_SERVER_CRL="${PI_SERVER_DIR}/crl"
 

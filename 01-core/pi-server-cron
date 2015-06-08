@@ -1,0 +1,10 @@
+#!/bin/bash
+# Run all the pi-server cron scripts
+
+# TODO backup stuff
+# TODO git download
+
+
+find '@@@@@1@@@@@' -type f -executable | LC_ALL=C sort | while read line; do
+    "${line}"
+done
