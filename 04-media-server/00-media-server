@@ -34,7 +34,7 @@ function minidlna-dir()
 minidlna-dir "${PI_SERVER_MINIDLNA_MEDIA}" \
              "${PI_SERVER_MINIDLNA_PODCASTS}" \
              "${PI_SERVER_MINIDLNA_PODCASTS_LISTENED}" \
-             "${PI_SERVER_MASHPODER_CONFIG_REPO}" \
+             "${PI_SERVER_MASHPODDER_CONFIG_REPO}" \
              "${PI_SERVER_MINIDLNA_CONFIG}" \
              "${PI_SERVER_MINIDLNA_DB}" \
              "${PI_SERVER_MASHPODDER_ROOT}" \
