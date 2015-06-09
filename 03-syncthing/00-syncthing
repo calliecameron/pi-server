@@ -7,7 +7,8 @@ source "${DIR}/common.bash" &&
 # Make sure the certificates are in place, and have the correct permissions
 CERT_NAME='nginx'
 check-pi-server-cert "Nginx" "${CERT_NAME}" &&
-sudo chown 'www-data:www-data' "$(pi-server-key "${CERT_NAME}")" &&
+sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
+chmod g=r "${CERT_NAME}" &&
 
 
 # Install syncthing
