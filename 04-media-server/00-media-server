@@ -73,6 +73,7 @@ sed -i "s|^PODCASTDIR=\"\\\$BASEDIR/podcasts\"\$|PODCASTDIR='${PI_SERVER_MINIDLN
 sed -i "s|^TMPDIR=\"\\\$BASEDIR/tmp\"\$|TMPDIR='${PI_SERVER_MASHPODDER_TMP_DIR}'|g" "${MASHPODDER}" &&
 sed -i "s|^RSSFILE=\"\\\$BASEDIR/mp.conf\"\$|RSSFILE='${PI_SERVER_MASHPODDER_RSS_FILE}'|g" "${MASHPODDER}" &&
 sed -i "s|^PODLOG=\"\\\$BASEDIR/podcast.log\"\$|PODLOG='${PI_SERVER_MASHPODDER_ROOT}/podcast.log'|g" "${MASHPODDER}" &&
+sed -i 's|fix_url \$DLURL|fix_url \$URL|g' "${MASHPODDER}" &&
 
 sudo mkdir -p "${PI_SERVER_MASHPODDER_SCRIPT_DIR}" &&
 
