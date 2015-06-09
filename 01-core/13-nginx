@@ -11,7 +11,7 @@ check-pi-server-cert "Nginx" "${CERT_NAME}" &&
 # nginx.key has to be readable by www-data, so syncthing can use
 # it. This is only used for internally-accessible pages.
 sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
-chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
+sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
 # Setup generic nginx config (not a specific site)

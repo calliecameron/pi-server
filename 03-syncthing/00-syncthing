@@ -8,7 +8,7 @@ source "${DIR}/common.bash" &&
 CERT_NAME='nginx'
 check-pi-server-cert "Nginx" "${CERT_NAME}" &&
 sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
-chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
+sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
 # Install syncthing
