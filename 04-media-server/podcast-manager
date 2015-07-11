@@ -21,7 +21,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write("<html><head><title>%s</title></head><body>%s</body></html>" % (title, body))
+        self.wfile.write((u"<html><head><meta charset=\"utf-8\"><title>%s</title></head><body>%s</body></html>" % (title, body)).encode("utf-8"))
 
     def fail(self):
         self.send_response(404)
@@ -43,7 +43,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
     def pretty_print(self, podcast_dir, filename):
         try:
             mp3 = eyed3.load(os.path.join(podcast_dir, filename))
-            if mp3 and mp3.tag.title:
+            if mp3 and mp3.tag and mp3.tag.title:
                 s = "<em>%s</em>" % mp3.tag.title
                 if mp3.tag.artist:
                     s += ", %s" % mp3.tag.artist
@@ -51,7 +51,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                 return s
             else:
                 return filename
-        except IOError:
+        except Exception:
             return filename
 
     def list_files(self, src, title, url, num_moved, errors):
