@@ -30,7 +30,7 @@ sudo chmod o-rwx "${SUDOERS_DST}" &&
 # Set it up to run at boot
 SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf' &&
 sed-install "${DIR}/supervisor-shutdownd" "${SUPERVISOR_DST}" "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
-sudo chmod a=r "${SUPERVISOR_DST}"
+sudo chmod a=r "${SUPERVISOR_DST}" &&
 
 
 # Firewall

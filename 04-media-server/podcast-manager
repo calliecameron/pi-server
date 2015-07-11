@@ -1,0 +1,147 @@
+#!/usr/bin/env python
+
+import BaseHTTPServer
+import cgi
+import eyed3
+import os
+import shutil
+import subprocess
+import sys
+import urllib
+import urlparse
+
+NEW_PATH = "@@@@@1@@@@@"
+LISTENED_PATH = "@@@@@2@@@@@"
+NEW_URL = "/new"
+LISTENED_URL = "/listened"
+
+
+class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
+    def respond(self, title, body):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write("<html><head><title>%s</title></head><body>%s</body></html>" % (title, body))
+
+    def fail(self):
+        self.send_response(404)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write("<html><head><title>Page not found</title></head><body>Page not found.</body></html>")
+
+    def parse_POST(self):
+        ctype, pdict = cgi.parse_header(self.headers["content-type"])
+        if ctype == "multipart/form-data":
+            postvars = cgi.parse_multipart(self.rfile, pdict)
+        elif ctype == "application/x-www-form-urlencoded":
+            length = int(self.headers["content-length"])
+            postvars = urlparse.parse_qs(self.rfile.read(length), keep_blank_values=1)
+        else:
+            postvars = {}
+        return postvars
+
+    def pretty_print(self, podcast_dir, filename):
+        try:
+            mp3 = eyed3.load(os.path.join(podcast_dir, filename))
+            if mp3 and mp3.tag.title:
+                s = "<em>%s</em>" % mp3.tag.title
+                if mp3.tag.artist:
+                    s += ", %s" % mp3.tag.artist
+                s += " (%s)" % filename
+                return s
+            else:
+                return filename
+        except IOError:
+            return filename
+
+    def list_files(self, src, title, url, num_moved, errors):
+        body = "<p><a href=\"/\">Home</a></p><h1>%s</h1>" % title
+        if num_moved:
+            body += "<p>Moved %s files</p>" % num_moved
+        if errors:
+            body += "<p>%s errors:</p>" % len(errors)
+            for err in errors:
+                body += "<p>%s</p>" % err
+        body += "<form action=\"%s\" method=\"post\">" % url
+
+        for podcast in sorted(os.listdir(src)):
+            podcast_dir = os.path.join(src, podcast)
+            if os.path.isdir(podcast_dir):
+                episodes = sorted(os.listdir(podcast_dir))
+                if episodes:
+                    body += "<h2>%s</h2>" % podcast
+                    for episode in episodes:
+                        name = urllib.pathname2url("%s/%s" % (podcast, episode))
+                        pretty = self.pretty_print(podcast_dir, episode)
+                        body += "<p><input type=\"checkbox\" id=\"%s\" name=\"%s\"><label for=\"%s\">%s</label></p>" % (name, name, name, pretty)
+
+        body += "<button type=\"submit\">Move files</button></form>"
+
+        self.respond(title, body)
+
+    def list_new(self, num_moved=0, errors=[]):
+        self.list_files(NEW_PATH, "New podcasts", NEW_URL, num_moved, errors)
+
+    def list_listened(self, num_moved=0, errors=[]):
+        self.list_files(LISTENED_PATH, "Listened podcasts", LISTENED_URL, num_moved, errors)
+
+    def move_files(self, src, dst, post_data):
+        files = map(urllib.url2pathname, post_data.keys())
+
+        num_moved = 0
+        errors = []
+
+        for f in files:
+            try:
+                parts = f.split("/")
+                if (not f
+                    or os.path.isabs(f)
+                    or len(parts) != 2
+                    or parts[0] == ".."
+                    or parts[0] == "."
+                    or parts[1] == ".."
+                    or parts[1] == "."):
+                    raise Exception("Filename '%s' is invalid." % f)
+
+                srcfile = os.path.join(src, parts[0], parts[1])
+                dstdir = os.path.join(dst, parts[0])
+                dstfile = os.path.join(dstdir, parts[1])
+
+                if not os.path.isfile(srcfile):
+                    raise Exception("File '%s' does not exist." % srcfile)
+                elif os.path.exists(dstfile):
+                    raise Exception("File '%s' already exists." % dstfile)
+
+                if not os.path.exists(dstdir):
+                    os.mkdir(dstdir)
+
+                shutil.move(srcfile, dstfile)
+                num_moved += 1
+            except Exception as e:
+                errors.append(str(e))
+
+        return num_moved, errors
+
+    def do_GET(self):
+        if self.path == "/":
+            self.respond("Podcasts", "<p><a href=\"%s\">New podcasts</a></p><p><a href=\"%s\">Listened podcasts</a></p>" % (NEW_URL, LISTENED_URL))
+        elif self.path == NEW_URL:
+            self.list_new()
+        elif self.path == LISTENED_URL:
+            self.list_listened()
+        else:
+            self.fail()
+
+    def do_POST(self):
+        if self.path == NEW_URL:
+            moved, errors = self.move_files(NEW_PATH, LISTENED_PATH, self.parse_POST())
+            self.list_new(moved, errors)
+        elif self.path == LISTENED_URL:
+            moved, errors = self.move_files(LISTENED_PATH, NEW_PATH, self.parse_POST())
+            self.list_listened(moved, errors)
+        else:
+            self.fail()
+
+server_address = ('', 23146)
+httpd = BaseHTTPServer.HTTPServer(server_address, Responder)
+httpd.serve_forever()

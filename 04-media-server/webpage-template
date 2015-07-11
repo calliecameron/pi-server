@@ -1,5 +1,10 @@
 <li>
   <script language="JavaScript">
+    document.write('<a href="http://' + window.location.hostname + ':23146/">Podcasts</a>');
+  </script>
+</li>
+<li>
+  <script language="JavaScript">
     document.write('<a href="http://' + window.location.hostname + ':8200/">Media server status</a>');
   </script>
 </li>
