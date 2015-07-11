@@ -58,4 +58,7 @@ set-pi-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}" "Enter the partition num
 
 set-pi-param "${PI_SERVER_STORAGE_BACKUP_PARTITION_FILE}" "Enter the partition number of the backup partition on the external hard drive (e.g. 1)" &&
 
-set-pi-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}" "Is the external hard drive a spinning disk? [y/n]"
+set-pi-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}" "Is the external hard drive a spinning disk? [y/n]" &&
+
+sed-install "${DIR}/change-ip-address.txt" "${PI_SERVER_DIR}/change-ip-address.txt" &&
+sudo chmod a=r "${PI_SERVER_DIR}/change-ip-address.txt"

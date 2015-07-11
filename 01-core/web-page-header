@@ -9,8 +9,8 @@
   <body>
     <img src="pi.png" alt="Raspberry Pi">
     <ul>
-      <li>IP address: @@@@@1@@@@@</li>
-      <li>Hostname: @@@@@2@@@@@.local</li>
+      <li>IP address: <a href="http://@@@@@1@@@@@/">@@@@@1@@@@@</a></li>
+      <li>Hostname: <a href="http://@@@@@2@@@@@.local">@@@@@2@@@@@.local</a></li>
       <li>External domain name: @@@@@3@@@@@</li>
     </ul>
     <ul>
