@@ -1,1 +1,5 @@
-<li><a href="http://@@@@@1@@@@@:8200/">Media server status</a></li>
+<li>
+  <script language="JavaScript">
+    document.write('<a href="http://' + window.location.hostname + ':8200/">Media server status</a>');
+  </script>
+</li>
