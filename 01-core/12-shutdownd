@@ -35,4 +35,7 @@ sudo chmod a=r "${SUPERVISOR_DST}" &&
 
 # Firewall
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 23145 tcp &&
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 23145 tcp
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 23145 tcp &&
+
+
+sudo service supervisor restart

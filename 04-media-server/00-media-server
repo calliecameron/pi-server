@@ -112,6 +112,7 @@ cd &&
 rm -rf "${TMPDIR}" &&
 
 
+sudo service supervisor restart &&
 sudo service minidlna force-reload &&
 
 
