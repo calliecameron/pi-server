@@ -11,8 +11,35 @@ check-pi-server-cert "Owncloud" "${CERT_NAME}" &&
 
 
 # Preparation
+sudo apt-get install mysql-client mysql-server php5 php5-fpm php5-mysqlnd
 sudo service nginx stop &&
 sudo service php5-fpm stop &&
+
+
+# Configure generic php settings
+PHP_INI='/etc/php5/fpm/php.ini' &&
+
+if ! grep '^cgi.fix_pathinfo' "${PHP_INI}" &>/dev/null; then
+    echo 'cgi.fix_pathinfo=0' | sudo tee -a "${PHP_INI}" >/dev/null
+elif grep '^cgi.fix_pathinfo=1$' "${PHP_INI}" >&/dev/null; then
+    sudo sed -i 's/^cgi.fix_pathinfo=1$/cgi.fix_pathinfo=0/g' "${PHP_INI}"
+elif ! grep '^cgi.fix_pathinfo=0$' "${PHP_INI}" &>/dev/null; then
+    echo
+    echo "Something's up with ${PHP_INI}; better fix it manually"
+fi
+
+if ! grep '^default_charset' "${PHP_INI}" &>/dev/null; then
+    echo 'default_charset = "UTF-8"' | sudo tee -a "${PHP_INI}" >/dev/null
+else
+    if ! grep '^default_charset = "UTF-8"' "${PHP_INI}" &>/dev/null; then
+        echo
+        echo "Something's up with ${PHP_INI}; better fix it manually"
+    fi
+fi
+
+NGINX_PHP='/etc/nginx/conf.d/nginx-php.conf' &&
+sed-install "${DIR}/nginx-php.conf" "${NGINX_PHP}" &&
+chmod a=r "${NGINX_PHP}" &&
 
 
 # Database configuration

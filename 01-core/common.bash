@@ -228,17 +228,3 @@ function get-new-password()
 
     echo "${PASSWD_1}"
 }
-
-function stop-web-services()
-{
-    sudo service nginx stop
-    sudo service php5-fpm stop
-    sudo service mysql stop
-}
-
-function start-web-services()
-{
-    sudo service mysql start
-    sudo service php5-fpm start
-    sudo service nginx start
-}
