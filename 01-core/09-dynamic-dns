@@ -4,6 +4,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
+sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
+
+
 # Avahi daemon for local name resolution
 AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
 sed-install "${DIR}/avahi-daemon.conf" "${AVAHI_CONF}" &&
@@ -29,8 +32,7 @@ sudo chmod a=rx "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" &&
 
 
 # Config files
-function do-config-file()
-{
+function do-config-file() {
     local NAME="${1}"
     local TARGET="${2}"
 
