@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-if ! mount | grep "${PI_SERVER_STORAGE_DATA_PARTITION}" &>/dev/null; then
+if ! mount | grep "${PI_SERVER_DATA_MOUNT_DIR}" &>/dev/null; then
     echo 'Data partition not mounted; not going any further!'
     exit 1
 fi
@@ -24,8 +24,8 @@ sudo chown "$(id -nu):$(id -ng)" "${PI_SERVER_SCRATCH_DIR}" &&
 sudo chmod go-rwx "${PI_SERVER_SCRATCH_DIR}" || exit 1
 
 
-if ! mount | grep "${PI_SERVER_STORAGE_BACKUP_PARTITION}" &>/dev/null; then
-    if ! sudo mount "${PI_SERVER_STORAGE_BACKUP_PARTITION}" &>/dev/null; then
+if ! mount | grep "${PI_SERVER_BACKUP_MOUNT_DIR}" &>/dev/null; then
+    if ! sudo mount "${PI_SERVER_BACKUP_MOUNT_DIR}" &>/dev/null; then
         echo 'Cannot mount backup partition; not going any further!'
         exit 1
     fi
