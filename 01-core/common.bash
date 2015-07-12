@@ -92,11 +92,12 @@ export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_DIR}/openvpn-tls-auth.key"
 export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-server-to-server-clients"
 export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
 
-export PI_SERVER_BACKUP_SCRIPT="${PI_SERVER_DIR}/backup"
+export PI_SERVER_BACKUP_SCRIPT_DIR="${PI_SERVER_DIR}/backup"
+export PI_SERVER_BACKUP_SCRIPT="${PI_SERVER_BACKUP_SCRIPT_DIR}/backup"
 export PI_SERVER_BACKUP_LAST_RUN="${PI_SERVER_BACKUP_DIR}/last-run-date.txt"
 export PI_SERVER_BACKUP_LOCK='/run/lock/pi-server-backup.lock'
-export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_DIR}/pause-on-backup"
-export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_DIR}/last-run.log"
+export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_BACKUP_SCRIPT_DIR}/pause-on-backup"
+export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_SCRIPT_DIR}/last-run.log"
 
 function pi-server-cert()
 {
