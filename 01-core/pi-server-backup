@@ -105,6 +105,8 @@ if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ];
     fi
 
     sync
+else
+    echo 'Already backed up today; nothing to do for main backup.' >> "${LOG}"
 fi
 
 # TODO git
