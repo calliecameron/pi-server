@@ -61,7 +61,8 @@ sed-install "${DIR}/podcast-manager" "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" \
             "${PI_SERVER_PODCASTS_LISTENED}" \
             "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_LOCK}" \
-            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" &&
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" &&
 sudo chmod a=rx "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
 
 SUPERVISOR_DST='/etc/supervisor/conf.d/podcast-manager.conf' &&
@@ -109,7 +110,8 @@ sed-install "${DIR}/download-podcasts" "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
             "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
-            "${PI_SERVER_MASHPODDER_LOCK}" &&
+            "${PI_SERVER_MASHPODDER_LOCK}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" &&
 sudo chmod a=rx "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" &&
 
 CRONJOB="${PI_SERVER_CRON_DIR}/media-server" &&

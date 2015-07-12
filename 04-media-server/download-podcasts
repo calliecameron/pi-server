@@ -1,13 +1,15 @@
 #!/bin/bash
 # Download new podcasts
 
+SUBJECT='Failure downloading podcasts'
+
 if [ "$(id -un)" != 'www-data' ]; then
-    echo 'Must be run as www-data'
+    '@@@@@4@@@@@' "${SUBJECT}" 'Download script must be run as www-data.'
     exit 1
 fi
 
 if ! mkdir '@@@@@5@@@@@'; then
-    echo 'Tried to download podcasts, but they are already downloading'
+    '@@@@@4@@@@@' "${SUBJECT}" 'Tried to download podcasts when they are already downloading.'
     exit 1
 fi
 
@@ -18,11 +20,12 @@ if [ -e '@@@@@1@@@@@' ]; then
 
     if ! '@@@@@2@@@@@' -v &> '@@@@@3@@@@@'; then
         # Send an email to make it clear something went wrong
-        '@@@@@4@@@@@' 'Failure downloading podcasts' "$(cat '@@@@@3@@@@@')"
+        '@@@@@4@@@@@' "${SUBJECT}" "$(cat '@@@@@3@@@@@')"
     else
         # Send an email only if something new was downloaded
         if grep 'NEW' '@@@@@3@@@@@' &> /dev/null; then
             TOTAL_NEW="$(grep 'Total downloads: [0-9]\+' '@@@@@3@@@@@' | sed 's/Total downloads: //g')"
+            echo "${TOTAL_NEW}" > '@@@@@6@@@@@'
             '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcast(s)" "$(cat '@@@@@3@@@@@')"
         fi
     fi

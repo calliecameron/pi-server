@@ -7,6 +7,7 @@ import os
 import shutil
 import subprocess
 import sys
+import time
 import urllib
 import urlparse
 
@@ -17,20 +18,54 @@ LISTENED_URL = "/listened"
 DOWNLOAD_SCRIPT = "@@@@@3@@@@@"
 PODCAST_LOCK = "@@@@@4@@@@@"
 DOWNLOAD_LOG = "@@@@@5@@@@@"
+DOWNLOAD_COUNT = "@@@@@6@@@@@"
 
 
 class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
+    def __init__(self):
+        super(BaseHTTPServer.BaseHTTPRequestHandler, self)
+        self.children = []
+
+    def reap(self):
+        i = 0
+        while i < len(self.children):
+            if self.children[i].poll() is not None:
+                self.children[i].wait()
+                del self.children[i]
+            else:
+                i += 1
+
     def respond(self, title, body):
+        self.reap()
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write((u"<html><head><meta charset=\"utf-8\"><title>%s</title></head><body>%s</body></html>" % (title, body)).encode("utf-8"))
 
     def fail(self):
+        self.reap()
         self.send_response(404)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write("<html><head><title>Page not found</title></head><body>Page not found.</body></html>")
+        self.wfile.write((u"<html><head><meta charset=\"utf-8\"><title>Page not found</title></head><body>Page not found.</body></html>").encode("utf-8"))
+
+    def is_busy(self):
+        return os.path.exists(PODCAST_LOCK)
+
+    def respond_busy(self):
+        self.respond("Download in progress", "<p>Podcasts are currently being downloaded.</p>")
+
+    def last_download_count(self):
+        try:
+            with open(DOWNLOAD_COUNT) as f:
+                num = f.read().strip()
+            when = datetime.fromtimestamp(os.path.getmtime(DOWNLOAD_COUNT))
+            return "<p>Last download: %s files at %s</p>" % (num, when)
+        except:
+            return ""
+
+    def main_page(self):
+        self.respond("Podcasts", "<h1>Podcasts</h1>%s<p><a href=\"%s\">New podcasts</a></p><p><a href=\"%s\">Listened podcasts</a></p><form action=\"/\" method=\"post\"><button type=\"submit\" name=\"download\" value=\"download\">Check for new episodes</button></form>" % (self.last_download_count(), NEW_URL, LISTENED_URL))
 
     def parse_POST(self):
         ctype, pdict = cgi.parse_header(self.headers["content-type"])
@@ -125,9 +160,16 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
 
         return num_moved, errors
 
+    def start_download(self):
+        self.children.append(subprocess.Popen([DOWNLOAD_SCRIPT]))
+        time.sleep(1)
+        self.respond_busy()
+
     def do_GET(self):
-        if self.path == "/":
-            self.respond("Podcasts", "<p><a href=\"%s\">New podcasts</a></p><p><a href=\"%s\">Listened podcasts</a></p>" % (NEW_URL, LISTENED_URL))
+        if self.is_busy():
+            self.respond_busy()
+        elif self.path == "/":
+            self.main_page()
         elif self.path == NEW_URL:
             self.list_new()
         elif self.path == LISTENED_URL:
@@ -136,7 +178,14 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
             self.fail()
 
     def do_POST(self):
-        if self.path == NEW_URL:
+        if self.is_busy():
+            self.respond_busy()
+        elif self.path == "/":
+            if "download" in self.parse_POST():
+                self.start_download()
+            else:
+                self.main_page()
+        elif self.path == NEW_URL:
             moved, errors = self.move_files(NEW_PATH, LISTENED_PATH, self.parse_POST())
             self.list_new(moved, errors)
         elif self.path == LISTENED_URL:
