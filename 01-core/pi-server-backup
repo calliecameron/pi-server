@@ -91,14 +91,17 @@ DAY_OF_MONTH="$(date '+%d')" || fail 'Something went wrong.'
 if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
     echo "${TODAY}" > "${LAST_RUN_FILE}" &&
 
-    rsnapshot daily || fail 'Daily backup failed.'
+    rsnapshot daily &>> "${LOG}" || fail 'Daily backup failed.'
+    echo 'Daily backup succeeded.' >> "${LOG}"
 
     if [ "${DAY_OF_WEEK}" == '1' ]; then
-        rsnapshot weekly || fail 'Weekly backup failed.'
+        rsnapshot weekly &>> "${LOG}" || fail 'Weekly backup failed.'
+        echo 'Weekly backup succeeded.' >> "${LOG}"
     fi
 
     if [ "${DAY_OF_MONTH}" == '1' ]; then
-        rsnapshot monthly || fail 'Monthly backup failed.'
+        rsnapshot monthly &>> "${LOG}" || fail 'Monthly backup failed.'
+        echo 'Monthly backup succeeded.' >> "${LOG}"
     fi
 
     sync
