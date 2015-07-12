@@ -68,6 +68,8 @@ if ! lock; then
     fail 'Tried to backup when another backup is already running.'
 fi
 
+:> "${LOG}"
+
 if [ ! -e "${DATA_DIR}" ]; then
     fail 'Data directory does not exist.'
 fi
@@ -77,8 +79,6 @@ if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
         fail 'Cannot mount backup partition.'
     fi
 fi
-
-:> "${LOG}" &&
 
 stop-services &&
 
