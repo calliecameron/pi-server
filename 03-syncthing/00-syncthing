@@ -11,26 +11,11 @@ sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
 sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
-# Install syncthing
-if [ ! -e "${PI_SERVER_SYNCTHING_BINARY}" ]; then
-    TMPDIR="$(mktemp -d)" || exit 1
-    TARBALL="${TMPDIR}/syncthing.tar.gz"
-    if real-pi; then
-        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.8/syncthing-linux-arm-v0.11.8.tar.gz'
-        FOLDER='syncthing-linux-arm-v0.11.8'
-    else
-        URL='https://github.com/syncthing/syncthing/releases/download/v0.11.8/syncthing-linux-386-v0.11.8.tar.gz'
-        FOLDER='syncthing-linux-386-v0.11.8'
-    fi
-
-    cd "${TMPDIR}" &&
-    wget "${URL}" -O "${TARBALL}" &&
-    tar -xf "${TARBALL}" &&
-    sed-install "${TMPDIR}/${FOLDER}/syncthing" "${PI_SERVER_SYNCTHING_BINARY}" &&
-    sudo chmod a=rx "${PI_SERVER_SYNCTHING_BINARY}" &&
-    cd &&
-    rm -rf "${TMPDIR}" || exit 1
-fi
+# # Install syncthing
+curl -s 'https://syncthing.net/release-key.txt' | sudo apt-key add - &&
+echo 'deb http://apt.syncthing.net/ syncthing release' | sudo tee /etc/apt/sources.list.d/syncthing-release.list >/dev/null &&
+sudo apt-get update &&
+sudo apt-get -y install syncthing &&
 
 
 # Prepare directories
@@ -38,8 +23,7 @@ sudo mkdir -p "${PI_SERVER_SYNCTHING_CONFIG}" &&
 sudo chown 'www-data:www-data' "${PI_SERVER_SYNCTHING_CONFIG}" &&
 sudo chmod o-rwx "${PI_SERVER_SYNCTHING_CONFIG}"
 
-function cert-link()
-{
+function cert-link() {
     if ! sudo test -e "${2}"; then
         sudo ln -s "${1}" "${2}"
     fi

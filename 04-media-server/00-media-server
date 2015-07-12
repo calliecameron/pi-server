@@ -5,7 +5,7 @@ source "${DIR}/common.bash" &&
 
 
 sudo apt-get update &&
-sudo apt-get -y install minidlna wget curl xsltproc python-pip &&
+sudo apt-get -y install minidlna xsltproc python-pip &&
 sudo pip install eyed3 &&
 
 
