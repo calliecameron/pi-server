@@ -84,6 +84,8 @@ stop-services &&
 
 
 # Main backup
+echo "Main backup started at $(date)" >> "${LOG}" &&
+
 TODAY="$(date '+%Y-%m-%d')" &&
 DAY_OF_WEEK="$(date '+%u')" &&
 DAY_OF_MONTH="$(date '+%d')" || fail 'Something went wrong.'
@@ -108,6 +110,8 @@ if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ];
 else
     echo 'Already backed up today; nothing to do for main backup.' >> "${LOG}"
 fi
+
+echo "Main backup finished at $(date)" >> "${LOG}" &&
 
 # TODO git
 # TODO email
