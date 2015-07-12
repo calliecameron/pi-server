@@ -51,7 +51,11 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         return os.path.exists(PODCAST_LOCK)
 
     def respond_busy(self):
-        self.respond("Download in progress", "<p>Podcasts are currently being downloaded.</p>")
+        self.reap()
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(u"<html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"5\"><title>Download in progress</title></head><body><p>Podcasts are currently being downloaded...</p></body></html>".encode("utf-8"))
 
     def last_download_count(self):
         try:
