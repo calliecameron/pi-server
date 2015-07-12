@@ -7,6 +7,7 @@ LAST_RUN_FILE='@@@@@3@@@@@'
 DATA_DIR='@@@@@4@@@@@'
 BACKUP_PARTITION='@@@@@5@@@@@'
 SERVICES_DIR='@@@@@6@@@@@'
+LOG='@@@@@7@@@@@'
 HAS_LOCK=''
 
 function lock() {
@@ -15,6 +16,7 @@ function lock() {
         return 0
     else
         return 1
+    fi
 }
 
 function unlock() {
@@ -24,16 +26,16 @@ function unlock() {
 }
 
 function start-services() {
-    /usr/sbin/service supervisor restart
+    /usr/sbin/service supervisor restart &>> "${LOG}"
     find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
-        /usr/sbin/service "${line}" restart
+        /usr/sbin/service "$(basename "${line}")" restart &>> "${LOG}"
     done
 }
 
 function stop-services() {
-    /usr/sbin/service supervisor stop
+    /usr/sbin/service supervisor stop &>> "${LOG}"
     find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
-        /usr/sbin/service "${line}" stop
+        /usr/sbin/service "$(basename "${line}")" stop &>> "${LOG}"
     done
 }
 
@@ -72,6 +74,8 @@ if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
         fail 'Cannot mount backup partition.'
     fi
 fi
+
+:> "${LOG}" &&
 
 stop-services &&
 
