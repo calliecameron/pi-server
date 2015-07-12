@@ -11,7 +11,7 @@ LOG='@@@@@7@@@@@'
 HAS_LOCK=''
 
 function lock() {
-    if mkdir "${BACKUP_LOCK}"; then
+    if mkdir "${BACKUP_LOCK}" &>/dev/null; then
         HAS_LOCK='t'
         return 0
     else
