@@ -52,6 +52,9 @@ function cleanup() {
 
 function fail() {
     "${EMAIL_SCRIPT}" 'Backup failed' "${@}"
+    if [ ! -z "${HAS_LOCK}" ]; then
+        echo "${@}" >> "${LOG}"
+    fi
     cleanup
     exit 1
 }
