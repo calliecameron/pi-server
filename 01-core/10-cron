@@ -17,5 +17,6 @@ sudo chmod go=rx "${PI_SERVER_CRON_DIR}" &&
 
 CRON_SCRIPT='/etc/cron.daily/pi-server' &&
 sed-install "${DIR}/pi-server-cron" "${CRON_SCRIPT}" \
-            "${PI_SERVER_CRON_DIR}" &&
+            "${PI_SERVER_CRON_DIR}" \
+            "${PI_SERVER_BACKUP_SCRIPT}" &&
 sudo chmod a=rx "${CRON_SCRIPT}"

@@ -5,20 +5,35 @@ source "${DIR}/common.bash" &&
 
 
 if ! mount | grep "${PI_SERVER_STORAGE_DATA_PARTITION}" &>/dev/null; then
-    echo "Data partition not mounted; not going any further!"
+    echo 'Data partition not mounted; not going any further!'
     exit 1
 fi
-
 
 sudo mkdir -p "${PI_SERVER_DATA_DIR}" &&
 sudo mkdir -p "${PI_SERVER_DATA_CONFIG_DIR}" &&
 sudo mkdir -p "${PI_SERVER_DATA_MAIN_DIR}" &&
+sudo mkdir -p "${PI_SERVER_DATA_NO_BACKUP_DIR}" &&
 
 sudo chown -R www-data:www-data "${PI_SERVER_DATA_MAIN_DIR}" &&
+sudo chown -R www-data:www-data "${PI_SERVER_DATA_NO_BACKUP_DIR}" &&
 sudo chmod go-rwx "${PI_SERVER_DATA_MAIN_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_DATA_NO_BACKUP_DIR}" &&
 
 sudo mkdir -p "${PI_SERVER_SCRATCH_DIR}" &&
 sudo chown "$(id -nu):$(id -ng)" "${PI_SERVER_SCRATCH_DIR}" &&
-sudo chmod go-rwx "${PI_SERVER_SCRATCH_DIR}"
+sudo chmod go-rwx "${PI_SERVER_SCRATCH_DIR}" || exit 1
 
-# TODO backup directories...
+
+if ! mount | grep "${PI_SERVER_STORAGE_BACKUP_PARTITION}" &>/dev/null; then
+    if ! sudo mount "${PI_SERVER_STORAGE_BACKUP_PARTITION}" &>/dev/null; then
+        echo 'Cannot mount backup partition; not going any further!'
+        exit 1
+    fi
+fi
+
+sudo mkdir -p "${PI_SERVER_BACKUP_DIR}" "${PI_SERVER_BACKUP_MAIN_DIR}" "${PI_SERVER_BACKUP_GIT_DIR}" "${PI_SERVER_BACKUP_EMAIL_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_DIR}" "${PI_SERVER_BACKUP_MAIN_DIR}" &&
+
+# TODO correct permissions on git and email backup dirs
+
+sudo umount "${PI_SERVER_STORAGE_BACKUP_PARTITION}"

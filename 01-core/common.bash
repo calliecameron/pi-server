@@ -11,12 +11,17 @@ function get-pi-server-param()
 
 # Stored data paths (on external drive)
 export PI_SERVER_DATA_MOUNT_DIR='/mnt/data'
-export PI_SERVER_BACKUP_MOUNT_DIR='/mnt/backup'
 export PI_SERVER_DATA_DIR="${PI_SERVER_DATA_MOUNT_DIR}/pi-server-data"
 export PI_SERVER_DATA_CONFIG_DIR="${PI_SERVER_DATA_DIR}/config"
 export PI_SERVER_DATA_MAIN_DIR="${PI_SERVER_DATA_DIR}/data"
+export PI_SERVER_DATA_NO_BACKUP_DIR="${PI_SERVER_DATA_DIR}/data-no-backups"
 export PI_SERVER_SCRATCH_DIR="${PI_SERVER_DATA_MOUNT_DIR}/scratch"
-# TODO backup dirs...
+
+export PI_SERVER_BACKUP_MOUNT_DIR='/mnt/backup'
+export PI_SERVER_BACKUP_DIR="${PI_SERVER_BACKUP_MOUNT_DIR}/pi-server-backup"
+export PI_SERVER_BACKUP_MAIN_DIR="${PI_SERVER_BACKUP_DIR}/main"
+export PI_SERVER_BACKUP_GIT_DIR="${PI_SERVER_BACKUP_DIR}/git"
+export PI_SERVER_BACKUP_EMAIL_DIR="${PI_SERVER_BACKUP_DIR}/email"
 
 
 # Configuration paths (on SD card)
@@ -86,6 +91,9 @@ export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_DIR}/openvpn-dh2048.pem"
 export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_DIR}/openvpn-tls-auth.key"
 export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-server-to-server-clients"
 export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
+
+export PI_SERVER_BACKUP_SCRIPT="${PI_SERVER_DIR}/backup"
+export PI_SERVER_BACKUP_LOCK='/run/lock/pi-server-backup.lock'
 
 function pi-server-cert()
 {
