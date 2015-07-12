@@ -5,6 +5,7 @@ source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../01-core/common.bash
 export PI_SERVER_MEDIA_SCRIPT_DIR="${PI_SERVER_DIR}/media-server"
 export PI_SERVER_PODCAST_MANAGER_SCRIPT="${PI_SERVER_MEDIA_SCRIPT_DIR}/podcast-manager"
 export PI_SERVER_MASHPODDER_SCRIPT="${PI_SERVER_MEDIA_SCRIPT_DIR}/mashpodder.sh"
+export PI_SERVER_PODCAST_DOWNLOAD_SCRIPT="${PI_SERVER_MEDIA_SCRIPT_DIR}/download-podcasts"
 
 export PI_SERVER_MEDIA_DIR="${PI_SERVER_DATA_DIR}/media-server"
 export PI_SERVER_PODCASTS="${PI_SERVER_MEDIA_DIR}/Podcasts - New"
@@ -20,3 +21,4 @@ export PI_SERVER_MASHPODDER_RSS_FILE="${PI_SERVER_MASHPODDER_CONFIG_DIR}/configu
 export PI_SERVER_MASHPODDER_ROOT="${PI_SERVER_MEDIA_CONFIG_DIR}/mashpodder"
 export PI_SERVER_MASHPODDER_TMP_DIR="${PI_SERVER_MASHPODDER_ROOT}/tmp"
 export PI_SERVER_MASHPODDER_DOWNLOAD_LOG="${PI_SERVER_MASHPODDER_ROOT}/daily-download.log"
+export PI_SERVER_MASHPODDER_LOCK='/run/lock/pi-server-podcasts.lock'

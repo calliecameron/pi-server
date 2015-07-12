@@ -14,6 +14,9 @@ NEW_PATH = "@@@@@1@@@@@"
 LISTENED_PATH = "@@@@@2@@@@@"
 NEW_URL = "/new"
 LISTENED_URL = "/listened"
+DOWNLOAD_SCRIPT = "@@@@@3@@@@@"
+PODCAST_LOCK = "@@@@@4@@@@@"
+DOWNLOAD_LOG = "@@@@@5@@@@@"
 
 
 class Responder(BaseHTTPServer.BaseHTTPRequestHandler):

@@ -1,19 +1,8 @@
 #!/bin/bash
 # Daily refresh of the media server
 
-# Download podcasts using mashpodder.
-if [ -e '@@@@@1@@@@@' ]; then
-    if ! su -s /bin/bash -c "'@@@@@2@@@@@' -v &> '@@@@@3@@@@@'" www-data; then
-        # Send an email to make it clear something went wrong
-        '@@@@@4@@@@@' 'Failure downloading podcasts' "$(cat '@@@@@3@@@@@')"
-    else
-        # Send an email only if something new was downloaded
-        if grep 'NEW' '@@@@@3@@@@@' &> /dev/null; then
-            TOTAL_NEW="$(grep 'Total downloads: [0-9]\+' '@@@@@3@@@@@' | sed 's/Total downloads: //g')"
-            '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcast(s)" "$(cat '@@@@@3@@@@@')"
-        fi
-    fi
-fi
+# Download new podcasts
+su -c '@@@@@1@@@@@' www-data
 
 # Force minidlna to reload, so deleted files go away cleanly.
 /usr/sbin/service minidlna force-reload &>/dev/null
