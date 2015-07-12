@@ -36,4 +36,4 @@ sudo chmod go-rwx "${PI_SERVER_BACKUP_DIR}" "${PI_SERVER_BACKUP_MAIN_DIR}" &&
 
 # TODO correct permissions on git and email backup dirs
 
-sudo umount "${PI_SERVER_STORAGE_BACKUP_PARTITION}"
+sudo umount "${PI_SERVER_BACKUP_MOUNT_DIR}"
