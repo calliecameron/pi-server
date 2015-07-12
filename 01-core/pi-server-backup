@@ -1,0 +1,104 @@
+#!/bin/bash
+# Main backup script
+
+EMAIL_SCRIPT='@@@@@1@@@@@'
+BACKUP_LOCK='@@@@@2@@@@@'
+LAST_RUN_FILE='@@@@@3@@@@@'
+DATA_DIR='@@@@@4@@@@@'
+BACKUP_PARTITION='@@@@@5@@@@@'
+SERVICES_DIR='@@@@@6@@@@@'
+HAS_LOCK=''
+
+function lock() {
+    if mkdir "${BACKUP_LOCK}"; then
+        HAS_LOCK='t'
+        return 0
+    else
+        return 1
+}
+
+function unlock() {
+    if [ ! -z "${HAS_LOCK}" ] && [ -e "${BACKUP_LOCK}" ]; then
+        rmdir "${BACKUP_LOCK}"
+    fi
+}
+
+function start-services() {
+    /usr/sbin/service supervisor restart
+    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
+        /usr/sbin/service "${line}" restart
+    done
+}
+
+function stop-services() {
+    /usr/sbin/service supervisor stop
+    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
+        /usr/sbin/service "${line}" stop
+    done
+}
+
+function cleanup() {
+    if [ ! -z "${HAS_LOCK}" ]; then
+        sync
+        if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
+            umount "${BACKUP_PARTITION}"
+        fi
+        start-services
+        unlock
+    fi
+}
+
+function fail() {
+    "${EMAIL_SCRIPT}" 'Backup failed' "${@}"
+    cleanup
+    exit 1
+}
+
+
+if [ "$(id -u)" != '0' ]; then
+    fail 'Backup script must be run as root.'
+fi
+
+if ! lock; then
+    fail 'Tried to backup when another backup is already running.'
+fi
+
+if [ ! -e "${DATA_DIR}" ]; then
+    fail 'Data directory does not exist.'
+fi
+
+if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
+    if ! mount "${BACKUP_PARTITION}" &>/dev/null; then
+        fail 'Cannot mount backup partition.'
+    fi
+fi
+
+stop-services &&
+
+
+# Main backup
+TODAY="$(date '+%Y-%m-%d')" &&
+DAY_OF_WEEK="$(date '+%u')" &&
+DAY_OF_MONTH="$(date '+%d')" || fail 'Something went wrong.'
+
+if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
+    echo "${TODAY}" > "${LAST_RUN_FILE}" &&
+
+    rsnapshot daily || fail 'Daily backup failed.'
+
+    if [ "${DAY_OF_WEEK}" == '1' ]; then
+        rsnapshot weekly || fail 'Weekly backup failed.'
+    fi
+
+    if [ "${DAY_OF_MONTH}" == '1' ]; then
+        rsnapshot monthly || fail 'Monthly backup failed.'
+    fi
+
+    sync
+fi
+
+# TODO git
+# TODO email
+
+
+cleanup

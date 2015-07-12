@@ -93,7 +93,9 @@ export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-serve
 export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
 
 export PI_SERVER_BACKUP_SCRIPT="${PI_SERVER_DIR}/backup"
+export PI_SERVER_BACKUP_LAST_RUN="${PI_SERVER_BACKUP_DIR}/last-run.txt"
 export PI_SERVER_BACKUP_LOCK='/run/lock/pi-server-backup.lock'
+export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_DIR}/pause-on-backup"
 
 function pi-server-cert()
 {
