@@ -4,8 +4,7 @@
 FROM_FILE='@@@@@1@@@@@'
 TO_FILE='@@@@@2@@@@@'
 
-function usage()
-{
+function usage() {
     echo "Usage: $(basename "${0}") subject body"
     exit 1
 }
@@ -16,8 +15,7 @@ test -z "${2}" && usage
 FROM="$(cat "${FROM_FILE}")"
 TO="$(cat "${TO_FILE}")"
 
-function no-values()
-{
+function no-values() {
     echo 'Default values are invalid'
     exit 1
 }
@@ -26,7 +24,7 @@ test -z "${FROM}" && no-values
 test -z "${TO}" && no-values
 
 ssmtp "${TO}" <<EOF
-From: Notification <notification@${FROM}>
+From: $(hostname) <notification@${FROM}>
 To: ${TO}
 Subject: [$(hostname)] ${1}
 
