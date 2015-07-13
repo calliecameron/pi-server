@@ -1,1 +1,1 @@
-Use git-backup-configuration.txt to configure automatic backups of git repositories. Each line in the file should be the URL of a git repo (preferably SSH). The repos must be accessible using this server's deployment key.
+Use git-backup-configuration.txt to configure automatic backups of git repositories. Each line in the file should be the URL of a git repo. If the repo requires a login, it should use SSH, and should be accessible using this server's deployment key (publicly accessible repos can use HTTPS).
