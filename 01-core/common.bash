@@ -100,6 +100,9 @@ export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_BACKUP_SCRIPT_DIR}/pause-on-backu
 export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_SCRIPT_DIR}/last-run.log"
 export PI_SERVER_BACKUP_CONFIG_DIR="${PI_SERVER_DATA_MAIN_DIR}/backup-config-$(hostname)"
 export PI_SERVER_BACKUP_GIT_CONFIG="${PI_SERVER_BACKUP_CONFIG_DIR}/git-backup-configuration.txt"
+export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"
+export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_DIR}/deployment-key"
+export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_DIR}/deployment-key.pub"
 
 function pi-server-cert()
 {

@@ -54,9 +54,9 @@ set-pi-param "${PI_SERVER_EMAIL_SMTP_FILE}" "Enter the SMTP server to use when s
 
 set-pi-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}" "Enter the path of the external hard drive device (usually /dev/sda)" &&
 
-set-pi-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}" "Enter the partition number of the main data partition on the external hard drive (e.g. 1)" &&
+set-pi-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}" "Enter the partition number of the main data partition on the external hard drive (usually 1)" &&
 
-set-pi-param "${PI_SERVER_STORAGE_BACKUP_PARTITION_FILE}" "Enter the partition number of the backup partition on the external hard drive (e.g. 1)" &&
+set-pi-param "${PI_SERVER_STORAGE_BACKUP_PARTITION_FILE}" "Enter the partition number of the backup partition on the external hard drive (usually 2)" &&
 
 set-pi-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}" "Is the external hard drive a spinning disk? [y/n]" &&
 

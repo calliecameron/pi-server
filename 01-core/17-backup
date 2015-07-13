@@ -3,6 +3,21 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
+function exists() {
+    if [ ! -e "${1}" ]; then
+        echo "Deployment key '${1}' does not exist; not going any further!"
+        exit 1
+    else
+        sudo chown www-data:www-data "${1}"
+        sudo chmod u=r "${1}"
+        sudo chmod go-rwx "${1}"
+    fi
+}
+
+exists "${PI_SERVER_DEPLOYMENT_KEY}" &&
+exists "${PI_SERVER_DEPLOYMENT_KEY_PUB}" &&
+
+
 # Configuration
 sudo mkdir -p "${PI_SERVER_BACKUP_CONFIG_DIR}" &&
 sudo chown www-data:www-data "${PI_SERVER_BACKUP_CONFIG_DIR}" &&
@@ -30,6 +45,10 @@ sed-install "${DIR}/rsnapshot.conf" "${RSNAPSHOT_CONF}" \
             "${PI_SERVER_DATA_CONFIG_DIR}" &&
 sudo chmod a=r "${RSNAPSHOT_CONF}" &&
 
+sed-install "${DIR}/backup-git-ssh" "${PI_SERVER_BACKUP_GIT_SSH}" \
+            "${PI_SERVER_DEPLOYMENT_KEY}" &&
+sudo chmod a=rx "${PI_SERVER_BACKUP_GIT_SSH}" &&
+
 sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
             "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
             "${PI_SERVER_BACKUP_LOCK}" \
@@ -39,7 +58,8 @@ sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
             "${PI_SERVER_BACKUP_PAUSE_DIR}" \
             "${PI_SERVER_BACKUP_LOG_FILE}" \
             "${PI_SERVER_BACKUP_GIT_CONFIG}" \
-            "${PI_SERVER_BACKUP_GIT_DIR}" &&
+            "${PI_SERVER_BACKUP_GIT_DIR}" \
+            "${PI_SERVER_BACKUP_GIT_SSH}" &&
 sudo chmod a=rx "${PI_SERVER_BACKUP_SCRIPT}" &&
 
 
