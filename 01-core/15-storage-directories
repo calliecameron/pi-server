@@ -34,6 +34,9 @@ fi
 sudo mkdir -p "${PI_SERVER_BACKUP_DIR}" "${PI_SERVER_BACKUP_MAIN_DIR}" "${PI_SERVER_BACKUP_GIT_DIR}" "${PI_SERVER_BACKUP_EMAIL_DIR}" &&
 sudo chmod go-rwx "${PI_SERVER_BACKUP_DIR}" "${PI_SERVER_BACKUP_MAIN_DIR}" &&
 
-# TODO correct permissions on git and email backup dirs
+sudo chown www-data:www-data "${PI_SERVER_BACKUP_GIT_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_GIT_DIR}" &&
+
+# TODO correct permissions on email backup dir
 
 sudo umount "${PI_SERVER_BACKUP_MOUNT_DIR}"

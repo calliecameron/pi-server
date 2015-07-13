@@ -27,6 +27,7 @@ function unlock() {
 
 function start-services() {
     /usr/sbin/service supervisor restart &>> "${LOG}"
+    /usr/sbin/service nginx restart &>> "${LOG}"
     find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
         /usr/sbin/service "$(basename "${line}")" restart &>> "${LOG}"
     done
@@ -34,6 +35,7 @@ function start-services() {
 
 function stop-services() {
     /usr/sbin/service supervisor stop &>> "${LOG}"
+    /usr/sbin/service nginx stop &>> "${LOG}"
     find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
         /usr/sbin/service "$(basename "${line}")" stop &>> "${LOG}"
     done

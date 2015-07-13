@@ -3,13 +3,31 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
+# Configuration
+sudo mkdir -p "${PI_SERVER_BACKUP_CONFIG_DIR}" &&
+sudo chown www-data:www-data "${PI_SERVER_BACKUP_CONFIG_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_CONFIG_DIR}" &&
+
+INSTRUCTIONS="${PI_SERVER_BACKUP_CONFIG_DIR}/instructions.txt" &&
+sed-install "${DIR}/backup-instructions.txt" "${INSTRUCTIONS}" &&
+sudo chown www-data:www-data "${INSTRUCTIONS}" &&
+sudo chmod u=r "${INSTRUCTIONS}" &&
+sudo chmod go-rwx "${INSTRUCTIONS}" &&
+
+sudo touch "${PI_SERVER_BACKUP_GIT_CONFIG}" &&
+sudo chown www-data:www-data "${PI_SERVER_BACKUP_GIT_CONFIG}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_GIT_CONFIG}" &&
+
+
+# Scripts
 sudo mkdir -p "${PI_SERVER_BACKUP_SCRIPT_DIR}" "${PI_SERVER_BACKUP_PAUSE_DIR}" &&
 
 RSNAPSHOT_CONF='/etc/rsnapshot.conf'
 sed-install "${DIR}/rsnapshot.conf" "${RSNAPSHOT_CONF}" \
             "${PI_SERVER_BACKUP_MAIN_DIR}" \
             "${PI_SERVER_DATA_MAIN_DIR}" \
-            "$(hostname)" &&
+            "$(hostname)" \
+            "${PI_SERVER_DATA_CONFIG_DIR}" &&
 sudo chmod a=r "${RSNAPSHOT_CONF}" &&
 
 sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
@@ -20,4 +38,12 @@ sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
             "${PI_SERVER_BACKUP_MOUNT_DIR}" \
             "${PI_SERVER_BACKUP_PAUSE_DIR}" \
             "${PI_SERVER_BACKUP_LOG_FILE}" &&
-sudo chmod a=rx "${PI_SERVER_BACKUP_SCRIPT}"
+sudo chmod a=rx "${PI_SERVER_BACKUP_SCRIPT}" &&
+
+
+cat <<EOF &&
+
+The backup configuration directory is at ${PI_SERVER_BACKUP_CONFIG_DIR} (which you should access using Syncthing).
+
+EOF
+enter-to-continue

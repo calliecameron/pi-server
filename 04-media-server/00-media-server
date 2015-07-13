@@ -25,7 +25,7 @@ function minidlna-dir() {
     while (($#)); do
         sudo mkdir -p "${1}"
         sudo chown www-data:www-data "${1}"
-        sudo chmod o-rwx "${1}"
+        sudo chmod go-rwx "${1}"
         shift
     done
 }
@@ -42,6 +42,7 @@ minidlna-dir "${PI_SERVER_MEDIA_DIR}" \
 
 sudo touch "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
 sudo chown www-data:www-data "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
+sudo chmod go-rwx "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
 
 
 sudo mkdir -p "${PI_SERVER_MEDIA_SCRIPT_DIR}" &&
@@ -133,6 +134,8 @@ sudo service minidlna force-reload &&
 cat <<EOF &&
 
 To add media to the server, place or symlink it in '${PI_SERVER_MEDIA_DIR}'.
+
+The podcast configuration directory is at ${PI_SERVER_MASHPODDER_CONFIG_DIR} (which you should access using Syncthing).
 
 To setup podcasts, see '${PODCASTS_HELP}'.
 

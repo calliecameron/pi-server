@@ -23,7 +23,7 @@ if [ ! -e "${PI_SERVER_DIR}" ]; then
 fi
 
 
-sudo apt-get -y install avahi-daemon console-setup curl etckeeper hdparm nginx-naxsi ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux unattended-upgrades wget wpasupplicant &&
+sudo apt-get -y install avahi-daemon console-setup curl etckeeper git hdparm nginx-naxsi ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux unattended-upgrades wget wpasupplicant &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
