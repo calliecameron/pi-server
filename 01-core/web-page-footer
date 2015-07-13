@@ -1,4 +1,7 @@
       <li>
+        <a href="ca.crt">CA Certificate</a>
+      </li>
+      <li>
         <script language="JavaScript">
           document.write('<a href="http://' + window.location.hostname + ':23145/reboot">Restart</a>');
         </script>

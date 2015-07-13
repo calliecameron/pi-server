@@ -73,7 +73,7 @@ enter-to-continue &&
 
 
 less <<EOF
-Syncthing should now be running on http://${PI_SERVER_IP}:8080.
+Syncthing should now be running on http://${PI_SERVER_IP}:8080 (might take a while to start up).
 
 Configure settings as follows:
 
