@@ -133,7 +133,7 @@ sudo service minidlna force-reload &&
 
 cat <<EOF &&
 
-To add media to the server, place or symlink it in '${PI_SERVER_MEDIA_DIR}'.
+To add media to the server, place or symlink it (using the absolute path) in '${PI_SERVER_MEDIA_DIR}'.
 
 The podcast configuration directory is at ${PI_SERVER_MASHPODDER_CONFIG_DIR} (which you should access using Syncthing).
 
