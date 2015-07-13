@@ -126,11 +126,13 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
         REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
         if [ ! -e "${REPO_PATH}" ]; then
             echo "Cloning to ${REPO_PATH}..." >> "${LOG}"
-            su -s /bin/bash -c "git clone --mirror '${line}' '${REPO_PATH}'" www-data &>> "${LOG}"
+            cd /
+            su -s /bin/bash -c "git clone --mirror '${line}' '${REPO_PATH}'" www-data &>> "${LOG}" || fail 'Cloning a repository failed.'
             echo "Cloned to ${REPO_PATH}." >> "${LOG}"
         else
             echo "Updating ${REPO_PATH}..." >> "${LOG}"
-            su -s /bin/bash -c "cd '${REPO_PATH}' && git fetch --all && git fetch --all --tags" www-data &>> "${LOG}"
+            cd /
+            su -s /bin/bash -c "cd '${REPO_PATH}' && git fetch --all && git fetch --all --tags" www-data &>> "${LOG}" || fail 'Fetching a repository failed.'
             echo "Updated ${REPO_PATH}." >> "${LOG}"
         fi
     done < "${GIT_BACKUP_CONFIG}"
