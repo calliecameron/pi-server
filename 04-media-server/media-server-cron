@@ -2,7 +2,7 @@
 # Daily refresh of the media server
 
 # Download new podcasts
-su -c '@@@@@1@@@@@' www-data
+su -s /bin/bash -c '@@@@@1@@@@@' www-data
 
 # Force minidlna to reload, so deleted files go away cleanly.
 /usr/sbin/service minidlna force-reload &>/dev/null
