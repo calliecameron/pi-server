@@ -7,14 +7,42 @@
 
     <title>#####1##### | Raspberry Pi</title>
 
-    <script type="JavaScript">
+    <script type="text/javascript">
       document.write('<!--[if IE]><link rel="shortcut icon" href="http://' + window.location.hostname + '/favicon.ico"><![endif]-->');
       document.write('<link rel="apple-touch-icon-precomposed" href="http://' + window.location.hostname + '/favicon-apple.png">');
       document.write('<link rel="icon" href="http://' + window.location.hostname + '/favicon.png">');
     </script>
 
+    <link type="text/css" rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+    <link type="text/css" rel="stylesheet" href="https://code.jquery.com/ui/1.11.3/themes/cupertino/jquery-ui.css">
+
+    <script type="text/javascript">
+      document.write('<link type="text/css" rel="stylesheet" href="http://' + window.location.hostname + '/pi.css">');
+    </script>
+
   </head>
   <body>
+    <nav class="navbar navbar-default" style="border-radius: 0px;">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="http://' + window.location.hostname + '/">
+            <script type="text/javascript">
+              document.write('<img src="http://' + window.location.hostname + '/favicon.png">');
+            </script>
+            Raspberry Pi (@@@@@2@@@@@)
+          </a>
+        </div>
+        <div class="collapse navbar-collapse" id="navbar">
+        </div><!-- /.navbar-collapse -->
+      </div><!-- /.container -->
+    </nav>
+
     <img src="favicon.png" alt="Raspberry Pi">
     <ul>
       <li>IP address: <a href="http://@@@@@1@@@@@/">@@@@@1@@@@@</a></li>
