@@ -1,0 +1,17 @@
+body {
+    padding-top: 70px;
+}
+
+h1 {
+    text-align: center;
+}
+
+.logo-image {
+    width: 20px;
+    height: 20px;
+}
+
+.main-image {
+    width: 100px;
+    height: 100px;
+}
