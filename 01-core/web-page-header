@@ -32,25 +32,10 @@
           </button>
           <script type="text/javascript">
             document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/"><img class="logo-image" src="http://' + window.location.hostname + '/favicon.png"></a>');
-            document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/">@@@@@2@@@@@</a>');
+            document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/">@@@@@1@@@@@</a>');
           </script>
         </div>
         <div class="collapse navbar-collapse" id="navbar">
         </div><!-- /.navbar-collapse -->
       </div><!-- /.container -->
     </nav>
-
-    <div class="container">
-      <div class="row">
-        <p><img class="center-block main-image" src="favicon.png" alt="Raspberry Pi"></p>
-        <h1>@@@@@2@@@@@</h1>
-
-        <h3>Details</h3>
-        <table class="table">
-          <tr><td>Hostname</td><td><a href="http://@@@@@2@@@@@.local/">@@@@@2@@@@@.local</a></td></tr>
-          <tr><td>IP address</td><td><a href="http://@@@@@1@@@@@/">@@@@@1@@@@@</a></td></tr>
-          <tr><td>External domain name</td><td>@@@@@3@@@@@</td></tr>
-        </table>
-
-        <h3>Pages</h3>
-        <ul>

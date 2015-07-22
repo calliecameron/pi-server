@@ -85,6 +85,8 @@ export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
 export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"
 export PI_SERVER_WEB_PAGE_HEADER="${PI_SERVER_DIR}/web-page-header"
 export PI_SERVER_WEB_PAGE_FOOTER="${PI_SERVER_DIR}/web-page-footer"
+export PI_SERVER_WEB_PAGE_MAIN_HEADER="${PI_SERVER_DIR}/main-page-header"
+export PI_SERVER_WEB_PAGE_MAIN_FOOTER="${PI_SERVER_DIR}/main-page-footer"
 export PI_SERVER_WEB_PAGE_GENERATE="${PI_SERVER_DIR}/generate-main-web-page"
 
 export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_DIR}/openvpn-dh2048.pem"
