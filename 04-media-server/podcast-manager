@@ -20,6 +20,8 @@ DOWNLOAD_SCRIPT = "@@@@@3@@@@@"
 PODCAST_LOCK = "@@@@@4@@@@@"
 DOWNLOAD_LOG = "@@@@@5@@@@@"
 DOWNLOAD_COUNT = "@@@@@6@@@@@"
+WEBPAGE_HEADER = "@@@@@7@@@@@"
+WEBPAGE_FOOTER = "@@@@@8@@@@@"
 
 children = []
 
@@ -33,19 +35,38 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
             else:
                 i += 1
 
+    def construct_response(self, title, body):
+        page = u""
+        try:
+            with open(WEBPAGE_HEADER) as f:
+                page += unicode(f.read())
+            page = page.replace(u"#####1#####", unicode(title))
+        except IOError:
+            page += u"<html><head><meta charset=\"utf-8\"><title>%s</title></head><body>" % unicode(title)
+
+        page += u"<div class=\"container\"><div class=\"row\">" + unicode(body) + u"</div></div>"
+
+        try:
+            with open(WEBPAGE_FOOTER) as f:
+                page += unicode(f.read())
+        except IOError:
+            page += u"</body></html>"
+
+        return page.encode("utf-8")
+
     def respond(self, title, body):
         self.reap()
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write((u"<html><head><meta charset=\"utf-8\"><title>%s</title></head><body>%s</body></html>" % (title, body)).encode("utf-8"))
+        self.wfile.write(self.construct_response(title, body))
 
     def fail(self):
         self.reap()
         self.send_response(404)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write((u"<html><head><meta charset=\"utf-8\"><title>Page not found</title></head><body>Page not found.</body></html>").encode("utf-8"))
+        self.wfile.write(self.construct_response("Error", "<h1>Error!</h1><p>The requested page could not be found</p>"))
 
     def is_busy(self):
         return os.path.exists(PODCAST_LOCK)
@@ -55,19 +76,34 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(u"<html><head><meta charset=\"utf-8\"><meta http-equiv=\"refresh\" content=\"5\"><title>Download in progress</title></head><body><p>Podcasts are currently being downloaded...</p></body></html>".encode("utf-8"))
+        self.wfile.write(self.construct_response("Downloading podcasts", """
+<h1>Downloading podcasts</h1>
+<p>Currently downloading any new podcasts. This might take a while.</p>
+<p>This page will go back to normal once the download is finished (you can close the page in the meantime, if you like).</p>
+<script type="text/javascript">
+  setTimeout(function() { window.location.reload(); }, 5000);
+</script>
+"""))
 
     def last_download_count(self):
         try:
             with open(DOWNLOAD_COUNT) as f:
                 num = f.read().strip()
             when = datetime.datetime.fromtimestamp(os.path.getmtime(DOWNLOAD_COUNT))
-            return "<p>Last download: %s file(s) at %s</p>" % (num, when)
+            return "<p>Downloaded %s file%s on %s at %s.</p>" % (num, "s" if int(num) > 1 else "", when.strftime("%d/%m/%Y"), when.strftime("%H:%M"))
         except:
             return ""
 
     def main_page(self):
-        self.respond("Podcasts", "<h1>Podcasts</h1>%s<p><a href=\"%s\">New podcasts</a></p><p><a href=\"%s\">Listened podcasts</a></p><form action=\"/\" method=\"post\"><button type=\"submit\" name=\"download\" value=\"download\">Check for new episodes</button></form>" % (self.last_download_count(), NEW_URL, LISTENED_URL))
+        self.respond("Podcasts", """
+<h1>Podcasts</h1>
+%s
+<p><a href="%s">Podcasts - new</a></p>
+<p><a href="%s">Podcasts - listened</a></p>
+<form action="/" method="post">
+  <button class="btn btn-default" type="submit" name="download" value="download">Check for new episodes</button>
+</form>
+""" % (self.last_download_count(), NEW_URL, LISTENED_URL))
 
     def parse_POST(self):
         ctype, pdict = cgi.parse_header(self.headers["content-type"])
@@ -84,7 +120,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             mp3 = eyed3.load(os.path.join(podcast_dir, filename))
             if mp3 and mp3.tag and mp3.tag.title:
-                s = "<em>%s</em>" % mp3.tag.title
+                s = "<strong>%s</strong>" % mp3.tag.title
                 if mp3.tag.artist:
                     s += ", %s" % mp3.tag.artist
                 s += " (%s)" % filename
@@ -95,14 +131,18 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
             return filename
 
     def list_files(self, src, title, url, num_moved, errors):
-        body = "<p><a href=\"/\">Home</a></p><h1>%s</h1>" % title
+        body = """
+<p><a href="/">Back to podcasts</a></p>
+<h1>%s</h1>
+""" % title
         if num_moved:
-            body += "<p>Moved %s files</p>" % num_moved
+            body += """<div class="alert alert-success" roles="alert">Moved %s file%s</div>""" % (num_moved, "s" if num_moved > 1 else "")
         if errors:
-            body += "<p>%s errors:</p>" % len(errors)
+            body += """<div class="alert alert-danger" roles="alert"><p>%s error%s:</p>""" % (len(errors), "s" if len(errors) > 1 else "")
             for err in errors:
                 body += "<p>%s</p>" % err
-        body += "<form action=\"%s\" method=\"post\">" % url
+            body += "</div>"
+        body += """<form action="%s" method="post">""" % url
 
         for podcast in sorted(os.listdir(src)):
             podcast_dir = os.path.join(src, podcast)
@@ -113,17 +153,17 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                     for episode in episodes:
                         name = urllib.pathname2url("%s/%s" % (podcast, episode))
                         pretty = self.pretty_print(podcast_dir, episode)
-                        body += "<p><input type=\"checkbox\" id=\"%s\" name=\"%s\"><label for=\"%s\">%s</label></p>" % (name, name, name, pretty)
+                        body += """<p><input type="checkbox" id="%s" name="%s"><label for="%s">%s</label></p>""" % (name, name, name, pretty)
 
-        body += "<button type=\"submit\">Move files</button></form>"
+        body += """<button class="btn btn-default" type="submit">Move files</button></form>"""
 
         self.respond(title, body)
 
     def list_new(self, num_moved=0, errors=[]):
-        self.list_files(NEW_PATH, "New podcasts", NEW_URL, num_moved, errors)
+        self.list_files(NEW_PATH, "Podcasts - new", NEW_URL, num_moved, errors)
 
     def list_listened(self, num_moved=0, errors=[]):
-        self.list_files(LISTENED_PATH, "Listened podcasts", LISTENED_URL, num_moved, errors)
+        self.list_files(LISTENED_PATH, "Podcasts - listened", LISTENED_URL, num_moved, errors)
 
     def move_files(self, src, dst, post_data):
         files = map(urllib.url2pathname, post_data.keys())

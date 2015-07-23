@@ -18,7 +18,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                 page += unicode(f.read())
             page = page.replace(u"#####1#####", unicode(title))
         except IOError:
-            page += u"<html><head><title>%s</title></head><body>" % unicode(title)
+            page += u"<html><head><meta charset=\"utf-8\"><title>%s</title></head><body>" % unicode(title)
 
         page += u"<div class=\"container\"><div class=\"row\">" + unicode(body) + u"</div></div>"
 
@@ -47,7 +47,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
 <h1>%s</h1>
 <p>%s the Raspberry Pi?</p>
 <form action="%s" method="post">
-  <button class="form-control btn btn-default" style="margin-top: 10px; margin-bottom: 10px;" type="submit">%s</button>
+  <button class="form-control btn btn-default" style="margin-top: 10px; margin-bottom: 10px;" type="submit" name="btn" value="btn">%s</button>
   <script type="text/javascript">
     document.write('<a class="form-control btn btn-default" style="margin-top: 10px; margin-bottom: 10px;" href="http://' + window.location.hostname + '/">Cancel</a>');
   </script>
