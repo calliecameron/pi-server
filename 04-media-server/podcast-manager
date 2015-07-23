@@ -81,7 +81,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
 <p>Currently downloading any new podcasts. This might take a while.</p>
 <p>This page will go back to normal once the download is finished (you can close the page in the meantime, if you like).</p>
 <script type="text/javascript">
-  setTimeout(function() { window.location.reload(); }, 5000);
+  setTimeout(function() { window.location = "/"; }, 5000);
 </script>
 """))
 
