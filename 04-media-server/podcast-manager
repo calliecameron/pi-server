@@ -120,7 +120,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             mp3 = eyed3.load(os.path.join(podcast_dir, filename))
             if mp3 and mp3.tag and mp3.tag.title:
-                s = "<strong>%s</strong>" % mp3.tag.title
+                s = "<em>%s</em>" % mp3.tag.title
                 if mp3.tag.artist:
                     s += ", %s" % mp3.tag.artist
                 s += " (%s)" % filename
@@ -153,7 +153,12 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                     for episode in episodes:
                         name = urllib.pathname2url("%s/%s" % (podcast, episode))
                         pretty = self.pretty_print(podcast_dir, episode)
-                        body += """<p><input type="checkbox" id="%s" name="%s"><label for="%s">%s</label></p>""" % (name, name, name, pretty)
+                        body += """
+<div class="checkbox">
+  <input type="checkbox" id="%s" name="%s">
+  <label for="%s"> %s</label>
+</div>
+""" % (name, name, name, pretty)
 
         body += """<button class="btn btn-default" type="submit">Move files</button></form>"""
 
