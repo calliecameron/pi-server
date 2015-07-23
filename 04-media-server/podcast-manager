@@ -130,7 +130,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         except Exception:
             return filename
 
-    def list_files(self, src, title, url, num_moved, errors):
+    def list_files(self, src, title, url, num_moved, errors, move_text):
         body = """
 <p><a href="/">Back to podcasts</a></p>
 <h1>%s</h1>
@@ -153,22 +153,17 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                     for episode in episodes:
                         name = urllib.pathname2url("%s/%s" % (podcast, episode))
                         pretty = self.pretty_print(podcast_dir, episode)
-                        body += """
-<div class="checkbox">
-  <input type="checkbox" id="%s" name="%s">
-  <label for="%s"> %s</label>
-</div>
-""" % (name, name, name, pretty)
+                        body += """<div class="checkbox"><input type="checkbox" id="%s" name="%s"><label for="%s">%s</label></div>""" % (name, name, name, pretty)
 
-        body += """<button class="btn btn-default" type="submit">Move files</button></form>"""
+        body += """<button class="btn btn-default" type="submit">Mark selected as %s</button></form>""" % move_text
 
         self.respond(title, body)
 
     def list_new(self, num_moved=0, errors=[]):
-        self.list_files(NEW_PATH, "Podcasts - new", NEW_URL, num_moved, errors)
+        self.list_files(NEW_PATH, "Podcasts - new", NEW_URL, num_moved, errors, "listened")
 
     def list_listened(self, num_moved=0, errors=[]):
-        self.list_files(LISTENED_PATH, "Podcasts - listened", LISTENED_URL, num_moved, errors)
+        self.list_files(LISTENED_PATH, "Podcasts - listened", LISTENED_URL, num_moved, errors, "not listened")
 
     def move_files(self, src, dst, post_data):
         files = map(urllib.url2pathname, post_data.keys())
