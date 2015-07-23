@@ -4,30 +4,73 @@ import BaseHTTPServer
 import subprocess
 import sys
 
+WEBPAGE_HEADER = "@@@@@1@@@@@"
+WEBPAGE_FOOTER = "@@@@@2@@@@@"
+SHUTDOWN_URL = "/shutdown"
+REBOOT_URL = "/restart"
+
 class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
-    def respond_success(self, title, message):
+    def construct_response(self, title, body):
+        page = u""
+        try:
+            with open(WEBPAGE_HEADER) as f:
+                page += unicode(f.read())
+            page = page.replace(u"#####1#####", unicode(title))
+        except IOError:
+            page += u"<html><head><title>%s</title></head><body>" % unicode(title)
+
+        page += u"<div class=\"container\"><div class=\"row\">" + unicode(body) + u"</div></div>"
+
+        try:
+            with open(WEBPAGE_FOOTER) as f:
+                page += unicode(f.read())
+        except IOError:
+            page += u"</body></html>"
+
+        return page.encode("utf-8")
+
+    def respond(self, title, body):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write("<html><head><title>%s</title></head><body>%s</body></html>" % (title, message))
+        self.wfile.write(self.construct_response(title, body))
 
-    def respond_fail(self):
+    def fail(self):
         self.send_response(404)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write("<html><head><title>Unknown Request</title></head><body>Unknown request</body></html>")
+        self.wfile.write(self.construct_response("Error", "<h1>Error!</h1><p>The requested page could not be found</p>"))
+
+    def main_page(self, title, url):
+        self.respond(title, """
+<h3>%s the Raspberry Pi?</h3>
+<form action="%s" method="post">
+  <button class="form-control btn btn-default" type="submit">%s</button>
+  <script type="text/javascript">
+    document.write('<a class="form-control btn btn-default" href="http://' + window.location.hostname + '/">Cancel</a>');
+  </script>
+</form>
+""" % (title, url, title))
 
     def do_GET(self):
-        if self.path == "/shutdown":
-            self.respond_success("Shutting down the Raspberry Pi", "<p>Shutting down the Raspberry Pi...</p><p>When all the lights are off except the red one, it's safe to turn it off at the plug.</p><p>To start it up again, turn it off and on at the plug.</p>")
+        if self.path == SHUTDOWN_URL:
+            self.main_page("Shut down", SHUTDOWN_URL)
+        elif self.path == REBOOT_URL:
+            self.main_page("Restart", REBOOT_URL)
+        else:
+            self.fail()
+
+    def do_POST(self):
+        if self.path == SHUTDOWN_URL:
+            self.respond("Shut down", "<p>The Raspberry Pi is now shutting down.</p><p>Once all the lights except the red one are off, then it is safe to disconnect the power.</p><p>Reconnect the power to start the Pi up again.</p>")
             subprocess.call(["sudo", "shutdown", "-h", "now"])
             sys.exit(0)
-        elif self.path == "/reboot":
-            self.respond_success("Rebooting the Raspberry Pi", "<p>Rebooting the Raspberry Pi...</p><p>This takes a few minutes.</p>")
+        elif self.path == REBOOT_URL:
+            self.respond("Restart", "<p>The Raspberry Pi is now restarting.</p><p>This will take a few minutes.</p>")
             subprocess.call(["sudo", "reboot"])
             sys.exit(0)
         else:
-            self.respond_fail()
+            self.fail()
 
 server_address = ('', 23145)
 httpd = BaseHTTPServer.HTTPServer(server_address, Responder)
