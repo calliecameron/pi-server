@@ -47,9 +47,9 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
 <h1>%s</h1>
 <p>%s the Raspberry Pi?</p>
 <form action="%s" method="post">
-  <button class="form-control btn btn-default" type="submit">%s</button>
+  <button class="form-control btn btn-default" style="margin-top: 10px; margin-bottom: 10px;" type="submit">%s</button>
   <script type="text/javascript">
-    document.write('<a class="form-control btn btn-default" href="http://' + window.location.hostname + '/">Cancel</a>');
+    document.write('<a class="form-control btn btn-default" style="margin-top: 10px; margin-bottom: 10px;" href="http://' + window.location.hostname + '/">Cancel</a>');
   </script>
 </form>
 """ % (title, title, url, title))
