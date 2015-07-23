@@ -3,11 +3,12 @@
 import BaseHTTPServer
 import subprocess
 import sys
+import time
 
 WEBPAGE_HEADER = "@@@@@1@@@@@"
 WEBPAGE_FOOTER = "@@@@@2@@@@@"
 SHUTDOWN_URL = "/shutdown"
-REBOOT_URL = "/restart"
+RESTART_URL = "/restart"
 
 class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
     def construct_response(self, title, body):
@@ -43,30 +44,33 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
 
     def main_page(self, title, url):
         self.respond(title, """
-<h3>%s the Raspberry Pi?</h3>
+<h1>%s</h1>
+<p>%s the Raspberry Pi?</p>
 <form action="%s" method="post">
   <button class="form-control btn btn-default" type="submit">%s</button>
   <script type="text/javascript">
     document.write('<a class="form-control btn btn-default" href="http://' + window.location.hostname + '/">Cancel</a>');
   </script>
 </form>
-""" % (title, url, title))
+""" % (title, title, url, title))
 
     def do_GET(self):
         if self.path == SHUTDOWN_URL:
             self.main_page("Shut down", SHUTDOWN_URL)
-        elif self.path == REBOOT_URL:
-            self.main_page("Restart", REBOOT_URL)
+        elif self.path == RESTART_URL:
+            self.main_page("Restart", RESTART_URL)
         else:
             self.fail()
 
     def do_POST(self):
         if self.path == SHUTDOWN_URL:
-            self.respond("Shut down", "<p>The Raspberry Pi is now shutting down.</p><p>Once all the lights except the red one are off, then it is safe to disconnect the power.</p><p>Reconnect the power to start the Pi up again.</p>")
+            self.respond("Shut down", "<h1>Shut down</h1><p>The Raspberry Pi is now shutting down.</p><p>Once all the lights except the red one are off, then it is safe to disconnect the power.</p><p>Reconnect the power to start the Pi up again.</p>")
+            time.sleep(1)
             subprocess.call(["sudo", "shutdown", "-h", "now"])
             sys.exit(0)
-        elif self.path == REBOOT_URL:
-            self.respond("Restart", "<p>The Raspberry Pi is now restarting.</p><p>This will take a few minutes.</p>")
+        elif self.path == RESTART_URL:
+            self.respond("Restart", "<h1>Restart</h1><p>The Raspberry Pi is now restarting.</p><p>This will take a few minutes.</p>")
+            time.sleep(1)
             subprocess.call(["sudo", "reboot"])
             sys.exit(0)
         else:
