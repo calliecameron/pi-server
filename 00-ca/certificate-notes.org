@@ -24,10 +24,3 @@
    Preferences -> advanced -> certificates -> view certificates
 
    The CA certificate goes in 'Authorities'; 'Import'
-
-* Install certificates for the OwnCloud client
-
-** Ubuntu
-   Copy the CA certificate to /usr/local/share/ca-certificates
-   sudo update-ca-certificates
-
