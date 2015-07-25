@@ -26,6 +26,7 @@ export PI_SERVER_BACKUP_EMAIL_DIR="${PI_SERVER_BACKUP_DIR}/email"
 
 # Configuration paths (on SD card)
 export PI_SERVER_DIR='/etc/pi-server'
+export PI_SERVER_CERT_DIR="${PI_SERVER_DIR}/certs"
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
@@ -78,8 +79,8 @@ export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
 
 export PI_SERVER_CRON_DIR="${PI_SERVER_DIR}/cron.daily"
 
-export PI_SERVER_CA_CERT="${PI_SERVER_DIR}/ca.crt"
-export PI_SERVER_CRL="${PI_SERVER_DIR}/crl"
+export PI_SERVER_CA_CERT="${PI_SERVER_CERT_DIR}/ca.crt"
+export PI_SERVER_CRL="${PI_SERVER_CERT_DIR}/crl"
 
 export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
 export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"
@@ -89,8 +90,8 @@ export PI_SERVER_WEB_PAGE_MAIN_HEADER="${PI_SERVER_DIR}/main-page-header"
 export PI_SERVER_WEB_PAGE_MAIN_FOOTER="${PI_SERVER_DIR}/main-page-footer"
 export PI_SERVER_WEB_PAGE_GENERATE="${PI_SERVER_DIR}/generate-main-web-page"
 
-export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_DIR}/openvpn-dh2048.pem"
-export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_DIR}/openvpn-tls-auth.key"
+export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_CERT_DIR}/openvpn-dh2048.pem"
+export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_CERT_DIR}/openvpn-tls-auth.key"
 export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-server-to-server-clients"
 export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
 
@@ -103,17 +104,17 @@ export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_SCRIPT_DIR}/last-run.log"
 export PI_SERVER_BACKUP_CONFIG_DIR="${PI_SERVER_DATA_MAIN_DIR}/$(hostname)-backup-config"
 export PI_SERVER_BACKUP_GIT_CONFIG="${PI_SERVER_BACKUP_CONFIG_DIR}/git-backup-configuration.txt"
 export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"
-export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_DIR}/deployment-key"
-export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_DIR}/deployment-key.pub"
+export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_CERT_DIR}/deployment-key"
+export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_CERT_DIR}/deployment-key.pub"
 
 function pi-server-cert()
 {
-    echo "${PI_SERVER_DIR}/${1}.crt"
+    echo "${PI_SERVER_CERT_DIR}/${1}.crt"
 }
 
 function pi-server-key()
 {
-    echo "${PI_SERVER_DIR}/${1}.key"
+    echo "${PI_SERVER_CERT_DIR}/${1}.key"
 }
 
 function check-pi-server-cert()
