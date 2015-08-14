@@ -1,8 +1,8 @@
 Unattended-Upgrade::Origins-Pattern {
         "o=Raspbian,a=stable";
         "o=Raspbian,a=stable-updates";
-//      "o=Raspbian,a=proposed-updates";
-        "origin=Raspbian,archive=stable,label=Raspbian-Security";
+        "o=Raspbian,a=proposed-updates";
+        "origin=Raspbian,archive=stable,label=Raspbian";
 };
 
 Unattended-Upgrade::Package-Blacklist {
