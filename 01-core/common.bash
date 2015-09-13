@@ -101,6 +101,7 @@ export PI_SERVER_BACKUP_LAST_RUN="${PI_SERVER_BACKUP_DIR}/last-run-date.txt"
 export PI_SERVER_BACKUP_LOCK='/run/lock/pi-server-backup.lock'
 export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_BACKUP_SCRIPT_DIR}/pause-on-backup"
 export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_SCRIPT_DIR}/last-run.log"
+export PI_SERVER_BACKUP_APT_LOG="${PI_SERVER_BACKUP_SCRIPT_DIR}/apt-output.log"
 export PI_SERVER_BACKUP_CONFIG_DIR="${PI_SERVER_DATA_MAIN_DIR}/$(hostname)-backup-config"
 export PI_SERVER_BACKUP_GIT_CONFIG="${PI_SERVER_BACKUP_CONFIG_DIR}/git-backup-configuration.txt"
 export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"

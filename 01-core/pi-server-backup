@@ -11,6 +11,7 @@ LOG='@@@@@7@@@@@'
 GIT_BACKUP_CONFIG='@@@@@8@@@@@'
 GIT_DIR='@@@@@9@@@@@'
 GIT_SSH_SCRIPT='@@@@@10@@@@@'
+APT_OUTPUT='@@@@@11@@@@@'
 HAS_LOCK=''
 
 function lock() {
@@ -143,6 +144,40 @@ echo "Git backup finished at $(date)" >> "${LOG}" &&
 
 
 # TODO email
+
+
+# Updates
+echo "Updates started at $(date)" >> "${LOG}" &&
+
+apt-get update &>> "${LOG}" &&
+apt-get -y upgrade 2>&1 | tee "${APT_OUTPUT}" >> "${LOG}" &&
+
+UPDATED="$(grep -o '[0-9]\+ upgraded' "${APT_OUTPUT}" | grep -o '[0-9]\+')" &&
+NOT_UPDATED="$(grep -o '[0-9]\+ not upgraded' "${APT_OUTPUT}" | grep -o '[0-9]\+')"
+
+if [ -z "${UPDATED}" ]; then
+    UPDATED='0'
+fi
+
+if [ -z "${NOT_UPDATED}" ]; then
+    NOT_UPDATED=0
+fi
+
+SUBJECT=''
+
+if [ "${UPDATED}" -gt '0' ] && [ "${NOT_UPDATED}" -gt '0' ]; then
+    SUBJECT="Installed ${UPDATED} update(s); ${NOT_UPDATED} package(s) not updated"
+elif [ "${UPDATED}" -gt '0' ]; then
+    SUBJECT="Installed ${UPDATED} update(s)"
+elif [ "${NOT_UPDATED}" -gt '0' ]; then
+    SUBJECT="${NOT_UPDATED} package(s) not updated"
+fi
+
+if [ ! -z "${SUBJECT}" ]; then
+    "${EMAIL_SCRIPT}" "${SUBJECT}" "$(cat "${APT_OUTPUT}")"
+fi
+
+echo "Updates finished at $(date)" >> "${LOG}" &&
 
 
 cleanup

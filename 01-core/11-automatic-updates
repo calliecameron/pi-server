@@ -4,16 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-AUTO_UPDATE='/etc/apt/apt.conf.d/20periodic'
-CONFIG_FILE='/etc/apt/apt.conf.d/50unattended-upgrades'
+LISTCHANGES_CONF='/etc/apt/listchanges.conf'
 
-sed-install "${DIR}/auto-update" "${AUTO_UPDATE}" &&
-sudo chmod a=r "${AUTO_UPDATE}" &&
-
-if real-pi; then
-    sed-install "${DIR}/unattended-upgrades-realpi" "${CONFIG_FILE}"
-else
-    sed-install "${DIR}/unattended-upgrades-fakepi" "${CONFIG_FILE}"
-fi
-
-sudo chmod a=r "${CONFIG_FILE}"
+sed-install "${DIR}/listchanges.conf" "${LISTCHANGES_CONF}" &&
+sudo chmod a=r "${LISTCHANGES_CONF}"

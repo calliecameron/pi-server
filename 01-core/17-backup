@@ -59,7 +59,8 @@ sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
             "${PI_SERVER_BACKUP_LOG_FILE}" \
             "${PI_SERVER_BACKUP_GIT_CONFIG}" \
             "${PI_SERVER_BACKUP_GIT_DIR}" \
-            "${PI_SERVER_BACKUP_GIT_SSH}" &&
+            "${PI_SERVER_BACKUP_GIT_SSH}" \
+            "${PI_SERVER_BACKUP_APT_LOG}" &&
 sudo chmod a=rx "${PI_SERVER_BACKUP_SCRIPT}" &&
 
 
