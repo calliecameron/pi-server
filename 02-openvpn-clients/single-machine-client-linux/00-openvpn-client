@@ -18,7 +18,7 @@ check-pi-server-cert "OpenVPN client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AU
 
 
 # Config file
-CONFIG='/etc/openvpn/openvpn-single-client.conf'
+CONFIG="/etc/openvpn/${VPN_SERVER}-client.conf"
 sed-install "${DIR}/openvpn-client-template" "${CONFIG}" \
             "${PI_SERVER_CA_CERT}" \
             "$(pi-server-cert "${CERT_NAME}")" \
@@ -30,6 +30,12 @@ sudo chmod u=r "${CONFIG}" &&
 sudo chmod go-rwx "${CONFIG}" &&
 
 
-echo 'Will now restart OpenVPN and try to connect' &&
-enter-to-continue &&
-sudo service openvpn restart
+cat <<EOF
+This connection's config file is ${CONFIG}.
+
+You can choose whether this connection starts automatically at boot by editing /etc/default/openvpn (by default, it will).
+
+You can start the connection manually by running: sudo openvpn --config '${CONFIG}'
+EOF
+
+enter-to-continue
