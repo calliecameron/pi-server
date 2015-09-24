@@ -1,6 +1,11 @@
 #!/bin/bash
 # Run all the pi-server cron scripts
 
+if [ -e '@@@@@3@@@@@' ]; then
+    # Cron script disabled
+    exit 0
+fi
+
 # Run main backup script
 if [ -x '@@@@@2@@@@@' ]; then
     '@@@@@2@@@@@'
