@@ -46,6 +46,9 @@ export PI_SERVER_EMAIL_TARGET="$(get-pi-server-param "${PI_SERVER_EMAIL_TARGET_F
 export PI_SERVER_EMAIL_SMTP_FILE="${PI_SERVER_DIR}/email-smtp-server"
 export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}")"
 
+export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
+export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
+
 export PI_SERVER_STORAGE_DRIVE_DEV_FILE="${PI_SERVER_DIR}/storage-drive-dev"
 export PI_SERVER_STORAGE_DRIVE_DEV="$(get-pi-server-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}")"
 
@@ -58,6 +61,7 @@ export PI_SERVER_STORAGE_BACKUP_PARTITION="$(get-pi-server-param "${PI_SERVER_ST
 export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-disk"
 export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
+export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
 export PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/openvpn-email-on-login"

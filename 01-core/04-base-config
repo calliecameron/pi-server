@@ -52,6 +52,8 @@ set-pi-param "${PI_SERVER_EMAIL_TARGET_FILE}" "Enter the email address any messa
 
 set-pi-param "${PI_SERVER_EMAIL_SMTP_FILE}" "Enter the SMTP server to use when sending email (usually your ISP's)" &&
 
+set-pi-param "${PI_SERVER_EMAIL_PORT_FILE}" "Enter the SMTP port to use when sending email (usually 25, or 465 if using authentication)" &&
+
 set-pi-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}" "Enter the path of the external hard drive device (usually /dev/sda)" &&
 
 set-pi-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}" "Enter the partition number of the main data partition on the external hard drive (usually 1)" &&
