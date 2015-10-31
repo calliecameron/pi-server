@@ -52,14 +52,14 @@ WIFI_PASSWORD="$(get-new-password 'new WiFi password')" &&
 
 HOSTAPD_CONF='/etc/hostapd/hostapd.conf' &&
 sed-install "${DIR}/hostapd.conf" "${HOSTAPD_CONF}" \
-            "${PI_SERVER_LAN_IFACE}" &&
+            "${PI_SERVER_LAN_IFACE}" \
+            "$(hostname)" \
+            "${WIFI_PASSWORD}" &&
 sudo chmod go-rwx "${HOSTAPD_CONF}" &&
 
 HOSTAPD_DEFAULT='/etc/default/hostapd' &&
 sed-install "${DIR}/hostapd" "${HOSTAPD_DEFAULT}" \
-            "${HOSTAPD_CONF}" \
-            "$(hostname)" \
-            "${WIFI_PASSWORD}" &&
+            "${HOSTAPD_CONF}" &&
 sudo chmod a=r "${HOSTAPD_DEFAULT}" &&
 
 
