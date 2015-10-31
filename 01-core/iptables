@@ -19,7 +19,7 @@ function do-protocol() {
     if [ -f "${FILE}" ]; then
         while read port; do
             if valid-port "${port}"; then
-                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" "${IFACE_PART}" -j ACCEPT
+                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" ${IFACE_PART} -j ACCEPT
             fi
         done < "${FILE}"
     fi

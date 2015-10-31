@@ -62,7 +62,7 @@ function port-is-valid()
 
 function port-is-open()
 {
-    if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" "${IFACE_PART}" -j ACCEPT &>/dev/null; then
+    if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT &>/dev/null; then
         echo 'Yes'
         return 0
     fi
@@ -74,13 +74,13 @@ function port-is-open()
 function port-open()
 {
     if ! port-is-open &>/dev/null; then
-        sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" "${IFACE_PART}" -j ACCEPT
+        sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT
     fi
 }
 
 function port-close()
 {
-    sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" "${IFACE_PART}" -j ACCEPT &>/dev/null
+    sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT &>/dev/null
 }
 
 function port-opens-at-boot()
