@@ -64,7 +64,7 @@ sudo chmod a=r "${HOSTAPD_DEFAULT}" &&
 
 if [ ! -e "${PI_SERVER_HOSTAPD_INSTALLED_FILE}" ]; then
     HOSTAPD_BINARY='/usr/sbin/hostapd' &&
-    TMPDIR="$(mktmp -d)" &&
+    TMPDIR="$(mktemp -d)" &&
     cd "${TMPDIR}" &&
     wget 'https://github.com/jenssegers/RTL8188-hostapd/archive/v2.0.tar.gz' &&
     tar -xf 'v2.0.tar.gz' &&

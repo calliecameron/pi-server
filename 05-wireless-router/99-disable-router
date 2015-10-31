@@ -1,0 +1,46 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+if ! yn-n 'This will disable the Pi router mode, and put everything back to normal. Continue?'; then
+    exit 0
+fi
+
+
+# Parameters
+echo 'eth0' | sudo tee "${PI_SERVER_LAN_IFACE_FILE}" &>/dev/null
+echo | sudo tee "${PI_SERVER_WAN_IFACE_FILE}" &>/dev/null
+sudo chown root:root "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+sudo chmod u=rw "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+sudo chmod go=r "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
+export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
+
+
+# DHCP server
+sudo rm -f '/etc/dhcp/dhcpd.conf' '/etc/default/isc-dhcp-server' &&
+
+
+# Wifi
+sudo rm -f '/etc/hostapd/hostapd.conf' '/etc/default/hostapd' &&
+
+
+# Packages
+sudo apt-get -y remove --purge --auto-remove isc-dhcp-server hostapd &&
+
+
+# Refresh other settings
+echo "About to refresh other settings to enable the router." &&
+enter-to-continue &&
+
+"${DIR}/../01-core/05-network" &&
+"${DIR}/../01-core/08-firewall" &&
+"${DIR}/../01-core/09-dynamic-dns" &&
+if [ -e "${PI_SERVER_DIR}/media-server" ]; then
+    "${DIR}/../04-media-server/00-media-server" || exit 1
+fi
+
+echo "Everything back to normal. Reboot now." &&
+enter-to-continue
