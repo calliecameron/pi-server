@@ -68,8 +68,8 @@ echo "About to refresh other settings to enable the router." &&
 enter-to-continue &&
 
 "${DIR}/../01-core/05-network" &&
-"${DIR}/../08-firewall" &&
-"${DIR}/../09-dynamic-dns" &&
+"${DIR}/../01-core/08-firewall" &&
+"${DIR}/../01-core/09-dynamic-dns" &&
 
 echo "Router configuration complete. Reboot now." &&
 enter-to-continue
