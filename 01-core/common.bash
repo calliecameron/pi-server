@@ -37,6 +37,12 @@ export PI_SERVER_LAN_NETWORK="$(get-pi-server-param "${PI_SERVER_LAN_NETWORK_FIL
 export PI_SERVER_VPN_NETWORK_FILE="${PI_SERVER_DIR}/vpn-network-addr"
 export PI_SERVER_VPN_NETWORK="$(get-pi-server-param "${PI_SERVER_VPN_NETWORK_FILE}")"
 
+export PI_SERVER_LAN_IFACE_FILE="${PI_SERVER_DIR}/lan-iface"
+export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
+
+export PI_SERVER_WAN_IFACE_FILE="${PI_SERVER_DIR}/wan-iface"
+export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
+
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
 

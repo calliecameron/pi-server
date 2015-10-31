@@ -9,7 +9,14 @@ sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
 
 # Avahi daemon for local name resolution
 AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
-sed-install "${DIR}/avahi-daemon.conf" "${AVAHI_CONF}" &&
+
+if [ -z "${PI_SERVER_WAN_IFACE}" ]; then
+    sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}"
+else
+    sed-install "${DIR}/avahi-daemon-router.conf" "${AVAHI_CONF}" \
+                "${PI_SERVER_WAN_IFACE}"
+fi
+
 sudo chmod a=r "${AVAHI_CONF}" &&
 
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 5353 udp &&

@@ -5,15 +5,21 @@ source '@@@@@1@@@@@' || exit 1
 
 /sbin/iptables-restore < '@@@@@2@@@@@'
 
-function do-protocol()
-{
+WAN_IFACE="$(cat '@@@@@3@@@@@')"
+if [ -z "${WAN_IFACE}" ]; then
+    IFACE_PART=''
+else
+    IFACE_PART="! -i ${WAN_IFACE}"
+fi
+
+function do-protocol() {
     local PROTOCOL="${1}"
     local FILE="$(open-at-boot-file "${PROTOCOL}")"
 
     if [ -f "${FILE}" ]; then
         while read port; do
             if valid-port "${port}"; then
-                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" -j ACCEPT
+                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" "${IFACE_PART}" -j ACCEPT
             fi
         done < "${FILE}"
     fi

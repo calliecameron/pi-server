@@ -1,0 +1,11 @@
+auto lo
+iface lo inet loopback
+
+auto @@@@@1@@@@@
+allow-hotplug @@@@@1@@@@@
+iface @@@@@1@@@@@ inet dhcp
+
+allow-hotplug @@@@@2@@@@@
+iface @@@@@2@@@@@ inet static
+    address @@@@@3@@@@@
+    netmask 255.255.255.0
