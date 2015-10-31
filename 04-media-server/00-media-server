@@ -17,7 +17,8 @@ sudo sed -i 's/^#GROUP="minidlna"$/GROUP="www-data"/g' "${MINIDLNA_DEFAULT}" &&
 MINIDLNA_CONF='/etc/minidlna.conf' &&
 sed-install "${DIR}/minidlna-conf-template" "${MINIDLNA_CONF}" \
             "${PI_SERVER_MEDIA_DIR}" \
-            "${PI_SERVER_MINIDLNA_DB}" &&
+            "${PI_SERVER_MINIDLNA_DB}" \
+            "${PI_SERVER_LAN_IFACE}" &&
 sudo chmod a=r "${MINIDLNA_CONF}" || exit 1
 
 

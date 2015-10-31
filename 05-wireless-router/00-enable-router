@@ -62,6 +62,22 @@ sed-install "${DIR}/hostapd" "${HOSTAPD_DEFAULT}" \
             "${HOSTAPD_CONF}" &&
 sudo chmod a=r "${HOSTAPD_DEFAULT}" &&
 
+if [ ! -e "${PI_SERVER_HOSTAPD_INSTALLED_FILE}" ]; then
+    HOSTAPD_BINARY='/usr/sbin/hostapd' &&
+    TMPDIR="$(mktmp -d)" &&
+    cd "${TMPDIR}" &&
+    wget 'https://github.com/jenssegers/RTL8188-hostapd/archive/v2.0.tar.gz' &&
+    tar -xf 'v2.0.tar.gz' &&
+    cd 'RTL8188-hostapd-2.0/hostapd' &&
+    make &&
+    sudo cp hostapd "${HOSTAPD_BINARY}" &&
+    sudo chown root:root "${HOSTAPD_BINARY}" &&
+    sudo chmod a=rx "${HOSTAPD_BINARY}" &&
+    cd &&
+    rm -rf "${TMPDIR}" &&
+    sudo touch "${PI_SERVER_HOSTAPD_INSTALLED_FILE}" || exit 1
+fi
+
 
 # Refresh other settings
 echo "About to refresh other settings to enable the router." &&
@@ -70,6 +86,9 @@ enter-to-continue &&
 "${DIR}/../01-core/05-network" &&
 "${DIR}/../01-core/08-firewall" &&
 "${DIR}/../01-core/09-dynamic-dns" &&
+if [ -e "${PI_SERVER_DIR}/media-server" ]; then
+    "${DIR}/../04-media-server/00-media-server" || exit 1
+fi
 
 echo "Router configuration complete. Reboot now." &&
 enter-to-continue
