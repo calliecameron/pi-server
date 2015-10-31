@@ -1,0 +1,47 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+echo 'This section is OPTIONAL, and should only be used if you know what you are doing, and know that you need it!' &&
+echo &&
+if ! yn_n "Set the Pi up as a wireless router? (If unsure, say 'n'.)"; then
+    exit 0
+fi
+
+
+# Parameters
+echo 'wlan0' | sudo tee "${PI_SERVER_LAN_IFACE_FILE}" &>/dev/null
+echo 'eth0' | sudo tee "${PI_SERVER_WAN_IFACE_FILE}" &>/dev/null
+sudo chown root:root "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+sudo chmod u=rw "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+sudo chmod go=r "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
+export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
+
+
+# Packages
+sudo apt-get update &&
+sudo apt-get -y install isc-dhcp-server &&
+
+
+# DHCP server
+SUBNET_PART="$(grep -o '^[0-9]\+.[0-9]\+.[0-9]\+' "${PI_SERVER_LAN_NETWORK_FILE}")" &&
+ROUTER_PART="$(grep -o '[0-9]\+$' "${PI_SERVER_IP_FILE}")" &&
+RANGE_START=$(( ROUTER_PART + 1 ))
+
+DHCP_CONF='/etc/dhcp/dhcpd.conf' &&
+sed-install "${DIR}/dhcpd.conf" "${DHCP_CONF}" \
+            "${PI_SERVER_LAN_NETWORK}" \
+            "${SUBNET_PART}.${RANGE_START}" \
+            "${SUBNET_PART}.254" \
+            "${SUBNET_PART}.255" \
+            "${PI_SERVER_IP}" &&
+sudo chmod u=rw "${DHCP_CONF}" &&
+sudo chmod go=r "${DHCP_CONF}" &&
+
+DHCP_DEFAULT='/etc/default/isc-dhcp-server' &&
+sed-install "${DIR}/isc-dhcp-server" "${DHCP_DEFAULT}" \
+            "${PI_SERVER_LAN_IFACE}" &&
+sudo chmod a=r "${DHCP_DEFAULT}"
