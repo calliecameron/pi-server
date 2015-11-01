@@ -7,8 +7,6 @@
 -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
 -A INPUT -d 127.0.0.0/8 ! -i lo -j DROP
 -A INPUT -p tcp --dport 22 ! -i @@@@@1@@@@@ -j ACCEPT
--A INPUT -p tcp --dport 22000 -j ACCEPT
--A INPUT -p udp --dport 21025 -j ACCEPT
 -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
 -A INPUT -j DROP
 -A FORWARD -i @@@@@1@@@@@ -j DROP
