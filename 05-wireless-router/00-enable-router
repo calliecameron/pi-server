@@ -73,6 +73,8 @@ if [ ! -e "${PI_SERVER_HOSTAPD_INSTALLED_FILE}" ]; then
     sudo cp hostapd "${HOSTAPD_BINARY}" &&
     sudo chown root:root "${HOSTAPD_BINARY}" &&
     sudo chmod a=rx "${HOSTAPD_BINARY}" &&
+    # This is so we can easily get the new version back if apt-get overwrites it
+    sudo cp "${HOSTAPD_BINARY}" "${HOSTAPD_BINARY}.pi-server-new"
     cd &&
     rm -rf "${TMPDIR}" &&
     sudo touch "${PI_SERVER_HOSTAPD_INSTALLED_FILE}" || exit 1
