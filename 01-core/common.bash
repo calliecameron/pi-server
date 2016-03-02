@@ -150,9 +150,12 @@ EOF
         exit 1
     else
         sudo chown root:root "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}"
-        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}"
+        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${CERT}" "${KEY}"
         sudo chmod go-rwx "${KEY}"
-        sudo chmod go-wx "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}"
+        sudo chmod go-wx "${PI_SERVER_CA_CERT}" "${CERT}"
+
+        # The CRL is not secret, and must be world-readable
+        sudo chmod a=r "${PI_SERVER_CRL}"
     fi
 
     # Check extra files
