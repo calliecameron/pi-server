@@ -1,5 +1,9 @@
 # Common stuff; should be sourced, not run!
 
+# Stop the user's umask messing up permissions on new files
+umask 022
+
+
 function get-pi-server-param()
 {
     if [ ! -z "${1}" ] && [ -e "${1}" ]; then
