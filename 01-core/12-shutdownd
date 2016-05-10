@@ -24,14 +24,16 @@ sudo chmod a=rx "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
 
 # Setup permissions so the new user can call shutdown - and only shutdown - through sudo
 SUDOERS_DST='/etc/sudoers.d/shutdownd' &&
-sed-install "${DIR}/sudoers-shutdownd-template" "${SUDOERS_DST}" "$(hostname)"
+sed-install "${DIR}/sudoers-shutdownd-template" "${SUDOERS_DST}" \
+            "$(hostname)" &&
 sudo chmod ug=r "${SUDOERS_DST}" &&
 sudo chmod o-rwx "${SUDOERS_DST}" &&
 
 
 # Set it up to run at boot
 SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf' &&
-sed-install "${DIR}/supervisor-shutdownd" "${SUPERVISOR_DST}" "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
+sed-install "${DIR}/supervisor-shutdownd" "${SUPERVISOR_DST}" \
+            "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
 sudo chmod a=r "${SUPERVISOR_DST}" &&
 
 
