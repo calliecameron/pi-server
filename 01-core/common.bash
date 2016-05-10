@@ -193,13 +193,13 @@ Put the certificates at:
 EOF
         exit 1
     else
-        sudo chown root:root "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}"
-        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${CERT}" "${KEY}"
-        sudo chmod go-rwx "${KEY}"
-        sudo chmod go-wx "${PI_SERVER_CA_CERT}" "${CERT}"
+        sudo chown root:root "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}" &&
+        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${CERT}" "${KEY}" &&
+        sudo chmod go-rwx "${KEY}" &&
+        sudo chmod go=r "${PI_SERVER_CA_CERT}" "${CERT}" &&
 
         # The CRL is not secret, and must be world-readable
-        sudo chmod a=r "${PI_SERVER_CRL}"
+        sudo chmod a=r "${PI_SERVER_CRL}" || return 1
     fi
 
     # Check extra files
@@ -214,17 +214,17 @@ Missing file; not going any further:
 EOF
             exit 1
         else
-            sudo chown root:root "${NAME}"
-            sudo chmod u=r "${NAME}"
-            sudo chmod go-rwx "${NAME}"
+            sudo chown root:root "${NAME}" &&
+            sudo chmod u=r "${NAME}" &&
+            sudo chmod go-rwx "${NAME}" || return 1
         fi
 
         shift
     done
 
     # Install the CA cert for OS use
-    sudo cp -t '/usr/local/share/ca-certificates' "${PI_SERVER_CA_CERT}"
-    sudo update-ca-certificates
+    sudo cp -t '/usr/local/share/ca-certificates' "${PI_SERVER_CA_CERT}" &&
+    sudo update-ca-certificates || return 1
 }
 
 function real-pi() {
