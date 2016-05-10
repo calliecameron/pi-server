@@ -60,9 +60,9 @@ function setup-fstab() {
     fi
 
     # shellcheck disable=SC2155
-    local UUID="$(sudo blkid "${DEV}" -o export | grep 'UUID' | sed 's/^UUID=//g')"
+    local UUID="$(sudo blkid "${DEV}" -o export | grep '^UUID' | sed 's/^UUID=//g')"
     # shellcheck disable=SC2155
-    local TYPE="$(sudo blkid "${DEV}" -o export | grep 'TYPE' | sed 's/^TYPE=//g')"
+    local TYPE="$(sudo blkid "${DEV}" -o export | grep '^TYPE' | sed 's/^TYPE=//g')"
 
     if [ "${TYPE}" != 'ext4' ]; then
         echo "${DEV} is not an ext4 partition; exiting."
