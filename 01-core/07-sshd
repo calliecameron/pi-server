@@ -42,12 +42,14 @@ chmod u+w "${KEYS}" &&
 
 
 # Setup server config
-sed-install "${DIR}/sshd-config-template" "${SSHD_CONFIG}" "$(id -un)" &&
+sed-install "${DIR}/sshd-config-template" "${SSHD_CONFIG}" \
+            "$(id -un)" &&
 sudo chmod a=r "${SSHD_CONFIG}" &&
 
 
 # Email on login
-sed-install "${DIR}/ssh-email-on-login" "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sed-install "${DIR}/ssh-email-on-login" "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
 sudo chmod a=rx "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
 
 PAM_STRING="session optional pam_exec.so seteuid ${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
