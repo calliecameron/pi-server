@@ -1,7 +1,6 @@
 # Sourced by the other firewall scripts
 
-function valid-protocol()
-{
+function valid-protocol() {
     if [ "${1}" = 'tcp' ] || [ "${1}" = 'udp' ]; then
         return 0
     else
@@ -9,8 +8,7 @@ function valid-protocol()
     fi
 }
 
-function valid-port()
-{
+function valid-port() {
     if [ ! -z "${1}" ]; then
         if [[ "${1}" != *[!0-9]* ]]; then
             if (( "${1}" >= 0 && "${1}" <= 65535 )); then
@@ -21,8 +19,7 @@ function valid-port()
     return 1
 }
 
-function open-at-boot-file()
-{
+function open-at-boot-file() {
     if [ "${1}" = 'tcp' ]; then
         echo '@@@@@1@@@@@'
     elif [ "${1}" = 'udp' ]; then
