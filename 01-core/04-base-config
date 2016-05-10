@@ -3,8 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
-function set-pi-param()
-{
+function set-pi-param() {
     local OUTPUT_FILE="${1}"
     local PROMPT="${2}"
 
@@ -13,12 +12,13 @@ function set-pi-param()
         exit 1
     fi
 
+    # shellcheck disable=SC2155
     local CURRENT_VALUE="$(get-pi-server-param "${OUTPUT_FILE}")"
     if [ ! -z "${CURRENT_VALUE}" ]; then
         CURRENT_VALUE=" [Current value: ${CURRENT_VALUE}]"
     fi
 
-    read -p "${PROMPT}${CURRENT_VALUE}: " VALUE
+    read -r -p "${PROMPT}${CURRENT_VALUE}: " VALUE
     echo
 
     if [ -z "${VALUE}" ]; then
