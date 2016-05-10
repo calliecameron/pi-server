@@ -10,7 +10,7 @@ sudo apt-get -y install openssh-server openvpn
 
 echo &&
 printf "Enter the address of the default route (corresponding FakeRouter): " &&
-read DEFAULT_ROUTE &&
+read -r DEFAULT_ROUTE &&
 
 CONFIG_SRC="${DIR}/fakeClient-boot-config" &&
 CONFIG_DST='/etc/network/if-up.d/fakeClient-boot-config' &&
