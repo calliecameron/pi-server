@@ -1,9 +1,10 @@
 #!/bin/bash
 
+# shellcheck disable=SC2155
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-read -p "Enter the server's LAN IP address (MUST be correct, or nothing will work!): " SERVER_ADDR &&
-read -p "Enter the server's hostname (MUST be correct, or nothing will work!): " SERVER_HOSTNAME &&
+read -r -p "Enter the server's LAN IP address (MUST be correct, or nothing will work!): " SERVER_ADDR &&
+read -r -p "Enter the server's hostname (MUST be correct, or nothing will work!): " SERVER_HOSTNAME &&
 
 if [ -z "${SERVER_ADDR}" ]; then
     echo "Server address must not be empty"
@@ -15,7 +16,7 @@ if [ -z "${SERVER_HOSTNAME}" ]; then
     exit 1
 fi
 
-read -s -p "Enter the password for the root CA key: " PASSWD && echo &&
+read -r -s -p "Enter the password for the root CA key: " PASSWD && echo &&
 
 
 # Create directory structure
@@ -29,8 +30,7 @@ echo "DNS.1 = ${SERVER_HOSTNAME}.local" >> "${LOCAL_CONF}" &&
 echo "IP.1 = ${SERVER_ADDR}" >> "${LOCAL_CONF}" &&
 
 
-function do-cert()
-{
+function do-cert() {
     # Certificate request
     openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes &&
 

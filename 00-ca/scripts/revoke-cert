@@ -1,7 +1,6 @@
 #!/bin/bash
 
-function usage()
-{
+function usage() {
     echo "Usage: $(basename "${0}") cert"
     exit 1
 }
@@ -9,10 +8,10 @@ function usage()
 test -z "${1}" && usage
 test ! -e "${1}" && usage
 
-
+# shellcheck disable=SC2155
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-read -s -p "Enter the password to unlock the root CA key:" PASSWD && echo &&
+read -r -s -p "Enter the password to unlock the root CA key:" PASSWD && echo &&
 
 
 # Revoke the certificate

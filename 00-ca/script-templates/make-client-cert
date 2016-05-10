@@ -1,17 +1,18 @@
 #!/bin/bash
 
+# shellcheck disable=SC2155
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
-read -p "Enter the certificate's name (arbitrary, but should be unique and descriptive, i.e. the client's hostname): " CERT_NAME &&
+read -r -p "Enter the certificate's name (arbitrary, but should be unique and descriptive, i.e. the client's hostname): " CERT_NAME &&
 
 if [ -z "${CERT_NAME}" ]; then
     echo "Certificate name must not be empty"
     exit 1
 fi
 
-read -s -p "Enter the password to unlock the root CA key: " PASSWD && echo &&
-read -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo &&
-read -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo &&
+read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo &&
+read -r -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo &&
+read -r -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo &&
 
 if [ "${PKCS_PASSWD}" != "${PKCS_PASSWD2}" ]; then
     echo "The passwords do not match"

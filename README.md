@@ -28,13 +28,21 @@ internet.
 Installation
 ------------
 
-On your desktop/laptop, use `00-ca` to set up keys for the Pi.
+One time only: on your desktop/laptop, use `00-ca` to create the CA
+folder:
 
-Install the Raspbian Jessie Lite image on the pi. Then log in and:
+1. `cd 00-ca`
+2. `./00-make-ca <dir> <your_name>`, where dir should typically be
+   inside an encrypted volume.
 
-1. `sudo apt-get update; sudo apt-get -y install git`
-2. `git clone https://github.com/CallumCameron/pi-server`
-3. `cd pi-server`
+To install on a Pi:
+
+1. Generate certificates and keys for the Pi by running
+   `make-pi-server-certs` in the folder created by `00-make-ca`.
+2. Install the Raspbian Jessie Lite image on the Pi, boot, and log in.
+3. `sudo apt-get update; sudo apt-get -y install git`
+4. `git clone https://github.com/CallumCameron/pi-server`
+5. `cd pi-server`
 
 In each of the numbered folders starting with `01-core` in order, run
 each of the numbered scripts in order, and follow the instructions

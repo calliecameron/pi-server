@@ -1,13 +1,16 @@
 #!/bin/bash
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# shellcheck disable=SC2034
+NOT_ON_PI='t'
 source "${DIR}/../01-core/common.bash"
 
-function usage()
-{
-    echo "Usage: $(basename "${0}") new_ca_dir your_name"
-    echo "    new_ca_dir must not already exist, and should probably be somewhere encrypted!"
-    echo "    your_name will be used as the 'organisation' field in the created certificates"
+function usage() {
+    cat <<EOF
+Usage: $(basename "${0}") new_ca_dir your_name
+    new_ca_dir must not already exist, and should probably be somewhere encrypted!
+    your_name will be used as the 'organisation' field in the created certificates
+EOF
     exit 1
 }
 

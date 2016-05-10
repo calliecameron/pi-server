@@ -1,11 +1,12 @@
 #!/bin/bash
 
+# shellcheck disable=SC2155
 export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
 
 if tty -s; then
-    read -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
+    read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
 else
-    read PASSWD
+    read -r PASSWD
 fi
 
 
@@ -18,10 +19,12 @@ openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -pas
 chmod u=rw "${CA_DIR}/ca/crl" &&
 chmod go=r "${CA_DIR}/ca/crl"
 
-ls -1 "${CA_DIR}/certs/server" | while read line; do
+# shellcheck disable=SC2012
+ls -1 "${CA_DIR}/certs/server" | while read -r line; do
     cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/server/${line}"
 done
 
-ls -1 "${CA_DIR}/certs/client" | while read line; do
+# shellcheck disable=SC2012
+ls -1 "${CA_DIR}/certs/client" | while read -r line; do
     cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/client/${line}"
 done

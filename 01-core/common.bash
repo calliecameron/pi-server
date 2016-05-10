@@ -29,12 +29,10 @@ if [ -z "${NOT_ON_PI}" ]; then
         echo-red "This only works on Raspbian Jessie; you are on a different version. Exiting."
         exit 1
     fi
+    echo-yellow "This is the Jessie branch; it isn't fully working yet."
 fi
 
-echo-yellow "This is the Jessie branch; it isn't fully working yet."
-
-function get-pi-server-param()
-{
+function get-pi-server-param() {
     if [ ! -z "${1}" ] && [ -e "${1}" ]; then
         cat "${1}"
     else
@@ -62,42 +60,55 @@ export PI_SERVER_DIR='/etc/pi-server'
 export PI_SERVER_CERT_DIR="${PI_SERVER_DIR}/certs"
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
+# shellcheck disable=SC2155
 export PI_SERVER_IP="$(get-pi-server-param "${PI_SERVER_IP_FILE}")"
 
 export PI_SERVER_LAN_NETWORK_FILE="${PI_SERVER_DIR}/lan-network-addr"
+# shellcheck disable=SC2155
 export PI_SERVER_LAN_NETWORK="$(get-pi-server-param "${PI_SERVER_LAN_NETWORK_FILE}")"
 
 export PI_SERVER_VPN_NETWORK_FILE="${PI_SERVER_DIR}/vpn-network-addr"
+# shellcheck disable=SC2155
 export PI_SERVER_VPN_NETWORK="$(get-pi-server-param "${PI_SERVER_VPN_NETWORK_FILE}")"
 
 export PI_SERVER_LAN_IFACE_FILE="${PI_SERVER_DIR}/lan-iface"
+# shellcheck disable=SC2155
 export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
 
 export PI_SERVER_WAN_IFACE_FILE="${PI_SERVER_DIR}/wan-iface"
+# shellcheck disable=SC2155
 export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
 
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
+# shellcheck disable=SC2155
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
 
 export PI_SERVER_EMAIL_TARGET_FILE="${PI_SERVER_DIR}/email-target"
+# shellcheck disable=SC2155
 export PI_SERVER_EMAIL_TARGET="$(get-pi-server-param "${PI_SERVER_EMAIL_TARGET_FILE}")"
 
 export PI_SERVER_EMAIL_SMTP_FILE="${PI_SERVER_DIR}/email-smtp-server"
+# shellcheck disable=SC2155
 export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}")"
 
 export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
+# shellcheck disable=SC2155
 export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
 
 export PI_SERVER_STORAGE_DRIVE_DEV_FILE="${PI_SERVER_DIR}/storage-drive-dev"
+# shellcheck disable=SC2155
 export PI_SERVER_STORAGE_DRIVE_DEV="$(get-pi-server-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}")"
 
 export PI_SERVER_STORAGE_DATA_PARTITION_FILE="${PI_SERVER_DIR}/storage-data-partition"
+# shellcheck disable=SC2155
 export PI_SERVER_STORAGE_DATA_PARTITION="$(get-pi-server-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}")"
 
 export PI_SERVER_STORAGE_BACKUP_PARTITION_FILE="${PI_SERVER_DIR}/storage-backup-partition"
+# shellcheck disable=SC2155
 export PI_SERVER_STORAGE_BACKUP_PARTITION="$(get-pi-server-param "${PI_SERVER_STORAGE_BACKUP_PARTITION_FILE}")"
 
 export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-disk"
+# shellcheck disable=SC2155
 export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
 export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
@@ -146,26 +157,26 @@ export PI_SERVER_BACKUP_LOCK='/run/lock/pi-server-backup.lock'
 export PI_SERVER_BACKUP_PAUSE_DIR="${PI_SERVER_BACKUP_SCRIPT_DIR}/pause-on-backup"
 export PI_SERVER_BACKUP_LOG_FILE="${PI_SERVER_BACKUP_SCRIPT_DIR}/last-run.log"
 export PI_SERVER_BACKUP_APT_LOG="${PI_SERVER_BACKUP_SCRIPT_DIR}/apt-output.log"
+# shellcheck disable=SC2155
 export PI_SERVER_BACKUP_CONFIG_DIR="${PI_SERVER_DATA_MAIN_DIR}/$(hostname)-backup-config"
 export PI_SERVER_BACKUP_GIT_CONFIG="${PI_SERVER_BACKUP_CONFIG_DIR}/git-backup-configuration.txt"
 export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"
 export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_CERT_DIR}/deployment-key"
 export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_CERT_DIR}/deployment-key.pub"
 
-function pi-server-cert()
-{
+function pi-server-cert() {
     echo "${PI_SERVER_CERT_DIR}/${1}.crt"
 }
 
-function pi-server-key()
-{
+function pi-server-key() {
     echo "${PI_SERVER_CERT_DIR}/${1}.key"
 }
 
-function check-pi-server-cert()
-{
+function check-pi-server-cert() {
     local NAME="${1}"
+    # shellcheck disable=SC2155
     local CERT="$(pi-server-cert "${2}")"
+    # shellcheck disable=SC2155
     local KEY="$(pi-server-key "${2}")"
 
     if [ ! -e "${PI_SERVER_CA_CERT}" ] ||
@@ -177,8 +188,8 @@ Certificates are missing; not going any further
 Put the certificates at:
     CA ceritificate: ${PI_SERVER_CA_CERT}
     CRL: ${PI_SERVER_CRL}
-    ${1} certificate: ${CERT}
-    ${1} private key: ${KEY}
+    ${NAME} certificate: ${CERT}
+    ${NAME} private key: ${KEY}
 EOF
         exit 1
     else
@@ -196,16 +207,16 @@ EOF
     shift
 
     while (($#)); do
-        if [ ! -e "${1}" ]; then
+        if [ ! -e "${NAME}" ]; then
             cat <<EOF
 Missing file; not going any further:
-    ${1}
+    ${NAME}
 EOF
             exit 1
         else
-            sudo chown root:root "${1}"
-            sudo chmod u=r "${1}"
-            sudo chmod go-rwx "${1}"
+            sudo chown root:root "${NAME}"
+            sudo chmod u=r "${NAME}"
+            sudo chmod go-rwx "${NAME}"
         fi
 
         shift
@@ -216,8 +227,7 @@ EOF
     sudo update-ca-certificates
 }
 
-function real-pi()
-{
+function real-pi() {
     # Is this really a Pi, or is it a Debian VM for testing?
     if [ "$(uname -m)" = 'armv6l' ]; then
         return 0
@@ -226,15 +236,14 @@ function real-pi()
     fi
 }
 
-function enter-to-continue()
-{
-    read -p "Press ENTER to continue..."
+function enter-to-continue() {
+    read -r -p "Press ENTER to continue..."
 }
 
-function sed-install()
-{
+function sed-install() {
     local IN_FILE="${1}"
     local OUT_FILE="${2}"
+    # shellcheck disable=SC2155
     local TMPFILE="$(mktemp)" &&
     cp "${IN_FILE}" "${TMPFILE}" &&
     shift &&
@@ -252,8 +261,7 @@ function sed-install()
     rm "${TMPFILE}"
 }
 
-function yn-y()
-{
+function yn-y() {
     # Y is the default
     local REPLY
     read -p "${1} [Y/n] " -r
@@ -264,8 +272,7 @@ function yn-y()
     fi
 }
 
-function yn-n()
-{
+function yn-n() {
     # N is the default
     local REPLY
     read -p "${1} [y/N] " -r
@@ -276,19 +283,18 @@ function yn-n()
     fi
 }
 
-function get-new-password()
-{
+function get-new-password() {
     local PASSWD_1
     local PASSWD_2
 
-    read -s -p "Enter the ${1}: " PASSWD_1
+    read -r -s -p "Enter the ${1}: " PASSWD_1
     echo 1>&2
     if [ -z "${PASSWD_1}" ]; then
         echo 'Error: password must not be empty' 1>&2
         exit 1
     fi
 
-    read -s -p 'Enter the new password again: ' PASSWD_2
+    read -r -s -p 'Enter the new password again: ' PASSWD_2
     echo 1>&2
     if [ "${PASSWD_1}" != "${PASSWD_2}" ]; then
         echo 'Error: the passwords do not match' 1>&2
