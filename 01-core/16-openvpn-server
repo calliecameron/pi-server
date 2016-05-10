@@ -6,11 +6,11 @@ source "${DIR}/common.bash" &&
 
 # Make sure the certs are in place, and have the correct permissions
 CERT_NAME='openvpn'
-check-pi-server-cert "OpenVPN server" "${CERT_NAME}" "${PI_SERVER_OPENVPN_DH_PARAMS}" "${PI_SERVER_OPENVPN_TLS_AUTH}"
+check-pi-server-cert "OpenVPN server" "${CERT_NAME}" "${PI_SERVER_OPENVPN_DH_PARAMS}" "${PI_SERVER_OPENVPN_TLS_AUTH}" &&
 
 
 # Setup the config file
-CONFIG='/etc/openvpn/openvpn-server.conf'
+CONFIG='/etc/openvpn/openvpn-server.conf' &&
 sed-install "${DIR}/openvpn-server-template" "${CONFIG}" \
             "${PI_SERVER_CA_CERT}" \
             "$(pi-server-cert "${CERT_NAME}")" \
@@ -28,13 +28,14 @@ sudo chmod go-rwx "${CONFIG}" &&
 
 
 # Email notifications on login
-sed-install "${DIR}/openvpn-email-on-login" "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sed-install "${DIR}/openvpn-email-on-login" "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
 sudo chmod a=rx "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" &&
 
 
 # Server-to-server client configuration
 if [ ! -e "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" ]; then
-    sed-install "${DIR}/openvpn-server-to-server-clients" "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}"
+    sed-install "${DIR}/openvpn-server-to-server-clients" "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" || exit 1
 fi
 sudo chmod a=r "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" &&
 
