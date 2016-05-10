@@ -10,7 +10,7 @@ if ! real-pi; then
 fi
 
 
-read -p "Enter new username: " USERNAME &&
+read -r -p "Enter new username: " USERNAME &&
 
 if id -u "${USERNAME}" &>/dev/null; then
     echo "User already exists"
