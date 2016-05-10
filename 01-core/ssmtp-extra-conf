@@ -2,10 +2,10 @@
 # To send mail via a gmail account, use the following settings:
 #
 # UseTLS=Yes
-# AuthUser=<usename>
+# AuthUser=<username>
 # AuthPass=<password>
 #
-# The mail server (configure through 04-base-config) should be smtp.gmail.com:465
+# The mail server (configured through 04-base-config) should be smtp.gmail.com:465
 
 # UseTLS=Yes
 # AuthUser=
