@@ -25,7 +25,11 @@ sudo chmod a=r "${AVAHI_CONF}" &&
 
 # ZoneEdit boot and cron setup
 SCRIPT='/etc/network/if-up.d/zoneedit-at-net-up'
-sed-install "${DIR}/zoneedit-at-net-up" "${SCRIPT}" "${PI_SERVER_FQDN_FILE}" "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" "${PI_SERVER_ZONEEDIT_LOG_FILE}" &&
+sed-install "${DIR}/zoneedit-at-net-up" "${SCRIPT}" \
+            "${PI_SERVER_FQDN_FILE}" \
+            "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" \
+            "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" \
+            "${PI_SERVER_ZONEEDIT_LOG_FILE}" &&
 sudo chmod a=rx "${SCRIPT}" &&
 
 if [ ! -e '/etc/cron.hourly/zoneedit-update' ]; then
@@ -34,7 +38,9 @@ fi
 
 
 # ZoneEdit configuration script
-sed-install "${DIR}/zoneedit-config" "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" &&
+sed-install "${DIR}/zoneedit-config" "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" \
+            "${PI_SERVER_ZONEEDIT_USERNAME_FILE}" \
+            "${PI_SERVER_ZONEEDIT_PASSWORD_FILE}" &&
 sudo chmod a=rx "${PI_SERVER_ZONEEDIT_CONFIG_SCRIPT}" &&
 
 
