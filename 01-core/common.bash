@@ -211,7 +211,7 @@ EOF
         if [ ! -e "${FILENAME}" ]; then
             cat <<EOF
 Missing file; not going any further:
-    ${NAME}
+    ${FILENAME}
 EOF
             exit 1
         else
