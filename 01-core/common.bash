@@ -207,16 +207,17 @@ EOF
     shift
 
     while (($#)); do
-        if [ ! -e "${NAME}" ]; then
+        local FILENAME="${1}"
+        if [ ! -e "${FILENAME}" ]; then
             cat <<EOF
 Missing file; not going any further:
     ${NAME}
 EOF
             exit 1
         else
-            sudo chown root:root "${NAME}" &&
-            sudo chmod u=r "${NAME}" &&
-            sudo chmod go-rwx "${NAME}" || return 1
+            sudo chown root:root "${FILENAME}" &&
+            sudo chmod u=r "${FILENAME}" &&
+            sudo chmod go-rwx "${FILENAME}" || return 1
         fi
 
         shift
