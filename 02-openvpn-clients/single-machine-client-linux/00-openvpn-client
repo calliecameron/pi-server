@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/../../01-core/common.bash" &&
 
 
-read -p "Enter the address of the server to connect to (the externally-visible address; can be a domain name or an IP): " VPN_SERVER &&
+read -r -p "Enter the address of the server to connect to (the externally-visible address; can be a domain name or an IP): " VPN_SERVER &&
 
 if [ -z "${VPN_SERVER}" ]; then
     echo 'Empty VPN server address; not going any further'
@@ -13,12 +13,12 @@ fi
 
 
 # Make sure the certs are in place, and have the correct permissions
-CERT_NAME='openvpn-client'
-check-pi-server-cert "OpenVPN client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AUTH}"
+CERT_NAME='openvpn-client' &&
+check-pi-server-cert "OpenVPN client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AUTH}" &&
 
 
 # Config file
-CONFIG="/etc/openvpn/${VPN_SERVER}-client.conf"
+CONFIG="/etc/openvpn/${VPN_SERVER}-client.conf" &&
 sed-install "${DIR}/openvpn-client-template" "${CONFIG}" \
             "${PI_SERVER_CA_CERT}" \
             "$(pi-server-cert "${CERT_NAME}")" \
