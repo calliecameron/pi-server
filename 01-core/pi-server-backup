@@ -32,7 +32,7 @@ function unlock() {
 function start-services() {
     /usr/sbin/service supervisor restart &>> "${LOG}"
     /usr/sbin/service nginx restart &>> "${LOG}"
-    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
+    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read -r line; do
         /usr/sbin/service "$(basename "${line}")" restart &>> "${LOG}"
     done
 }
@@ -40,7 +40,7 @@ function start-services() {
 function stop-services() {
     /usr/sbin/service supervisor stop &>> "${LOG}"
     /usr/sbin/service nginx stop &>> "${LOG}"
-    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read line; do
+    find "${SERVICES_DIR}" -type f | LC_ALL=C sort | while read -r line; do
         /usr/sbin/service "$(basename "${line}")" stop &>> "${LOG}"
     done
 }
@@ -94,11 +94,13 @@ echo "Main backup started at $(date)" >> "${LOG}" &&
 
 TODAY="$(date '+%Y-%m-%d')" &&
 DAY_OF_WEEK="$(date '+%u')" &&
+# shellcheck disable=SC2015
 DAY_OF_MONTH="$(date '+%d')" || fail 'Something went wrong.'
 
 if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
     echo "${TODAY}" > "${LAST_RUN_FILE}" &&
 
+    # shellcheck disable=SC2015
     rsnapshot daily &>> "${LOG}" || fail 'Daily backup failed.'
     echo 'Daily backup succeeded.' >> "${LOG}"
 
@@ -124,16 +126,18 @@ echo "Main backup finished at $(date)" >> "${LOG}" &&
 echo "Git backup started at $(date)" >> "${LOG}" &&
 
 if [ -f "${GIT_BACKUP_CONFIG}" ]; then
-    while read line; do
+    while read -r line; do
         REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
         if [ ! -e "${REPO_PATH}" ]; then
             echo "Cloning to ${REPO_PATH}..." >> "${LOG}"
-            cd /
+            cd / &&
+            # shellcheck disable=SC2015
             su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && git clone --mirror '${line}' '${REPO_PATH}'" www-data &>> "${LOG}" || fail 'Cloning a repository failed.'
             echo "Cloned to ${REPO_PATH}." >> "${LOG}"
         else
             echo "Updating ${REPO_PATH}..." >> "${LOG}"
-            cd /
+            cd / &&
+            # shellcheck disable=SC2015
             su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && cd '${REPO_PATH}' && git fetch --all && git fetch --all --tags" www-data &>> "${LOG}" || fail 'Fetching a repository failed.'
             echo "Updated ${REPO_PATH}." >> "${LOG}"
         fi

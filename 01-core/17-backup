@@ -8,9 +8,9 @@ function exists() {
         echo "Deployment key '${1}' does not exist; not going any further!"
         exit 1
     else
-        sudo chown www-data:www-data "${1}"
-        sudo chmod u=r "${1}"
-        sudo chmod go-rwx "${1}"
+        sudo chown www-data:www-data "${1}" &&
+        sudo chmod u=r "${1}" &&
+        sudo chmod go-rwx "${1}" || return 1
     fi
 }
 
