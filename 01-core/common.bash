@@ -26,7 +26,7 @@ function echo-blue() {
 # Make sure we really are on Jessie (unless being called from 00-ca)
 if [ -z "${NOT_ON_PI}" ]; then
     if ! grep jessie /etc/apt/sources.list &>/dev/null; then
-        echo-red "This only works on Raspbian Jessie; you are on a different version. Exiting."
+        echo-red "This only works on Raspbian Jessie; you are on a different version. To upgrade from Wheezy, you need to reinstall the OS and everything else from scratch."
         exit 1
     fi
     echo-yellow "This is the Jessie branch; it isn't fully working yet."

@@ -3,27 +3,15 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
-
 sudo apt-get update &&
-
-sudo apt-get -y install dialog &&
-
+sudo apt-get -y install dialog || exit 1
 
 if [ ! -e "${PI_SERVER_DIR}" ]; then
-    # Aggressively remove all the preinstalled stuff - but only the
-    # first time! Some of this will probably come back later.
-    sudo apt-get -y remove --purge --auto-remove alsa-base alsa-utils build-essential cifs-utils cpp debconf-utils debian-reference-en desktop-file-utils dpkg-dev ecryptfs-utils fbset fontconfig fonts-freefont-ttf gconf2-common gdb gnome-themes-standard-data gsfonts-x11 info install-info java-common libasound2 libwibble-dev libx11-6 libx11-data libxau6 libxcb1 libxdmcp6 libxdmcp6 libxfont1 libxpm4 linux-libc-dev lsof lua5.1 lxde-icon-theme make menu-xdg ncdu nfs-common parted pkg-config plymouth python-serial python3-numpy python3-serial samba-common smbclient v4l-utils whiptail x11-common xdg-utils xfonts-utils &&
-
-    if real-pi; then
-        sudo apt-get -y remove --purge --auto-remove libraspberrypi-bin libraspberrypi-dev libraspberrypi-doc libraspberrypi0 luajit omxplayer penguinspuzzle python-pifacecommon python-pifacedigitalio python-rpi.gpio python3-pifacecommon python3-pifacedigital-scratch-handler python3-pifacedigitalio python3-rpi.gpio raspberrypi-artwork || exit 1
-    fi
-
-    sudo tasksel remove desktop &&
-    sudo rm -f '/etc/apt/sources.list.d/wolfram.list' || exit 1
+    # Remove unnecessary preinstalled stuff - but only the first time!
+    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind v4l-utils || exit 1
 fi
 
-
-sudo apt-get -y install apt-listchanges avahi-daemon console-setup curl etckeeper git hdparm mosh nginx-naxsi ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux wget &&
+sudo apt-get -y install apt-listchanges avahi-daemon curl etckeeper git hdparm mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux wget &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
