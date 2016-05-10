@@ -17,9 +17,9 @@ EOF
 fi
 
 
-read -p "Enter the address of the default route (FakeInternet): " DEFAULT_ROUTE &&
-read -p "Enter the LAN address of this router's FakePi (for port forwarding): " FAKE_PI &&
-read -p "Enter the FakePi's VPN network address, without the '/24': " PI_VPN_NET &&
+read -r -p "Enter the address of the default route (FakeInternet): " DEFAULT_ROUTE &&
+read -r -p "Enter the LAN address of this router's FakePi (for port forwarding): " FAKE_PI &&
+read -r -p "Enter the FakePi's VPN network address, without the '/24': " PI_VPN_NET &&
 
 CONFIG_SRC="${DIR}/fakeRouter-boot-config" &&
 CONFIG_DST='/etc/network/if-up.d/fakeRouter-boot-config' &&

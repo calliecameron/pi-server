@@ -9,7 +9,7 @@ sudo apt-get -y dist-upgrade
 
 echo &&
 printf "Enter the address of the default route (corresponding FakeRouter): " &&
-read DEFAULT_ROUTE &&
+read -r DEFAULT_ROUTE &&
 
 CONFIG_SRC="${DIR}/fakePi-boot-config" &&
 CONFIG_DST='/etc/network/if-up.d/fakePi-boot-config' &&

@@ -3,6 +3,35 @@
 # Stop the user's umask messing up permissions on new files
 umask 022
 
+function echo-colour() {
+    echo -e "\e[${1}m${2}\e[0m"
+}
+
+function echo-red() {
+    echo-colour '31' "${1}"
+}
+
+function echo-green() {
+    echo-colour '32' "${1}"
+}
+
+function echo-yellow() {
+    echo-colour '33' "${1}"
+}
+
+function echo-blue() {
+    echo-colour '34' "${1}"
+}
+
+# Make sure we really are on Jessie (unless being called from 00-ca)
+if [ -z "${NOT_ON_PI}" ]; then
+    if ! grep jessie /etc/apt/sources.list &>/dev/null; then
+        echo-red "This only works on Raspbian Jessie; you are on a different version. Exiting."
+        exit 1
+    fi
+fi
+
+echo-yellow "This is the Jessie branch; it isn't fully working yet."
 
 function get-pi-server-param()
 {
