@@ -11,7 +11,7 @@ if [ ! -e "${PI_SERVER_DIR}" ]; then
     sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind v4l-utils || exit 1
 fi
 
-sudo apt-get -y install apt-listchanges avahi-daemon curl etckeeper git hdparm mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux wget &&
+sudo apt-get -y install apt-listchanges avahi-daemon curl etckeeper git hdparm libpam-systemd mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux wget &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
