@@ -4,9 +4,9 @@
 THRESHOLD='90'
 SEND_EMAIL=''
 
-function check-path()
-{
+function check-path() {
     if [ -e "${1}" ]; then
+        # shellcheck disable=SC2155
         local USAGE="$(df "${1}" | grep -o '[0-9]\+%' | grep -o '[0-9]\+')"
         if [ "${USAGE}" -gt "${THRESHOLD}" ]; then
             SEND_EMAIL='t'

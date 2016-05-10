@@ -48,8 +48,7 @@ EOF
 fi
 
 
-function setup-fstab()
-{
+function setup-fstab() {
     local DEV="${1}"
     local MOUNTPOINT="${2}"
     local EXTRA_OPTIONS
@@ -60,7 +59,9 @@ function setup-fstab()
         EXTRA_OPTIONS=",${3}"
     fi
 
+    # shellcheck disable=SC2155
     local UUID="$(sudo blkid "${DEV}" -o export | grep 'UUID' | sed 's/^UUID=//g')"
+    # shellcheck disable=SC2155
     local TYPE="$(sudo blkid "${DEV}" -o export | grep 'TYPE' | sed 's/^TYPE=//g')"
 
     if [ "${TYPE}" != 'ext4' ]; then
