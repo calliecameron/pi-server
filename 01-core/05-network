@@ -20,5 +20,13 @@ else
                 "${PI_SERVER_WAN_IFACE}" || exit 1
 fi
 
+if ! real-pi; then
+cat | sudo tee -a "${DHCPCD_CONF}" &>/dev/null <<EOF
+interface eth0
+static domain_name_servers=8.8.8.8
+static routers=$(cat '/fakepi-default-route')
+EOF
+fi
+
 sudo chmod a=r "${INTERFACES}" &&
 sudo chmod a=r "${DHCPCD_CONF}"

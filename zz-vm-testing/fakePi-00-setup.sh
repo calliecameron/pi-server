@@ -20,4 +20,6 @@ sudo cp "${TMPFILE}" "${CONFIG_DST}" &&
 sudo chown root:root "${CONFIG_DST}" &&
 sudo chmod a=r "${CONFIG_DST}" &&
 sudo chmod u+x "${CONFIG_DST}" &&
-rm "${TMPFILE}"
+rm "${TMPFILE}" &&
+
+echo "${DEFAULT_ROUTE}" | sudo tee '/fakepi-default-route' &>/dev/null
