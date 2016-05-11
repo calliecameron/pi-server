@@ -24,9 +24,9 @@ sudo chmod a=r "${MINIDLNA_CONF}" || exit 1
 
 function minidlna-dir() {
     while (($#)); do
-        sudo mkdir -p "${1}"
-        sudo chown www-data:www-data "${1}"
-        sudo chmod go-rwx "${1}"
+        sudo mkdir -p "${1}" &&
+        sudo chown www-data:www-data "${1}" &&
+        sudo chmod go-rwx "${1}" || return 1
         shift
     done
 }
@@ -70,7 +70,8 @@ sed-install "${DIR}/podcast-manager" "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" \
 sudo chmod a=rx "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
 
 SUPERVISOR_DST='/etc/supervisor/conf.d/podcast-manager.conf' &&
-sed-install "${DIR}/supervisor-podcast-manager" "${SUPERVISOR_DST}" "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
+sed-install "${DIR}/supervisor-podcast-manager" "${SUPERVISOR_DST}" \
+            "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
 sudo chmod a=r "${SUPERVISOR_DST}" &&
 
 
@@ -96,6 +97,7 @@ sed -i "s|^PODCASTDIR=\"\\\$BASEDIR/podcasts\"\$|PODCASTDIR='${PI_SERVER_PODCAST
 sed -i "s|^TMPDIR=\"\\\$BASEDIR/tmp\"\$|TMPDIR='${PI_SERVER_MASHPODDER_TMP_DIR}'|g" "${MASHPODDER}" &&
 sed -i "s|^RSSFILE=\"\\\$BASEDIR/mp.conf\"\$|RSSFILE='${PI_SERVER_MASHPODDER_RSS_FILE}'|g" "${MASHPODDER}" &&
 sed -i "s|^PODLOG=\"\\\$BASEDIR/podcast.log\"\$|PODLOG='${PI_SERVER_MASHPODDER_ROOT}/podcast.log'|g" "${MASHPODDER}" &&
+# shellcheck disable=SC2016
 sed -i 's|fix_url \$DLURL|fix_url \$URL|g' "${MASHPODDER}" &&
 
 XSLT="${PI_SERVER_MEDIA_SCRIPT_DIR}/parse_enclosure.xsl" &&

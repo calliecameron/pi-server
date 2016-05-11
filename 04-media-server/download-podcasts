@@ -16,6 +16,7 @@ fi
 
 if [ -e '@@@@@1@@@@@' ]; then
     # The cd is to stop mashpodder trying to cd to a directory it can't access
+    # shellcheck disable=SC2164
     cd /
 
     if ! '@@@@@2@@@@@' -v &> '@@@@@3@@@@@'; then
