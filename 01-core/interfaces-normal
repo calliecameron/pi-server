@@ -3,4 +3,5 @@ iface lo inet loopback
 
 auto eth0
 allow-hotplug eth0
-iface eth0 inet dhcp
+# this is managed by dhcpcd now
+iface eth0 inet manual

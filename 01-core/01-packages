@@ -8,10 +8,10 @@ sudo apt-get -y install dialog || exit 1
 
 if [ ! -e "${PI_SERVER_DIR}" ]; then
     # Remove unnecessary preinstalled stuff - but only the first time!
-    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind v4l-utils || exit 1
+    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind v4l-utils wpasupplicant || exit 1
 fi
 
-sudo apt-get -y install apt-listchanges avahi-daemon curl etckeeper git hdparm libpam-systemd mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux unzip wget &&
+sudo apt-get -y install apt-listchanges avahi-daemon curl dhcpcd5 etckeeper git hdparm libpam-systemd mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux unzip wget &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&

@@ -3,7 +3,8 @@ iface lo inet loopback
 
 auto @@@@@1@@@@@
 allow-hotplug @@@@@1@@@@@
-iface @@@@@1@@@@@ inet dhcp
+# this is managed by dhcpcd now
+iface @@@@@1@@@@@ inet manual
 
 allow-hotplug @@@@@2@@@@@
 iface @@@@@2@@@@@ inet static
