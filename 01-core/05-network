@@ -21,7 +21,7 @@ else
 fi
 
 if ! real-pi; then
-cat | sudo tee -a "${DHCPCD_CONF}" &>/dev/null <<EOF
+cat <<EOF | sudo tee -a "${DHCPCD_CONF}" &>/dev/null
 interface eth0
 static domain_name_servers=8.8.8.8
 static routers=$(cat '/fakepi-default-route')
