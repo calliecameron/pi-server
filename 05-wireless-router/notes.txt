@@ -1,8 +1,0 @@
-scripts to run:
-
-05-network
-08-firewall
-09-dynamic-dns
-
-check syncthing
-check media server

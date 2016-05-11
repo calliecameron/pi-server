@@ -5,19 +5,21 @@ source "${DIR}/common.bash" &&
 
 
 echo 'This section is OPTIONAL, and should only be used if you know what you are doing, and know that you need it!' &&
-echo &&
+echo || exit 1
 if ! yn-n "Set the Pi up as a wireless router? (If unsure, say 'n'.)"; then
     exit 0
 fi
 
 
 # Parameters
-echo 'wlan0' | sudo tee "${PI_SERVER_LAN_IFACE_FILE}" &>/dev/null
-echo 'eth0' | sudo tee "${PI_SERVER_WAN_IFACE_FILE}" &>/dev/null
+echo 'wlan0' | sudo tee "${PI_SERVER_LAN_IFACE_FILE}" &>/dev/null &&
+echo 'eth0' | sudo tee "${PI_SERVER_WAN_IFACE_FILE}" &>/dev/null &&
 sudo chown root:root "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
 sudo chmod u=rw "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
-sudo chmod go=r "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" &&
+sudo chmod go=r "${PI_SERVER_LAN_IFACE_FILE}" "${PI_SERVER_WAN_IFACE_FILE}" || exit 1
+# shellcheck disable=SC2155
 export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
+# shellcheck disable=SC2155
 export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
 
 
