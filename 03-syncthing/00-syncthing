@@ -11,7 +11,7 @@ sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
 sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
-# # Install syncthing
+# Install syncthing
 curl -s 'https://syncthing.net/release-key.txt' | sudo apt-key add - &&
 echo 'deb http://apt.syncthing.net/ syncthing release' | sudo tee /etc/apt/sources.list.d/syncthing-release.list >/dev/null &&
 sudo apt-get update &&
@@ -21,7 +21,7 @@ sudo apt-get -y install syncthing &&
 # Prepare directories
 sudo mkdir -p "${PI_SERVER_SYNCTHING_CONFIG}" &&
 sudo chown 'www-data:www-data' "${PI_SERVER_SYNCTHING_CONFIG}" &&
-sudo chmod o-rwx "${PI_SERVER_SYNCTHING_CONFIG}"
+sudo chmod o-rwx "${PI_SERVER_SYNCTHING_CONFIG}" || exit 1
 
 function cert-link() {
     if ! sudo test -e "${2}"; then
@@ -84,6 +84,7 @@ Untick 'Enable UPnP'
 Untick 'Global Discovery'
 Untick 'Automatic Upgrades'
 Untick 'Start Browser'
+Untick 'Enable Relaying'
 
 Tick 'Use HTTPS for GUI', and fill in a username and password as desired.
 

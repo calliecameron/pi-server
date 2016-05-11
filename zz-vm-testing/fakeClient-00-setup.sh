@@ -2,11 +2,13 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
+curl -s https://syncthing.net/release-key.txt | sudo apt-key add - &&
+echo deb http://apt.syncthing.net/ syncthing release | sudo tee /etc/apt/sources.list.d/syncthing-release.list &&
+
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
 sudo apt-get -y dist-upgrade &&
-sudo apt-get -y install openssh-server openvpn
-
+sudo apt-get -y install openssh-server openvpn syncthing syncthing-gtk &&
 
 echo &&
 printf "Enter the address of the default route (corresponding FakeRouter): " &&
