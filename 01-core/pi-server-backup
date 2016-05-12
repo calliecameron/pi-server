@@ -127,19 +127,21 @@ echo "Git backup started at $(date)" >> "${LOG}" &&
 
 if [ -f "${GIT_BACKUP_CONFIG}" ]; then
     while read -r line; do
-        REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
-        if [ ! -e "${REPO_PATH}" ]; then
-            echo "Cloning to ${REPO_PATH}..." >> "${LOG}"
-            cd / &&
-            # shellcheck disable=SC2015
-            su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && git clone --mirror '${line}' '${REPO_PATH}'" www-data &>> "${LOG}" || fail 'Cloning a repository failed.'
-            echo "Cloned to ${REPO_PATH}." >> "${LOG}"
-        else
-            echo "Updating ${REPO_PATH}..." >> "${LOG}"
-            cd / &&
-            # shellcheck disable=SC2015
-            su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && cd '${REPO_PATH}' && git fetch --all && git fetch --all --tags" www-data &>> "${LOG}" || fail 'Fetching a repository failed.'
-            echo "Updated ${REPO_PATH}." >> "${LOG}"
+        if [ ! -z "${line}" ]; then
+            REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
+            if [ ! -e "${REPO_PATH}" ]; then
+                echo "Cloning to ${REPO_PATH}..." >> "${LOG}"
+                cd / &&
+                # shellcheck disable=SC2015
+                su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && git clone --mirror '${line}' '${REPO_PATH}'" www-data &>> "${LOG}" || fail 'Cloning a repository failed.'
+                echo "Cloned to ${REPO_PATH}." >> "${LOG}"
+            else
+                echo "Updating ${REPO_PATH}..." >> "${LOG}"
+                cd / &&
+                # shellcheck disable=SC2015
+                su -s /bin/bash -c "export GIT_SSH='${GIT_SSH_SCRIPT}' && cd '${REPO_PATH}' && git fetch --all && git fetch --all --tags" www-data &>> "${LOG}" || fail 'Fetching a repository failed.'
+                echo "Updated ${REPO_PATH}." >> "${LOG}"
+            fi
         fi
     done < "${GIT_BACKUP_CONFIG}"
 fi
