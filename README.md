@@ -1,8 +1,6 @@
 Pi Server
 =========
 
-THIS BRANCH IS UNSTABLE AND DOESN'T WORK YET!
-
 These are the scripts I use to setup and manage my Raspberry Pi home
 server. Nothing fancy, just a basic Raspbian Jessie setup with:
 

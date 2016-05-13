@@ -29,7 +29,6 @@ if [ -z "${NOT_ON_PI}" ]; then
         echo-red "This only works on Raspbian Jessie; you are on a different version. To upgrade from Wheezy, you need to reinstall the OS and everything else from scratch."
         exit 1
     fi
-    echo-yellow "This is the Jessie branch; it isn't fully working yet."
 fi
 
 function get-pi-server-param() {
