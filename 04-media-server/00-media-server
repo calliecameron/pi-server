@@ -117,8 +117,14 @@ sed-install "${DIR}/download-podcasts" "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
             "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_LOCK}" \
-            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" &&
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" \
+            "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" &&
 sudo chmod a=rx "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" &&
+
+sed-install "${DIR}/summarise-downloaded-podcasts" "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
+            "${PI_SERVER_PODCASTS}" &&
+sudo chmod a=rx "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" &&
 
 CRONJOB="${PI_SERVER_CRON_DIR}/media-server" &&
 sed-install "${DIR}/media-server-cron" "${CRONJOB}" \

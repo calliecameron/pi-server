@@ -27,7 +27,7 @@ if [ -e '@@@@@1@@@@@' ]; then
         if grep 'NEW' '@@@@@3@@@@@' &> /dev/null; then
             TOTAL_NEW="$(grep 'Total downloads: [0-9]\+' '@@@@@3@@@@@' | sed 's/Total downloads: //g')"
             echo "${TOTAL_NEW}" > '@@@@@6@@@@@'
-            '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcast(s)" "$(cat '@@@@@3@@@@@')"
+            '@@@@@4@@@@@' "Downloaded ${TOTAL_NEW} new podcast(s)" "$('@@@@@7@@@@@')"
         fi
     fi
 fi
