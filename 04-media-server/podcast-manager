@@ -149,10 +149,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
             return filename
 
     def list_files(self, src, title, url, num_moved, errors, move_text):
-        body = """
-<p><a href="/">Back to podcasts</a></p>
-<h1>%s</h1>
-""" % title
+        body = '<p><a href="/">Back to podcasts</a></p>\n<h1>%s</h1>\n' % title
         if num_moved:
             body += ('<div class="alert alert-success" roles="alert">Moved %s '
                      'file%s</div>') % (num_moved,
@@ -219,7 +216,8 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                     parts[1] == "."):  # noqa
                     raise Exception("Filename '%s' is invalid." % f)
 
-                srcfile = os.path.join(src, parts[0], parts[1])
+                srcdir = os.path.join(src, parts[0])
+                srcfile = os.path.join(srcdir, parts[1])
                 dstdir = os.path.join(dst, parts[0])
                 dstfile = os.path.join(dstdir, parts[1])
 
@@ -232,6 +230,10 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                     os.mkdir(dstdir)
 
                 shutil.move(srcfile, dstfile)
+
+                if not os.listdir(srcdir):
+                    os.rmdir(srcdir)
+
                 num_moved += 1
             except Exception as e:
                 errors.append(str(e))
