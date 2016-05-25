@@ -7,6 +7,8 @@ import eyed3
 LOG_FILE = "@@@@@1@@@@@"
 PODCASTS_DIR = "@@@@@2@@@@@"
 
+eyed3.log.setLevel("ERROR")
+
 
 def pretty_print(podcast_dir, filename):
     try:
