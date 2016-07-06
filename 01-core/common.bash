@@ -229,7 +229,7 @@ EOF
 
 function real-pi() {
     # Is this really a Pi, or is it a Debian VM for testing?
-    if [ "$(uname -m)" = 'armv6l' ]; then
+    if [ "$(uname -m)" = 'armv6l' ] || [ "$(uname -m)" = 'armv7l' ]; then
         return 0
     else
         return 1
