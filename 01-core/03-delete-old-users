@@ -52,5 +52,5 @@ lockout sshd &&
 lockout statd &&
 
 echo &&
-echo "Now remove all references to user 'pi' from /etc/sudoers" &&
+echo "Now remove all references to user 'pi' from /etc/sudoers, if they exist, and comment out the similar line in /etc/sudoers.d/010_pi-nopasswd, if it exists." &&
 enter-to-continue
