@@ -52,9 +52,9 @@ folder = ""
 for foldername, filename in files:
     if foldername != folder:
         print
-        print "%s:" % foldername
+        print (u"%s:" % foldername).encode("utf-8")
     folder = foldername
 
-    print "  %s" % pretty_print(folder, filename)
+    print (u"  %s" % pretty_print(folder, filename)).encode("utf-8")
 
 print
