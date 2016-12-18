@@ -12,6 +12,8 @@ sudo pip install eyed3 &&
 MINIDLNA_DEFAULT='/etc/default/minidlna' &&
 sudo sed -i 's/^#USER="minidlna"$/USER="www-data"/g' "${MINIDLNA_DEFAULT}" &&
 sudo sed -i 's/^#GROUP="minidlna"$/GROUP="www-data"/g' "${MINIDLNA_DEFAULT}" &&
+# Workaround 'force-reload' in the init script no longer working; now always force reload.
+sudo sed -i 's/^#DAEMON_OPTS=""$/DAEMON_OPTS="-R"/g' "${MINIDLNA_DEFAULT}" &&
 
 
 MINIDLNA_CONF='/etc/minidlna.conf' &&
