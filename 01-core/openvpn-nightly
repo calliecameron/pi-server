@@ -12,7 +12,7 @@ CONFIG="$(grep -v '^#' "${CONFIG_FILE}" | head -n 1)"
 
 test -z "${CONFIG}" && exit 0
 
-CONFIG_PATH="/etc/openvpn/${CONFIG_FILE}"
+CONFIG_PATH="/etc/openvpn/${CONFIG}"
 
 function fail() {
     "${EMAIL_SCRIPT}" 'OpenVPN nightly failed' "${@}"
@@ -25,6 +25,6 @@ function fail() {
 
 test ! -f "${CONFIG_PATH}" && fail 'Specified config file does not exist.'
 
-timeout "${TIMEOUT_DURATION}" openvpn "${CONFIG_PATH}" &>>"${LOG_FILE}" &
+timeout "${TIMEOUT_DURATION}" openvpn --cd /etc/openvpn --config "${CONFIG_PATH}" &>>"${LOG_FILE}" &
 
 exit 0
