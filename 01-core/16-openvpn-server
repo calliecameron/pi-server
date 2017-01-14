@@ -43,7 +43,24 @@ sudo mkdir -p "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
 sudo chown root:root "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
 
 echo "Log in to your router, and setup a static route to ${PI_SERVER_VPN_NETWORK}/24 via ${PI_SERVER_IP}" &&
-enter-to-continue &&
+enter-to-continue || exit 1
+
+
+# Nightly connection setup
+if [ ! -e "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" ]; then
+    echo "# The first non-comment line in this file is used as the name of the openvpn config in /etc/openvpn to run only at night; should be the config file name only, not the absolute path. Leave that line blank to disable. If you enable this, make sure to edit /etc/default/openvpn to prevent the connection from autostarting." | sudo tee "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &>/dev/null || exit 1
+fi
+
+sudo chown root:root "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+sudo chmod u=rw "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+sudo chmod go=r "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+
+sed-install "${DIR}/openvpn-nightly" "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" \
+            "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" \
+            "${PI_SERVER_OPENVPN_NIGHTLY_LOG}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sudo chown root:root "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
 
 
 # Firewall
