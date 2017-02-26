@@ -8,7 +8,10 @@ sudo apt-get -y install dialog || exit 1
 
 if [ ! -e "${PI_SERVER_DIR}" ]; then
     # Remove unnecessary preinstalled stuff - but only the first time!
-    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light pi-bluetooth rpcbind triggerhappy v4l-utils wpasupplicant || exit 1
+    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind triggerhappy v4l-utils wpasupplicant || exit 1
+    if real-pi; then
+        sudo apt-get -y remove --purge --auto-remove pi-bluetooth || exit 1
+    fi
 fi
 
 sudo apt-get -y install apt-listchanges avahi-daemon curl dhcpcd5 etckeeper git hdparm libpam-systemd mosh nginx ntfs-3g openssh-server openvpn rsnapshot rsync ssmtp supervisor tmux unzip wget &&
