@@ -53,7 +53,7 @@ sed-install "${DIR}/ssh-email-on-login" "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" \
 sudo chmod a=rx "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
 
 PAM_STRING="session optional pam_exec.so seteuid ${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
-if ! grep "${PAM_STRING}" /etc/pam.d/sshd; then
+if ! grep "${PAM_STRING}" /etc/pam.d/sshd &>/dev/null; then
     echo "${PAM_STRING}" | sudo tee -a /etc/pam.d/sshd >/dev/null || exit 1
 fi
 
