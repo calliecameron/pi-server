@@ -4,7 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-echo 'This section is OPTIONAL, and should only be used if you know what you are doing, and know that you need it!' &&
+echo 'This section is OPTIONAL, and should only be used if you know what you are doing, and know that you need it! It also DOES NOT WORK with new-style interface names - must be eth0 and wlan0.' &&
 echo || exit 1
 if ! yn-n "Set the Pi up as a wireless router? (If unsure, say 'n'.)"; then
     exit 0
