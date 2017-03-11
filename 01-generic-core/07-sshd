@@ -18,10 +18,11 @@ if [ ! -e "${KEYS}" ]; then
 fi
 
 
-if on-pi; then
+if on-pi && [ ! -f "${PI_SERVER_SSH_REGENERATED_KEYS}" ]; then
     # Generate new host keys; only needed on Raspbian, which has existing keys pre-installed
     sudo rm -f /etc/ssh/ssh_host_* &&
-    sudo dpkg-reconfigure openssh-server || exit 1
+    sudo dpkg-reconfigure openssh-server &&
+    sudo touch "${PI_SERVER_SSH_REGENERATED_KEYS}" || exit 1
 fi
 
 
