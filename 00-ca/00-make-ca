@@ -2,8 +2,8 @@
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # shellcheck disable=SC2034
-NOT_ON_PI='t'
-source "${DIR}/../01-core/common.bash"
+SKIP_OS_CHECK='t'
+source "${DIR}/../01-generic-core/common.bash"
 
 function usage() {
     cat <<EOF

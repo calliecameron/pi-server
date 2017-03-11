@@ -1,0 +1,32 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+sudo apt-get update &&
+sudo apt-get -y install nginx &&
+
+
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/nginx.service"
+
+
+# Setup generic nginx config (not a specific site)
+CONF_TARGET='/etc/nginx/nginx.conf' &&
+sed-install "${DIR}/nginx.conf" "${CONF_TARGET}" &&
+sudo chmod a=r "${CONF_TARGET}" &&
+
+
+# Delete the pre-installed default site
+sudo rm -f '/etc/nginx/sites-enabled/default' &&
+
+
+# Firewall
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 80 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 80 tcp &&
+
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 443 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 443 tcp &&
+
+
+sudo systemctl restart nginx.service

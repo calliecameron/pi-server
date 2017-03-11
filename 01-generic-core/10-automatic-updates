@@ -1,0 +1,18 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+LISTCHANGES_CONF='/etc/apt/listchanges.conf'
+PERIODIC='/etc/apt/apt.conf.d/20periodic'
+
+sed-install "${DIR}/listchanges.conf" "${LISTCHANGES_CONF}" &&
+sudo chmod a=r "${LISTCHANGES_CONF}" &&
+
+sed-install "${DIR}/apt-periodic" "${PERIODIC}" &&
+sudo chmod a=r "${PERIODIC}" &&
+
+sed-install "${DIR}/updates.bash" "${PI_SERVER_UPDATES_SCRIPT}" \
+            "${PI_SERVER_UPDATES_APT_LOG}" &&
+sudo chmod a=r "${PI_SERVER_UPDATES_SCRIPT}"

@@ -1,0 +1,39 @@
+#!/bin/bash
+# This file runs at boot to initialise the firewall
+
+source '@@@@@1@@@@@' || exit 1
+
+/sbin/iptables-restore < '@@@@@2@@@@@'
+
+if [ -f '@@@@@4@@@@@' ]; then
+    /sbin/iptables -A FORWARD -j ACCEPT
+else
+    /sbin/iptables -A FORWARD -j DROP
+fi
+
+WAN_IFACE="$(cat '@@@@@3@@@@@')"
+if [ -z "${WAN_IFACE}" ]; then
+    IFACE_PART=''
+else
+    IFACE_PART="! -i ${WAN_IFACE}"
+fi
+
+function do-protocol() {
+    local PROTOCOL="${1}"
+    # shellcheck disable=SC2155
+    local FILE="$(open-at-boot-file "${PROTOCOL}")"
+
+    if [ -f "${FILE}" ]; then
+        while read -r port; do
+            if valid-port "${port}"; then
+                # shellcheck disable=SC2086
+                /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" ${IFACE_PART} -j ACCEPT
+            fi
+        done < "${FILE}"
+    fi
+}
+
+do-protocol 'tcp'
+do-protocol 'udp'
+
+exit 0

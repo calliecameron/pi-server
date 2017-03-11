@@ -1,0 +1,29 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+sudo apt-get update &&
+sudo apt-get -y install dialog || exit 1
+
+if [ ! -e "${PI_SERVER_DIR}" ]; then
+    # Remove unnecessary preinstalled stuff - but only the first time!
+    sudo apt-get -y remove --purge --auto-remove cifs-utils exim4 exim4-base exim4-config exim4-daemon-light rpcbind triggerhappy v4l-utils wpasupplicant || exit 1
+    if on-pi; then
+        sudo apt-get -y remove --purge --auto-remove pi-bluetooth || exit 1
+    fi
+fi
+
+sudo apt-get -y install apt-listchanges curl dhcpcd5 etckeeper git libpam-systemd mosh openssh-server rsync ssmtp tmux unzip wget &&
+
+sudo apt-get update &&
+sudo apt-get -y upgrade &&
+# No auto-confirm on dist-upgrade, for safety reasons
+sudo apt-get dist-upgrade &&
+
+sudo apt-get autoremove --purge &&
+
+echo &&
+echo "Use 'aptitude' to check for any other packages that should be removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages." &&
+echo "Reboot at this point to make sure nothing is broken, and also check ps -elf to see what's running" &&
+enter-to-continue

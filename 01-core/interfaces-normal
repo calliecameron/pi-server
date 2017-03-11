@@ -1,7 +1,0 @@
-auto lo
-iface lo inet loopback
-
-auto eth0
-allow-hotplug eth0
-# this is managed by dhcpcd now
-iface eth0 inet manual

@@ -1,0 +1,79 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+
+sudo apt-get -y install openvpn &&
+
+
+
+
+
+# Make sure the certs are in place, and have the correct permissions
+CERT_NAME='openvpn'
+check-pi-server-cert "OpenVPN server" "${CERT_NAME}" "${PI_SERVER_OPENVPN_DH_PARAMS}" "${PI_SERVER_OPENVPN_TLS_AUTH}" &&
+
+
+# Setup the config file
+CONFIG='/etc/openvpn/openvpn-server.conf' &&
+sed-install "${DIR}/openvpn-server-template" "${CONFIG}" \
+            "${PI_SERVER_CA_CERT}" \
+            "$(pi-server-cert "${CERT_NAME}")" \
+            "$(pi-server-key "${CERT_NAME}")" \
+            "${PI_SERVER_OPENVPN_DH_PARAMS}" \
+            "${PI_SERVER_CRL}" \
+            "${PI_SERVER_OPENVPN_TLS_AUTH}" \
+            "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" \
+            "${PI_SERVER_VPN_NETWORK}" \
+            "${PI_SERVER_LAN_NETWORK}" \
+            "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" \
+            "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" &&
+sudo chmod u=r "${CONFIG}" &&
+sudo chmod go-rwx "${CONFIG}" &&
+
+
+# Email notifications on login
+sed-install "${DIR}/openvpn-email-on-login" "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT}" &&
+
+
+# Server-to-server client configuration
+if [ ! -e "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" ]; then
+    sed-install "${DIR}/openvpn-server-to-server-clients" "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" || exit 1
+fi
+sudo chmod a=r "${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}" &&
+
+sudo mkdir -p "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
+sudo chown root:root "${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}" &&
+
+echo "Log in to your router, and setup a static route to ${PI_SERVER_VPN_NETWORK}/24 via ${PI_SERVER_IP}" &&
+enter-to-continue || exit 1
+
+
+# Nightly connection setup
+if [ ! -e "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" ]; then
+    echo "# The first non-comment line in this file is used as the name of the openvpn config in /etc/openvpn to run only at night; should be the config file name only, not the absolute path. Leave that line blank to disable. If you enable this, make sure to edit /etc/default/openvpn to prevent the connection from autostarting." | sudo tee "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &>/dev/null || exit 1
+fi
+
+sudo chown root:root "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+sudo chmod u=rw "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+sudo chmod go=r "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" &&
+
+sed-install "${DIR}/openvpn-nightly" "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" \
+            "${PI_SERVER_OPENVPN_NIGHTLY_CONFIG}" \
+            "${PI_SERVER_OPENVPN_NIGHTLY_LOG}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sudo chown root:root "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
+
+
+# Firewall
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 1194 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 1194 tcp &&
+
+
+echo 'Reboot now to start OpenVPN' &&
+enter-to-continue

@@ -1,0 +1,7 @@
+auto lo
+iface lo inet loopback
+
+auto @@@@@1@@@@@
+allow-hotplug @@@@@1@@@@@
+# this is managed by dhcpcd now
+iface @@@@@1@@@@@ inet manual

@@ -1,0 +1,156 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+sudo apt-get update &&
+sudo apt-get -y install minidlna xsltproc python-pip &&
+sudo pip install eyed3 &&
+
+
+MINIDLNA_DEFAULT='/etc/default/minidlna' &&
+sudo sed -i 's/^#USER="minidlna"$/USER="www-data"/g' "${MINIDLNA_DEFAULT}" &&
+sudo sed -i 's/^#GROUP="minidlna"$/GROUP="www-data"/g' "${MINIDLNA_DEFAULT}" &&
+# Workaround 'force-reload' in the init script no longer working; now always force reload.
+sudo sed -i 's/^DAEMON_OPTS=""$/DAEMON_OPTS="-R"/g' "${MINIDLNA_DEFAULT}" &&
+
+
+MINIDLNA_CONF='/etc/minidlna.conf' &&
+sed-install "${DIR}/minidlna-conf-template" "${MINIDLNA_CONF}" \
+            "${PI_SERVER_MEDIA_DIR}" \
+            "${PI_SERVER_MINIDLNA_DB}" \
+            "${PI_SERVER_LAN_IFACE}" &&
+sudo chmod a=r "${MINIDLNA_CONF}" || exit 1
+
+
+function minidlna-dir() {
+    while (($#)); do
+        sudo mkdir -p "${1}" &&
+        sudo chown www-data:www-data "${1}" &&
+        sudo chmod go-rwx "${1}" || return 1
+        shift
+    done
+}
+
+minidlna-dir "${PI_SERVER_MEDIA_DIR}" \
+             "${PI_SERVER_PODCASTS}" \
+             "${PI_SERVER_PODCASTS_LISTENED}" \
+             "${PI_SERVER_MEDIA_CONFIG_DIR}" \
+             "${PI_SERVER_MINIDLNA_CONFIG_DIR}" \
+             "${PI_SERVER_MINIDLNA_DB}" \
+             "${PI_SERVER_MASHPODDER_CONFIG_DIR}" \
+             "${PI_SERVER_MASHPODDER_ROOT}" \
+             "${PI_SERVER_MASHPODDER_TMP_DIR}" &&
+
+sudo touch "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
+sudo chown www-data:www-data "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
+sudo chmod go-rwx "${PI_SERVER_MASHPODDER_RSS_FILE}" &&
+
+
+sudo mkdir -p "${PI_SERVER_MEDIA_SCRIPT_DIR}" &&
+
+
+# Setup webpage
+DST="${PI_SERVER_WEB_PAGE_PARTS_DIR}/01-minidlna" &&
+sed-install "${DIR}/webpage-template" "${DST}" &&
+sudo chmod a=r "${DST}" &&
+
+sudo "${PI_SERVER_WEB_PAGE_GENERATE}" &&
+
+
+# Podcast manager
+sed-install "${DIR}/podcast-manager" "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" \
+            "${PI_SERVER_PODCASTS}" \
+            "${PI_SERVER_PODCASTS_LISTENED}" \
+            "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" \
+            "${PI_SERVER_MASHPODDER_LOCK}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" \
+            "${PI_SERVER_WEB_PAGE_HEADER}" \
+            "${PI_SERVER_WEB_PAGE_FOOTER}" &&
+sudo chmod a=rx "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
+
+SUPERVISOR_DST='/etc/supervisor/conf.d/podcast-manager.conf' &&
+sed-install "${DIR}/supervisor-podcast-manager" "${SUPERVISOR_DST}" \
+            "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
+sudo chmod a=r "${SUPERVISOR_DST}" &&
+
+
+# Firewall
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 8200 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 1900 udp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 23146 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 8200 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 1900 udp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 23146 tcp &&
+
+
+# Setup mashpodder
+TMPDIR="$(mktemp -d)" &&
+REPO="${TMPDIR}/mashpodder" &&
+MASHPODDER="${REPO}/mashpodder.sh"
+git clone https://github.com/chessgriffin/mashpodder.git "${REPO}" &&
+cd "${REPO}" &&
+git checkout 0.4.9 &&
+
+sed -i "s|^#BASEDIR=\"\\\$HOME/mashpodder\"\$|BASEDIR='${PI_SERVER_MEDIA_SCRIPT_DIR}'|g" "${MASHPODDER}" &&
+sed -i "s|^PODCASTDIR=\"\\\$BASEDIR/podcasts\"\$|PODCASTDIR='${PI_SERVER_PODCASTS}'|g" "${MASHPODDER}" &&
+sed -i "s|^TMPDIR=\"\\\$BASEDIR/tmp\"\$|TMPDIR='${PI_SERVER_MASHPODDER_TMP_DIR}'|g" "${MASHPODDER}" &&
+sed -i "s|^RSSFILE=\"\\\$BASEDIR/mp.conf\"\$|RSSFILE='${PI_SERVER_MASHPODDER_RSS_FILE}'|g" "${MASHPODDER}" &&
+sed -i "s|^PODLOG=\"\\\$BASEDIR/podcast.log\"\$|PODLOG='${PI_SERVER_MASHPODDER_ROOT}/podcast.log'|g" "${MASHPODDER}" &&
+# shellcheck disable=SC2016
+sed -i 's|fix_url \$DLURL|fix_url \$URL|g' "${MASHPODDER}" &&
+
+XSLT="${PI_SERVER_MEDIA_SCRIPT_DIR}/parse_enclosure.xsl" &&
+sed-install "${MASHPODDER}" "${PI_SERVER_MASHPODDER_SCRIPT}" &&
+sudo chmod a=rx "${PI_SERVER_MASHPODDER_SCRIPT}" &&
+sed-install "${REPO}/parse_enclosure.xsl" "${XSLT}" &&
+sudo chmod a=r "${XSLT}" &&
+
+PODCASTS_HELP="${PI_SERVER_MASHPODDER_CONFIG_DIR}/instructions.txt" &&
+sudo cp "${DIR}/podcast-instructions.txt" "${PODCASTS_HELP}" &&
+sudo chown www-data:www-data "${PODCASTS_HELP}" &&
+sudo chmod a=r "${PODCASTS_HELP}" &&
+
+sed-install "${DIR}/download-podcasts" "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" \
+            "${PI_SERVER_MASHPODDER_RSS_FILE}" \
+            "${PI_SERVER_MASHPODDER_SCRIPT}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
+            "${PI_SERVER_MASHPODDER_LOCK}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" \
+            "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" &&
+sudo chmod a=rx "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" &&
+
+sed-install "${DIR}/summarise-downloaded-podcasts" "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" \
+            "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
+            "${PI_SERVER_PODCASTS}" &&
+sudo chmod a=rx "${PI_SERVER_PODCAST_DOWNLOAD_SUMMARY}" &&
+
+CRONJOB="${PI_SERVER_CRON_NORMAL_DIR}/media-server" &&
+sed-install "${DIR}/media-server-cron" "${CRONJOB}" \
+            "${PI_SERVER_PODCAST_DOWNLOAD_SCRIPT}" &&
+sudo chmod a=rx "${CRONJOB}" &&
+
+cd &&
+rm -rf "${TMPDIR}" &&
+
+
+sudo touch "${PI_SERVER_BACKUP_PAUSE_DIR}/minidlna" &&
+
+
+sudo service supervisor restart &&
+sudo service minidlna force-reload &&
+
+
+cat <<EOF &&
+
+To add media to the server, place or symlink it (using the absolute path) in '${PI_SERVER_MEDIA_DIR}'.
+
+The podcast configuration directory is at ${PI_SERVER_MASHPODDER_CONFIG_DIR} (which you should access using Syncthing).
+
+To setup podcasts, see '${PODCASTS_HELP}'.
+
+EOF
+enter-to-continue

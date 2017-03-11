@@ -1,0 +1,13 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+sudo apt-get update &&
+sudo apt-get -y install ntfs-3g supervisor
+
+
+
+
+add supervisor to paused

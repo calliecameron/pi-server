@@ -6,7 +6,7 @@ Need three host-only networks, appropriately configured with DHCP:
 - vboxnet1 - 192.168.57.0/24; 'fake LAN 1'
 - vboxnet2 - 192.168.58.0/24; 'fake LAN 2'
 
-Need 7 VMs:
+Need 8 VMs:
 - FakeInternet - Debian, two network interfaces: NAT and vboxnet0
 - FakeRouter1 - Debian, two network interfaces: vboxnet0 and vboxnet1
 - FakeRouter2 - Debian, two network interfaces: vboxnet0 and vboxnet2
@@ -35,7 +35,7 @@ FakeRouter*:
 4. `sudo apt-get update; sudo apt-get -y install git`
 5. Clone this repository, `cd pi-server/zz-vm-testing`
 6. Make sure the corresponding FakePi is set up to the point where you
-   can get its IP address with `/sbin/config`; you need this in step 7
+   can get its IP address with `/sbin/ifconfig`; you need this in step 7
 7. `./fakeRouter-00-setup.sh`
 8. Reboot.
 
@@ -48,7 +48,7 @@ FakePi*:
 5. Clone this repository, `cd pi-server/zz-vm-testing`
 6. `./fakePi-00-setup.sh`
 7. Reboot
-8. Set the Pi up normally as per `01-core`
+8. Set the Pi up normally as per `01-generic-core`, etc.
 
 
 FakeClient*: assuming use of Mint 17.3

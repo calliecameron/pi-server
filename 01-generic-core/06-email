@@ -1,0 +1,37 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
+
+
+if [ ! -e "${PI_SERVER_SSMTP_EXTRA}" ]; then
+    sed-install "${DIR}/ssmtp-extra-conf" "${PI_SERVER_SSMTP_EXTRA}" &&
+    sudo chmod u=rw "${PI_SERVER_SSMTP_EXTRA}" &&
+    sudo chmod go-rwx "${PI_SERVER_SSMTP_EXTRA}" || exit 1
+fi
+
+echo "About to configure extra SSMTP settings" &&
+enter-to-continue &&
+export EDITOR=nano &&
+sudoedit "${PI_SERVER_SSMTP_EXTRA}" &&
+
+SSMTP_CONF='/etc/ssmtp/ssmtp.conf'
+sed-install "${DIR}/ssmtp-conf-template" "${SSMTP_CONF}" \
+            "${PI_SERVER_EMAIL_TARGET}" \
+            "${PI_SERVER_EMAIL_SMTP}" \
+            "${PI_SERVER_FQDN}" \
+            "${PI_SERVER_EMAIL_PORT}" &&
+sudo cat "${PI_SERVER_SSMTP_EXTRA}" | sudo tee -a "${SSMTP_CONF}" &>/dev/null &&
+sudo chmod a=r "${SSMTP_CONF}" &&
+
+
+sed-install "${DIR}/send-notification-email" "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
+            "${PI_SERVER_FQDN_FILE}" \
+            "${PI_SERVER_EMAIL_TARGET_FILE}" &&
+sudo chmod a=rx "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+
+
+EMAIL_ON_NET='/etc/network/if-up.d/net-up-notification' &&
+sed-install "${DIR}/net-up-notification" "${EMAIL_ON_NET}" \
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+sudo chmod a=rx "${EMAIL_ON_NET}"

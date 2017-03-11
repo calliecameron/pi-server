@@ -1,0 +1,81 @@
+#!/bin/bash
+# Run scripts that need services to be paused, and with locking for safety
+
+EMAIL_SCRIPT='@@@@@1@@@@@'
+CRON_LOCK='@@@@@2@@@@@'
+PAUSE_DIR='@@@@@3@@@@@'
+SCRIPTS_DIR='@@@@@4@@@@@'
+LOG='@@@@@5@@@@@'
+HAS_LOCK=''
+
+function lock() {
+    if mkdir "${CRON_LOCK}" &>/dev/null; then
+        HAS_LOCK='t'
+        return 0
+    else
+        return 1
+    fi
+}
+
+function unlock() {
+    if [ ! -z "${HAS_LOCK}" ] && [ -e "${CRON_LOCK}" ]; then
+        rmdir "${CRON_LOCK}"
+    fi
+}
+
+function start-services() {
+    find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
+        /bin/systemctl restart "$(basename "${line}")" &>> "${LOG}"
+    done
+}
+
+function stop-services() {
+    find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
+        /bin/systemctl stop "$(basename "${line}")" &>> "${LOG}"
+    done
+}
+
+function cleanup() {
+    if [ ! -z "${HAS_LOCK}" ]; then
+        if type _extra-cleanup; then
+            _extra-cleanup
+        fi
+        start-services
+        unlock
+    fi
+}
+
+function fail() {
+    "${EMAIL_SCRIPT}" 'Cron failed' "${@}"
+    if [ ! -z "${HAS_LOCK}" ]; then
+        echo "${@}" >> "${LOG}"
+    fi
+    cleanup
+    exit 1
+}
+
+
+if [ "$(id -u)" != '0' ]; then
+    fail 'Cron script must be run as root.'
+fi
+
+if ! lock; then
+    fail 'Tried to run safe cron when another instance is already running.'
+fi
+
+:> "${LOG}"
+
+stop-services || fail "Couldn't stop services."
+
+# shellcheck disable=SC2015
+SCRIPT_LIST="$(mktemp)" &&
+find "${SCRIPTS_DIR}" -type f | LC_ALL=C sort > "${SCRIPT_LIST}" || fail "Couldn't list scripts."
+
+while read -r line; do
+    echo "STARTED '$(basename "${line}")' at $(date)" >> "${LOG}"
+    source "${line}" || fail "Couldn't run $(basename "${line}")."
+    echo "FINISHED '$(basename "${line}")' at $(date)" >> "${LOG}"
+done < "${SCRIPT_LIST}"
+
+rm "${SCRIPT_LIST}"
+cleanup

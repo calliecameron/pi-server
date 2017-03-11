@@ -1,0 +1,12 @@
+# Use this file to configure extra settings for SSMTP, e.g. authentication.
+# To send mail via a gmail account, use the following settings:
+#
+# UseTLS=Yes
+# AuthUser=<username>
+# AuthPass=<password>
+#
+# The mail server (configured through 04-vars) should be smtp.gmail.com:465
+
+# UseTLS=Yes
+# AuthUser=
+# AuthPass=
