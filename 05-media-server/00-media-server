@@ -140,7 +140,7 @@ rm -rf "${TMPDIR}" &&
 sudo touch "${PI_SERVER_BACKUP_PAUSE_DIR}/minidlna" &&
 
 
-sudo service supervisor restart &&
+sudo systemctl restart supervisor &&
 sudo service minidlna force-reload &&
 
 
