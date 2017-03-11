@@ -10,19 +10,21 @@ if ! on-pi; then
 fi
 
 
-read -r -p "Enter new username: " USERNAME &&
+if [ "$(id -un)" = 'pi' ]; then
+    read -r -p "Enter new username: " USERNAME &&
 
-if id -u "${USERNAME}" &>/dev/null; then
-    echo "User already exists"
-    exit 1
+        if id -u "${USERNAME}" &>/dev/null; then
+            echo "User already exists"
+            exit 1
+        fi
+
+    sudo adduser "${USERNAME}" &&
+    sudo adduser "${USERNAME}" sudo &&
+    sudo adduser "${USERNAME}" plugdev &&
+    sudo chmod go-rwx "/home/${USERNAME}" &&
+
+
+    echo &&
+    echo "Now log in as the new user (${USERNAME}), clone this repo again, and continue with 03-cleanup-users." &&
+    enter-to-continue
 fi
-
-sudo adduser "${USERNAME}" &&
-sudo adduser "${USERNAME}" sudo &&
-sudo adduser "${USERNAME}" plugdev &&
-sudo chmod go-rwx "/home/${USERNAME}" &&
-
-
-echo &&
-echo "Now log in as the new user (${USERNAME}), clone this repo again, and continue with 03-cleanup-users." &&
-enter-to-continue
