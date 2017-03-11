@@ -58,4 +58,4 @@ EOF
 
 echo 'Will now restart OpenVPN and try to connect' &&
 enter-to-continue &&
-sudo service openvpn restart
+sudo systemctl restart openvpn.service
