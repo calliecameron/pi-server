@@ -4,11 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-
-
-sudo apt-get -y install rsnapshot &&
-
-
+sudo apt-get update &&
+sudo apt-get -y install rsnapshot || exit 1
 
 
 function exists() {
@@ -43,7 +40,7 @@ sudo chmod go-rwx "${PI_SERVER_BACKUP_GIT_CONFIG}" &&
 
 
 # Scripts
-sudo mkdir -p "${PI_SERVER_BACKUP_SCRIPT_DIR}" "${PI_SERVER_BACKUP_PAUSE_DIR}" &&
+sudo mkdir -p "${PI_SERVER_BACKUP_SCRIPT_DIR}" &&
 
 RSNAPSHOT_CONF='/etc/rsnapshot.conf'
 sed-install "${DIR}/rsnapshot.conf" "${RSNAPSHOT_CONF}" \
@@ -57,19 +54,15 @@ sed-install "${DIR}/backup-git-ssh" "${PI_SERVER_BACKUP_GIT_SSH}" \
             "${PI_SERVER_DEPLOYMENT_KEY}" &&
 sudo chmod a=rx "${PI_SERVER_BACKUP_GIT_SSH}" &&
 
-sed-install "${DIR}/pi-server-backup" "${PI_SERVER_BACKUP_SCRIPT}" \
-            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
-            "${PI_SERVER_BACKUP_LOCK}" \
+BACKUP_SCRIPT="${PI_SERVER_CRON_SAFE_DIR}/backup" &&
+sed-install "${DIR}/backup.bash" "${BACKUP_SCRIPT}" \
             "${PI_SERVER_BACKUP_LAST_RUN}" \
             "${PI_SERVER_DATA_MAIN_DIR}" \
             "${PI_SERVER_BACKUP_MOUNT_DIR}" \
-            "${PI_SERVER_BACKUP_PAUSE_DIR}" \
-            "${PI_SERVER_BACKUP_LOG_FILE}" \
             "${PI_SERVER_BACKUP_GIT_CONFIG}" \
             "${PI_SERVER_BACKUP_GIT_DIR}" \
-            "${PI_SERVER_BACKUP_GIT_SSH}" \
-            "${PI_SERVER_BACKUP_APT_LOG}" &&
-sudo chmod a=rx "${PI_SERVER_BACKUP_SCRIPT}" &&
+            "${PI_SERVER_BACKUP_GIT_SSH}" &&
+sudo chmod a=rx "${BACKUP_SCRIPT}" &&
 
 
 cat <<EOF &&

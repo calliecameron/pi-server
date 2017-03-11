@@ -4,11 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-
+sudo apt-get update &&
 sudo apt-get -y install openvpn &&
-
-
-
 
 
 # Make sure the certs are in place, and have the correct permissions

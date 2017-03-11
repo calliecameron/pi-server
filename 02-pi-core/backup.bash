@@ -1,21 +1,17 @@
-#!/bin/bash
-# Main backup script
-
-LAST_RUN_FILE='@@@@@3@@@@@'
-DATA_DIR='@@@@@4@@@@@'
-BACKUP_PARTITION='@@@@@5@@@@@'
-GIT_BACKUP_CONFIG='@@@@@8@@@@@'
-GIT_DIR='@@@@@9@@@@@'
-GIT_SSH_SCRIPT='@@@@@10@@@@@'
+LAST_RUN_FILE='@@@@@1@@@@@'
+DATA_DIR='@@@@@2@@@@@'
+BACKUP_PARTITION='@@@@@3@@@@@'
+GIT_BACKUP_CONFIG='@@@@@4@@@@@'
+GIT_DIR='@@@@@5@@@@@'
+GIT_SSH_SCRIPT='@@@@@6@@@@@'
 
 
-
-
-# extra cleanup
-        sync
-        if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-            umount "${BACKUP_PARTITION}"
-        fi
+function _extra-cleanup() {
+    sync
+    if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
+        umount "${BACKUP_PARTITION}"
+    fi
+}
 
 
 if [ ! -e "${DATA_DIR}" ]; then
@@ -30,8 +26,6 @@ fi
 
 
 # Main backup
-echo "Main backup started at $(date)" >> "${LOG}" &&
-
 TODAY="$(date '+%Y-%m-%d')" &&
 DAY_OF_WEEK="$(date '+%u')" &&
 # shellcheck disable=SC2015
@@ -59,8 +53,6 @@ else
     echo 'Already backed up today; nothing to do for main backup.' >> "${LOG}"
 fi
 
-echo "Main backup finished at $(date)" >> "${LOG}" &&
-
 
 # Git backup
 echo "Git backup started at $(date)" >> "${LOG}" &&
@@ -86,7 +78,8 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
     done < "${GIT_BACKUP_CONFIG}"
 fi
 
-echo "Git backup finished at $(date)" >> "${LOG}" &&
 
+_extra-cleanup
 
-# TODO email
+unset LAST_RUN_FILE DATA_DIR BACKUP_PARTITION GIT_BACKUP_CONFIG GIT_DIR GIT_SSH_SCRIPT
+unset -f _extra-cleanup

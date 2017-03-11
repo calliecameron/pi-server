@@ -1,3 +1,11 @@
+#!/bin/bash
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
 
-create the allow routing file, then reboot
+sudo touch "${PI_SERVER_IPTABLES_ALLOW_FORWARDING}" &&
+
+
+echo "Reboot to enable firewall forwarding." &&
+enter-to-continue

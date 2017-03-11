@@ -4,13 +4,9 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-set-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}" "Enter the server's LAN interface name (usually the ethernet interface, but may no longer be called eth0)" &&
-
 set-pi-server-param "${PI_SERVER_IP_FILE}" "Enter the server's LAN IP address (MUST be correct, or nothing will work!)" &&
 
-set-pi-server-param "${PI_SERVER_LAN_NETWORK_FILE}" "Enter the network address of the LAN the server is on (usually the server's LAN IP address with the last octet changed to a 0; assumed by the scripts to be a /24 - but don't type the '/24'!)" &&
-
-set-pi-server-param "${PI_SERVER_VPN_NETWORK_FILE}" "Enter the network address of the VPN subnet to be managed by this server (assumed to be a /24 - type in the network address, with the last octet as 0, and don't type the '/24')" &&
+set-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}" "Enter the server's LAN interface name (usually the ethernet interface, but may no longer be called eth0)" &&
 
 set-pi-server-param "${PI_SERVER_FQDN_FILE}" "Enter the fully-qualified domain name of the server, as visible externally (the address to be managed by ZoneEdit, and also used as the 'From' in any email sent by the server)" &&
 
@@ -19,22 +15,6 @@ set-pi-server-param "${PI_SERVER_EMAIL_TARGET_FILE}" "Enter the email address an
 set-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}" "Enter the SMTP server to use when sending email (usually your ISP's, or for gmail enter smtp.gmail.com)" &&
 
 set-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}" "Enter the SMTP port to use when sending email (usually 25, or 465 if using authentication for gmail)" &&
-
-set-pi-server-param "${PI_SERVER_STORAGE_DRIVE_DEV_FILE}" "Enter the path of the external hard drive device (usually /dev/sda)" &&
-
-set-pi-server-param "${PI_SERVER_STORAGE_DATA_PARTITION_FILE}" "Enter the partition number of the main data partition on the external hard drive (usually 1)" &&
-
-set-pi-server-param "${PI_SERVER_STORAGE_BACKUP_PARTITION_FILE}" "Enter the partition number of the backup partition on the external hard drive (usually 2)" &&
-
-set-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}" "Is the external hard drive a spinning disk? [y/n]" &&
-
-sed-install "${DIR}/change-ip-address.txt" "${PI_SERVER_DIR}/change-ip-address.txt" &&
-sudo chmod a=r "${PI_SERVER_DIR}/change-ip-address.txt" &&
-
-sudo mkdir -p "${PI_SERVER_CERT_DIR}" &&
-sudo chown root:root "${PI_SERVER_CERT_DIR}" &&
-sudo chmod u=rwx "${PI_SERVER_CERT_DIR}" &&
-sudo chmod go-w "${PI_SERVER_CERT_DIR}" || exit 1
 
 
 if [ ! -f "${PI_SERVER_WAN_IFACE_FILE}" ]; then

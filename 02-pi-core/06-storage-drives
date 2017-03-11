@@ -11,17 +11,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-
-
+sudo apt-get update &&
 sudo apt-get -y install hdparm &&
-
-
-
 
 
 # Initial setup
 cat <<EOF &&
-Make sure the external storage is attached and correctly formatted: should have two ext4 partitions, one for primary data storage, and one for backups. (Additional partitions for other things are OK.) The /dev nodes for these partitions should have been set already in ./04-vars.
+Make sure the external storage is attached and correctly formatted: should have two ext4 partitions, one for primary data storage, and one for backups. (Additional partitions for other things are OK.) The /dev nodes for these partitions should have been set already in ./01-vars.
 
 When formatting the drives, you may want to use 'mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0' to save the Pi from having to initialise everything.
 
@@ -34,12 +30,12 @@ enter-to-continue &&
 if [ -z "${PI_SERVER_STORAGE_DRIVE_DEV}" ] ||
    [ -z "${PI_SERVER_STORAGE_DATA_PARTITION}" ] ||
    [ -z "${PI_SERVER_STORAGE_BACKUP_PARTITION}" ]; then
-    echo 'Drive partition parameters are unset; rerun ./04-vars'
+    echo 'Drive partition parameters are unset; rerun ./01-vars'
     exit 1
 fi
 
 if [ "${PI_SERVER_STORAGE_DATA_PARTITION}" = "${PI_SERVER_STORAGE_BACKUP_PARTITION}" ]; then
-    echo 'The data partition and backup partition are the same; rerun ./04-vars'
+    echo 'The data partition and backup partition are the same; rerun ./01-vars'
     exit 1
 fi
 
@@ -100,19 +96,20 @@ less '/etc/fstab' &&
 # Drive spindown
 HDPARM_CONF='/etc/hdparm.conf' &&
 if [ "${PI_SERVER_STORAGE_SPINNING_DRIVE}" = 'y' ]; then
-    sed-install "${DIR}/hdparm-conf-template" "${HDPARM_CONF}" "${PI_SERVER_STORAGE_DRIVE_DEV}"
+    sed-install "${DIR}/hdparm-conf-template" "${HDPARM_CONF}" \
+                "${PI_SERVER_STORAGE_DRIVE_DEV}" || exit 1
 else
-    sed-install "${DIR}/hdparm-disabled" "${HDPARM_CONF}"
+    sed-install "${DIR}/hdparm-disabled" "${HDPARM_CONF}" || exit 1
 fi
 sudo chmod go-wx "${HDPARM_CONF}" &&
 
 
 # Disk space checking
-DISK_CHECK="${PI_SERVER_CRON_NORMAL}/00-check-disk-usage" &&
-sed-install "${DIR}/check-disk-usage" "${DISK_CHECK}" \
+DISK_CHECK="${PI_SERVER_CRON_NORMAL_DIR}/disk-usage-storage" &&
+sed-install "${DIR}/disk-usage-storage" "${DISK_CHECK}" \
+            "${PI_SERVER_DISK_USAGE_SCRIPT}" \
             "${PI_SERVER_DATA_MOUNT_DIR}" \
-            "${PI_SERVER_BACKUP_MOUNT_DIR}" \
-            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+            "${PI_SERVER_BACKUP_MOUNT_DIR}" &&
 sudo chmod a=rx "${DISK_CHECK}" &&
 
 

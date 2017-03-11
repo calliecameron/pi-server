@@ -1,5 +1,7 @@
+#!/bin/bash
 
-
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+source "${DIR}/common.bash" &&
 
 
 # Make sure the certs are in place, and have the correct permissions
@@ -12,7 +14,6 @@ sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
 sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
-
 # Install the main pi-server site
 CONF_TARGET='/etc/nginx/sites-enabled/pi-server' &&
 sed-install "${DIR}/pi-server-nginx-template" "${CONF_TARGET}" \
@@ -21,8 +22,8 @@ sudo chmod a=r "${CONF_TARGET}" &&
 
 sudo mkdir -p "${PI_SERVER_WEB_PAGE_DIR}" &&
 sed-install "${DIR}/favicon.png" "${PI_SERVER_WEB_PAGE_DIR}/favicon.png" &&
-sed-install "${DIR}/favicon.png" "${PI_SERVER_WEB_PAGE_DIR}/favicon-apple.png" &&
-sed-install "${DIR}/favicon.png" "${PI_SERVER_WEB_PAGE_DIR}/favicon.ico" &&
+sed-install "${DIR}/favicon-apple.png" "${PI_SERVER_WEB_PAGE_DIR}/favicon-apple.png" &&
+sed-install "${DIR}/favicon.ico" "${PI_SERVER_WEB_PAGE_DIR}/favicon.ico" &&
 sed-install "${DIR}/pi.css" "${PI_SERVER_WEB_PAGE_DIR}/pi.css" &&
 sudo chmod a=r "${PI_SERVER_WEB_PAGE_DIR}/favicon.png" \
      "${PI_SERVER_WEB_PAGE_DIR}/favicon-apple.png" \
@@ -85,3 +86,6 @@ if [ ! -e "${JQUERY}" ]; then
 fi
 
 sudo "${PI_SERVER_WEB_PAGE_GENERATE}" &&
+
+
+sudo systemctl restart nginx.service

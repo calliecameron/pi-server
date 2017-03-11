@@ -4,13 +4,8 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-
+sudo apt-get update &&
 sudo apt-get -y install avahi-daemon &&
-
-
-
-
-
 
 
 sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
@@ -20,10 +15,10 @@ sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
 AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
 
 if [ -z "${PI_SERVER_WAN_IFACE}" ]; then
-    sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}"
+    sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}" || exit 1
 else
     sed-install "${DIR}/avahi-daemon-router.conf" "${AVAHI_CONF}" \
-                "${PI_SERVER_WAN_IFACE}"
+                "${PI_SERVER_WAN_IFACE}" || exit 1
 fi
 
 sudo chmod a=r "${AVAHI_CONF}" &&

@@ -39,7 +39,7 @@ enter-to-continue &&
 
 "${DIR}/../01-generic-core/05-network" &&
 "${DIR}/../01-generic-core/08-firewall" &&
-"${DIR}/../02-pi-core/09-dynamic-dns" &&
+"${DIR}/../02-pi-core/03-dynamic-dns" &&
 if [ -e "${PI_SERVER_DIR}/media-server" ]; then
     "${DIR}/../05-media-server/00-media-server" || exit 1
 fi

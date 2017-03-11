@@ -5,9 +5,7 @@ source "${DIR}/common.bash" &&
 
 
 sudo apt-get update &&
-sudo apt-get -y install ntfs-3g supervisor
+sudo apt-get -y install ntfs-3g supervisor &&
 
 
-
-
-add supervisor to paused
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/supervisor.service"
