@@ -62,7 +62,7 @@ sed-install "${DIR}/backup.bash" "${BACKUP_SCRIPT}" \
             "${PI_SERVER_BACKUP_GIT_CONFIG}" \
             "${PI_SERVER_BACKUP_GIT_DIR}" \
             "${PI_SERVER_BACKUP_GIT_SSH}" &&
-sudo chmod a=rx "${BACKUP_SCRIPT}" &&
+sudo chmod a=r "${BACKUP_SCRIPT}" &&
 
 
 cat <<EOF &&
