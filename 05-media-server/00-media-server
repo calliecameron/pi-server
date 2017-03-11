@@ -137,7 +137,7 @@ cd &&
 rm -rf "${TMPDIR}" &&
 
 
-sudo touch "${PI_SERVER_BACKUP_PAUSE_DIR}/minidlna" &&
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/minidlna.service" &&
 
 
 sudo systemctl restart supervisor &&
