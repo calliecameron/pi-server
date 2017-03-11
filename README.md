@@ -42,6 +42,6 @@ To install on a Pi:
 4. `git clone https://github.com/CallumCameron/pi-server`
 5. `cd pi-server`
 
-In each of the numbered folders starting with `01-generic-core` in order, run
-each of the numbered scripts in order, and follow the instructions
-they give.
+In each of the numbered folders starting with `01-generic-core` in
+order, run each of the numbered scripts in order, and follow the
+instructions they give.
