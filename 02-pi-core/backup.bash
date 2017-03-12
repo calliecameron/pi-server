@@ -43,7 +43,7 @@ if [ ! -e "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ];
         echo 'Weekly backup succeeded.' >> "${LOG}"
     fi
 
-    if [ "${DAY_OF_MONTH}" == '1' ]; then
+    if [ "${DAY_OF_MONTH}" == '01' ]; then
         rsnapshot monthly &>> "${LOG}" || fail 'Monthly backup failed.'
         echo 'Monthly backup succeeded.' >> "${LOG}"
     fi
