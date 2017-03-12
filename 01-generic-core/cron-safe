@@ -75,10 +75,10 @@ stop-services || fail "Couldn't stop services."
 SCRIPT_LIST="$(mktemp)" &&
 find "${SCRIPTS_DIR}" -type f | LC_ALL=C sort > "${SCRIPT_LIST}" || fail "Couldn't list scripts."
 
-while read -r line; do
-    echo "STARTED '$(basename "${line}")' at $(date)" >> "${LOG}"
-    source "${line}" || fail "Couldn't run $(basename "${line}")."
-    echo "FINISHED '$(basename "${line}")' at $(date)" >> "${LOG}"
+while read -r SCRIPT_FILE_NAME; do
+    echo "STARTED '$(basename "${SCRIPT_FILE_NAME}")' at $(date)" >> "${LOG}"
+    source "${SCRIPT_FILE_NAME}" || fail "Couldn't run $(basename "${SCRIPT_FILE_NAME}")."
+    echo "FINISHED '$(basename "${SCRIPT_FILE_NAME}")' at $(date)" >> "${LOG}"
 done < "${SCRIPT_LIST}"
 
 rm "${SCRIPT_LIST}"
