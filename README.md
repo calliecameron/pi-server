@@ -37,7 +37,10 @@ To install on a Pi:
 
 1. Generate certificates and keys for the Pi by running
    `make-pi-server-certs` in the folder created by `00-make-ca`.
-2. Install the Raspbian Jessie Lite image on the Pi, boot, and log in.
+2. Install the Raspbian Jessie Lite image on the Pi,
+   [enable SSH](https://www.raspberrypi.org/blog/a-security-update-for-raspbian-pixel/)
+   by creating a file `ssh` in the boot partition, boot, and log
+   in.
 3. `sudo apt-get update; sudo apt-get -y install git`
 4. `git clone https://github.com/CallumCameron/pi-server`
 5. `cd pi-server`
@@ -45,3 +48,21 @@ To install on a Pi:
 In each of the numbered folders starting with `01-generic-core` in
 order, run each of the numbered scripts in order, and follow the
 instructions they give.
+
+
+Other servers
+-------------
+
+The scripts in `01-generic-core` can be used, on their own, to do the
+basic setup of any Debian/Raspbian Jessie or Ubuntu 16.04 server - not
+just a Pi. All the other folders are Pi-specific, though.
+
+
+Updates
+-------
+
+If you pull the repo and see that something has changed, re-run the
+changed script or the scripts that use changed files. Or, if it is a
+big update, it is probably easier to re-run everything, in order; all
+the scripts are idempotent, so anything that hasn't changed will just
+do nothing.
