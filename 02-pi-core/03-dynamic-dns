@@ -38,7 +38,7 @@ sudo chmod a=rx "${PI_SERVER_ZONEEDIT_UPDATE_SCRIPT}" &&
 SCRIPT='/etc/network/if-up.d/zoneedit-at-net-up' &&
 sed-install "${DIR}/zoneedit-at-net-up" "${SCRIPT}" \
             "${PI_SERVER_ZONEEDIT_UPDATE_SCRIPT}" \
-            "${PI_SERVER_LAN_IFACE_FILE} "&&
+            "${PI_SERVER_LAN_IFACE_FILE}" &&
 sudo chmod a=rx "${SCRIPT}" &&
 
 if [ ! -e '/etc/cron.hourly/zoneedit-update' ]; then
