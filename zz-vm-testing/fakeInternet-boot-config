@@ -8,3 +8,5 @@ iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
 # sure they really are inaccessible (host 192.168.56.56 must not exist)
 ip route add 192.168.57.0/24 via 192.168.56.56 dev eth1
 ip route add 192.168.58.0/24 via 192.168.56.56 dev eth1
+
+exit 0
