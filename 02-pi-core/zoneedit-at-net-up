@@ -1,27 +1,9 @@
 #!/bin/bash
-# Update a ZoneEdit record when the network goes up, and as a cron job
 
-HOST_FILE='@@@@@1@@@@@'
-USERNAME_FILE='@@@@@2@@@@@'
-PASSWORD_FILE='@@@@@3@@@@@'
+LAN_IFACE="$(cat '@@@@@2@@@@@')"
 
-test ! -f "${HOST_FILE}" && exit 0
-test ! -f "${USERNAME_FILE}" && exit 0
-test ! -f "${PASSWORD_FILE}" && exit 0
-
-HOST="$(grep -v '^#' "${HOST_FILE}" | head -n 1)"
-USERNAME="$(grep -v '^#' "${USERNAME_FILE}" | head -n 1)"
-PASSWORD="$(grep -v '^#' "${PASSWORD_FILE}" | head -n 1)"
-
-test -z "${HOST}" && exit 0
-test -z "${USERNAME}" && exit 0
-test -z "${PASSWORD}" && exit 0
-
-OUTPUT_FILE='@@@@@4@@@@@'
-
-if ! wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"; then
-    echo 'ZoneEdit update failed; check the log file'
+if [ ! -z "${LAN_IFACE}" ] && [ "${IFACE}" = "${LAN_IFACE}" ]; then
+    ( sleep 1m; '@@@@@1@@@@@' ) &
 fi
 
-chmod u=rw "${OUTPUT_FILE}"
-chmod go-rwx "${OUTPUT_FILE}"
+exit 0
