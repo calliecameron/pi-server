@@ -8,7 +8,7 @@ sudo apt-get update &&
 sudo apt-get -y install nginx &&
 
 
-sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/nginx.service"
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/nginx.service" &&
 
 
 # Setup generic nginx config (not a specific site)
