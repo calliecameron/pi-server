@@ -57,6 +57,9 @@ The scripts in `01-generic-core` can be used, on their own, to do the
 basic setup of any Debian/Raspbian Jessie or Ubuntu 16.04 server - not
 just a Pi. All the other folders are Pi-specific, though.
 
+The scripts should be run as a non-root user with sudo access, so you
+may need to create one manually first.
+
 
 Updates
 -------

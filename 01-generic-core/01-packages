@@ -14,7 +14,7 @@ if [ ! -e "${PI_SERVER_DIR}" ]; then
     fi
 fi
 
-sudo apt-get -y install apt-listchanges curl dhcpcd5 etckeeper git htop libpam-systemd mosh openssh-server rsync ssmtp tmux unzip wget &&
+sudo apt-get -y install apt-listchanges curl etckeeper git htop libpam-systemd mosh openssh-server rsync ssmtp tmux unzip wget &&
 
 sudo apt-get update &&
 sudo apt-get -y upgrade &&
