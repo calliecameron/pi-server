@@ -23,7 +23,16 @@ function no-values() {
 test -z "${FROM}" && no-values
 test -z "${TO}" && no-values
 
-ssmtp "${TO}" <<EOF
+# Handle PATH weirdness: on Debian (but not Raspbian), non-root users
+# don't have ssmtp on their PATH, so try using an absolute path
+# instead. If it isn't there either then we'll just fail.
+if type ssmtp &>/dev/null; then
+    SSMTP=ssmtp
+else
+    SSMTP=/usr/sbin/ssmtp
+fi
+
+"${SSMTP}" "${TO}" <<EOF
 From: $(hostname) <notification@${FROM}>
 To: ${TO}
 Subject: [$(hostname)] ${1}
