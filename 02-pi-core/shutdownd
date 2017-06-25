@@ -7,6 +7,8 @@ import time
 
 WEBPAGE_HEADER = "@@@@@1@@@@@"
 WEBPAGE_FOOTER = "@@@@@2@@@@@"
+# Though this is really an int, we keep it as a string here so the linter
+# doesn't complain about the template @s
 PORT = "@@@@@3@@@@@"
 SHUTDOWN_URL = "/shutdown"
 RESTART_URL = "/restart"
@@ -105,6 +107,6 @@ class Responder(http.server.BaseHTTPRequestHandler):
             self.fail()
 
 
-server_address = ('', PORT)
+server_address = ('', int(PORT))
 httpd = http.server.HTTPServer(server_address, Responder)
 httpd.serve_forever()
