@@ -1,3 +1,0 @@
-[program:shutdownd]
-command=@@@@@1@@@@@
-user=shutdownd

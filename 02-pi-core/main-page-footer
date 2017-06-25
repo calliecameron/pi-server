@@ -3,12 +3,12 @@
           </li>
           <li>
             <script type="text/javascript">
-              document.write('<a href="http://' + window.location.hostname + ':23145/restart">Restart</a>');
+              document.write('<a href="http://' + window.location.hostname + ':@@@@@1@@@@@/restart">Restart</a>');
             </script>
           </li>
           <li>
             <script type="text/javascript">
-              document.write('<a href="http://' + window.location.hostname + ':23145/shutdown">Shut down</a>');
+              document.write('<a href="http://' + window.location.hostname + ':@@@@@1@@@@@/shutdown">Shut down</a>');
             </script>
           </li>
         </ul>

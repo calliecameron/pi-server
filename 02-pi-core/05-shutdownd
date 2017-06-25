@@ -4,6 +4,15 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
+# Remove old supervisor-managed config if it exists
+SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf'
+if [ -f "${SUPERVISOR_DST}" ]; then
+    sudo systemctl stop supervisor.service &&
+    sudo rm "${SUPERVISOR_DST}" &&
+    sudo systemctl start supervisor.service || exit 1
+fi
+
+
 # Setup user
 NEW_USER='shutdownd'
 
@@ -18,7 +27,8 @@ sudo chsh -s /usr/sbin/nologin "${NEW_USER}" &&
 # Setup actual script
 sed-install "${DIR}/shutdownd" "${PI_SERVER_SHUTDOWND_SCRIPT}" \
             "${PI_SERVER_WEB_PAGE_HEADER}" \
-            "${PI_SERVER_WEB_PAGE_FOOTER}" &&
+            "${PI_SERVER_WEB_PAGE_FOOTER}" \
+            "${PI_SERVER_SHUTDOWND_PORT}" &&
 sudo chmod a=rx "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
 
 
@@ -31,15 +41,15 @@ sudo chmod o-rwx "${SUDOERS_DST}" &&
 
 
 # Set it up to run at boot
-SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf' &&
-sed-install "${DIR}/supervisor-shutdownd" "${SUPERVISOR_DST}" \
-            "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
-sudo chmod a=r "${SUPERVISOR_DST}" &&
+install-systemd-service "${DIR}/${PI_SERVER_SHUTDOWND_SERVICE}" \
+                        "${PI_SERVER_SHUTDOWND_SCRIPT}" &&
+sudo systemctl enable "${PI_SERVER_SHUTDOWND_SERVICE}" &&
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/${PI_SERVER_SHUTDOWND_SERVICE}" &&
 
 
 # Firewall
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 23145 tcp &&
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 23145 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot "${PI_SERVER_SHUTDOWND_PORT}" tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open "${PI_SERVER_SHUTDOWND_PORT}" tcp &&
 
 
-sudo systemctl restart supervisor
+sudo systemctl restart "${PI_SERVER_SHUTDOWND_SERVICE}"

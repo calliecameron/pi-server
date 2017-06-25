@@ -56,6 +56,8 @@ export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-conf
 export PI_SERVER_ZONEEDIT_UPDATE_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-update"
 
 export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
+export PI_SERVER_SHUTDOWND_SERVICE='pi-server-shutdownd.service'
+export PI_SERVER_SHUTDOWND_PORT='23145'
 
 export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
 export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"

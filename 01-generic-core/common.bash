@@ -104,6 +104,15 @@ function sed-install() {
     rm "${TMPFILE}"
 }
 
+function install-systemd-service() {
+    local IN_FILE="${1}"
+    # shellcheck disable=SC2155
+    local OUT_FILE="/etc/systemd/system/$(basename "${IN_FILE}")" &&
+    sed-install "${IN_FILE}" "${OUT_FILE}" "${@:2}" &&
+    sudo chmod a=r "${OUT_FILE}" &&
+    sudo systemctl daemon-reload
+}
+
 function get-pi-server-param() {
     if [ ! -z "${1}" ] && [ -e "${1}" ]; then
         cat "${1}"
