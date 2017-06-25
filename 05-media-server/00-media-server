@@ -5,8 +5,8 @@ source "${DIR}/common.bash" &&
 
 
 sudo apt-get update &&
-sudo apt-get -y install minidlna xsltproc python-pip &&
-sudo pip install eyed3 &&
+sudo apt-get -y install minidlna xsltproc python3-pip &&
+sudo pip3 install eyed3 ftfy &&
 
 
 MINIDLNA_DEFAULT='/etc/default/minidlna' &&

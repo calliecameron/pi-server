@@ -1,8 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os.path
 import re
 import eyed3
+import ftfy
 
 LOG_FILE = "@@@@@1@@@@@"
 PODCASTS_DIR = "@@@@@2@@@@@"
@@ -14,9 +15,9 @@ def pretty_print(podcast_dir, filename):
     try:
         mp3 = eyed3.load(os.path.join(PODCASTS_DIR, podcast_dir, filename))
         if mp3 and mp3.tag and mp3.tag.title:
-            s = '"%s"' % mp3.tag.title
+            s = '"%s"' % ftfy.fix_text(mp3.tag.title)
             if mp3.tag.artist:
-                s += ", by %s" % mp3.tag.artist
+                s += ", by %s" % ftfy.fix_text(mp3.tag.artist)
             s += " (%s)" % filename
             return s
         else:
@@ -31,7 +32,7 @@ file_matcher = re.compile(r"^(.+) downloaded to (.+)$")
 total = 0
 files = []
 
-with open(LOG_FILE) as f:
+with open(LOG_FILE, encoding="utf-8") as f:
     for line in f:
         line = line.strip()
 
@@ -45,16 +46,16 @@ with open(LOG_FILE) as f:
 
 files.sort()
 
-print "Downloaded %d new podcast%s" % (total, "" if total == 1 else "s")
+print("Downloaded %d new podcast%s" % (total, "" if total == 1 else "s"))
 
 folder = ""
 
 for foldername, filename in files:
     if foldername != folder:
-        print
-        print (u"%s:" % foldername).encode("utf-8")
+        print()
+        print(("%s:" % foldername).encode("utf-8"))
     folder = foldername
 
-    print (u"  %s" % pretty_print(folder, filename)).encode("utf-8")
+    print(("  %s" % pretty_print(folder, filename)).encode("utf-8"))
 
-print
+print()

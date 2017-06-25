@@ -1,9 +1,10 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
-import BaseHTTPServer
+import http.server
 import cgi
 import datetime
 import eyed3
+import ftfy
 import os
 import shutil
 import subprocess
@@ -25,10 +26,37 @@ WEBPAGE_FOOTER = "@@@@@8@@@@@"
 # doesn't complain about the template @s
 PORT = "@@@@@9@@@@@"
 
+ERROR_BODY = """
+<h1>Error!</h1>
+<p>The requested page could not be found</p>
+"""
+
+BUSY_BODY = """
+<h1>Downloading podcasts</h1>
+<p>Currently downloading any new podcasts. This might take a while.</p>
+<p>This page will go back to normal once the download is finished (you
+can close the page in the meantime, if you like).</p>
+<script type="text/javascript">
+  setTimeout(function() { window.location = "/"; }, 5000);
+</script>
+"""
+
+MAIN_PAGE_BODY = """
+<h1>Podcasts</h1>
+%s
+<p><a href="%s">Podcasts - new</a></p>
+<p><a href="%s">Podcasts - listened</a></p>
+<form action="/" method="post">
+  <button class="btn btn-default" type="submit" name="download"
+    value="download">Check for new episodes</button>
+</form>
+"""
+
+
 children = []
 
 
-class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
+class Responder(http.server.BaseHTTPRequestHandler):
     def reap(self):
         i = 0
         while i < len(children):
@@ -39,23 +67,23 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
                 i += 1
 
     def construct_response(self, title, body):
-        page = u""
+        page = ""
         try:
-            with open(WEBPAGE_HEADER) as f:
-                page += unicode(f.read())
-            page = page.replace(u"#####1#####", unicode(title))
+            with open(WEBPAGE_HEADER, encoding="utf-8") as f:
+                page += f.read()
+            page = page.replace("#####1#####", title)
         except IOError:
-            page += (u'<html><head><meta charset="utf-8">'
-                     "<title>%s</title></head><body>") % unicode(title)
+            page += ('<html><head><meta charset="utf-8">'
+                     "<title>%s</title></head><body>") % title
 
-        page += (u"<div class=\"container\"><div class=\"row\">" +
-                 unicode(body) + u"</div></div>")
+        page += ("<div class=\"container\"><div class=\"row\">" +
+                 body + "</div></div>")
 
         try:
-            with open(WEBPAGE_FOOTER) as f:
-                page += unicode(f.read())
+            with open(WEBPAGE_FOOTER, encoding="utf-8") as f:
+                page += f.read()
         except IOError:
-            page += u"</body></html>"
+            page += "</body></html>"
 
         return page.encode("utf-8")
 
@@ -71,10 +99,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_response(404)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(
-            self.construct_response(
-                "Error",
-                "<h1>Error!</h1><p>The requested page could not be found</p>"))
+        self.wfile.write(self.construct_response("Error", ERROR_BODY))
 
     def is_busy(self):
         return os.path.exists(PODCAST_LOCK)
@@ -85,17 +110,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(
-            self.construct_response(
-                "Downloading podcasts",
-                ("<h1>Downloading podcasts</h1>\n"
-                 "<p>Currently downloading any new podcasts. This might take a"
-                 " while.</p>\n"
-                 "<p>This page will go back to normal once the download is"
-                 " finished (you can close the page in the meantime, if you"
-                 " like).</p>\n"
-                 '<script type="text/javascript">\n'
-                 '  setTimeout(function() { window.location = "/"; }, 5000);\n'
-                 "</script>\n")))
+            self.construct_response("Downloading podcasts", BUSY_BODY))
 
     def last_download_count(self):
         try:
@@ -114,16 +129,9 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
     def main_page(self):
         self.respond(
             "Podcasts",
-            ("<h1>Podcasts</h1>\n"
-             "%s\n"
-             '<p><a href="%s">Podcasts - new</a></p>\n'
-             '<p><a href="%s">Podcasts - listened</a></p>\n'
-             '<form action="/" method="post">\n'
-             '<button class="btn btn-default" type="submit" name="download" '
-             'value="download">Check for new episodes</button>\n'
-             "</form>\n") % (self.last_download_count(),
-                             NEW_URL,
-                             LISTENED_URL))
+            MAIN_PAGE_BODY % (self.last_download_count(),
+                              NEW_URL,
+                              LISTENED_URL))
 
     def parse_POST(self):
         ctype, pdict = cgi.parse_header(self.headers["content-type"])
@@ -141,9 +149,9 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         try:
             mp3 = eyed3.load(os.path.join(podcast_dir, filename))
             if mp3 and mp3.tag and mp3.tag.title:
-                s = "<em>%s</em>" % mp3.tag.title
+                s = "<em>%s</em>" % ftfy.fix_text(mp3.tag.title)
                 if mp3.tag.artist:
-                    s += ", %s" % mp3.tag.artist
+                    s += ", %s" % ftfy.fix_text(mp3.tag.artist)
                 s += " (%s)" % filename
                 return s
             else:
@@ -164,7 +172,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
             for err in errors:
                 body += "<p>%s</p>" % err
             body += "</div>"
-        body += """<form action="%s" method="post">""" % url
+        body += '<form action="%s" method="post">' % url
 
         for podcast in sorted(os.listdir(src)):
             podcast_dir = os.path.join(src, podcast)
@@ -281,6 +289,7 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             self.fail()
 
+
 server_address = ('', int(PORT))
-httpd = BaseHTTPServer.HTTPServer(server_address, Responder)
+httpd = http.server.HTTPServer(server_address, Responder)
 httpd.serve_forever()
