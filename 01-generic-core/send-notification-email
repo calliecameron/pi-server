@@ -36,6 +36,7 @@ fi
 From: $(hostname) <notification@${FROM}>
 To: ${TO}
 Subject: [$(hostname)] ${1}
+Content-Type: text/plain; charset="UTF-8"
 
 ${2}
 
