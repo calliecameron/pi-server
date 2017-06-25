@@ -1,3 +1,0 @@
-[program:podcast-manager]
-command=@@@@@1@@@@@
-user=www-data
