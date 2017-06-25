@@ -9,7 +9,7 @@ import os
 import shutil
 import subprocess
 import time
-import urllib
+import urllib.request
 import urllib.parse
 
 NEW_PATH = "@@@@@1@@@@@"
@@ -181,8 +181,9 @@ class Responder(http.server.BaseHTTPRequestHandler):
                 if episodes:
                     body += "<h2>%s</h2>" % podcast
                     for episode in episodes:
-                        name = urllib.pathname2url("%s/%s" % (podcast,
-                                                              episode))
+                        name = urllib.request.pathname2url(
+                            "%s/%s" % (podcast,
+                                       episode))
                         pretty = self.pretty_print(podcast_dir, episode)
                         body += ('<div class="checkbox"><input type="checkbox"'
                                  ' id="%s" name="%s"><label for="%s">%s'
@@ -210,7 +211,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
                         "not listened")
 
     def move_files(self, src, dst, post_data):
-        files = map(urllib.url2pathname, post_data.keys())
+        files = map(urllib.request.url2pathname, post_data.keys())
 
         num_moved = 0
         errors = []
