@@ -53,7 +53,8 @@ sudo mkdir -p "${PI_SERVER_MEDIA_SCRIPT_DIR}" &&
 
 # Setup webpage
 DST="${PI_SERVER_WEB_PAGE_PARTS_DIR}/01-minidlna" &&
-sed-install "${DIR}/webpage-template" "${DST}" &&
+sed-install "${DIR}/webpage-template" "${DST}" \
+            "${PI_SERVER_PODCAST_MANAGER_PORT}" &&
 sudo chmod a=r "${DST}" &&
 
 sudo "${PI_SERVER_WEB_PAGE_GENERATE}" || exit 1
@@ -77,7 +78,8 @@ sed-install "${DIR}/podcast-manager" "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" \
             "${PI_SERVER_MASHPODDER_DOWNLOAD_LOG}" \
             "${PI_SERVER_MASHPODDER_DOWNLOAD_COUNT}" \
             "${PI_SERVER_WEB_PAGE_HEADER}" \
-            "${PI_SERVER_WEB_PAGE_FOOTER}" &&
+            "${PI_SERVER_WEB_PAGE_FOOTER}" \
+            "${PI_SERVER_PODCAST_MANAGER_PORT}" &&
 sudo chmod a=rx "${PI_SERVER_PODCAST_MANAGER_SCRIPT}" &&
 
 install-systemd-service "${DIR}/${PI_SERVER_PODCAST_MANAGER_SERVICE}" \
@@ -89,10 +91,10 @@ sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/${PI_SERVER_PODCAST_MANAGER_SERVICE}" &&
 # Firewall
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 8200 tcp &&
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 1900 udp &&
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 23146 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot "${PI_SERVER_PODCAST_MANAGER_PORT}" tcp &&
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 8200 tcp &&
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 1900 udp &&
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 23146 tcp &&
+"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open "${PI_SERVER_PODCAST_MANAGER_PORT}" tcp &&
 
 
 # Setup mashpodder

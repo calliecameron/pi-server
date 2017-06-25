@@ -1,6 +1,6 @@
 <li>
   <script language="JavaScript">
-    document.write('<a href="http://' + window.location.hostname + ':23146/">Podcasts</a>');
+    document.write('<a href="http://' + window.location.hostname + ':@@@@@1@@@@@/">Podcasts</a>');
   </script>
 </li>
 <li>

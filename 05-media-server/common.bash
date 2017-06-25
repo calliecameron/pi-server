@@ -3,6 +3,7 @@
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../02-pi-core/common.bash" || exit 1
 
 export PI_SERVER_PODCAST_MANAGER_SERVICE='pi-server-podcast-manager.service'
+export PI_SERVER_PODCAST_MANAGER_PORT='23146'
 
 export PI_SERVER_MEDIA_SCRIPT_DIR="${PI_SERVER_DIR}/media-server"
 export PI_SERVER_PODCAST_MANAGER_SCRIPT="${PI_SERVER_MEDIA_SCRIPT_DIR}/podcast-manager"

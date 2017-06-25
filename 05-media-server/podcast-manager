@@ -21,6 +21,9 @@ DOWNLOAD_LOG = "@@@@@5@@@@@"
 DOWNLOAD_COUNT = "@@@@@6@@@@@"
 WEBPAGE_HEADER = "@@@@@7@@@@@"
 WEBPAGE_FOOTER = "@@@@@8@@@@@"
+# Though this is really an int, we keep it as a string here so the linter
+# doesn't complain about the template @s
+PORT = "@@@@@9@@@@@"
 
 children = []
 
@@ -278,6 +281,6 @@ class Responder(BaseHTTPServer.BaseHTTPRequestHandler):
         else:
             self.fail()
 
-server_address = ('', 23146)
+server_address = ('', int(PORT))
 httpd = BaseHTTPServer.HTTPServer(server_address, Responder)
 httpd.serve_forever()
