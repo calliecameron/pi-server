@@ -4,6 +4,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
+sudo mkdir -p "${PI_SERVER_CERT_DIR}" &&
+sudo chown root:root "${PI_SERVER_CERT_DIR}" &&
+sudo chmod u=rwx "${PI_SERVER_CERT_DIR}" &&
+sudo chmod go-w "${PI_SERVER_CERT_DIR}" &&
+
+
 # Make sure the certs are in place, and have the correct permissions
 CERT_NAME='nginx' &&
 check-pi-server-cert "Nginx" "${CERT_NAME}" &&

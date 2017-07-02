@@ -18,10 +18,4 @@ set-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}" "Is the external 
 
 
 sed-install "${DIR}/change-ip-address.txt" "${PI_SERVER_DIR}/change-ip-address.txt" &&
-sudo chmod a=r "${PI_SERVER_DIR}/change-ip-address.txt" &&
-
-
-sudo mkdir -p "${PI_SERVER_CERT_DIR}" &&
-sudo chown root:root "${PI_SERVER_CERT_DIR}" &&
-sudo chmod u=rwx "${PI_SERVER_CERT_DIR}" &&
-sudo chmod go-w "${PI_SERVER_CERT_DIR}"
+sudo chmod a=r "${PI_SERVER_DIR}/change-ip-address.txt"
