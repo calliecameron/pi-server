@@ -71,6 +71,7 @@ class Cache(object):
             # cache. Maybe this is the first time we have run, and the
             # file doesn't exist yet.
             self.cache = {}
+        return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         try:
