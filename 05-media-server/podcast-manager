@@ -5,9 +5,11 @@ import cgi
 import datetime
 import eyed3
 import ftfy
+import json
 import os
 import shutil
 import subprocess
+import sys
 import time
 import urllib.request
 import urllib.parse
@@ -25,6 +27,7 @@ WEBPAGE_FOOTER = "@@@@@8@@@@@"
 # Though this is really an int, we keep it as a string here so the linter
 # doesn't complain about the template @s
 PORT = "@@@@@9@@@@@"
+CACHE_FILE = "@@@@@10@@@@@"
 
 ERROR_BODY = """
 <h1>Error!</h1>
@@ -51,6 +54,51 @@ MAIN_PAGE_BODY = """
     value="download">Check for new episodes</button>
 </form>
 """
+
+
+class Cache(object):
+    def __init__(self, src_dir):
+        super(Cache, self).__init__()
+        self.src_dir = src_dir
+        self.cache = None
+
+    def __enter__(self):
+        try:
+            with open(CACHE_FILE, encoding="utf-8") as f:
+                self.cache = json.load(f)
+        except (OSError, IOError, json.JSONDecodeError) as e:
+            # Treat failure to load the cache as being an empty
+            # cache. Maybe this is the first time we have run, and the
+            # file doesn't exist yet.
+            self.cache = {}
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        try:
+            with open(CACHE_FILE, "w", encoding="utf-8") as f:
+                json.dump(self.cache, f)
+        except (OSError, IOError) as e:
+            sys.stderr.write("WARNING: couldn't save cache to disk: %s"
+                             % str(e))
+
+    def get(self, podcast, filename):
+        key = str((podcast, filename))
+        if key in self.cache:
+            return tuple(self.cache[key])
+        else:
+            try:
+                title = ""
+                artist = ""
+                podcast_dir = os.path.join(self.src_dir, podcast)
+                mp3 = eyed3.load(os.path.join(podcast_dir, filename))
+                if mp3 and mp3.tag:
+                    if mp3.tag.title:
+                        title = ftfy.fix_text(mp3.tag.title)
+                    if mp3.tag.artist:
+                        artist = ftfy.fix_text(mp3.tag.artist)
+                self.cache[key] = [title, artist]
+                return title, artist
+            except Exception:
+                return "", ""
 
 
 children = []
@@ -146,18 +194,15 @@ class Responder(http.server.BaseHTTPRequestHandler):
             postvars = {}
         return postvars
 
-    def pretty_print(self, podcast_dir, filename):
-        try:
-            mp3 = eyed3.load(os.path.join(podcast_dir, filename))
-            if mp3 and mp3.tag and mp3.tag.title:
-                s = "<em>%s</em>" % ftfy.fix_text(mp3.tag.title)
-                if mp3.tag.artist:
-                    s += ", %s" % ftfy.fix_text(mp3.tag.artist)
-                s += " (%s)" % filename
-                return s
-            else:
-                return filename
-        except Exception:
+    def pretty_print(self, podcast, filename, cache):
+        title, artist = cache.get(podcast, filename)
+        if title:
+            s = "<em>%s</em>" % title
+            if artist:
+                s += ", %s" % artist
+            s += " (%s)" % filename
+            return s
+        else:
             return filename
 
     def list_files(self, src, title, url, num_moved, errors, move_text):
@@ -175,20 +220,22 @@ class Responder(http.server.BaseHTTPRequestHandler):
             body += "</div>"
         body += '<form action="%s" method="post">' % url
 
-        for podcast in sorted(os.listdir(src)):
-            podcast_dir = os.path.join(src, podcast)
-            if os.path.isdir(podcast_dir):
-                episodes = sorted(os.listdir(podcast_dir))
-                if episodes:
-                    body += "<h2>%s</h2>" % podcast
-                    for episode in episodes:
-                        name = urllib.request.pathname2url(
-                            "%s/%s" % (podcast,
-                                       episode))
-                        pretty = self.pretty_print(podcast_dir, episode)
-                        body += ('<div class="checkbox"><input type="checkbox"'
-                                 ' id="%s" name="%s"><label for="%s">%s'
-                                 '</label></div>') % (name, name, name, pretty)
+        with Cache(src) as cache:
+            for podcast in sorted(os.listdir(src)):
+                podcast_dir = os.path.join(src, podcast)
+                if os.path.isdir(podcast_dir):
+                    episodes = sorted(os.listdir(podcast_dir))
+                    if episodes:
+                        body += "<h2>%s</h2>" % podcast
+                        for episode in episodes:
+                            name = urllib.request.pathname2url(
+                                "%s/%s" % (podcast,
+                                           episode))
+                            pretty = self.pretty_print(podcast, episode, cache)
+                            body += ('<div class="checkbox"><input '
+                                     'type="checkbox" id="%s" name="%s"><label'
+                                     'for="%s">%s</label></div>') % (
+                                         name, name, name, pretty)
 
         body += ('<button class="btn btn-default" type="submit">Mark selected '
                  'as %s</button></form>') % move_text
