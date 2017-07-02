@@ -66,7 +66,7 @@ class Cache(object):
         try:
             with open(CACHE_FILE, encoding="utf-8") as f:
                 self.cache = json.load(f)
-        except (OSError, IOError, json.JSONDecodeError) as e:
+        except (OSError, IOError, ValueError) as e:
             # Treat failure to load the cache as being an empty
             # cache. Maybe this is the first time we have run, and the
             # file doesn't exist yet.
