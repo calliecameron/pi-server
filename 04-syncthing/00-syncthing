@@ -15,7 +15,8 @@ sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 curl -s 'https://syncthing.net/release-key.txt' | sudo apt-key add - &&
 echo 'deb http://apt.syncthing.net/ syncthing release' | sudo tee /etc/apt/sources.list.d/syncthing-release.list >/dev/null &&
 sudo apt-get update &&
-sudo apt-get -y install syncthing &&
+sudo apt-get -y install syncthing supervisor &&
+sudo touch "${PI_SERVER_CRON_PAUSE_DIR}/supervisor.service" &&
 
 
 # Prepare directories
