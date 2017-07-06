@@ -1,0 +1,13 @@
+[Unit]
+Description=Pi Server syncthing
+After=network.target
+
+[Service]
+ExecStart=@@@@@1@@@@@ -gui-address="0.0.0.0:8080" -home="@@@@@2@@@@@" -no-browser
+Restart=always
+User=@@@@@3@@@@@
+Group=@@@@@3@@@@@
+Environment=HOME="@@@@@4@@@@@"
+
+[Install]
+WantedBy=multi-user.target
