@@ -70,6 +70,7 @@ export PI_SERVER_WEB_PAGE_GENERATE="${PI_SERVER_DIR}/generate-main-web-page"
 export PI_SERVER_CERT_DIR="${PI_SERVER_DIR}/certs"
 export PI_SERVER_CA_CERT="${PI_SERVER_CERT_DIR}/ca.crt"
 export PI_SERVER_CRL="${PI_SERVER_CERT_DIR}/crl"
+export PI_SERVER_HTTPS_KEY_GROUP='pi-server-https-key-readers'
 
 export PI_SERVER_OPENVPN_DH_PARAMS="${PI_SERVER_CERT_DIR}/openvpn-dh2048.pem"
 export PI_SERVER_OPENVPN_TLS_AUTH="${PI_SERVER_CERT_DIR}/openvpn-tls-auth.key"

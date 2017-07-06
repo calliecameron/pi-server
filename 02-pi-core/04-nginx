@@ -11,12 +11,16 @@ sudo chmod go-w "${PI_SERVER_CERT_DIR}" &&
 
 
 # Make sure the certs are in place, and have the correct permissions
+if ! getent group "${PI_SERVER_HTTPS_KEY_GROUP}" &>/dev/null; then
+    sudo addgroup "${PI_SERVER_HTTPS_KEY_GROUP}" || exit 1
+fi
+
 CERT_NAME='nginx' &&
 check-pi-server-cert "Nginx" "${CERT_NAME}" &&
 
-# nginx.key has to be readable by www-data, so syncthing can use
+# nginx.key has to be readable by the group, so syncthing can use
 # it. This is only used for internally-accessible pages.
-sudo chgrp www-data "$(pi-server-key "${CERT_NAME}")" &&
+sudo chgrp "${PI_SERVER_HTTPS_KEY_GROUP}" "$(pi-server-key "${CERT_NAME}")" &&
 sudo chmod g=r "$(pi-server-key "${CERT_NAME}")" &&
 
 
