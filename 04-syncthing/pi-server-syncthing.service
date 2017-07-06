@@ -7,7 +7,7 @@ ExecStart=@@@@@1@@@@@ "-gui-address=0.0.0.0:8080" "-home=@@@@@2@@@@@" -no-browse
 Restart=always
 User=@@@@@3@@@@@
 Group=@@@@@3@@@@@
-Environment=HOME="@@@@@4@@@@@"
+Environment="HOME=@@@@@4@@@@@"
 
 [Install]
 WantedBy=multi-user.target
