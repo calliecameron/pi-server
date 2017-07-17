@@ -1,5 +1,7 @@
 #!/bin/sh
 
 if [ "${PAM_TYPE}" != 'close_session' ]; then
-    '@@@@@1@@@@@' "SSH login: ${PAM_USER} from ${PAM_RHOST}" "$(env)" &
+    if ! grep -F -x "${PAM_USER}:${PAM_RHOST}" '@@@@@2@@@@@' >/dev/null 2>/dev/null; then
+        '@@@@@1@@@@@' "SSH login: ${PAM_USER} from ${PAM_RHOST}" "$(env)" &
+    fi
 fi

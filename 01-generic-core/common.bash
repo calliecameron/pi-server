@@ -193,6 +193,7 @@ export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}
 export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
+export PI_SERVER_SSH_LOGIN_EXCEPTIONS="${PI_SERVER_DIR}/ssh-email-on-login-exceptions"
 export PI_SERVER_SSH_REGENERATED_KEYS="${PI_SERVER_DIR}/ssh-regenerated-keys"
 
 export PI_SERVER_IPTABLES_DIR="${PI_SERVER_DIR}/firewall"

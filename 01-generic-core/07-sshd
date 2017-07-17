@@ -48,8 +48,14 @@ sudo chmod a=r "${SSHD_CONFIG}" &&
 
 
 # Email on login
+sudo touch "${PI_SERVER_SSH_LOGIN_EXCEPTIONS}" &&
+sudo chown root:root "${PI_SERVER_SSH_LOGIN_EXCEPTIONS}" &&
+sudo chmod u=rw "${PI_SERVER_SSH_LOGIN_EXCEPTIONS}" &&
+sudo chmod go=r "${PI_SERVER_SSH_LOGIN_EXCEPTIONS}" &&
+
 sed-install "${DIR}/ssh-email-on-login" "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" \
-            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
+            "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
+            "${PI_SERVER_SSH_LOGIN_EXCEPTIONS}" &&
 sudo chmod a=rx "${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
 
 PAM_STRING="session optional pam_exec.so seteuid ${PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT}" &&
