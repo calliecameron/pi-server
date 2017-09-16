@@ -14,12 +14,7 @@ sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
 # Avahi daemon for local name resolution
 AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
 
-if [ -z "${PI_SERVER_WAN_IFACE}" ]; then
-    sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}" || exit 1
-else
-    sed-install "${DIR}/avahi-daemon-router.conf" "${AVAHI_CONF}" \
-                "${PI_SERVER_WAN_IFACE}" || exit 1
-fi
+sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}" &&
 
 sudo chmod a=r "${AVAHI_CONF}" &&
 
