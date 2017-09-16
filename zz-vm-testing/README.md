@@ -29,13 +29,13 @@ FakeInternet:
 
 
 FakeRouter*:
-1. `sudo ip route add default via ${FakeInternet's addr} dev eth0`
+1. `sudo ip route add default via ${FakeInternet's addr} dev ${iface conncted to FakeInternet}`
 2. `echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf`
 3. Edit /etc/apt/sources.list to look like FakeInternet's
 4. `sudo apt-get update; sudo apt-get -y install git`
 5. Clone this repository, `cd pi-server/zz-vm-testing`
 6. Make sure the corresponding FakePi is set up to the point where you
-   can get its IP address with `/sbin/ifconfig`; you need this in step 7
+   can get its IP address with `ip a`; you need this in step 7
 7. `./fakeRouter-00-setup.sh`
 8. Reboot.
 
