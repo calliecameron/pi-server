@@ -35,15 +35,6 @@ if [ -f "${SYSTEMD_UNIT_FILE}" ] &&
 fi
 
 
-# Remove old supervisor-managed config if it exists
-SUPERVISOR_DST='/etc/supervisor/conf.d/syncthing.conf'
-if [ -f "${SUPERVISOR_DST}" ]; then
-    sudo systemctl stop supervisor.service &&
-    sudo rm "${SUPERVISOR_DST}" &&
-    sudo systemctl start supervisor.service || exit 1
-fi
-
-
 # Make sure the certificates are in place, and have the correct permissions
 CERT_NAME='nginx'
 check-pi-server-cert "Nginx" "${CERT_NAME}" &&

@@ -4,15 +4,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-# Remove old supervisor-managed config if it exists
-SUPERVISOR_DST='/etc/supervisor/conf.d/shutdownd.conf'
-if [ -f "${SUPERVISOR_DST}" ]; then
-    sudo systemctl stop supervisor.service &&
-    sudo rm "${SUPERVISOR_DST}" &&
-    sudo systemctl start supervisor.service || exit 1
-fi
-
-
 # Setup user
 NEW_USER='shutdownd'
 
