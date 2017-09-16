@@ -5,8 +5,8 @@
       var jqueryScript = document.createElement("script");
       jqueryScript.src = "http://" + window.location.hostname + "/jquery-3.2.1.min.js";
 
-      document.body.append(bootstrapScript);
       document.body.append(jqueryScript);
+      document.body.append(bootstrapScript);
     </script>
   </body>
 </html>
