@@ -51,13 +51,13 @@ FakePi*:
 8. Set the Pi up normally as per `01-generic-core`, etc.
 
 
-FakeClient*: assuming use of Mint 17.3
+FakeClient*: assuming use of Mint 18.2
 1. Edit /etc/network/interfaces to add the following:
-    auto eth0
-    iface eth0 inet dhcp
+    auto ${lan iface}
+    iface ${lan iface} inet dhcp
     dns-nameservers 8.8.8.8
 2. Reboot
-3. `sudo ip route add default via ${corresponding FakeRouter's addr} dev eth0`
+3. `sudo ip route add default via ${corresponding FakeRouter's addr} dev ${lan iface}`
 4. `sudo apt-get update; sudo apt-get -y install git`
 5. Clone this repository, `cd pi-server/zz-vm-testing`
 6. `./fakeClient-00-setup.sh`
