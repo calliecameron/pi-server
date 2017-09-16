@@ -3,7 +3,7 @@
       bootstrapScript.src = "http://" + window.location.hostname + "/bootstrap-3.3.7-dist/js/bootstrap.min.js";
 
       var jqueryScript = document.createElement("script");
-      jqueryScript.src = "http://" + window.location.hostname + "/jquery-3.2.1.min.js";
+      jqueryScript.src = "http://" + window.location.hostname + "/jquery-2.2.4.min.js";
 
       document.body.append(jqueryScript);
       document.body.append(bootstrapScript);
