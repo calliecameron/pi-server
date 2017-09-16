@@ -126,7 +126,8 @@ class Responder(http.server.BaseHTTPRequestHandler):
                      "<title>%s</title></head><body>") % title
 
         page += ("<div class=\"container\"><div class=\"row\">" +
-                 body + "</div></div>")
+                 "<div class=\"col-xs-12\">" +
+                 body + "</div></div></div>")
 
         try:
             with open(WEBPAGE_FOOTER, encoding="utf-8") as f:
@@ -233,9 +234,9 @@ class Responder(http.server.BaseHTTPRequestHandler):
                                 "%s/%s" % (podcast,
                                            episode))
                             pretty = self.pretty_print(podcast, episode, cache)
-                            body += ('<div class="checkbox"><input '
-                                     'type="checkbox" id="%s" name="%s"><label'
-                                     'for="%s">%s</label></div>') % (
+                            body += ('<div class="checkbox"><label for="%s">'
+                                     '<input type="checkbox" id="%s" '
+                                     'name="%s">%s</label></div>') % (
                                          name, name, name, pretty)
 
         body += ('<button class="btn btn-default" type="submit">Mark selected '
