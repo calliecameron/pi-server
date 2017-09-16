@@ -41,7 +41,7 @@ FakeRouter*:
 
 
 FakePi*:
-1. `sudo ip route add default via ${corresponding FakeRouter's addr} dev eth0`
+1. `sudo ip route add default via ${corresponding FakeRouter's addr} dev ${lan iface}`
 2. `echo nameserver 8.8.8.8 | sudo tee /etc/resolv.conf`
 3. Edit /etc/apt/sources.list to look like FakeInternet's
 4. `sudo apt-get update; sudo apt-get -y install git`
