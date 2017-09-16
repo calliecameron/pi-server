@@ -2,8 +2,8 @@
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../01-generic-core/common.bash" || exit 1
 
-if ! grep jessie /etc/apt/sources.list &>/dev/null; then
-    echo-red "This only works on Raspbian/Debian Jessie; you are not on this."
+if ! grep stretch /etc/apt/sources.list &>/dev/null; then
+    echo-red "This only works on Raspbian/Debian Stretch; you are not on this."
     exit 1
 fi
 
