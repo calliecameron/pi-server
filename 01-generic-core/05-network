@@ -17,19 +17,10 @@ if ! grep digitalocean /etc/apt/sources.list >/dev/null; then
 
     if on-pi || [ ! -e /fakepi-default-route ]; then
         # We're on a real machine
-        if [ -z "${PI_SERVER_WAN_IFACE}" ]; then
-            sed-install "${DIR}/interfaces-normal" "${INTERFACES}" \
-                        "${PI_SERVER_LAN_IFACE}" &&
-            sed-install "${DIR}/dhcpcd-conf-template" "${DHCPCD_CONF}" \
-                        "${PI_SERVER_LAN_IFACE}" || exit 1
-        else
-            sed-install "${DIR}/interfaces-router" "${INTERFACES}" \
-                        "${PI_SERVER_WAN_IFACE}" \
-                        "${PI_SERVER_LAN_IFACE}" \
-                        "${PI_SERVER_IP}" &&
-            sed-install "${DIR}/dhcpcd-conf-template" "${DHCPCD_CONF}" \
-                        "${PI_SERVER_WAN_IFACE}" || exit 1
-        fi
+        sed-install "${DIR}/interfaces-normal" "${INTERFACES}" \
+                    "${PI_SERVER_LAN_IFACE}" &&
+        sed-install "${DIR}/dhcpcd-conf-template" "${DHCPCD_CONF}" \
+                    "${PI_SERVER_LAN_IFACE}" || exit 1
     else
         # We're on a testing VM set up using zz-vm-testing
         sed-install "${DIR}/interfaces-normal" "${INTERFACES}" \
