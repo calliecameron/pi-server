@@ -38,14 +38,6 @@ function process-args() {
 
     BOOTFILE="$(open-at-boot-file "${PROTOCOL}")"
 
-    # shellcheck disable=SC2155
-    local WAN_IFACE="$(cat '@@@@@2@@@@@')"
-    if [ -z "${WAN_IFACE}" ]; then
-        IFACE_PART=''
-    else
-        IFACE_PART="! -i ${WAN_IFACE}"
-    fi
-
     "port-${COMMAND}"
 }
 
@@ -59,7 +51,7 @@ function port-is-valid() {
 
 function port-is-open() {
     # shellcheck disable=SC2086
-    if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT &>/dev/null; then
+    if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null; then
         echo 'Yes'
         return 0
     fi
@@ -71,13 +63,13 @@ function port-is-open() {
 function port-open() {
     if ! port-is-open &>/dev/null; then
         # shellcheck disable=SC2086
-        sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT
+        sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT
     fi
 }
 
 function port-close() {
     # shellcheck disable=SC2086
-    sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" ${IFACE_PART} -j ACCEPT &>/dev/null
+    sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null
 }
 
 function port-opens-at-boot() {
