@@ -169,10 +169,6 @@ export PI_SERVER_LAN_IFACE_FILE="${PI_SERVER_DIR}/lan-iface"
 # shellcheck disable=SC2155
 export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")"
 
-export PI_SERVER_WAN_IFACE_FILE="${PI_SERVER_DIR}/wan-iface"
-# shellcheck disable=SC2155
-export PI_SERVER_WAN_IFACE="$(get-pi-server-param "${PI_SERVER_WAN_IFACE_FILE}")"
-
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 # shellcheck disable=SC2155
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"

@@ -14,12 +14,4 @@ set-pi-server-param "${PI_SERVER_EMAIL_TARGET_FILE}" "Enter the email address an
 
 set-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}" "Enter the SMTP server to use when sending email (usually your ISP's, or for gmail enter smtp.gmail.com)" &&
 
-set-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}" "Enter the SMTP port to use when sending email (usually 25, or 465 if using authentication for gmail)" &&
-
-
-if [ ! -f "${PI_SERVER_WAN_IFACE_FILE}" ]; then
-    sudo touch "${PI_SERVER_WAN_IFACE_FILE}" &&
-    sudo chown root:root "${PI_SERVER_WAN_IFACE_FILE}" &&
-    sudo chmod u=rw "${PI_SERVER_WAN_IFACE_FILE}" &&
-    sudo chmod go=r "${PI_SERVER_WAN_IFACE_FILE}" || exit 1
-fi
+set-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}" "Enter the SMTP port to use when sending email (usually 25, or 465 if using authentication for gmail)"
