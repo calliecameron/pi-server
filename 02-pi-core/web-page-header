@@ -11,7 +11,7 @@
       document.write('<!--[if IE]><link rel="shortcut icon" href="http://' + window.location.hostname + '/favicon.ico"><![endif]-->');
       document.write('<link rel="apple-touch-icon-precomposed" href="http://' + window.location.hostname + '/favicon-apple.png">');
       document.write('<link rel="icon" href="http://' + window.location.hostname + '/favicon.png">');
-      document.write('<link type="text/css" rel="stylesheet" href="http://' + window.location.hostname + '/bootstrap-3.3.5-dist/css/bootstrap.min.css">');
+      document.write('<link type="text/css" rel="stylesheet" href="http://' + window.location.hostname + '/bootstrap-3.3.7-dist/css/bootstrap.min.css">');
       document.write('<link type="text/css" rel="stylesheet" href="http://' + window.location.hostname + '/pi.css">');
     </script>
 
