@@ -25,8 +25,8 @@ function echo-blue() {
 
 # Make sure we are on a supported OS
 if [ -z "${SKIP_OS_CHECK}" ]; then
-    if ! grep jessie /etc/apt/sources.list &>/dev/null && ! grep xenial /etc/apt/sources.list &>/dev/null; then
-        echo-red "This only works on Raspbian/Debian Jessie or Ubuntu Xenial; you are not on either of these."
+    if ! grep stretch /etc/apt/sources.list &>/dev/null && ! grep xenial /etc/apt/sources.list &>/dev/null; then
+        echo-red "This only works on Raspbian/Debian Stretch or Ubuntu Xenial; you are not on either of these."
         exit 1
     fi
 fi
