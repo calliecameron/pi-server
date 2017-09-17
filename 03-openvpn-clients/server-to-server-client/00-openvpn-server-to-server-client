@@ -56,6 +56,6 @@ route to ${PI_SERVER_LAN_NETWORK} via <remote server's LAN IP>
 EOF
 
 
-echo 'Will now restart OpenVPN and try to connect' &&
+echo "Reboot to start the connection, and see ${PI_SERVER_OPENVPN_NIGHTLY_CONFIG} if you don't want the connection to be active all the time." &&
 enter-to-continue &&
 sudo systemctl restart openvpn.service
