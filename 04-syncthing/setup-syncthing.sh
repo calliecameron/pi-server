@@ -112,9 +112,8 @@ Configure settings as follows:
 GUI Listen Address:
 0.0.0.0:8080
 
-Untick 'Enable UPnP'
+Untick 'Enable NAT Traversal'
 Untick 'Global Discovery'
-Untick 'Automatic Upgrades'
 Untick 'Start Browser'
 Untick 'Enable Relaying'
 
