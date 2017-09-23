@@ -2,9 +2,11 @@
 
 source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../01-generic-core/common.bash" || exit 1
 
-if ! grep stretch /etc/apt/sources.list &>/dev/null; then
-    echo-red "This only works on Raspbian/Debian Stretch; you are not on this."
-    exit 1
+if [ -z "${SKIP_OS_CHECK}" ]; then
+    if ! grep stretch /etc/apt/sources.list &>/dev/null; then
+        echo-red "This only works on Raspbian/Debian Stretch; you are not on this."
+        exit 1
+    fi
 fi
 
 
