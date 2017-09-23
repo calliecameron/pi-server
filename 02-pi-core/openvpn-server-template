@@ -16,6 +16,7 @@ client-to-client
 push "route @@@@@9@@@@@ 255.255.255.0"
 
 keepalive 10 120
+cipher AES-256-CBC
 tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA
 comp-lzo
 user nobody
