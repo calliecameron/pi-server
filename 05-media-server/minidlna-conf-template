@@ -34,3 +34,4 @@ album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt
 strict_dlna=no
 enable_tivo=no
 notify_interval=895
+wide_links=yes
