@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# TODO setup in vagrant
+exit 0
+
 # We're running this on Mint, so don't check the OS
 export SKIP_OS_CHECK='t'
 

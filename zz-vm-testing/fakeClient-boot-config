@@ -1,4 +1,0 @@
-#!/bin/bash
-
-ip route add default via @@@@@1@@@@@ dev @@@@@2@@@@@
-exit 0

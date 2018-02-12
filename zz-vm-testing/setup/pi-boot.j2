@@ -1,0 +1,10 @@
+#!/bin/bash
+# Testbed pi boot script
+
+source '{{ testbed_helper }}'
+
+if first-time; then
+    ip route add default via '{{ router_ip }}' dev eth1
+fi
+
+exit 0

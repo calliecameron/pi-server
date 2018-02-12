@@ -1,25 +1,30 @@
 #!/bin/bash
+# Testbed router boot script
 
-DEFAULT_ROUTE='@@@@@1@@@@@'
-FAKE_PI='@@@@@2@@@@@'
-PI_VPN_NET='@@@@@3@@@@@'
-INTERNET_IFACE='@@@@@4@@@@@'
-LAN_IFACE='@@@@@5@@@@@'
+source '{{ testbed_helper }}'
 
-sysctl -w net.ipv4.ip_forward=1
+DEFAULT_ROUTE='{{ internet_ip }}'
+PI_IP='{{ pi_ip }}'
+PI_VPN_NET='{{ pi_vpn_mask }}'
+VAGRANT_IFACE='eth0'
+INTERNET_IFACE='eth1'
+LAN_IFACE='eth2'
 
 function iface-exists()
 {
     ip a | grep "${1}" &>/dev/null
 }
 
-if [ ! -e /tmp/fakeRouter.done ] &&
-   iface-exists lo &&
+if iface-exists lo &&
    iface-exists "${INTERNET_IFACE}" &&
-   iface-exists "${LAN_IFACE}"; then
+   iface-exists "${LAN_IFACE}" &&
+   first-time; then
+    sysctl -w net.ipv4.ip_forward=1
 
     ip route add default via "${DEFAULT_ROUTE}" dev "${INTERNET_IFACE}"
 
+    # Allow vagrant ssh access
+    iptables -A INPUT -i "${VAGRANT_IFACE}" -j ACCEPT
     iptables -A INPUT -i lo -j ACCEPT
     ipatbles -A INPUT -i "${LAN_IFACE}" -j ACCEPT
     iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
@@ -30,16 +35,11 @@ if [ ! -e /tmp/fakeRouter.done ] &&
     iptables -t nat -A POSTROUTING -o "${INTERNET_IFACE}" -j MASQUERADE
 
     # Port forward for VPN connection
-    iptables -t nat -A PREROUTING -i "${INTERNET_IFACE}" -p tcp --dport 1194 -j DNAT --to "${FAKE_PI}:1194"
-    iptables -I FORWARD -p tcp -d "${FAKE_PI}" --dport 1194 -j ACCEPT
+    iptables -t nat -A PREROUTING -i "${INTERNET_IFACE}" -p tcp --dport 1194 -j DNAT --to "${PI_IP}:1194"
+    iptables -I FORWARD -p tcp -d "${PI_IP}" --dport 1194 -j ACCEPT
 
     # Route for FakePi's VPN subnet (needed for single-machine clients)
-    ip route add "${PI_VPN_NET}/24" via "${FAKE_PI}" dev "${LAN_IFACE}"
-
-    EXTRA_SETUP='/etc/pi-server/fake-router-extra-setup'
-    if [ -e "${EXTRA_SETUP}" ]; then
-        source "${EXTRA_SETUP}"
-    fi
-
-    touch /tmp/fakeRouter.done
+    ip route add "${PI_VPN_NET}/24" via "${PI_IP}" dev "${LAN_IFACE}"
 fi
+
+exit 0
