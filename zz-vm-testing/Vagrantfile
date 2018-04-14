@@ -12,6 +12,7 @@ INTERNET_MASK = "10.42.0.0"
 INTERNET_IP = "10.42.0.2"
 ROUTER1_WAN_IP = "10.42.0.3"
 ROUTER2_WAN_IP = "10.42.0.4"
+NONEXISTENT_WAN_IP = "10.42.0.100"
 
 LAN1_MASK = "10.42.1.0"
 ROUTER1_LAN_IP = "10.42.1.2"
@@ -65,6 +66,11 @@ Vagrant.configure("2") do |config|
     internet.vm.network "private_network", ip: INTERNET_IP
     internet.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/internet.yml"
+      ansible.extra_vars = {
+        nonexistent_wan_ip: NONEXISTENT_WAN_IP,
+        lan1_mask: LAN1_MASK,
+        lan2_mask: LAN2_MASK
+      }
     end
     internet.vm.provision :reload
   end
