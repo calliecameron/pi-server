@@ -1,28 +1,33 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+require 'json'
+
 required_plugins = %w( vagrant-reload )
 required_plugins.each do |plugin|
   exec "vagrant plugin install #{plugin} && vagrant #{ARGV.join(" ")}" unless
     Vagrant.has_plugin? plugin || ARGV[0] == 'plugin'
 end
 
+# Config defines the IP addresses of the VMs, so it can be shared with ansible
+$c = JSON.parse(File.read('config.json'))
 
-INTERNET_MASK = "10.42.0.0"
-INTERNET_IP = "10.42.0.2"
-ROUTER1_WAN_IP = "10.42.0.3"
-ROUTER2_WAN_IP = "10.42.0.4"
-NONEXISTENT_WAN_IP = "10.42.0.100"
 
-LAN1_MASK = "10.42.1.0"
-ROUTER1_LAN_IP = "10.42.1.2"
-PI1_IP = "10.42.1.3"
-PI1_VPN_MASK = "10.42.11.0"
-
-LAN2_MASK = "10.42.2.0"
-ROUTER2_LAN_IP = "10.42.2.2"
-PI2_IP = "10.42.2.3"
-PI2_VPN_MASK = "10.42.12.0"
+def internet(config)
+  config.vm.define "internet" do |internet|
+    internet.vm.hostname = "internet"
+    internet.vm.network "private_network", ip: $c["internet_ip"]
+    internet.vm.provision "ansible" do |ansible|
+      ansible.playbook = "setup/internet.yml"
+      ansible.extra_vars = {
+        nonexistent_wan_ip: $c["nonexistent_wan_ip"],
+        lan1_mask: $c["lan1_mask"],
+        lan2_mask: $c["lan2_mask"]
+      }
+    end
+    internet.vm.provision :reload
+  end
+end
 
 
 def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask)
@@ -33,7 +38,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask)
     box.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/router.yml"
       ansible.extra_vars = {
-        internet_ip: INTERNET_IP,
+        internet_ip: $c["internet_ip"],
         pi_ip: pi_ip,
         pi_vpn_mask: pi_vpn_mask
       }
@@ -61,23 +66,11 @@ end
 Vagrant.configure("2") do |config|
   config.vm.box = "debian/stretch64"
 
-  config.vm.define "internet" do |internet|
-    internet.vm.hostname = "internet"
-    internet.vm.network "private_network", ip: INTERNET_IP
-    internet.vm.provision "ansible" do |ansible|
-      ansible.playbook = "setup/internet.yml"
-      ansible.extra_vars = {
-        nonexistent_wan_ip: NONEXISTENT_WAN_IP,
-        lan1_mask: LAN1_MASK,
-        lan2_mask: LAN2_MASK
-      }
-    end
-    internet.vm.provision :reload
-  end
+  internet config
 
-  router config, "router1", ROUTER1_WAN_IP, ROUTER1_LAN_IP, PI1_IP, PI1_VPN_MASK
-  router config, "router2", ROUTER2_WAN_IP, ROUTER2_LAN_IP, PI2_IP, PI2_VPN_MASK
+  router config, "router1", $c["router1_wan_ip"], $c["router1_lan_ip"], $c["pi1_ip"], $c["pi1_vpn_mask"]
+  router config, "router2", $c["router2_wan_ip"], $c["router2_lan_ip"], $c["pi2_ip"], $c["pi2_vpn_mask"]
 
-  pi config, "pi1", PI1_IP, ROUTER1_LAN_IP
-  pi config, "pi2", PI2_IP, ROUTER2_LAN_IP
+  pi config, "pi1", $c["pi1_ip"], $c["router1_lan_ip"]
+  pi config, "pi2", $c["pi2_ip"], $c["router2_lan_ip"]
 end

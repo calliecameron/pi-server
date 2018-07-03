@@ -1,0 +1,212 @@
+---
+- hosts: internet
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+      ],
+      unreachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: router1
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ],
+      unreachable: [
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: router2
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ],
+      unreachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ] }
+
+- hosts: pi1
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ],
+      unreachable: [
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: pi2
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ],
+      unreachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ] }
+
+# When the internet VM is down, nothing else should be able to connect to the internet
+- hosts: localhost
+  tasks:
+  - shell: cd .. && vagrant halt internet
+    delegate_to: localhost
+    changed_when: false
+
+- hosts: router1
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: router2
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ] }
+
+- hosts: pi1
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: pi2
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ] }
+
+# When the routers are down, nothing on the LANs should be able to connect to the internet
+- hosts: localhost
+  tasks:
+  - shell: cd .. && vagrant up internet
+    delegate_to: localhost
+    changed_when: false
+  - shell: cd .. && vagrant halt router1
+    delegate_to: localhost
+    changed_when: false
+  - shell: cd .. && vagrant halt router2
+    delegate_to: localhost
+    changed_when: false
+
+- hosts: internet
+  roles:
+  - { role: ping,
+      reachable: [
+        'google.com',
+        "{{ internet_ip }}",
+      ],
+      unreachable: [
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: pi1
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ pi1_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ pi2_ip }}",
+      ] }
+
+- hosts: pi2
+  roles:
+  - { role: ping,
+      reachable: [
+        "{{ pi2_ip }}",
+      ],
+      unreachable: [
+        'google.com',
+        "{{ internet_ip }}",
+        "{{ router2_wan_ip }}",
+        "{{ router2_lan_ip }}",
+        "{{ router1_wan_ip }}",
+        "{{ router1_lan_ip }}",
+        "{{ pi1_ip }}",
+      ] }
