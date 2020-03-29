@@ -5,14 +5,12 @@ A collection of VMs for development and integration testing. The
 testbed simulates two LANs separated by the internet. Each LAN has a
 router, a pi, and a client (e.g. a laptop).
 
-Requires VirtualBox, Vagrant, and Ansible.
-
-
 Setup
 =====
 
-`vagrant up`
-
+1. Install VirtualBox and Vagrant.
+2. Run ``pip install -r requirements.txt``.
+3. Start the testbed with `vagrant up`.
 
 Integration tests
 =================
