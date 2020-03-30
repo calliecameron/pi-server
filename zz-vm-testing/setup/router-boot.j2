@@ -35,6 +35,7 @@ function setup() {
             iptables -A INPUT -i lo -j ACCEPT
             iptables -A INPUT -i "${LAN_IFACE}" -j ACCEPT
             iptables -A INPUT -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
+            iptables -A INPUT -p icmp --icmp-type echo-request -j ACCEPT
             iptables -A INPUT -j DROP
             iptables -A FORWARD -i "${LAN_IFACE}" -j ACCEPT
             iptables -A FORWARD -m conntrack --ctstate RELATED,ESTABLISHED -j ACCEPT
