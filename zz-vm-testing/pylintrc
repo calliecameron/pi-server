@@ -1,0 +1,25 @@
+[MASTER]
+ignore-patterns=.*_pb2\.py,flycheck_.*
+
+[MESSAGES CONTROL]
+disable=invalid-name,
+        missing-docstring,
+        fixme,
+        no-self-use,
+        no-member,
+        duplicate-code,
+        too-few-public-methods,
+        too-many-public-methods,
+        too-many-locals,
+        too-many-lines,
+        too-many-arguments,
+        too-many-statements,
+        too-many-branches
+
+enable=unused-argument
+
+[VARIABLES]
+dummy-variables-rgx=_.*
+
+[REPORTS]
+output-format=parseable

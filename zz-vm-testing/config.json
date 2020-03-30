@@ -1,5 +1,7 @@
 {
     "addrs": {
+        "external": "google.com",
+
         "internet": "10.42.0.2",
         "router1_wan": "10.42.0.3",
         "router2_wan": "10.42.0.4",

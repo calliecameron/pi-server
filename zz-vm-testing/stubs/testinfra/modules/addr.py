@@ -1,0 +1,3 @@
+class Addr:
+    @property
+    def is_reachable(self) -> bool: ...
