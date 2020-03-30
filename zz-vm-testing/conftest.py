@@ -1,6 +1,7 @@
 from typing import Dict, List, Tuple, cast
 import json
 import pytest
+import trparse
 import vagrant as vagrant_lib
 from testinfra.host import Host
 from testinfra.utils import ansible_runner
@@ -39,6 +40,36 @@ class Net:
         self._addrs = addrs
         self._vagrant = vagrant
 
+    def traceroute(self, host: str, addr: str) -> List[str]:
+        """Gets the hops from host to addr; empty list means unreachable."""
+        result = trparse.loads(
+            self._hosts[host].check_output('sudo traceroute -I %s', self._addrs[addr]))
+        for hop in result.hops:
+            for probe in hop.probes:
+                if probe.annotation:
+                    return []
+        out = []
+        for hop in result.hops:
+            for probe in hop.probes:
+                if probe.ip:
+                    out.append(probe.ip)
+                    break
+        return out
+
+    def _host_addr_pairs(self, hosts: List[str]) -> List[Tuple[str, str]]:
+        running_vms = self._vagrant.running_vms()
+        if sorted(hosts) != running_vms:
+            raise ValueError(
+                ("'hosts' must exactly match the running VMs: got %s, want %s. Either the wrong "
+                 "hosts were passed in , or some VMs are in the wrong state.") % (
+                     sorted(hosts), running_vms))
+
+        out = []
+        for host in sorted(hosts):
+            for addr in sorted(self._addrs):
+                out.append((host, addr))
+        return out
+
     def assert_reachability(self, reachable: Dict[str, List[str]]) -> None:
         """Verify reachability of all host/addr pairs is as expected.
 
@@ -47,19 +78,11 @@ class Net:
             from that host. All host/addr pairs not listed will be checked for
             being unreachable.
         """
-        running_vms = self._vagrant.running_vms()
-        if sorted(reachable) != running_vms:
-            raise ValueError(
-                ("The keys in 'reachable' must exactly match the running VMs: "
-                 "got %s, want %s. Either there is a mistake in 'reachable', "
-                 "or some VMs are in the wrong state.") % (
-                     sorted(reachable), running_vms))
+        host_addr_pairs = self._host_addr_pairs(sorted(reachable))
 
-        all_checks = []
-        for host in sorted(running_vms):
-            for addr in sorted(self._addrs):
-                all_checks.append(
-                    (host, addr, host in reachable and addr in reachable[host]))
+        all_checks = []  # host, addr, expected reachability
+        for host, addr in host_addr_pairs:
+            all_checks.append((host, addr, addr in reachable[host]))
 
         reachable_failing = []
         unreachable_failing = []
@@ -88,8 +111,37 @@ class Net:
                     'not be:')
                 lines += format_failing(unreachable_failing)
 
-            msg = '\n'.join(lines)
-            pytest.fail(msg)
+            pytest.fail('\n'.join(lines))
+
+    def assert_routes(self, routes: Dict[str, Dict[str, List[str]]]) -> None:
+        """Verify routes between all host/addr pairs are as expected.
+
+        Args:
+          routes: mapping from host to target addr to intermediate hops (i.e. not including the
+          target itself), for all addrs that should be reachable from host. All host/addr pairs
+          not listed will be checked for being unreachable.
+        """
+        host_addr_pairs = self._host_addr_pairs(sorted(routes))
+
+        all_checks = []  # host, addr, expected route
+        for host, addr in host_addr_pairs:
+            all_checks.append(
+                (host, addr, routes[host][addr] + [addr] if addr in routes[host] else []))
+
+        incorrect = []
+
+        for host, addr, route in all_checks:
+            result = self.traceroute(host, addr)
+            expected = [self._addrs[hop] for hop in route]
+            if result != expected:
+                incorrect.append((host, addr, route, expected, result))
+
+        if incorrect:
+            lines = ['Traceroute gave the wrong route for the following host/addr combinations:']
+            for host, addr, route, expected, result in incorrect:
+                lines.append('  %s -> %s (%s): want %s (%s), got %s' % (
+                    host, addr, self._addrs[addr], route, expected, result))
+            pytest.fail('\n'.join(lines))
 
 
 @pytest.fixture(scope='session')

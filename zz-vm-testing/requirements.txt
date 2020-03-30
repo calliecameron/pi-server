@@ -1,3 +1,4 @@
 ansible
 python-vagrant
 testinfra
+trparse

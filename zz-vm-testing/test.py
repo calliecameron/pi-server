@@ -27,3 +27,41 @@ class TestReachability:
             'router2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2'],
             'pi1': ['pi1'],
             'pi2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2']})
+
+
+def test_traceroute(net: Net) -> None:
+    net.assert_routes({
+        'internet': {
+            'internet': [],
+            'router1_wan': [],
+            'router2_wan': [],
+        },
+        'router1': {
+            'internet': [],
+            'router1_lan': [],
+            'router1_wan': [],
+            'router2_wan': [],
+            'pi1': [],
+        },
+        'router2': {
+            'internet': [],
+            'router1_wan': [],
+            'router2_lan': [],
+            'router2_wan': [],
+            'pi2': [],
+        },
+        'pi1': {
+            'internet': ['router1_lan'],
+            'router1_lan': [],
+            'router1_wan': [],
+            'router2_wan': ['router1_lan'],
+            'pi1': [],
+        },
+        'pi2': {
+            'internet': ['router2_lan'],
+            'router1_wan': ['router2_lan'],
+            'router2_lan': [],
+            'router2_wan': [],
+            'pi2': [],
+        },
+    })
