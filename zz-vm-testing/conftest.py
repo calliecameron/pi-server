@@ -1,4 +1,4 @@
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, cast
 import json
 import pytest
 import vagrant as vagrant_lib
@@ -104,7 +104,7 @@ def hosts() -> Dict[str, Host]:
 def addrs() -> Dict[str, str]:
     """Returns all IP addresses by name."""
     with open('config.json') as f:
-        return json.load(f)['addrs']
+        return cast(Dict[str, str], json.load(f)['addrs'])
 
 
 @pytest.fixture(scope='session')
