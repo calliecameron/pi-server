@@ -132,6 +132,17 @@ class Net:
 
         for host, addr, route in all_checks:
             result = self.traceroute(host, addr)
+
+            if addr == 'external':
+                # External is a special case, in that we don't care where the packets go once they
+                # leave the testbed.
+                new_result = []
+                for hop in result:
+                    if hop not in self._addrs.values():
+                        break
+                    new_result.append(hop)
+                result = new_result + [self._addrs[addr]]
+
             expected = [self._addrs[hop] for hop in route]
             if result != expected:
                 incorrect.append((host, addr, route, expected, result))
