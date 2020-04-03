@@ -133,7 +133,7 @@ class Net:
         for host, addr, route in all_checks:
             result = self.traceroute(host, addr)
 
-            if addr == 'external':
+            if addr == 'external' and result:
                 # External is a special case, in that we don't care where the packets go once they
                 # leave the testbed.
                 new_result = []
