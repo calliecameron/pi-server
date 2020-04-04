@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, List, Sequence, Tuple, TypeVar, cast
 import inspect
 import json
 import logging
@@ -9,6 +9,8 @@ import codetiming
 import pytest
 import trparse
 import vagrant as vagrant_lib
+from _pytest.fixtures import FixtureRequest
+from _pytest.mark.structures import MarkDecorator
 from testinfra.host import Host
 from testinfra.utils import ansible_runner
 
@@ -87,30 +89,49 @@ def timer(f: Callable[..., T]) -> Callable[..., T]:
     return inner
 
 
+def vms_down(*args: str) -> MarkDecorator:
+    return pytest.mark.vms_down(vms=args)
+
+
 class Vagrant:
+    @timer
     def __init__(self) -> None:
         super(Vagrant, self).__init__()
         self._v = vagrant_lib.Vagrant()
+        # VM operations are slow, so we cache the state. This requires that nothing else modifies
+        # the state while the tests are running.
+        self._state = {vm.name: vm.state == self._v.RUNNING for vm in self._v.status()}
 
     def state(self) -> Dict[str, bool]:
-        out = {}
-        for vm in self._v.status():
-            out[vm.name] = vm.state == self._v.RUNNING
-        return out
+        return self._state
+
+    def all_vms(self) -> List[str]:
+        return sorted(self._state)
 
     def running_vms(self) -> List[str]:
-        return sorted([vm for vm, up in self.state().items() if up])
+        return sorted([vm for vm, up in self._state.items() if up])
 
+    @timer
     def up(self, vm: str) -> None:
-        self._v.up(vm_name=vm)
+        if not self._state[vm]:
+            self._v.up(vm_name=vm)
+            self._state[vm] = True
 
+    @timer
     def down(self, vm: str) -> None:
-        self._v.halt(vm_name=vm)
+        if self._state[vm]:
+            self._v.halt(vm_name=vm)
+            self._state[vm] = False
 
-    def ensure_all_up(self) -> None:
-        for vm, up in sorted(self.state().items()):
-            if not up:
-                self.up(vm)
+    def set_state(self, vm: str, state: bool) -> None:
+        if state:
+            self.up(vm)
+        else:
+            self.down(vm)
+
+    def set_states(self, vms_down: Sequence[str] = ()) -> None:
+        for vm in self.all_vms():
+            self.set_state(vm, vm not in vms_down)
 
 
 class Net:
@@ -257,5 +278,9 @@ def net(hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant) -> Net:
 
 @pytest.fixture(scope='function', autouse=True)
 @timer
-def ensure_vms_up(vagrant: Vagrant) -> None:
-    vagrant.ensure_all_up()
+def ensure_vm_state(vagrant: Vagrant, request: FixtureRequest) -> None:
+    vms_down = ()  # type: Tuple[str, ...]
+    for mark in request.keywords.get('pytestmark', []):
+        if mark.name == 'vms_down':
+            vms_down = mark.kwargs['vms']
+    vagrant.set_states(vms_down)
