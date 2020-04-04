@@ -131,3 +131,19 @@ class TestRouting:
                 'pi2': [],
             },
         })
+
+
+class TestFirewall:
+    def test_firewall(self, net: Net) -> None:
+        net.assert_ports_open({
+            'internet': {
+                'router1_wan': {'tcp': set(), 'udp': set()},
+                'router2_wan': {'tcp': set(), 'udp': set()},
+            },
+            'router1': {
+                'pi1': {'tcp': {22}, 'udp': {68}},
+            },
+            'router2': {
+                'pi2': {'tcp': {22}, 'udp': {68}},
+            },
+        })

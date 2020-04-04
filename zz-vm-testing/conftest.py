@@ -1,7 +1,8 @@
-from typing import Any, Callable, Dict, List, Sequence, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, TypeVar, cast
 import inspect
 import json
 import logging
+import re
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
@@ -172,6 +173,29 @@ class Net:
         t.add_extra(result)
         return out
 
+    @timer
+    def nmap(self, t: Timer, host: str, addr: str) -> Dict[str, Set[int]]:
+        """Gets the open ports on addr as seen from host."""
+        result = self._hosts[host].check_output(
+            'sudo nmap -p-2000 --open -Pn -oN - -T4 -sU -sS %s' % self._addrs[addr])
+        udp = set()
+        tcp = set()
+        for line in result.split('\n'):
+            match = re.match('^([0-9]+)/(tcp|udp) +([^ ]+)', line)
+            if match is not None:
+                port = int(match.group(1))
+                protocol = match.group(2)
+                state = match.group(3).split('|')
+                if 'open' in state:
+                    if protocol == 'udp':
+                        udp.add(port)
+                    elif protocol == 'tcp':
+                        tcp.add(port)
+                    else:
+                        raise ValueError("nmap returned an unknown protocol '%s'" % protocol)
+        t.add_extra(result)
+        return {'tcp': tcp, 'udp': udp}
+
     def _host_addr_pairs(self, hosts: List[str]) -> List[Tuple[str, str]]:
         running_vms = self._vagrant.running_vms()
         if sorted(hosts) != running_vms:
@@ -250,6 +274,17 @@ class Net:
             traceroute,
             self._host_addr_pairs(sorted(routes)))
 
+    @timer
+    def assert_ports_open(self, ports: Dict[str, Dict[str, Dict[str, Set[int]]]]) -> None:
+        """Check that only the given ports are open for the given host/addr pairs."""
+        host_addr_pairs = []
+        for host in ports:
+            for addr in ports[host]:
+                host_addr_pairs.append((host, addr))
+        self._assert_result(
+            lambda host, addr: ports[host][addr],
+            self.nmap,
+            host_addr_pairs)
 
 @pytest.fixture(scope='session')
 def hosts() -> Dict[str, Host]:
