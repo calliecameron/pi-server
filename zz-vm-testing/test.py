@@ -1,5 +1,6 @@
 from conftest import Net, Vagrant
 
+
 class TestReachability:
     def test_base(self, net: Net) -> None:
         # Base reachability when all VMs are up
@@ -29,7 +30,7 @@ class TestReachability:
             'pi2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2']})
 
 
-class TestTraceroute:
+class TestRouting:
     def test_base(self, net: Net) -> None:
         # Base routing when all VMs are up
         net.assert_routes({

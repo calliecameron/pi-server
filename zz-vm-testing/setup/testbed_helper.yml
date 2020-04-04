@@ -1,4 +1,5 @@
 ---
 - apt: update_cache=yes upgrade=dist
 - copy: src=testbed-helper.bash dest={{ testbed_helper }} owner=root mode=a=r
+- copy: src=testbed.conf dest=/etc/sysctl.d/testbed.conf owner=root mode=a=r
 - template: src={{ boot_script }} dest=/etc/network/if-up.d/testbed-boot owner=root mode=a=rx
