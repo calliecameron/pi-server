@@ -1,0 +1,11 @@
+---
+- name: 01-generic-core/00-base-config
+  command:
+    cmd: "{{ generic_core }}/00-base-config"
+    stdin: |
+      a
+      a
+      a
+  environment:
+    EDITOR: "{{ testbed_setup }}/debconf_edit.sh"
+    DEBIAN_FRONTEND: editor
