@@ -14,10 +14,15 @@ $c = JSON.parse(File.read('config.json'))
 $addrs = $c["addrs"]
 $masks = $c["masks"]
 
+def sync_folders(vm)
+  vm.vm.synced_folder "..", "/vagrant", type: "rsync", rsync__exclude: ".git/"
+end
+
 def internet(config)
   config.vm.define "internet" do |internet|
     internet.vm.hostname = "internet"
     internet.vm.network "private_network", ip: $addrs["internet"]
+    sync_folders(internet)
     internet.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/internet.yml"
       ansible.extra_vars = {
@@ -36,6 +41,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask)
     box.vm.hostname = name
     box.vm.network "private_network", ip: wan_ip
     box.vm.network "private_network", ip: lan_ip
+    sync_folders(box)
     box.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/router.yml"
       ansible.extra_vars = {
@@ -53,6 +59,7 @@ def pi(config, name, pi_ip, router_lan_ip)
   config.vm.define name do |box|
     box.vm.hostname = name
     box.vm.network "private_network", ip: pi_ip
+    sync_folders(box)
     box.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/pi.yml"
       ansible.extra_vars = {
