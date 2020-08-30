@@ -1,7 +1,13 @@
 ---
-- apt: update_cache=yes upgrade=dist
-- package: name=nmap state=present
-- copy: src=testbed-helper.bash dest={{ testbed_helper }} owner=root mode=a=r
-- copy: src=testbed.conf dest=/etc/sysctl.d/testbed.conf owner=root mode=a=r
-- copy: src=sudoers dest=/etc/sudoers.d/pi-server-testbed owner=root mode=a=r
-- template: src={{ boot_script }} dest=/etc/network/if-up.d/testbed-boot owner=root mode=a=rx
+- name: testbed_helper - apt-get upgrade
+  apt: update_cache=yes upgrade=dist
+- name: testbed_helper - install nmap
+  package: name=nmap state=present
+- name: testbed_helper - testbed-helper.bash
+  copy: src=testbed-helper.bash dest={{ testbed_helper }} owner=root mode=a=r
+- name: testbed_helper - sysctl conf
+  copy: src=testbed.conf dest=/etc/sysctl.d/testbed.conf owner=root mode=a=r
+- name: testbed_helper - sudoers
+  copy: src=sudoers dest=/etc/sudoers.d/pi-server-testbed owner=root mode=a=r
+- name: testbed_helper - boot script
+  template: src={{ boot_script }} dest=/etc/network/if-up.d/testbed-boot owner=root mode=a=rx

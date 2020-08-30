@@ -13,9 +13,3 @@ function setvar() {
 
 setvar 'locales/locales_to_be_generated' 'en_GB.UTF-8 UTF-8'
 setvar 'locales/default_environment_locale' 'en_GB.UTF-8'
-setvar 'keyboard-configuration/layout' 'English (UK)'
-setvar 'keyboard-configuration/layoutcode' 'gb'
-setvar 'keyboard-configuration/model' 'Generic 105-key (Intl) PC'
-setvar 'keyboard-configuration/modelcode' 'pc105'
-setvar 'keyboard-configuration/variant' 'English (UK)'
-setvar 'keyboard-configuration/xkb-keymap' 'gb'
