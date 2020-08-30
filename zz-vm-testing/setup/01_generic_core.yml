@@ -16,3 +16,7 @@
       y
       y
       y
+- name: 01-generic-core - 02-pi-new-user
+  command: "{{ generic_core }}/02-pi-new-user"
+- name: 01-generic-core - 03-cleanup-users
+  command: "{{ generic_core }}/03-cleanup-users"
