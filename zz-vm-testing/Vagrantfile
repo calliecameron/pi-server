@@ -63,7 +63,9 @@ def pi(config, name, pi_ip, router_lan_ip)
     box.vm.provision "ansible" do |ansible|
       ansible.playbook = "setup/pi.yml"
       ansible.extra_vars = {
-        router_ip: router_lan_ip
+        pi_ip: pi_ip,
+        router_ip: router_lan_ip,
+        internet_ip: $addrs["internet"]
       }
     end
     box.vm.provision :reload

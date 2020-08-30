@@ -26,3 +26,15 @@ class Test01GenericCore:
                 assert host.user('systemd-timesync').password == '!*'
                 assert host.user('messagebus').shell == '/usr/sbin/nologin'
                 assert host.user('messagebus').password == '!*'
+
+    def test_04_vars(
+            self, host_types: Dict[str, List[Tuple[str, Host]]], addrs: Dict[str, str]) -> None:
+        for name, host in host_types['pi']:
+            assert host.file('/etc/pi-server/lan-ip').content_string.strip() == addrs[name]
+            assert host.file('/etc/pi-server/lan-iface').content_string.strip() == 'eth1'
+            assert host.file('/etc/pi-server/fqdn').content_string.strip() == name + '.testbed'
+            assert (host.file('/etc/pi-server/email-target').content_string.strip() ==
+                    'fake@fake.testbed')
+            assert (host.file('/etc/pi-server/email-smtp-server').content_string.strip() ==
+                    addrs['internet'])
+            assert host.file('/etc/pi-server/email-smtp-port').content_string.strip() == '1025'
