@@ -30,3 +30,5 @@
       {{ email_to }}
       {{ internet_ip }}
       {{ email_smtp_port }}
+- name: 01-generic-core - 05-network
+  command: "{{ generic_core }}/05-network"

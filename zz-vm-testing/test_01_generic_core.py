@@ -15,7 +15,7 @@ class Test01GenericCore:
             # We pick one of the packages that the script installs, that isn't installed by default.
             assert host.package('etckeeper').is_installed
 
-    # 02-pi-new-user is a no-op in the testbed
+    # 02-pi-new-user is a no-op in the testbed.
 
     def test_03_cleanup_users(self, host_types: Dict[str, List[Tuple[str, Host]]]) -> None:
         for _, host in host_types['pi']:
@@ -38,3 +38,5 @@ class Test01GenericCore:
             assert (host.file('/etc/pi-server/email-smtp-server').content_string.strip() ==
                     addrs['internet'])
             assert host.file('/etc/pi-server/email-smtp-port').content_string.strip() == '1025'
+
+    # 05-network is tested by test_base's reachability and routing tests.

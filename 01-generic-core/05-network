@@ -3,6 +3,11 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" || exit 1
 
+# If we're on the testbed, we don't want to mess with vagrant's setup
+if [ -e /fakepi-default-route ]; then
+    exit 0
+fi
+
 
 # DigitalOcean droplets come pre-configured with a static IP, so we don't
 # do anything related to DHCP there
