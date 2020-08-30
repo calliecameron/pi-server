@@ -1,4 +1,4 @@
-from typing import Any, Callable, Dict, List, Sequence, Set, Tuple, TypeVar, cast
+from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, TypeVar, cast
 import inspect
 import json
 import logging
@@ -286,12 +286,47 @@ class Net:
             self.nmap,
             host_addr_pairs)
 
+
+class Lines:
+    def __init__(self, s: str, name: Optional[str] = None) -> None:
+        super(Lines, self).__init__()
+        self._lines = s.split('\n')
+        self._name = name
+
+    def contains(self, pattern: str) -> bool:
+        for line in self._lines:
+            if re.fullmatch(pattern, line) is not None:
+                return True
+        return False
+
+    def __repr__(self) -> str:
+        out = '['
+        if self._name:
+            out += self._name + ' '
+        out += '(%d lines)]' % len(self._lines)
+        return out
+
+
 @pytest.fixture(scope='session')
 def hosts() -> Dict[str, Host]:
     """Returns all hosts by name from the ansible inventory."""
     runner = ansible_runner.AnsibleRunner(
         '.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory')
     return {name: runner.get_host(name) for name in runner.get_hosts()}
+
+
+@pytest.fixture(scope='session')
+def host_types(hosts: Dict[str, Host]) -> Dict[str, List[Tuple[str, Host]]]:
+    out = {} # type: Dict[str, List[Tuple[str, Host]]]
+    for host in hosts:
+        match = re.fullmatch(r'([^0-9]+)[0-9]*', host)
+        if match is None:
+            raise ValueError("Can't find host type for host '%s'" % host)
+        host_type = match.group(1)
+        out.setdefault(host_type, []).append((host, hosts[host]))
+    for value in out.values():
+        value.sort()
+    return out
 
 
 @pytest.fixture(scope='session')
