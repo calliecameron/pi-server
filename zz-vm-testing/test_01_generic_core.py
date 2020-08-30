@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 from testinfra.host import Host
-from conftest import Lines
+from conftest import Email, Lines
 
 
 class Test01GenericCore:
@@ -40,3 +40,15 @@ class Test01GenericCore:
             assert host.file('/etc/pi-server/email-smtp-port').content_string.strip() == '1025'
 
     # 05-network is tested by test_base's reachability and routing tests.
+
+    def test_06_email(self, email: Email, host_types: Dict[str, List[Tuple[str, Host]]]):
+        for name, host in host_types['pi']:
+            email.clear()
+            host.check_output('/etc/pi-server/send-notification-email foo bar')
+            email.assert_emails([
+                {
+                    'from': 'notification@%s.testbed' % name,
+                    'subject': '[%s] foo' % name,
+                    'body': 'bar\n\n'
+                },
+            ])

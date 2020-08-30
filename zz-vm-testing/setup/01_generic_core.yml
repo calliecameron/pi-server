@@ -3,9 +3,9 @@
   command:
     cmd: "{{ generic_core }}/00-base-config"
     stdin: |
-      a
-      a
-      a
+      y
+      y
+      y
   environment:
     EDITOR: "{{ testbed_setup }}/debconf-edit.sh"
     DEBIAN_FRONTEND: editor
@@ -32,3 +32,10 @@
       {{ email_smtp_port }}
 - name: 01-generic-core - 05-network
   command: "{{ generic_core }}/05-network"
+- name: 01-generic-core - 06-email
+  command:
+    cmd: "{{ generic_core }}/06-email"
+    stdin: |
+      y
+  environment:
+    SUDO_EDITOR: "true"

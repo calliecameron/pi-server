@@ -1,5 +1,6 @@
 ansible
 codetiming
 python-vagrant
+requests
 testinfra
 trparse

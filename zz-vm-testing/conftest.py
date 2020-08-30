@@ -8,6 +8,7 @@ from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
 import codetiming
 import pytest
+import requests
 import trparse
 import vagrant as vagrant_lib
 from _pytest.fixtures import FixtureRequest
@@ -287,6 +288,31 @@ class Net:
             host_addr_pairs)
 
 
+class Email:
+    _PORT = 1080
+
+    def __init__(self, host: str) -> None:
+        super(Email, self).__init__()
+        self._host = host
+
+    def clear(self) -> None:
+        r = requests.delete('http://%s:%d/api/emails' % (self._host, self._PORT))
+        r.raise_for_status()
+
+    def assert_emails(self, emails: List[Dict[str, str]]) -> None:
+        r = requests.get('http://%s:%d/api/emails' % (self._host, self._PORT))
+        r.raise_for_status()
+        j = r.json()
+        if len(j) != len(emails):
+            raise ValueError('Length of want and got differ (%d vs %d)' % (len(emails), len(j)))
+        for email, expected in zip(r.json(), emails):
+            if (email['to']['value'][0]['address'] != 'fake@fake.testbed' or
+                email['from']['value'][0]['address'] != expected['from'] or
+                email['subject'] != expected['subject'] or
+                email['text'] != expected['body']):
+                pytest.fail("Emails don't match: want:\n%s\ngot:\n%s" % (str(email), str(expected)))
+
+
 class Lines:
     def __init__(self, s: str, name: Optional[str] = None) -> None:
         super(Lines, self).__init__()
@@ -344,6 +370,13 @@ def vagrant() -> Vagrant:
 @pytest.fixture(scope='session')
 def net(hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant) -> Net:
     return Net(hosts, addrs, vagrant)
+
+
+@pytest.fixture()
+def email(addrs: Dict[str, str]) -> Email:
+    e = Email(addrs['internet'])
+    e.clear()
+    return e
 
 
 @pytest.fixture(scope='function', autouse=True)
