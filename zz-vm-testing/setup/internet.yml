@@ -7,3 +7,15 @@
   - import_tasks: testbed_helper.yml
     vars:
       boot_script: internet-boot.j2
+  - name: internet - install curl
+    package: name=curl state=present
+  - name: internet - setup node apt repo
+    shell: "curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -"
+  - name: internet - install nodejs
+    package: name=nodejs state=present
+  - name: internet - install fakesmtp
+    npm: name=fake-smtp-server global=yes
+  - name: internet - install fakesmtp systemd unit
+    template: src=fakesmtp.service.j2 dest=/etc/systemd/system/fakesmtp.service owner=root mode=a=r
+  - name: internet - enable fakesmtp
+    systemd: name=fakesmtp daemon_reload=yes enabled=yes state=started
