@@ -9,3 +9,8 @@ class Test01GenericCore:
             lines = Lines(host.check_output('debconf-show locales'), name)
             assert lines.contains(r'[^a-zA-Z]*locales/locales_to_be_generated: en_GB.UTF-8 UTF-8')
             assert lines.contains(r'[^a-zA-Z]*locales/default_environment_locale: en_GB.UTF-8')
+
+    def test_01_packages(self, host_types: Dict[str, List[Tuple[str, Host]]]) -> None:
+        for _, host in host_types['pi']:
+            # We pick one of the packages that the script installs, that isn't installed by default.
+            assert host.package('etckeeper').is_installed

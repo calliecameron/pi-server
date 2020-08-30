@@ -9,3 +9,10 @@
   environment:
     EDITOR: "{{ testbed_setup }}/debconf-edit.sh"
     DEBIAN_FRONTEND: editor
+- name: 01-generic-core - 01-packages
+  command:
+    cmd: "{{ generic_core }}/01-packages"
+    stdin: |
+      y
+      y
+      y
