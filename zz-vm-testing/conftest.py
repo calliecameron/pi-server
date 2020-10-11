@@ -13,11 +13,14 @@ import trparse
 import vagrant as vagrant_lib
 from _pytest.fixtures import FixtureRequest
 from _pytest.mark.structures import MarkDecorator
+from _pytest.python import Metafunc
 from testinfra.host import Host
 from testinfra.utils import ansible_runner
 
 
 T = TypeVar('T')
+_ANSIBLE_RUNNER = ansible_runner.AnsibleRunner(
+    '.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory')
 
 
 class Timer(codetiming.Timer):
@@ -307,9 +310,9 @@ class Email:
             raise ValueError('Length of want and got differ (%d vs %d)' % (len(emails), len(j)))
         for email, expected in zip(r.json(), emails):
             if (email['to']['value'][0]['address'] != 'fake@fake.testbed' or
-                email['from']['value'][0]['address'] != expected['from'] or
-                email['subject'] != expected['subject'] or
-                email['text'] != expected['body']):
+                    email['from']['value'][0]['address'] != expected['from'] or
+                    email['subject'] != expected['subject'] or
+                    email['text'] != expected['body']):
                 pytest.fail("Emails don't match: want:\n%s\ngot:\n%s" % (str(email), str(expected)))
 
 
@@ -333,26 +336,53 @@ class Lines:
         return out
 
 
-@pytest.fixture(scope='session')
-def hosts() -> Dict[str, Host]:
-    """Returns all hosts by name from the ansible inventory."""
-    runner = ansible_runner.AnsibleRunner(
-        '.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory')
-    return {name: runner.get_host(name) for name in runner.get_hosts()}
+def _hostnames() -> List[str]:
+    """Returns all host names from the ansible inventory."""
+    return sorted(_ANSIBLE_RUNNER.get_hosts())
 
 
-@pytest.fixture(scope='session')
-def host_types(hosts: Dict[str, Host]) -> Dict[str, List[Tuple[str, Host]]]:
-    out = {} # type: Dict[str, List[Tuple[str, Host]]]
-    for host in hosts:
-        match = re.fullmatch(r'([^0-9]+)[0-9]*', host)
-        if match is None:
-            raise ValueError("Can't find host type for host '%s'" % host)
-        host_type = match.group(1)
-        out.setdefault(host_type, []).append((host, hosts[host]))
+def _host_type(hostname: str) -> str:
+    match = re.fullmatch(r'([^0-9]+)[0-9]*', hostname)
+    if match is None:
+        raise ValueError("Can't find host type for host '%s'" % hostname)
+    return match.group(1)
+
+
+def _hostnames_by_type() -> Dict[str, List[str]]:
+    out = {} # type: Dict[str, List[str]]
+    for hostname in _hostnames():
+        out.setdefault(_host_type(hostname), []).append(hostname)
     for value in out.values():
         value.sort()
     return out
+
+
+@pytest.fixture(scope='session')
+def hosts() -> Dict[str, Host]:
+    """Returns all hosts by name from the ansible inventory."""
+    return {name: _ANSIBLE_RUNNER.get_host(name) for name in _hostnames()}
+
+
+@pytest.fixture(scope='session')
+def hosts_by_type(hosts: Dict[str, Host]) -> Dict[str, List[Tuple[str, Host]]]:
+    out = {} # type: Dict[str, List[Tuple[str, Host]]]
+    for host_type, hostnames in _hostnames_by_type().items():
+        out[host_type] = [(hostname, hosts[hostname]) for hostname in hostnames]
+    return out
+
+
+def for_hosts(*args: str) -> MarkDecorator:
+    if not args:
+        raise ValueError('Input to for_hosts must be non-empty')
+    return pytest.mark.for_hosts(hosts=args)
+
+
+def for_host_types(*args: str) -> MarkDecorator:
+    hostnames = []
+    hostnames_by_type = _hostnames_by_type()
+    for host_type in args:
+        hostnames += hostnames_by_type[host_type]
+    return for_hosts(*hostnames)
 
 
 @pytest.fixture(scope='session')
@@ -387,3 +417,9 @@ def ensure_vm_state(vagrant: Vagrant, request: FixtureRequest) -> None:
         if mark.name == 'vms_down':
             vms_down = mark.kwargs['vms']
     vagrant.set_states(vms_down)
+
+
+def pytest_generate_tests(metafunc: Metafunc) -> None:
+    marker = metafunc.definition.get_closest_marker('for_hosts')
+    if marker:
+        metafunc.parametrize('hostname', marker.kwargs['hosts'])
