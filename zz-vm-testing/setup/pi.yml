@@ -10,3 +10,4 @@
   - name: pi - default route
     template: src=fakepi-default-route.j2 dest=/fakepi-default-route owner=root mode=a=r
   - import_tasks: 01_generic_core.yml
+    become: no

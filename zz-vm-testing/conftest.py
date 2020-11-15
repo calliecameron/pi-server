@@ -3,6 +3,7 @@ import inspect
 import json
 import logging
 import re
+import time
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from functools import wraps
@@ -299,6 +300,9 @@ class Email:
         self._host = host
 
     def clear(self) -> None:
+        # SSH login emails are sent asynchronously so they don't delay login. So we
+        # sleep to allow login emails from previous tests to arrive before clearing.
+        time.sleep(5)
         r = requests.delete('http://%s:%d/api/emails' % (self._host, self._PORT))
         r.raise_for_status()
 
@@ -307,13 +311,51 @@ class Email:
         r.raise_for_status()
         j = r.json()
         if len(j) != len(emails):
-            raise ValueError('Length of want and got differ (%d vs %d)' % (len(emails), len(j)))
+            raise ValueError('Length of want and got differ (%d vs %d); all emails:\n%s' %
+                             (len(emails), len(j), json.dumps(r.json(), sort_keys=True, indent=2)))
         for email, expected in zip(r.json(), emails):
             if (email['to']['value'][0]['address'] != 'fake@fake.testbed' or
                     email['from']['value'][0]['address'] != expected['from'] or
                     email['subject'] != expected['subject'] or
-                    email['text'] != expected['body']):
-                pytest.fail("Emails don't match: want:\n%s\ngot:\n%s" % (str(email), str(expected)))
+                    re.fullmatch(expected['body_re'], email['text']) is None):
+                pytest.fail("Emails don't match: want:\n%s\ngot:\n%s" % (
+                    str(expected), json.dumps(email, sort_keys=True, indent=2)))
+
+
+class BindFile:
+    """Bind-mounts an empty file over target.
+
+    This lets tests modify the file's content without messing up the original
+    content.
+    """
+    def __init__(self, host: Host, target: str) -> None:
+        super(BindFile, self).__init__()
+        self._host = host
+        self._target = target
+        self._tmpfile = None # type: Optional[str]
+
+    def __enter__(self) -> 'BindFile':
+        with self._host.sudo():
+            tmpfile = self._host.check_output('mktemp')
+            self._host.check_output(
+                'chown --reference=%s %s' % (self._target, tmpfile))
+            self._host.check_output(
+                'chmod --reference=%s %s' % (self._target, tmpfile))
+            self._host.check_output(
+                'mount --bind %s %s' % (tmpfile, self._target))
+            self._tmpfile = tmpfile
+        return self
+
+    def __exit__(self, *exc_info: Any) -> None:
+        if self._tmpfile:
+            with self._host.sudo():
+                self._host.check_output('umount %s' % self._target)
+                self._host.check_output('rm %s' % self._tmpfile)
+
+    def write(self, s: str) -> None:
+        if self._tmpfile:
+            with self._host.sudo():
+                self._host.check_output('echo \'%s\' > %s' % (s, self._tmpfile))
 
 
 class Lines:

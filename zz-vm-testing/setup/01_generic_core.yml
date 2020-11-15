@@ -39,3 +39,12 @@
       y
   environment:
     SUDO_EDITOR: "true"
+- name: 01-generic-core - ssh-keygen
+  command:
+    cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
+    creates: /home/vagrant/.ssh/id_rsa
+- name: 01-generic-core - 07-sshd
+  command:
+    cmd: "{{ generic_core }}/07-sshd"
+    stdin: |
+      y
