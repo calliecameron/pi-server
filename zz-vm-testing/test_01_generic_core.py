@@ -54,14 +54,14 @@ class Test01GenericCore:
             email.assert_emails([
                 {
                     'from': 'notification@%s.testbed' % hostname,
-                    'subject': '[%s] foo' % hostname,
-                    'body_re': r'bar\n\n',
-                },
-                {
-                    'from': 'notification@%s.testbed' % hostname,
                     'subject': '[%s] SSH login: vagrant from %s' % (hostname, client_ip),
                     'body_re': r'PAM_USER=vagrant\nPAM_RHOST=%s\n(.*\n)*' % client_ip.replace(
                         '.', r'\.'),
+                },
+                {
+                    'from': 'notification@%s.testbed' % hostname,
+                    'subject': '[%s] foo' % hostname,
+                    'body_re': r'bar\n\n',
                 },
             ])
 

@@ -313,7 +313,8 @@ class Email:
         if len(j) != len(emails):
             raise ValueError('Length of want and got differ (%d vs %d); all emails:\n%s' %
                              (len(emails), len(j), json.dumps(r.json(), sort_keys=True, indent=2)))
-        for email, expected in zip(r.json(), emails):
+        for email, expected in zip(sorted(r.json(), key=lambda e: e['subject']),
+                                   sorted(emails, key=lambda e: e['subject'])):
             if (email['to']['value'][0]['address'] != 'fake@fake.testbed' or
                     email['from']['value'][0]['address'] != expected['from'] or
                     email['subject'] != expected['subject'] or
