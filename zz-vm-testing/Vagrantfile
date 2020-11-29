@@ -24,6 +24,7 @@ def internet(config)
     internet.vm.network "private_network", ip: $addrs["internet"]
     sync_folders(internet)
     internet.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/internet.yml"
       ansible.extra_vars = {
         nonexistent_wan_ip: $addrs["nonexistent_wan"],
@@ -43,6 +44,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask)
     box.vm.network "private_network", ip: lan_ip
     sync_folders(box)
     box.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/router.yml"
       ansible.extra_vars = {
         internet_ip: $addrs["internet"],
@@ -61,6 +63,7 @@ def pi(config, name, pi_ip, router_lan_ip)
     box.vm.network "private_network", ip: pi_ip
     sync_folders(box)
     box.vm.provision "ansible" do |ansible|
+      ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/pi.yml"
       ansible.extra_vars = {
         pi_ip: pi_ip,
