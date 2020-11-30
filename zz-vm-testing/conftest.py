@@ -142,6 +142,11 @@ class Vagrant:
             self._v.halt(vm_name=vm)
             self._state[vm] = False
 
+    @timer
+    def reboot(self, vm: str) -> None:
+        self.down(vm)
+        self.up(vm)
+
     def set_state(self, vm: str, state: bool) -> None:
         if state:
             self.up(vm)
@@ -340,31 +345,45 @@ class ShadowFile:
     """Creates an empty file in place of path; restores path's contents on exit.
 
     This lets tests modify the file's content without messing up the original
-    content.
+    content. Shadow persists across reboots.
     """
     def __init__(self, host: Host, path: str) -> None:
         super(ShadowFile, self).__init__()
         self._host = host
         self._path = path
+        self._path_existed = False
         self._backup_path = self._path + '.backup'
         self._backup_file = self._host.file(self._backup_path)
 
     def __enter__(self) -> File:
-        if self._backup_file.exists:
-            raise ValueError(
-                ("Cannot shadow '%s' because backup file '%s' already "
-                 "exists. Fix it manually.") % (self._path, self._backup_path))
+        f = self._host.file(self._path)
+        self._path_existed = f.exists
+
+        if self._path_existed:
+            if self._backup_file.exists:
+                raise ValueError(
+                    ("Cannot shadow '%s' because backup file '%s' already "
+                     "exists. Fix it manually.") % (
+                         self._path, self._backup_path))
+            with self._host.sudo():
+                self._host.check_output(
+                    'cp -p %s %s' % (self._path, self._backup_path))
+        else:
+            with self._host.sudo():
+                self._host.check_output('touch %s' % self._path)
+
         with self._host.sudo():
-            self._host.check_output(
-                'cp -p %s %s' % (self._path, self._backup_path))
-            f = self._host.file(self._path)
             f.clear()
         return f
 
     def __exit__(self, *exc_info: Any) -> None:
-        if self._backup_file.exists:
+        if self._path_existed:
+            if self._backup_file.exists:
+                with self._host.sudo():
+                    self._host.check_output('mv %s %s' % (self._backup_path, self._path))
+        else:
             with self._host.sudo():
-                self._host.check_output('mv %s %s' % (self._backup_path, self._path))
+                self._host.check_output('rm %s' % self._path)
 
 
 def _host_shadow_file(self: Host, path: str) -> ShadowFile:
@@ -405,6 +424,13 @@ def _host_type(hostname: str) -> str:
     return match.group(1)
 
 
+def _host_number(hostname: str) -> str:
+    match = re.fullmatch(r'[^0-9]+([0-9]*)', hostname)
+    if match is None:
+        raise ValueError("Can't find host number for host '%s'" % hostname)
+    return match.group(1)
+
+
 def _hostnames_by_type() -> Dict[str, List[str]]:
     out = {} # type: Dict[str, List[str]]
     for hostname in _hostnames():
@@ -412,6 +438,10 @@ def _hostnames_by_type() -> Dict[str, List[str]]:
     for value in out.values():
         value.sort()
     return out
+
+
+def corresponding_hostname(hostname: str, host_type: str) -> str:
+    return host_type + _host_number(hostname)
 
 
 @pytest.fixture(scope='session')

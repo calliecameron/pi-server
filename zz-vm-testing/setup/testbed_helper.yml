@@ -3,6 +3,8 @@
   apt: update_cache=yes upgrade=dist
 - name: testbed_helper - install nmap
   package: name=nmap state=present
+- name: testbed_helper - install netcat
+  package: name=netcat-openbsd state=present
 - name: testbed_helper - testbed-helper.bash
   copy: src=testbed-helper.bash dest={{ testbed_helper }} owner=root mode=a=r
 - name: testbed_helper - sysctl conf

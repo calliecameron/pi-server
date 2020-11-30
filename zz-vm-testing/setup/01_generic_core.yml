@@ -48,3 +48,8 @@
     cmd: "{{ generic_core }}/07-sshd"
     stdin: |
       y
+- name: 01-generic-core - 08-firewall
+  command:
+    cmd: "{{ generic_core }}/08-firewall"
+    stdin: |
+      y

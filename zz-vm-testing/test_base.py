@@ -141,9 +141,9 @@ class TestFirewall:
                 'router2_wan': {'tcp': set(), 'udp': set()},
             },
             'router1': {
-                'pi1': {'tcp': {22}, 'udp': {68}},
+                'pi1': {'tcp': {22}, 'udp': set()},
             },
             'router2': {
-                'pi2': {'tcp': {22}, 'udp': {68}},
+                'pi2': {'tcp': {22}, 'udp': set()},
             },
         })

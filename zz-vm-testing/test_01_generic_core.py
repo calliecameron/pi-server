@@ -1,6 +1,6 @@
 from typing import Dict, List, Tuple
 from testinfra.host import Host
-from conftest import Email, Lines, for_host_types
+from conftest import Email, Lines, Net, Vagrant, corresponding_hostname, for_host_types
 
 
 class Test01GenericCore:
@@ -82,3 +82,185 @@ class Test01GenericCore:
 
     # 07-sshd is partially tested by the fact we can still log in at all, and partially
     # by the email-at-login behaviour.
+
+    @for_host_types('pi')
+    def test_08_firewall(
+            self, vagrant: Vagrant, net: Net, hostname: str, hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        port_script = '/etc/pi-server/firewall/port'
+
+        def is_open(port: int, protocol: str) -> bool:
+            cmd = host.run('%s is-open %d %s' % (port_script, port, protocol))
+            return cmd.rc == 0 and cmd.stdout == 'Yes\n'
+
+        def is_closed(port: int, protocol: str) -> bool:
+            cmd = host.run('%s is-open %d %s' % (port_script, port, protocol))
+            return cmd.rc == 1 and cmd.stdout == 'No\n'
+
+        def opens_at_boot(port: int, protocol: str) -> bool:
+            cmd = host.run('%s opens-at-boot %d %s' % (port_script, port, protocol))
+            return cmd.rc == 0 and cmd.stdout == 'Yes\n'
+
+        def doesnt_open_at_boot(port: int, protocol: str) -> bool:
+            cmd = host.run('%s opens-at-boot %d %s' % (port_script, port, protocol))
+            return cmd.rc == 1 and cmd.stdout == 'No\n'
+
+        with host.shadow_file('/etc/pi-server/firewall/iptables-tcp-open-boot'), \
+             host.shadow_file('/etc/pi-server/firewall/iptables-udp-open-boot'):
+            # Base state - only hardcoded ports open at boot
+            vagrant.reboot(hostname)
+            net.assert_ports_open(
+                {corresponding_hostname(hostname, 'router'): {
+                    hostname: {'tcp': {22}, 'udp': set()}}})
+
+            # Port validation
+            assert host.check_output('%s is-valid 0' % port_script) == 'Yes'
+            assert host.check_output('%s is-valid 1234' % port_script) == 'Yes'
+            assert host.check_output('%s is-valid 65535' % port_script) == 'Yes'
+            host.run_expect([1], '%s is-valid -1' % port_script)
+            host.run_expect([1], '%s is-valid 65536' % port_script)
+            host.run_expect([1], '%s is-valid a' % port_script)
+            host.run_expect([1], '%s is-valid 10a' % port_script)
+            host.run_expect([1], '%s is-valid' % port_script)
+
+            # Protocol validation
+            assert host.check_output('%s is-valid 1234 tcp' % port_script) == 'Yes'
+            assert host.check_output('%s is-valid 1234 udp' % port_script) == 'Yes'
+            host.run_expect([1], '%s is-valid 1234 foo' % port_script)
+
+            # Run servers on the ports we're interested in
+            host.check_output('tmux new-session -s s1 -d nc -l -p 1995')
+            host.check_output('tmux new-session -s s2 -d nc -l -k -u -p 1996')
+            host.check_output('tmux new-session -s s3 -d nc -l -p 1997')
+            host.check_output('tmux new-session -s s4 -d nc -l -p 1998')
+            host.check_output('tmux new-session -s s5 -d nc -l -k -u -p 1999')
+
+            # Base state
+            assert is_open(22, 'tcp') # hardcoded
+            assert is_closed(22, 'udp')
+            assert is_closed(1995, 'tcp')
+            assert is_closed(1996, 'udp')
+            assert is_closed(1997, 'tcp')
+            assert is_closed(1998, 'tcp')
+            assert is_closed(1999, 'udp')
+
+            assert doesnt_open_at_boot(22, 'tcp') # hardcoded
+            assert doesnt_open_at_boot(22, 'udp')
+            assert doesnt_open_at_boot(1995, 'tcp')
+            assert doesnt_open_at_boot(1996, 'udp')
+            assert doesnt_open_at_boot(1997, 'tcp')
+            assert doesnt_open_at_boot(1998, 'tcp')
+            assert doesnt_open_at_boot(1999, 'udp')
+
+            # Open and close at runtime
+            host.check_output('%s open 1997 tcp' % port_script)
+            host.check_output('%s open 1997 tcp' % port_script) # idempotent
+            host.check_output('%s open 1998 tcp' % port_script)
+            host.check_output('%s open 1999 udp' % port_script)
+            host.check_output('%s close 1997 tcp' % port_script)
+
+            assert is_open(22, 'tcp') # hardcoded
+            assert is_closed(22, 'udp')
+            assert is_closed(1995, 'tcp')
+            assert is_closed(1996, 'udp')
+            assert is_closed(1997, 'tcp')
+            assert is_open(1998, 'tcp')
+            assert is_open(1999, 'udp')
+
+            host.run_expect([1], '%s close 1997 tcp' % port_script) # extra close does nothing
+
+            assert is_open(22, 'tcp') # hardcoded
+            assert is_closed(22, 'udp')
+            assert is_closed(1995, 'tcp')
+            assert is_closed(1996, 'udp')
+            assert is_closed(1997, 'tcp')
+            assert is_open(1998, 'tcp')
+            assert is_open(1999, 'udp')
+
+            net.assert_ports_open({
+                corresponding_hostname(hostname, 'router'): {
+                    hostname: {
+                        'tcp': {22, 1998},
+                        'udp': set(), # for some reason this can't detect the open UDP port
+                    }
+                }
+            })
+
+            # File manipulation
+            assert doesnt_open_at_boot(22, 'tcp') # hardcoded
+            assert doesnt_open_at_boot(22, 'udp')
+            assert doesnt_open_at_boot(1995, 'tcp')
+            assert doesnt_open_at_boot(1996, 'udp')
+            assert doesnt_open_at_boot(1997, 'tcp')
+            assert doesnt_open_at_boot(1998, 'tcp')
+            assert doesnt_open_at_boot(1999, 'udp')
+
+            host.check_output('%s open-at-boot 1995 tcp' % port_script)
+            host.check_output('%s open-at-boot 1996 udp' % port_script)
+            host.check_output('%s open-at-boot 1997 tcp' % port_script)
+            host.check_output('%s open-at-boot 1997 tcp' % port_script) # idempotent
+            host.check_output('%s dont-open-at-boot 1997 tcp' % port_script)
+
+            assert doesnt_open_at_boot(22, 'tcp') # hardcoded
+            assert doesnt_open_at_boot(22, 'udp')
+            assert opens_at_boot(1995, 'tcp')
+            assert opens_at_boot(1996, 'udp')
+            assert doesnt_open_at_boot(1997, 'tcp')
+            assert doesnt_open_at_boot(1998, 'tcp')
+            assert doesnt_open_at_boot(1999, 'udp')
+
+            host.check_output(
+                '%s dont-open-at-boot 1997 tcp' % port_script) # extra don't open does nothing
+
+            assert doesnt_open_at_boot(22, 'tcp') # hardcoded
+            assert doesnt_open_at_boot(22, 'udp')
+            assert opens_at_boot(1995, 'tcp')
+            assert opens_at_boot(1996, 'udp')
+            assert doesnt_open_at_boot(1997, 'tcp')
+            assert doesnt_open_at_boot(1998, 'tcp')
+            assert doesnt_open_at_boot(1999, 'udp')
+
+            assert is_open(22, 'tcp') # hardcoded
+            assert is_closed(22, 'udp')
+            assert is_closed(1995, 'tcp')
+            assert is_closed(1996, 'udp')
+            assert is_closed(1997, 'tcp')
+            assert is_open(1998, 'tcp')
+            assert is_open(1999, 'udp')
+
+            # Check that open at boot works
+            vagrant.reboot(hostname)
+
+            host.check_output('tmux new-session -s s1 -d nc -l -p 1995')
+            host.check_output('tmux new-session -s s2 -d nc -l -k -u -p 1996')
+            host.check_output('tmux new-session -s s3 -d nc -l -p 1997')
+            host.check_output('tmux new-session -s s4 -d nc -l -p 1998')
+            host.check_output('tmux new-session -s s5 -d nc -l -k -u -p 1999')
+
+            assert doesnt_open_at_boot(22, 'tcp') # hardcoded
+            assert doesnt_open_at_boot(22, 'udp')
+            assert opens_at_boot(1995, 'tcp')
+            assert opens_at_boot(1996, 'udp')
+            assert doesnt_open_at_boot(1997, 'tcp')
+            assert doesnt_open_at_boot(1998, 'tcp')
+            assert doesnt_open_at_boot(1999, 'udp')
+
+            assert is_open(22, 'tcp') # hardcoded
+            assert is_closed(22, 'udp')
+            assert is_open(1995, 'tcp')
+            assert is_open(1996, 'udp')
+            assert is_closed(1997, 'tcp')
+            assert is_closed(1998, 'tcp')
+            assert is_closed(1999, 'udp')
+
+            net.assert_ports_open({
+                corresponding_hostname(hostname, 'router'): {
+                    hostname: {
+                        'tcp': {22, 1995},
+                        'udp': set(), # for some reason this can't detect the open UDP port
+                    }
+                }
+            })
+
+        # Restore original state
+        vagrant.reboot(hostname)
