@@ -15,6 +15,7 @@ import vagrant as vagrant_lib
 from _pytest.fixtures import FixtureRequest
 from _pytest.mark.structures import MarkDecorator
 from _pytest.python import Metafunc
+from testinfra.modules.file import File
 from testinfra.host import Host
 from testinfra.utils import ansible_runner
 
@@ -22,6 +23,18 @@ from testinfra.utils import ansible_runner
 T = TypeVar('T')
 _ANSIBLE_RUNNER = ansible_runner.AnsibleRunner(
     '.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory')
+
+
+def _file_write(self: File, content: str) -> None:
+    self.check_output('echo \'%s\' > %s' % (content, self.path))
+
+File.write = _file_write # type: ignore
+
+
+def _file_clear(self: File) -> None:
+    self.write('')
+
+File.clear = _file_clear # type: ignore
 
 
 class Timer(codetiming.Timer):
@@ -323,40 +336,41 @@ class Email:
                     str(expected), json.dumps(email, sort_keys=True, indent=2)))
 
 
-class BindFile:
-    """Bind-mounts an empty file over target.
+class ShadowFile:
+    """Creates an empty file in place of path; restores path's contents on exit.
 
     This lets tests modify the file's content without messing up the original
     content.
     """
-    def __init__(self, host: Host, target: str) -> None:
-        super(BindFile, self).__init__()
+    def __init__(self, host: Host, path: str) -> None:
+        super(ShadowFile, self).__init__()
         self._host = host
-        self._target = target
-        self._tmpfile = None # type: Optional[str]
+        self._path = path
+        self._backup_path = self._path + '.backup'
+        self._backup_file = self._host.file(self._backup_path)
 
-    def __enter__(self) -> 'BindFile':
+    def __enter__(self) -> File:
+        if self._backup_file.exists:
+            raise ValueError(
+                ("Cannot shadow '%s' because backup file '%s' already "
+                 "exists. Fix it manually.") % (self._path, self._backup_path))
         with self._host.sudo():
-            tmpfile = self._host.check_output('mktemp')
             self._host.check_output(
-                'chown --reference=%s %s' % (self._target, tmpfile))
-            self._host.check_output(
-                'chmod --reference=%s %s' % (self._target, tmpfile))
-            self._host.check_output(
-                'mount --bind %s %s' % (tmpfile, self._target))
-            self._tmpfile = tmpfile
-        return self
+                'cp -p %s %s' % (self._path, self._backup_path))
+            f = self._host.file(self._path)
+            f.clear()
+        return f
 
     def __exit__(self, *exc_info: Any) -> None:
-        if self._tmpfile:
+        if self._backup_file.exists:
             with self._host.sudo():
-                self._host.check_output('umount %s' % self._target)
-                self._host.check_output('rm %s' % self._tmpfile)
+                self._host.check_output('mv %s %s' % (self._backup_path, self._path))
 
-    def write(self, s: str) -> None:
-        if self._tmpfile:
-            with self._host.sudo():
-                self._host.check_output('echo \'%s\' > %s' % (s, self._tmpfile))
+
+def _host_shadow_file(self: Host, path: str) -> ShadowFile:
+    return ShadowFile(self, path)
+
+Host.shadow_file = _host_shadow_file # type: ignore
 
 
 class Lines:
