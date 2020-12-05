@@ -264,3 +264,55 @@ class Test01GenericCore:
 
         # Restore original state
         vagrant.reboot(hostname)
+
+    @for_host_types('pi')
+    def test_09_cron(self, hostname: str, hosts: Dict[str, Host]) -> None:
+        """This tests the cron system, not any particular cronjob."""
+        host = hosts[hostname]
+        systemd_template = """[Unit]
+Description=Fake service
+After=network.target
+
+[Service]
+ExecStart=/bin/sleep 1h
+Restart=always
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
+"""
+        log = host.file('/etc/pi-server/cron/last-run.log')
+
+        with host.shadow_file('/etc/systemd/system/fake1.service') as fake1_file, \
+             host.shadow_file('/etc/systemd/system/fake2.service') as fake2_file, \
+             host.shadow_dir('/etc/pi-server/cron/cron-normal.d') as normal_dir, \
+             host.shadow_dir('/etc/pi-server/cron/cron-safe.d') as safe_dir, \
+             host.shadow_dir('/etc/pi-server/cron/pause-on-cron.d') as pause_dir:
+            with host.sudo():
+                fake1_file.write(systemd_template)
+                fake2_file.write(systemd_template)
+                host.check_output('systemctl daemon-reload')
+                host.check_output('systemctl start fake1.service')
+                host.check_output('systemctl start fake2.service')
+
+            fake1_service = host.service('fake1.service')
+            fake2_service = host.service('fake2.service')
+            assert fake1_service.is_running
+            assert fake2_service.is_running
+
+            with host.sudo():
+                pause_dir.file('fake1.service').write('')
+                pause_dir.file('fake2.service').write('')
+
+            # TODO add tests
+
+            with host.sudo():
+                host.check_output('systemctl stop fake1.service')
+                host.check_output('systemctl stop fake2.service')
+
+            assert not fake1_service.is_running
+            assert not fake2_service.is_running
+
+        with host.sudo():
+            host.check_output('systemctl daemon-reload')

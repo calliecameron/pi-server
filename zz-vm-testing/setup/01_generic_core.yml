@@ -53,3 +53,5 @@
     cmd: "{{ generic_core }}/08-firewall"
     stdin: |
       y
+- name: 01-generic-core - 09-cron
+  command: "{{ generic_core }}/09-cron"

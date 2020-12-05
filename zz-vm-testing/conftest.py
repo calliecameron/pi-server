@@ -1,7 +1,9 @@
 from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, TypeVar, cast
+import datetime
 import inspect
 import json
 import logging
+import os.path
 import re
 import time
 from collections import OrderedDict
@@ -390,6 +392,78 @@ def _host_shadow_file(self: Host, path: str) -> ShadowFile:
     return ShadowFile(self, path)
 
 Host.shadow_file = _host_shadow_file # type: ignore
+
+
+class ShadowDir:
+    """Creates an empty dir in place of path; restores path's contents on exit.
+
+    This lets tests modify the dir's content without messing up the original
+    content. Shadow does not persist across reboots.
+    """
+    def __init__(self, host: Host, path: str) -> None:
+        super(ShadowDir, self).__init__()
+        self._host = host
+        self._path = path
+        self._tmpdir = None # type: Optional[str]
+
+    def __enter__(self) -> 'ShadowDir':
+        with self._host.sudo():
+            tmpdir = self._host.check_output('mktemp -d')
+            self._host.check_output(
+                'chown --reference=%s %s' % (self._path, tmpdir))
+            self._host.check_output(
+                'chmod --reference=%s %s' % (self._path, tmpdir))
+            self._host.check_output(
+                'mount --bind %s %s' % (tmpdir, self._path))
+            self._tmpdir = tmpdir
+        return self
+
+    def __exit__(self, *exc_info: Any) -> None:
+        if self._tmpdir:
+            with self._host.sudo():
+                self._host.check_output('umount %s' % self._path)
+                self._host.check_output('rm -r %s' % self._tmpdir)
+
+    def file(self, path: str) -> File:
+        return self._host.file(os.path.join(self._path, path))
+
+
+def _host_shadow_dir(self: Host, path: str) -> ShadowDir:
+    return ShadowDir(self, path)
+
+Host.shadow_dir = _host_shadow_dir # type: ignore
+
+
+class CronRunner:
+    def __init__(self, host: Host) -> None:
+        super(CronRunner, self).__init__()
+        self._host = host
+
+    def __enter__(self) -> None:
+        with self._host.sudo():
+            self._host.check_output('timedatectl set-ntp false')
+            # Large change to override cron's daylight-saving-time handling
+            self._host.check_output(
+                "timedatectl set-time '%s 09:00:00'" % datetime.date.today().isoformat())
+            time.sleep(90)
+            # Cron runs at 02:25; wait for it to start
+            self._host.check_output(
+                "timedatectl set-time '%s 02:24:50'" % datetime.date.today().isoformat())
+        self._host.check_output(
+            "while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done")
+
+    def __exit__(self, *exc_info: Any) -> None:
+        # Wait for cron to finish
+        self._host.check_output(
+            "while pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done")
+        with self._host.sudo():
+            self._host.check_output('timedatectl set-ntp true')
+
+
+def _host_run_crons(self: Host) -> CronRunner:
+    return CronRunner(self)
+
+Host.run_crons = _host_run_crons # type: ignore
 
 
 class Lines:
