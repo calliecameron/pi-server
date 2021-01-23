@@ -1,4 +1,5 @@
-from typing import Any, Callable, Dict, List, Optional, Sequence, Set, Tuple, TypeVar, cast
+from typing import (
+    Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, TypeVar, cast)
 import datetime
 import inspect
 import json
@@ -8,6 +9,7 @@ import re
 import time
 from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
+from contextlib import contextmanager
 from functools import wraps
 import codetiming
 import pytest
@@ -335,12 +337,23 @@ class Email:
                              (len(emails), len(j), json.dumps(r.json(), sort_keys=True, indent=2)))
         for email, expected in zip(sorted(r.json(), key=lambda e: e['subject']),
                                    sorted(emails, key=lambda e: e['subject'])):
-            if (email['to']['value'][0]['address'] != 'fake@fake.testbed' or
-                    email['from']['value'][0]['address'] != expected['from'] or
-                    email['subject'] != expected['subject'] or
-                    re.fullmatch(expected['body_re'], email['text']) is None):
-                pytest.fail("Emails don't match: want:\n%s\ngot:\n%s" % (
-                    str(expected), json.dumps(email, sort_keys=True, indent=2)))
+            def fail(field_name: str, want: str, got: str) -> None:
+                pytest.fail(
+                    ("Email field '%s' doesn't match: want:\n%s\ngot:\n%s\n"
+                     "full want:\n%s\nfull got:\n%s") % (
+                         field_name, want, got, str(expected),
+                         json.dumps(email, sort_keys=True, indent=2)))
+
+            def check_field(field_name: str, want: str, got: str) -> None:
+                if want != got:
+                    fail(field_name, want, got)
+
+            check_field('to', email['to']['value'][0]['address'], expected['to'])
+            check_field('from', email['from']['value'][0]['address'], expected['from'])
+            check_field('subject', email['subject'], expected['subject'])
+
+            if re.fullmatch(expected['body_re'], email['text']) is None:
+                fail('text', expected['body_re'], email['text'])
 
 
 class ShadowFile:
@@ -432,6 +445,23 @@ def _host_shadow_dir(self: Host, path: str) -> ShadowDir:
     return ShadowDir(self, path)
 
 Host.shadow_dir = _host_shadow_dir # type: ignore
+
+
+def _host_client_ip(self: Host) -> str:
+    return self.check_output('echo "${SSH_CLIENT}"').split()[0]
+
+Host.client_ip = _host_client_ip # type: ignore
+
+
+@contextmanager
+def _host_disable_login_emails(self: Host) -> Iterator[None]:
+    client_ip = self.client_ip()
+    with self.shadow_file('/etc/pi-server/ssh-email-on-login-exceptions') as f:
+        with self.sudo():
+            f.write('vagrant:%s' % client_ip)
+        yield
+
+Host.disable_login_emails = _host_disable_login_emails # type: ignore
 
 
 class CronRunner:
