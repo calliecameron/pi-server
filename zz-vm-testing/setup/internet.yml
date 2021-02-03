@@ -7,15 +7,76 @@
   - import_tasks: testbed_helper.yml
     vars:
       boot_script: internet-boot.j2
-  - name: internet - install curl
-    package: name=curl state=present
-  - name: internet - setup node apt repo
-    shell: "curl -sL https://deb.nodesource.com/setup_14.x | sudo -E bash -"
-  - name: internet - install nodejs
-    package: name=nodejs state=present
+
+  # fakesmtp
   - name: internet - install fakesmtp
-    npm: name=fake-smtp-server global=yes
+    include_role:
+      name: geerlingguy.nodejs
+    vars:
+      nodejs_npm_global_packages:
+        - name: fake-smtp-server
   - name: internet - install fakesmtp systemd unit
     template: src=fakesmtp.service.j2 dest=/etc/systemd/system/fakesmtp.service owner=root mode=a=r
   - name: internet - enable fakesmtp
     systemd: name=fakesmtp daemon_reload=yes enabled=yes state=started
+
+  # aptly
+  - name: internet - install rng-tools
+    package: name=rng-tools state=present
+  - name: internet - generate gpg key
+    become: no
+    shell:
+      cmd: timeout -s 9 5 sudo /usr/sbin/rngd -f -r /dev/urandom & gpg --yes --pinentry-mode loopback --passphrase '' --quick-generate-key vagrant; wait; true
+      creates: .gnupg
+  - name: internet - install aptly
+    include_role:
+      name: manala.aptly
+    vars:
+      manala_aptly_user: vagrant
+      manala_aptly_config:
+        - architectures:
+            - amd64
+      manala_aptly_repositories:
+        - name:         main
+          comment:      main
+          component:    main
+          distribution: main
+          origin:       test
+          label:        test
+  - name: internet - install aptly systemd unit
+    template: src=aptly.service dest=/etc/systemd/system/aptly.service owner=root mode=a=r
+  - name: internet - enable aptly
+    systemd: name=aptly daemon_reload=yes enabled=yes state=started
+
+  # packages for aptly
+  - name: internet - install equivs
+    package: name=equivs state=present
+  - name: internet - copy package configs
+    become: no
+    copy:
+      src: aptly
+      dest: .
+  - name: internet - build fake package 1
+    become: no
+    command:
+      cmd: equivs-build pi-server-test-1
+      chdir: aptly
+      creates: pi-server-test_1_all.deb
+  - name: internet - build fake package 1.1
+    become: no
+    command:
+      cmd: equivs-build pi-server-test-1.1
+      chdir: aptly
+      creates: pi-server-test_1.1_all.deb
+  - name: internet - build fake package 1.2
+    become: no
+    command:
+      cmd: equivs-build pi-server-test-1.2
+      chdir: aptly
+      creates: pi-server-test_1.2_all.deb
+  - name: internet - build fake package 2
+    become: no
+    command:
+      cmd: equivs-build pi-server-test2
+      chdir: aptly
+      creates: pi-server-test2_1_all.deb

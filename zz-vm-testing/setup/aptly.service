@@ -1,5 +1,5 @@
 [Unit]
-Description=Fake SMTP service
+Description=Aptly server
 After=network.target
 StartLimitIntervalSec=0
 
@@ -7,7 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=always
 RestartSec=1
-ExecStart=/usr/local/lib/npm/bin/fake-smtp-server --smtp-port={{ email_smtp_port }}
+User=vagrant
+ExecStart=/usr/bin/aptly serve
 
 [Install]
 WantedBy=multi-user.target

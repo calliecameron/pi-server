@@ -431,3 +431,33 @@ WantedBy=multi-user.target
 
         with host.sudo():
             host.check_output('systemctl daemon-reload')
+
+    # @for_host_types('pi')
+    # def test_10_automatic_updates(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str], email: Email) -> None:
+    #     host = hosts[hostname]
+    #     internet = hosts['internet']
+
+    #     with host.shadow_file('/etc/apt/sources.list') as sources_list, \
+    #          host.disable_login_emails():
+    #         internet.check_output('aptly repo add aptly/pi-server-test_1_all.deb')
+    #         internet.check_output('aptly publish update main')
+
+    #         sources_list.write('deb http://%s:8080/ main main\nTrusted: yes')
+    #         with host.sudo():
+    #             host.check_output('apt-get update')
+    #             host.check_output('apt.get install pi-server-test')
+
+    #         # Nothing to update
+    #         email.clear()
+    #         with host.run_crons():
+    #             pass
+
+    #         assert host.package('pi-server-test').is_installed
+    #         assert host.package('pi-server-test').version == '1'
+    #         assert not host.package('pi-server-test2').is_installed
+
+    #         # Cleanup
+    #         # with host.sudo():
+    #         #     host.check_output('apt-get remove pi-server-test')
+
+    #         # internet.check_output()
