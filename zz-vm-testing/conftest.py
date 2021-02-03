@@ -480,7 +480,7 @@ class CronRunner:
             self._host.check_output(
                 "timedatectl set-time '%s 02:24:50'" % datetime.date.today().isoformat())
         self._host.check_output(
-            "while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done")
+            "timeout 60 bash -c \"while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done\"; true")
 
     def __exit__(self, *exc_info: Any) -> None:
         # Wait for cron to finish

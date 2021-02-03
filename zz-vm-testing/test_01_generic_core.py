@@ -400,27 +400,26 @@ WantedBy=multi-user.target
             ])
 
             # Disable running
-            # TODO this fails because the script finishes too quickly for run_crons to detect
-            # with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
-            #     email.clear()
-            #     run_stamp = 'disabled'
-            #     with host.sudo():
-            #         safe_log_file.clear()
-            #         normal_out.clear()
-            #         safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
-            #         safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
-            #         normal_cron.write('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (run_stamp, normal_out.path))
+            with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
+                email.clear()
+                run_stamp = 'disabled'
+                with host.sudo():
+                    safe_log_file.clear()
+                    normal_out.clear()
+                    safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
+                    safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
+                    normal_cron.write('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (run_stamp, normal_out.path))
 
-            #     with host.run_crons():
-            #         pass
+                with host.run_crons():
+                    pass
 
-            #     assert fake1_service.is_running
-            #     assert fake2_service.is_running
-            #     assert safe_log_file.content_string == '\n'
-            #     assert normal_out.content_string == '\n'
+                assert fake1_service.is_running
+                assert fake2_service.is_running
+                assert safe_log_file.content_string == '\n'
+                assert normal_out.content_string == '\n'
 
-            #     time.sleep(15)
-            #     email.assert_emails([])
+                time.sleep(15)
+                email.assert_emails([])
 
             # Cleanup
             with host.sudo():
