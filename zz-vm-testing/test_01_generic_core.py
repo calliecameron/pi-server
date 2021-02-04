@@ -408,7 +408,9 @@ WantedBy=multi-user.target
                     normal_out.clear()
                     safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
                     safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
-                    normal_cron.write('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (run_stamp, normal_out.path))
+                    normal_cron.write(
+                        '#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
+                            run_stamp, normal_out.path))
 
                 with host.run_crons():
                     pass
@@ -432,32 +434,96 @@ WantedBy=multi-user.target
         with host.sudo():
             host.check_output('systemctl daemon-reload')
 
-    # @for_host_types('pi')
-    # def test_10_automatic_updates(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str], email: Email) -> None:
-    #     host = hosts[hostname]
-    #     internet = hosts['internet']
+    @for_host_types('pi')
+    def test_10_automatic_updates(
+            self, hostname: str,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str],
+            email: Email) -> None:
+        host = hosts[hostname]
+        internet = hosts['internet']
 
-    #     with host.shadow_file('/etc/apt/sources.list') as sources_list, \
-    #          host.disable_login_emails():
-    #         internet.check_output('aptly repo add aptly/pi-server-test_1_all.deb')
-    #         internet.check_output('aptly publish update main')
+        with host.shadow_file('/etc/apt/sources.list') as sources_list, \
+             host.disable_login_emails():
+            internet.check_output('aptly repo add main aptly/pi-server-test_1_all.deb')
+            internet.check_output('aptly publish update main')
 
-    #         sources_list.write('deb http://%s:8080/ main main\nTrusted: yes')
-    #         with host.sudo():
-    #             host.check_output('apt-get update')
-    #             host.check_output('apt.get install pi-server-test')
+            with host.sudo():
+                sources_list.write(
+                    'deb [trusted=yes] http://%s:8080/ main main' % addrs['internet'])
+                host.check_output('apt-get update')
+                host.check_output('apt-get install pi-server-test')
 
-    #         # Nothing to update
-    #         email.clear()
-    #         with host.run_crons():
-    #             pass
+            # Nothing to update
+            email.clear()
+            with host.run_crons():
+                pass
 
-    #         assert host.package('pi-server-test').is_installed
-    #         assert host.package('pi-server-test').version == '1'
-    #         assert not host.package('pi-server-test2').is_installed
+            assert host.package('pi-server-test').is_installed
+            assert host.package('pi-server-test').version == '1'
+            assert not host.package('pi-server-test2').is_installed
+            email.assert_emails([])
 
-    #         # Cleanup
-    #         # with host.sudo():
-    #         #     host.check_output('apt-get remove pi-server-test')
+            # One package to update
+            internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
+            internet.check_output('aptly publish update main')
 
-    #         # internet.check_output()
+            email.clear()
+            with host.run_crons():
+                pass
+
+            assert host.package('pi-server-test').is_installed
+            assert host.package('pi-server-test').version == '1.1'
+            assert not host.package('pi-server-test2').is_installed
+            email.assert_emails([{
+                'from': 'notification@%s.testbed' % hostname,
+                'to': 'fake@fake.testbed',
+                'subject': '[%s] Installed 1 update' % hostname,
+                'body_re': (r"(.*\n)*1 upgraded, 0 newly installed, "
+                            r"0 to remove and 0 not upgraded.\n(.*\n)*"),
+            }])
+
+            # One not upgraded
+            internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
+            internet.check_output('aptly repo add main aptly/pi-server-test2_1_all.deb')
+            internet.check_output('aptly publish update main')
+
+            email.clear()
+            with host.run_crons():
+                pass
+
+            assert host.package('pi-server-test').is_installed
+            assert host.package('pi-server-test').version == '1.1'
+            assert not host.package('pi-server-test2').is_installed
+            email.assert_emails([{
+                'from': 'notification@%s.testbed' % hostname,
+                'to': 'fake@fake.testbed',
+                'subject': '[%s] 1 package not updated' % hostname,
+                'body_re': (r"(.*\n)*0 upgraded, 0 newly installed, "
+                            r"0 to remove and 1 not upgraded.\n(.*\n)*"),
+            }])
+
+            # Manual dist-upgrade
+            with host.sudo():
+                host.check_output('apt-get -y dist-upgrade')
+
+            # Nothing to update
+            email.clear()
+            with host.run_crons():
+                pass
+
+            assert host.package('pi-server-test').is_installed
+            assert host.package('pi-server-test').version == '1.2'
+            assert host.package('pi-server-test2').is_installed
+            assert host.package('pi-server-test2').version == '1'
+            email.assert_emails([])
+
+            # Cleanup
+            with host.sudo():
+                host.check_output('apt-get -y remove pi-server-test pi-server-test2')
+
+            internet.check_output("aptly repo remove main 'Name (% *)'")
+            internet.check_output('aptly publish update main')
+
+        with host.sudo():
+            host.check_output('apt-get update')

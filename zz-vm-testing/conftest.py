@@ -337,6 +337,7 @@ class Email:
                              (len(emails), len(j), json.dumps(r.json(), sort_keys=True, indent=2)))
         for email, expected in zip(sorted(r.json(), key=lambda e: e['subject']),
                                    sorted(emails, key=lambda e: e['subject'])):
+            # pylint: disable=cell-var-from-loop
             def fail(field_name: str, want: str, got: str) -> None:
                 pytest.fail(
                     ("Email field '%s' doesn't match: want:\n%s\ngot:\n%s\n"
@@ -480,7 +481,8 @@ class CronRunner:
             self._host.check_output(
                 "timedatectl set-time '%s 02:24:50'" % datetime.date.today().isoformat())
         self._host.check_output(
-            "timeout 60 bash -c \"while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done\"; true")
+            "timeout 60 bash -c "
+            "\"while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done\"; true")
 
     def __exit__(self, *exc_info: Any) -> None:
         # Wait for cron to finish
