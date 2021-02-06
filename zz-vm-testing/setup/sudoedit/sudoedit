@@ -1,0 +1,10 @@
+#!/bin/bash
+
+/usr/bin/sudoedit "${@}"
+RETVAL="${?}"
+
+if [ "${RETVAL}" = 129 ]; then
+    exit 0
+else
+    exit "${RETVAL}"
+fi

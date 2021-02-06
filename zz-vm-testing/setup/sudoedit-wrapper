@@ -1,0 +1,7 @@
+#!/bin/bash
+# Sudoedit behaves weirdly on ubuntu (but not debian) when setting SUDO_EDITOR
+# to a dummy value like 'true'. We work around it with a custom script.
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+export PATH="${DIR}/sudoedit:${PATH}"
+"${@}"

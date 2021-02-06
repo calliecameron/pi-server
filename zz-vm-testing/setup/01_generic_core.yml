@@ -34,7 +34,7 @@
   command: "{{ generic_core }}/05-network"
 - name: 01-generic-core - 06-email
   command:
-    cmd: "{{ generic_core }}/06-email"
+    cmd: "{{ testbed_setup }}/sudoedit-wrapper {{ generic_core }}/06-email"
     stdin: |
       y
   environment:

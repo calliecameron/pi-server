@@ -1,0 +1,13 @@
+---
+- hosts: all
+  become: yes
+  vars_files:
+  - testbed_vars.yml
+  tasks:
+  - import_tasks: testbed_helper.yml
+    vars:
+      boot_script: pi-boot.j2
+  - name: ubuntu - default route
+    template: src=fakepi-default-route.j2 dest=/fakepi-default-route owner=root mode=a=r
+  - import_tasks: 01_generic_core.yml
+    become: no

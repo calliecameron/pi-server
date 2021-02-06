@@ -5,20 +5,20 @@ from conftest import Email, Lines, Net, Vagrant, corresponding_hostname, for_hos
 
 
 class Test01GenericCore:
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_00_base_config(self, hostname: str, hosts: Dict[str, Host]) -> None:
         lines = Lines(hosts[hostname].check_output('debconf-show locales'), hostname)
         assert lines.contains(r'[^a-zA-Z]*locales/locales_to_be_generated: en_GB.UTF-8 UTF-8')
         assert lines.contains(r'[^a-zA-Z]*locales/default_environment_locale: en_GB.UTF-8')
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_01_packages(self, hostname: str, hosts: Dict[str, Host]) -> None:
         # We pick one of the packages that the script installs, that isn't installed by default.
         assert hosts[hostname].package('etckeeper').is_installed
 
     # 02-pi-new-user is a no-op in the testbed.
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_03_cleanup_users(self, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
         # We pick the most important user - root - and a few that are changed
@@ -29,7 +29,7 @@ class Test01GenericCore:
             assert host.user('messagebus').shell == '/usr/sbin/nologin'
             assert host.user('messagebus').password == '!*'
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_04_vars(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
         assert host.file('/etc/pi-server/lan-ip').content_string.strip() == addrs[hostname]
@@ -43,7 +43,7 @@ class Test01GenericCore:
 
     # 05-network is tested by test_base's reachability and routing tests.
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_06_email(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
         client_ip = host.client_ip()
@@ -86,7 +86,7 @@ class Test01GenericCore:
     # 07-sshd is partially tested by the fact we can still log in at all, and partially
     # by the email-at-login behaviour.
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_08_firewall(
             self, vagrant: Vagrant, net: Net, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
@@ -268,7 +268,7 @@ class Test01GenericCore:
         # Restore original state
         vagrant.reboot(hostname)
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_09_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
         """This tests the cron system, not any particular cronjob."""
         host = hosts[hostname]
@@ -434,7 +434,7 @@ WantedBy=multi-user.target
         with host.sudo():
             host.check_output('systemctl daemon-reload')
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_10_automatic_updates(
             self, hostname: str,
             hosts: Dict[str, Host],
@@ -528,7 +528,7 @@ WantedBy=multi-user.target
         with host.sudo():
             host.check_output('apt-get update')
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_11_disk_usage(
             self, hostname: str,
             hosts: Dict[str, Host],
@@ -573,7 +573,7 @@ WantedBy=multi-user.target
 
             email.assert_emails([])
 
-    @for_host_types('pi')
+    @for_host_types('pi', 'ubuntu')
     def test_12_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
         """This just installs the nginx service, not any sites."""
         host = hosts[hostname]
