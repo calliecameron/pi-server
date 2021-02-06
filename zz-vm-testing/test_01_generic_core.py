@@ -572,3 +572,10 @@ WantedBy=multi-user.target
                 pass
 
             email.assert_emails([])
+
+    @for_host_types('pi')
+    def test_12_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
+        """This just installs the nginx service, not any sites."""
+        host = hosts[hostname]
+        assert host.service('nginx').is_enabled
+        assert host.service('nginx').is_running

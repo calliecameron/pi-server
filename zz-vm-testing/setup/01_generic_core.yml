@@ -59,3 +59,5 @@
   command: "{{ generic_core }}/10-automatic-updates"
 - name: 01-generic-core - 11-disk-usage
   command: "{{ generic_core }}/11-disk-usage"
+- name: 01-generic-core - 12-nginx
+  command: "{{ generic_core }}/12-nginx"
