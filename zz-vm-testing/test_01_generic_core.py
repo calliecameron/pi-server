@@ -527,3 +527,48 @@ WantedBy=multi-user.target
 
         with host.sudo():
             host.check_output('apt-get update')
+
+    @for_host_types('pi')
+    def test_11_disk_usage(
+            self, hostname: str,
+            hosts: Dict[str, Host],
+            email: Email) -> None:
+        host = hosts[hostname]
+
+        with host.disable_login_emails():
+            # Lots of space
+            email.clear()
+            with host.run_crons():
+                pass
+
+            email.assert_emails([])
+
+            # Not much space
+            output = host.check_output('df --output=size,used / | tail -n 1')
+            # Sizes in kiB
+            size = int(output.split()[0])
+            used = int(output.split()[1])
+            # Want to get it up to 92% full
+            needed = int(0.92 * size) - used
+            try:
+                host.check_output('dd if=/dev/zero of=bigfile bs=1M count=%d' % int(needed / 1024))
+
+                email.clear()
+                with host.run_crons():
+                    pass
+
+                email.assert_emails([{
+                    'from': 'notification@%s.testbed' % hostname,
+                    'to': 'fake@fake.testbed',
+                    'subject': '[%s] Storage space alert' % hostname,
+                    'body_re': r'A partition is above 90% full.\n(.*\n)*/dev/sda1.*/\n(.*\n)*',
+                }])
+            finally:
+                host.check_output('rm -f bigfile')
+
+            # Lots of space again
+            email.clear()
+            with host.run_crons():
+                pass
+
+            email.assert_emails([])

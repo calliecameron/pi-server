@@ -57,3 +57,5 @@
   command: "{{ generic_core }}/09-cron"
 - name: 01-generic-core - 10-automatic-updates
   command: "{{ generic_core }}/10-automatic-updates"
+- name: 01-generic-core - 11-disk-usage
+  command: "{{ generic_core }}/11-disk-usage"
