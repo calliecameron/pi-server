@@ -6,10 +6,14 @@ class TestReachability:
         # Base reachability when all VMs are up
         net.assert_reachability({
             'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
-            'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'ubuntu'],
-            'router2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
-            'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'ubuntu'],
-            'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
+            'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
+                        'ubuntu'],
+            'router2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
+                        'ubuntu'],
+            'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
+                    'ubuntu'],
+            'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
+                    'ubuntu'],
             'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']})
 
     @vms_down('internet')

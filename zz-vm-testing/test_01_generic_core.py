@@ -53,12 +53,13 @@ class Test01GenericCore:
         # SSH login emails are on by default, so we expect one email for logging in, and one for
         # the command we actually ran.
         host.check_output('/etc/pi-server/send-notification-email foo bar')
+        time.sleep(10)
         email.assert_emails([
             {
                 'from': 'notification@%s.testbed' % hostname,
                 'to': 'fake@fake.testbed',
                 'subject': '[%s] SSH login: vagrant from %s' % (hostname, client_ip),
-                'body_re': r'PAM_USER=vagrant\nPAM_RHOST=%s\n(.*\n)*' % client_ip.replace(
+                'body_re': r'(.*\n)*PAM_USER=vagrant\nPAM_RHOST=%s\n(.*\n)*' % client_ip.replace(
                     '.', r'\.'),
             },
             {
@@ -67,13 +68,14 @@ class Test01GenericCore:
                 'subject': '[%s] foo' % hostname,
                 'body_re': r'bar\n\n',
             },
-        ])
+        ], only_from=hostname)
 
         # Disable SSH login emails from our address, and we should only get one email.
         with host.disable_login_emails():
             email.clear()
 
             host.check_output('/etc/pi-server/send-notification-email foo bar')
+            time.sleep(10)
             email.assert_emails([
                 {
                     'from': 'notification@%s.testbed' % hostname,
@@ -81,7 +83,7 @@ class Test01GenericCore:
                     'subject': '[%s] foo' % hostname,
                     'body_re': r'bar\n\n',
                 },
-            ])
+            ], only_from=hostname)
 
     # 07-sshd is partially tested by the fact we can still log in at all, and partially
     # by the email-at-login behaviour.
@@ -90,6 +92,7 @@ class Test01GenericCore:
     def test_08_firewall(
             self, vagrant: Vagrant, net: Net, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
+        router = corresponding_hostname(hostname, 'router')
         port_script = '/etc/pi-server/firewall/port'
 
         def is_open(port: int, protocol: str) -> bool:
@@ -113,7 +116,7 @@ class Test01GenericCore:
             # Base state - only hardcoded ports open at boot
             vagrant.reboot(hostname)
             net.assert_ports_open(
-                {corresponding_hostname(hostname, 'router'): {
+                {router: {
                     hostname: {'tcp': {22}, 'udp': set()}}})
 
             # Port validation
@@ -181,7 +184,7 @@ class Test01GenericCore:
             assert is_open(1999, 'udp')
 
             net.assert_ports_open({
-                corresponding_hostname(hostname, 'router'): {
+                router: {
                     hostname: {
                         'tcp': {22, 1998},
                         'udp': set(), # for some reason this can't detect the open UDP port
@@ -257,7 +260,7 @@ class Test01GenericCore:
             assert is_closed(1999, 'udp')
 
             net.assert_ports_open({
-                corresponding_hostname(hostname, 'router'): {
+                router: {
                     hostname: {
                         'tcp': {22, 1995},
                         'udp': set(), # for some reason this can't detect the open UDP port
@@ -346,7 +349,7 @@ WantedBy=multi-user.target
             assert normal_out.content_string == 'normal good\n'
 
             time.sleep(15)
-            email.assert_emails([])
+            email.assert_emails([], only_from=hostname)
 
             # Run with failures
             email.clear()
@@ -397,7 +400,7 @@ WantedBy=multi-user.target
                                  '( cd / && run-parts --report /etc/cron.daily )') % hostname),
                     'body_re': r"/etc/cron.daily/pi-server:\nsafe1 echo\nnormal echo\n",
                 },
-            ])
+            ], only_from=hostname)
 
             # Disable running
             with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
@@ -421,7 +424,7 @@ WantedBy=multi-user.target
                 assert normal_out.content_string == '\n'
 
                 time.sleep(15)
-                email.assert_emails([])
+                email.assert_emails([], only_from=hostname)
 
             # Cleanup
             with host.sudo():
@@ -462,7 +465,7 @@ WantedBy=multi-user.target
             assert host.package('pi-server-test').is_installed
             assert host.package('pi-server-test').version == '1'
             assert not host.package('pi-server-test2').is_installed
-            email.assert_emails([])
+            email.assert_emails([], only_from=hostname)
 
             # One package to update
             internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
@@ -481,7 +484,7 @@ WantedBy=multi-user.target
                 'subject': '[%s] Installed 1 update' % hostname,
                 'body_re': (r"(.*\n)*1 upgraded, 0 newly installed, "
                             r"0 to remove and 0 not upgraded.\n(.*\n)*"),
-            }])
+            }], only_from=hostname)
 
             # One not upgraded
             internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
@@ -501,7 +504,7 @@ WantedBy=multi-user.target
                 'subject': '[%s] 1 package not updated' % hostname,
                 'body_re': (r"(.*\n)*0 upgraded, 0 newly installed, "
                             r"0 to remove and 1 not upgraded.\n(.*\n)*"),
-            }])
+            }], only_from=hostname)
 
             # Manual dist-upgrade
             with host.sudo():
@@ -516,7 +519,7 @@ WantedBy=multi-user.target
             assert host.package('pi-server-test').version == '1.2'
             assert host.package('pi-server-test2').is_installed
             assert host.package('pi-server-test2').version == '1'
-            email.assert_emails([])
+            email.assert_emails([], only_from=hostname)
 
             # Cleanup
             with host.sudo():
@@ -541,7 +544,7 @@ WantedBy=multi-user.target
             with host.run_crons():
                 pass
 
-            email.assert_emails([])
+            email.assert_emails([], only_from=hostname)
 
             # Not much space
             output = host.check_output('df --output=size,used / | tail -n 1')
@@ -561,8 +564,9 @@ WantedBy=multi-user.target
                     'from': 'notification@%s.testbed' % hostname,
                     'to': 'fake@fake.testbed',
                     'subject': '[%s] Storage space alert' % hostname,
-                    'body_re': r'A partition is above 90% full.\n(.*\n)*/dev/sda1.*/\n(.*\n)*',
-                }])
+                    'body_re': (r'A partition is above 90% full.\n(.*\n)*'
+                                r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*/\n(.*\n)*'),
+                }], only_from=hostname)
             finally:
                 host.check_output('rm -f bigfile')
 
@@ -571,7 +575,7 @@ WantedBy=multi-user.target
             with host.run_crons():
                 pass
 
-            email.assert_emails([])
+            email.assert_emails([], only_from=hostname)
 
     @for_host_types('pi', 'ubuntu')
     def test_12_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:

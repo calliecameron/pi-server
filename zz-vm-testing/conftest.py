@@ -328,14 +328,21 @@ class Email:
         r = requests.delete('http://%s:%d/api/emails' % (self._host, self._PORT))
         r.raise_for_status()
 
-    def assert_emails(self, emails: List[Dict[str, str]]) -> None:
+    def assert_emails(self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
         r = requests.get('http://%s:%d/api/emails' % (self._host, self._PORT))
         r.raise_for_status()
-        j = r.json()
-        if len(j) != len(emails):
-            raise ValueError('Length of want and got differ (%d vs %d); all emails:\n%s' %
-                             (len(emails), len(j), json.dumps(r.json(), sort_keys=True, indent=2)))
-        for email, expected in zip(sorted(r.json(), key=lambda e: e['subject']),
+        got_emails = r.json()
+        if only_from:
+            got_emails = [
+                e for e in got_emails
+                if e['from']['value'][0]['address'] == 'notification@%s.testbed' % only_from
+                or not e['from']['value'][0]['address']]
+
+        if len(got_emails) != len(emails):
+            raise ValueError(
+                'Length of want and got differ (%d vs %d); all emails:\n%s' %
+                (len(emails), len(got_emails), json.dumps(got_emails, sort_keys=True, indent=2)))
+        for email, expected in zip(sorted(got_emails, key=lambda e: e['subject']),
                                    sorted(emails, key=lambda e: e['subject'])):
             # pylint: disable=cell-var-from-loop
             def fail(field_name: str, want: str, got: str) -> None:
@@ -472,6 +479,8 @@ class CronRunner:
 
     def __enter__(self) -> None:
         with self._host.sudo():
+            if self._host.service('vboxadd-service').is_running:
+                self._host.check_output('systemctl stop vboxadd-service')
             self._host.check_output('timedatectl set-ntp false')
             # Large change to override cron's daylight-saving-time handling
             self._host.check_output(
@@ -490,6 +499,9 @@ class CronRunner:
             "while pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done")
         with self._host.sudo():
             self._host.check_output('timedatectl set-ntp true')
+            if self._host.service('vboxadd-service').is_enabled:
+                self._host.check_output('systemctl start vboxadd-service')
+
 
 
 def _host_run_crons(self: Host) -> CronRunner:
@@ -547,7 +559,10 @@ def _hostnames_by_type() -> Dict[str, List[str]]:
 
 
 def corresponding_hostname(hostname: str, host_type: str) -> str:
-    return host_type + _host_number(hostname)
+    host_number = _host_number(hostname)
+    if host_number:
+        return host_type + host_number
+    return 'internet'
 
 
 @pytest.fixture(scope='session')
