@@ -1,6 +1,8 @@
 # -*- mode: ruby -*-
 # vi: set ft=ruby :
 
+ENV["VAGRANT_EXPERIMENTAL"] = "disks"
+
 require 'json'
 
 required_plugins = %w( vagrant-reload )
@@ -15,7 +17,7 @@ $addrs = $c["addrs"]
 $masks = $c["masks"]
 
 def sync_folders(vm)
-  vm.vm.synced_folder "..", "/vagrant", type: "rsync", rsync__exclude: ".git/"
+  vm.vm.synced_folder "..", "/vagrant", type: "rsync", rsync__exclude: [".git/", ".ansible-galaxy/"]
 end
 
 def internet(config)
@@ -64,6 +66,7 @@ def pi(config, name, pi_ip, router_lan_ip)
     box.vm.box = "debian/stretch64"
     box.vm.hostname = name
     box.vm.network "private_network", ip: pi_ip
+    box.vm.disk :disk, size: "100MB", name: "external"
     sync_folders(box)
     box.vm.provision "ansible" do |ansible|
       ansible.compatibility_mode = "2.0"

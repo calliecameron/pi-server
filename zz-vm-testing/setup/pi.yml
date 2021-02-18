@@ -9,5 +9,30 @@
       boot_script: pi-boot.j2
   - name: pi - default route
     template: src=fakepi-default-route.j2 dest=/fakepi-default-route owner=root mode=a=r
+
+  - name: pi - partition external storage
+    command:
+      creates: "{{ storage_drive_dev }}{{ storage_data_partition }}"
+      cmd: /sbin/sfdisk "{{ storage_drive_dev }}"
+      stdin: |
+        ,50MiB
+        ,
+  - name: pi - check data partition is formatted
+    shell: file -s "{{ storage_drive_dev }}{{ storage_data_partition }}" | grep ext4
+    register: data_partition_formatted
+    ignore_errors: True
+    changed_when: False
+  - name: pi - format data partition
+    when: data_partition_formatted.rc != 0
+    command: mkfs.ext4 "{{ storage_drive_dev }}{{ storage_data_partition }}"
+  - name: pi - check backup partition is formatted
+    shell: file -s "{{ storage_drive_dev }}{{ storage_backup_partition }}" | grep ext4
+    register: backup_partition_formatted
+    ignore_errors: True
+    changed_when: False
+  - name: pi - format backup partition
+    when: backup_partition_formatted.rc != 0
+    command: mkfs.ext4 "{{ storage_drive_dev }}{{ storage_backup_partition }}"
+
   - import_tasks: 01_generic_core.yml
     become: no
