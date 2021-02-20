@@ -20,7 +20,7 @@
   - name: pi - check data partition is formatted
     shell: file -s "{{ storage_drive_dev }}{{ storage_data_partition }}" | grep ext4
     register: data_partition_formatted
-    ignore_errors: True
+    failed_when: False
     changed_when: False
   - name: pi - format data partition
     when: data_partition_formatted.rc != 0
@@ -28,7 +28,7 @@
   - name: pi - check backup partition is formatted
     shell: file -s "{{ storage_drive_dev }}{{ storage_backup_partition }}" | grep ext4
     register: backup_partition_formatted
-    ignore_errors: True
+    failed_when: False
     changed_when: False
   - name: pi - format backup partition
     when: backup_partition_formatted.rc != 0
