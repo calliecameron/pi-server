@@ -2,3 +2,13 @@
 - name: 02-pi-core - 00-packages
   command:
     cmd: "{{ pi_core }}/00-packages"
+- name: 02-pi-core - 01-vars
+  command:
+    cmd: "{{ pi_core }}/01-vars"
+    stdin: |
+      {{ pi_lan_mask }}
+      {{ pi_vpn_mask }}
+      {{ storage_drive_dev }}
+      {{ storage_data_partition }}
+      {{ storage_backup_partition }}
+      n

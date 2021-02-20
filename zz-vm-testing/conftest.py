@@ -542,7 +542,7 @@ def _host_type(hostname: str) -> str:
     return match.group(1)
 
 
-def _host_number(hostname: str) -> str:
+def host_number(hostname: str) -> str:
     match = re.fullmatch(r'[^0-9]+([0-9]*)', hostname)
     if match is None:
         raise ValueError("Can't find host number for host '%s'" % hostname)
@@ -559,9 +559,9 @@ def _hostnames_by_type() -> Dict[str, List[str]]:
 
 
 def corresponding_hostname(hostname: str, host_type: str) -> str:
-    host_number = _host_number(hostname)
-    if host_number:
-        return host_type + host_number
+    num = host_number(hostname)
+    if num:
+        return host_type + num
     return 'internet'
 
 
@@ -598,6 +598,13 @@ def addrs() -> Dict[str, str]:
     """Returns all IP addresses by name."""
     with open('config.json') as f:
         return cast(Dict[str, str], json.load(f)['addrs'])
+
+
+@pytest.fixture(scope='session')
+def masks() -> Dict[str, str]:
+    """Returns all net masks by name."""
+    with open('config.json') as f:
+        return cast(Dict[str, str], json.load(f)['masks'])
 
 
 @pytest.fixture(scope='session')

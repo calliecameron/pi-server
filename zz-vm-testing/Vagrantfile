@@ -61,7 +61,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask)
 end
 
 
-def pi(config, name, pi_ip, router_lan_ip)
+def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask)
   config.vm.define name do |box|
     box.vm.box = "debian/stretch64"
     box.vm.hostname = name
@@ -74,7 +74,9 @@ def pi(config, name, pi_ip, router_lan_ip)
       ansible.extra_vars = {
         pi_ip: pi_ip,
         router_ip: router_lan_ip,
-        internet_ip: $addrs["internet"]
+        internet_ip: $addrs["internet"],
+        pi_lan_mask: pi_lan_mask,
+        pi_vpn_mask: pi_vpn_mask
       }
     end
     box.vm.provision :reload
@@ -108,8 +110,8 @@ Vagrant.configure("2") do |config|
   router config, "router1", $addrs["router1_wan"], $addrs["router1_lan"], $addrs["pi1"], $masks["pi1_vpn"]
   router config, "router2", $addrs["router2_wan"], $addrs["router2_lan"], $addrs["pi2"], $masks["pi2_vpn"]
 
-  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"]
-  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"]
+  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"], $masks["lan1"], $masks["pi1_vpn"]
+  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"], $masks["lan2"], $masks["pi2_vpn"]
 
   ubuntu config
 end
