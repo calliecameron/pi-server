@@ -12,3 +12,8 @@
       {{ storage_data_partition }}
       {{ storage_backup_partition }}
       n
+- name: 02-pi-core - 02-firewall
+  command:
+    cmd: "{{ pi_core }}/02-firewall"
+    stdin: |
+      y

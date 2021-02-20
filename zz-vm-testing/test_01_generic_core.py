@@ -92,6 +92,35 @@ class Test01GenericCore:
     def test_08_firewall(
             self, vagrant: Vagrant, net: Net, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
+
+        # Part 1 - test forwarding
+        allow_forwarding_initially = host.file('/etc/pi-server/firewall/allow-forwarding').exists
+        try:
+            # Forwarding disabled
+            with host.sudo():
+                host.check_output('rm -f /etc/pi-server/firewall/allow-forwarding')
+            vagrant.reboot(hostname)
+            with host.sudo():
+                host.check_output('iptables -C FORWARD -j DROP')
+                host.run_expect([1], 'iptables -C FORWARD -j ACCEPT')
+
+            # Forwarding enabled
+            with host.sudo():
+                host.check_output('touch /etc/pi-server/firewall/allow-forwarding')
+            vagrant.reboot(hostname)
+            with host.sudo():
+                host.check_output('iptables -C FORWARD -j ACCEPT')
+                host.run_expect([1], 'iptables -C FORWARD -j DROP')
+        finally:
+            # Restore initial state
+            with host.sudo():
+                if allow_forwarding_initially:
+                    host.check_output('touch /etc/pi-server/firewall/allow-forwarding')
+                else:
+                    host.check_output('rm -f /etc/pi-server/firewall/allow-forwarding')
+            vagrant.reboot(hostname)
+
+        # Part 2 - test port state manipulation
         router = corresponding_hostname(hostname, 'router')
         port_script = '/etc/pi-server/firewall/port'
 
