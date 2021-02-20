@@ -7,6 +7,7 @@
 - testbed_setup: "{{ testbed_root }}/setup"
 - email_to: fake@fake.testbed
 - email_smtp_port: 1025
+- pi_core: "{{ pi_server_root }}/02-pi-core"
 - storage_drive_dev: /dev/sdb
 - storage_data_partition: 1
 - storage_backup_partition: 2

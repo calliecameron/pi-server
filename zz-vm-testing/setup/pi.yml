@@ -36,3 +36,6 @@
 
   - import_tasks: 01_generic_core.yml
     become: no
+
+  - import_tasks: 02_pi_core.yml
+    become: no

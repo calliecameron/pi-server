@@ -1,0 +1,4 @@
+---
+- name: 02-pi-core - 00-packages
+  command:
+    cmd: "{{ pi_core }}/00-packages"
