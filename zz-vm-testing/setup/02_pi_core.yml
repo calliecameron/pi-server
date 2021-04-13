@@ -17,3 +17,11 @@
     cmd: "{{ pi_core }}/02-firewall"
     stdin: |
       y
+# - name: 02-pi-core - 03-dynamic-dns
+#   command:
+#     cmd: "{{ testbed_setup }}/sudoedit-wrapper {{ pi_core }}/03-dynamic-dns"
+#     stdin: |
+#       y
+#       y
+#   environment:
+#     SUDO_EDITOR: "true"

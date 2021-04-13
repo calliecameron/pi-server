@@ -25,3 +25,11 @@ class Test02PiCore:
     def test_02_firewall(self, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
         assert host.file('/etc/pi-server/firewall/allow-forwarding').exists
+
+    # @for_host_types('pi')
+    # def test_03_dynamic_dns(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    #     host = hosts[hostname]
+
+    #     # Part 1 - avahi
+    #     assert (host.check_output('getent hosts %s.local' % hostname) ==
+    #             '%s       %s.local' % (addrs[hostname], hostname))
