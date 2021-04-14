@@ -42,7 +42,7 @@ To install on a Pi:
    by creating a file `ssh` in the boot partition, boot, and log
    in.
 3. `sudo apt-get update; sudo apt-get -y install git`
-4. `git clone https://github.com/CallumCameron/pi-server`
+4. `git clone https://github.com/calliecameron/pi-server`
 5. `cd pi-server`
 
 In each of the numbered folders starting with `01-generic-core` in
