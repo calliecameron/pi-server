@@ -19,7 +19,7 @@ test -z "${PASSWORD}" && exit 0
 
 OUTPUT_FILE='@@@@@4@@@@@'
 
-if ! wget -O - --http-user="${USERNAME}" --http-passwd="${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"; then
+if ! curl --fail --user "${USERNAME}:${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}" &>"${OUTPUT_FILE}"; then
     echo 'ZoneEdit update failed; check the log file'
 fi
 

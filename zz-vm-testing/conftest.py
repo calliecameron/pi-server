@@ -44,7 +44,7 @@ File.clear = _file_clear # type: ignore
 class Timer(codetiming.Timer):
 
     def __init__(self, name: str = '[unnamed timer]') -> None:
-        super(Timer, self).__init__(name=name, logger=logging.debug)
+        super().__init__(name=name, logger=logging.debug)
         self._args = []  # type: List[str]
         self._retval = None  # type: object
         self._extra_text = []  # type: List[object]
@@ -80,11 +80,11 @@ class Timer(codetiming.Timer):
         self._extra_text.append(extra)
 
     def __enter__(self) -> 'Timer':
-        return cast(Timer, super(Timer, self).__enter__())
+        return cast(Timer, super().__enter__())
 
     def __exit__(self, *exc_info: Any) -> None:
         self._update_text()
-        super(Timer, self).__exit__(*exc_info)
+        super().__exit__(*exc_info)
 
     def __call__(self, *args: Any) -> Any:  # pylint: disable=arguments-differ
         raise NotImplementedError("Do not use 'Timer' as a decorator, use 'timer' instead")
@@ -119,7 +119,7 @@ def vms_down(*args: str) -> MarkDecorator:
 class Vagrant:
     @timer
     def __init__(self) -> None:
-        super(Vagrant, self).__init__()
+        super().__init__()
         self._v = vagrant_lib.Vagrant()
         # VM operations are slow, so we cache the state. This requires that nothing else modifies
         # the state while the tests are running.
@@ -164,7 +164,7 @@ class Vagrant:
 
 class Net:
     def __init__(self, hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant) -> None:
-        super(Net, self).__init__()
+        super().__init__()
         self._hosts = hosts
         self._addrs = addrs
         self._vagrant = vagrant
@@ -318,7 +318,7 @@ class Email:
     _PORT = 1080
 
     def __init__(self, host: str) -> None:
-        super(Email, self).__init__()
+        super().__init__()
         self._host = host
 
     def clear(self) -> None:
@@ -342,7 +342,7 @@ class Email:
             raise ValueError(
                 'Length of want and got differ (%d vs %d); all emails:\n%s' %
                 (len(emails), len(got_emails), json.dumps(got_emails, sort_keys=True, indent=2)))
-        for email, expected in zip(sorted(got_emails, key=lambda e: e['subject']),
+        for email, expected in zip(sorted(got_emails, key=lambda e: cast(str, e['subject'])),
                                    sorted(emails, key=lambda e: e['subject'])):
             # pylint: disable=cell-var-from-loop
             def fail(field_name: str, want: str, got: str) -> None:
@@ -356,12 +356,59 @@ class Email:
                 if want != got:
                     fail(field_name, want, got)
 
-            check_field('to', email['to']['value'][0]['address'], expected['to'])
-            check_field('from', email['from']['value'][0]['address'], expected['from'])
-            check_field('subject', email['subject'], expected['subject'])
+            check_field('to', expected['to'], email['to']['value'][0]['address'])
+            check_field('from', expected['from'], email['from']['value'][0]['address'])
+            check_field('subject', expected['subject'], email['subject'])
 
             if re.fullmatch(expected['body_re'], email['text']) is None:
                 fail('text', expected['body_re'], email['text'])
+
+
+class MockServer:
+    _PORT = 443
+    _CATCH_ALL = {
+        'httpRequest': {},
+        'httpResponse': {
+            'statusCode': 404,
+            'body': 'Mockserver fallback',
+        },
+        'priority': -10,
+    }
+
+    def __init__(self, host: str) -> None:
+        super().__init__()
+        self._host = host
+        self._expectations = [] # type: List[str]
+
+    def clear(self) -> None:
+        self._expectations = []
+        r = requests.put('http://%s:%d/reset' % (self._host, self._PORT))
+        r.raise_for_status()
+
+        # Catch-all expectation
+        r = requests.put('http://%s:%d/expectation' % (self._host, self._PORT),
+                         json=self._CATCH_ALL)
+        r.raise_for_status()
+
+    def expect(self, json: Dict[Any, Any]) -> None:
+        json['times'] = {'remainingTimes': 1}
+        r = requests.put('http://%s:%d/expectation' % (self._host, self._PORT), json=json)
+        r.raise_for_status()
+        self._expectations.append(r.json()[0]['httpRequest'])
+
+    def assert_called(self, times: int = 1) -> None:
+        for request in self._expectations:
+            r = requests.put('http://%s:%d/verify' % (self._host, self._PORT), json={
+                'httpRequest': request,
+                'times': {
+                    'atLeast': times,
+                    'atMost': times,
+                },
+            })
+            r.raise_for_status()
+
+    def assert_not_called(self) -> None:
+        self.assert_called(0)
 
 
 class ShadowFile:
@@ -371,7 +418,7 @@ class ShadowFile:
     content. Shadow persists across reboots.
     """
     def __init__(self, host: Host, path: str) -> None:
-        super(ShadowFile, self).__init__()
+        super().__init__()
         self._host = host
         self._path = path
         self._path_existed = False
@@ -422,7 +469,7 @@ class ShadowDir:
     content. Shadow does not persist across reboots.
     """
     def __init__(self, host: Host, path: str) -> None:
-        super(ShadowDir, self).__init__()
+        super().__init__()
         self._host = host
         self._path = path
         self._tmpdir = None # type: Optional[str]
@@ -473,9 +520,11 @@ Host.disable_login_emails = _host_disable_login_emails # type: ignore
 
 
 class CronRunner:
-    def __init__(self, host: Host) -> None:
-        super(CronRunner, self).__init__()
+    def __init__(self, host: Host, time: str, cmd_to_watch: str) -> None:
+        super().__init__()
         self._host = host
+        self._time = time
+        self._cmd_to_watch = cmd_to_watch
 
     def __enter__(self) -> None:
         with self._host.sudo():
@@ -486,17 +535,17 @@ class CronRunner:
             self._host.check_output(
                 "timedatectl set-time '%s 09:00:00'" % datetime.date.today().isoformat())
             time.sleep(90)
-            # Cron runs at 02:25; wait for it to start
+            # Wait for it to start
             self._host.check_output(
-                "timedatectl set-time '%s 02:24:50'" % datetime.date.today().isoformat())
+                "timedatectl set-time '%s %s'" % (datetime.date.today().isoformat(), self._time))
         self._host.check_output(
-            "timeout 60 bash -c "
-            "\"while ! pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done\"; true")
+            ("timeout 60 bash -c "
+             "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
 
     def __exit__(self, *exc_info: Any) -> None:
         # Wait for cron to finish
         self._host.check_output(
-            "while pgrep -x -f '/bin/bash /etc/cron.daily/pi-server'; do true; done")
+            "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
         with self._host.sudo():
             self._host.check_output('timedatectl set-ntp true')
             if self._host.service('vboxadd-service').is_enabled:
@@ -504,15 +553,18 @@ class CronRunner:
 
 
 
-def _host_run_crons(self: Host) -> CronRunner:
-    return CronRunner(self)
+def _host_run_crons(
+        self: Host,
+        time: str = '02:24:50',
+        cmd_to_watch: str = '/bin/bash /etc/cron.daily/pi-server') -> CronRunner:
+    return CronRunner(self, time, cmd_to_watch)
 
 Host.run_crons = _host_run_crons # type: ignore
 
 
 class Lines:
     def __init__(self, s: str, name: Optional[str] = None) -> None:
-        super(Lines, self).__init__()
+        super().__init__()
         self._lines = s.split('\n')
         self._name = name
 
@@ -622,6 +674,13 @@ def email(addrs: Dict[str, str]) -> Email:
     e = Email(addrs['internet'])
     e.clear()
     return e
+
+
+@pytest.fixture()
+def mockserver(addrs: Dict[str, str]) -> MockServer:
+    m = MockServer(addrs['internet'])
+    m.clear()
+    return m
 
 
 @pytest.fixture(scope='function', autouse=True)

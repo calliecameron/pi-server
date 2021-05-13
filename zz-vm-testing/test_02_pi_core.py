@@ -1,6 +1,8 @@
+import time
 from typing import Dict
+import requests
 from testinfra.host import Host
-from conftest import for_host_types, host_number
+from conftest import for_host_types, host_number, Email, MockServer
 
 
 class Test02PiCore:
@@ -26,10 +28,99 @@ class Test02PiCore:
         host = hosts[hostname]
         assert host.file('/etc/pi-server/firewall/allow-forwarding').exists
 
-    # @for_host_types('pi')
-    # def test_03_dynamic_dns(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
-    #     host = hosts[hostname]
+    @for_host_types('pi')
+    def test_03_dynamic_dns(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str],
+            email: Email,
+            mockserver: MockServer) -> None:
+        host = hosts[hostname]
 
-    #     # Part 1 - avahi
-    #     assert (host.check_output('getent hosts %s.local' % hostname) ==
-    #             '%s       %s.local' % (addrs[hostname], hostname))
+        # Part 1 - avahi
+        assert (host.check_output('getent hosts %s.local' % hostname) ==
+                '%s       %s.local' % (addrs[hostname], hostname))
+
+        # Part 2 - zoneedit
+        auth_header = requests.Request()
+        requests.auth.HTTPBasicAuth('foo', 'bar')(auth_header)
+
+        zoneedit_req = {
+            'httpRequest': {
+                'method': 'GET',
+                'path': '/auth/dynamic.html',
+                'queryStringParameters': {
+                    'host': [hostname + '.testbed'],
+                },
+                'headers': [
+                    {
+                        'name': 'Authorization',
+                        'values': [auth_header.headers['Authorization']],
+                    },
+                ],
+                'secure': True,
+            },
+            'httpResponse': {
+                'statusCode': 200,
+            },
+        }
+
+        with host.shadow_file('/etc/pi-server/zoneedit/zoneedit-username') as username_file, \
+             host.shadow_file('/etc/pi-server/zoneedit/zoneedit-password') as password_file, \
+             host.disable_login_emails():
+
+            # No username or password, no request or emails
+            mockserver.clear()
+            email.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+                pass
+            mockserver.assert_not_called()
+            time.sleep(15)
+            email.assert_emails([], only_from=hostname)
+
+            # Correct username/password, manual run
+            with host.sudo():
+                username_file.write('foo')
+                password_file.write('bar')
+
+            mockserver.clear()
+            email.clear()
+            mockserver.expect(zoneedit_req)
+            with host.sudo():
+                host.check_output('/etc/pi-server/zoneedit/zoneedit-update')
+            mockserver.assert_called()
+            time.sleep(15)
+            email.assert_emails([], only_from=hostname)
+
+            # Correct username/password in cronjob
+            mockserver.clear()
+            email.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+                pass
+            mockserver.assert_called()
+            time.sleep(15)
+            email.assert_emails([], only_from=hostname)
+
+            # Wrong password in cronjob
+            with host.sudo():
+                password_file.write('baz')
+            mockserver.clear()
+            email.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+                pass
+            mockserver.assert_not_called()
+            time.sleep(15)
+            email.assert_emails([
+                {
+                    'from': '',
+                    'to': '',
+                    'subject': ('Cron <root@%s>    cd / && run-parts --report /etc/cron.hourly'
+                                % hostname),
+                    'body_re': (r'/etc/cron.hourly/zoneedit-update:\n'
+                                r'ZoneEdit update failed; check the log file\n'),
+                },
+            ], only_from=hostname)

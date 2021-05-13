@@ -80,3 +80,16 @@
       cmd: equivs-build pi-server-test2
       chdir: aptly
       creates: pi-server-test2_1_all.deb
+
+  # mockserver
+  - name: internet - install java
+    package: name=openjdk-8-jre
+  - name: internet - mockserver jar
+    become: no
+    get_url:
+      url: https://search.maven.org/remotecontent?filepath=org/mock-server/mockserver-netty/5.11.1/mockserver-netty-5.11.1-jar-with-dependencies.jar
+      dest: /home/vagrant/mockserver.jar
+  - name: internet - install mockserver systemd unit
+    template: src=mockserver.service dest=/etc/systemd/system/mockserver.service owner=root mode=a=r
+  - name: internet - enable mockserver
+    systemd: name=mockserver daemon_reload=yes enabled=yes state=started
