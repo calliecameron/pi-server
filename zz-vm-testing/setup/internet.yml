@@ -93,3 +93,7 @@
     template: src=mockserver.service dest=/etc/systemd/system/mockserver.service owner=root mode=a=r
   - name: internet - enable mockserver
     systemd: name=mockserver daemon_reload=yes enabled=yes state=started
+
+  # CA
+  - name: internet - install openvpn
+    package: name=openvpn
