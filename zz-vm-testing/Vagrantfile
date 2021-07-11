@@ -32,7 +32,9 @@ def internet(config)
       ansible.extra_vars = {
         nonexistent_wan_ip: $addrs["nonexistent_wan"],
         lan1_mask: $masks["lan1"],
-        lan2_mask: $masks["lan2"]
+        lan2_mask: $masks["lan2"],
+        pi1_ip: $addrs["pi1"],
+        pi2_ip: $addrs["pi2"]
       }
     end
     internet.vm.provision :reload

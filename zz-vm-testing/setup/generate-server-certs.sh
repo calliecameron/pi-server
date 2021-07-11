@@ -1,0 +1,49 @@
+#!/bin/bash
+
+function usage() {
+    echo "Usage: $(basename "${0}") ca_out [hostname ip]..."
+    exit 1
+}
+
+test -z "${1}" && usage
+CA_OUT="${1}"
+shift
+
+while(($#)); do
+    test -z "${1}" && usage
+    test -z "${2}" && usage
+    HOST="${1}"
+    IP="${2}"
+
+    printf '%s\n%s.local\nfoobar\n' "${IP}" "${HOST}" | "${CA_OUT}/scripts/make-pi-server-certs" &&
+    cd "${CA_OUT}/certs/server" &&
+    cd "${IP}"__* || exit 1
+
+    cat > "${HOST}-server-certs" <<EOF
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Package: ${HOST}-server-certs
+Version: 1
+Files: ca.crt /etc/pi-server/certs/
+ crl /etc/pi-server/certs/
+ deployment-key /etc/pi-server/certs/
+ deployment-key.pub /etc/pi-server/certs/
+ nginx.crt /etc/pi-server/certs/
+ nginx.key /etc/pi-server/certs/
+ openvpn.crt /etc/pi-server/certs/
+ openvpn-dh2048.pem /etc/pi-server/certs/
+ openvpn.key /etc/pi-server/certs/
+ openvpn-tls-auth.key /etc/pi-server/certs/
+EOF
+
+    equivs-build "${HOST}-server-certs" &&
+    aptly repo add certs "${HOST}-server-certs_1_all.deb" ||
+    exit 1
+
+    shift
+    shift
+done
+
+aptly publish update certs &&
+touch ~/certs-generated

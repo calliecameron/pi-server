@@ -39,3 +39,14 @@
       y
   environment:
     SUDO_EDITOR: "true"
+
+- name: 02-pi-core - 04-nginx - add certs repo
+  become: yes
+  apt_repository:
+    repo: "deb [trusted=yes] http://{{ internet_ip }}:8080/ certs certs"
+- name: 02-pi-core - 04-nginx - install certs
+  become: yes
+  package: name="{{ inventory_hostname }}-server-certs"
+- name: 02-pi-core - 04-nginx
+  command:
+    cmd: "{{ pi_core }}/04-nginx"

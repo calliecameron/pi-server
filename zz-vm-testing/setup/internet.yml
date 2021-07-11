@@ -3,6 +3,8 @@
   become: yes
   vars_files:
   - testbed_vars.yml
+  vars:
+    ca_out: /home/vagrant/ca
   tasks:
   - import_tasks: testbed_helper.yml
     vars:
@@ -41,6 +43,12 @@
           comment:      main
           component:    main
           distribution: main
+          origin:       test
+          label:        test
+        - name:         certs
+          comment:      certs
+          component:    certs
+          distribution: certs
           origin:       test
           label:        test
   - name: internet - install aptly systemd unit
@@ -100,19 +108,16 @@
   - name: internet - generate CA
     become: no
     shell:
-      cmd: "PATH=\"/usr/sbin:${PATH}\" {{ ca }}/00-make-ca /home/vagrant/ca pi-server"
+      cmd: "PATH=\"/usr/sbin:${PATH}\" {{ ca }}/00-make-ca {{ ca_out }} pi-server"
       stdin: |
         foobar
         foobar
 
 
         Test CA
-      creates: /home/vagrant/ca
-  # - name: internet - generate pi1 certs
-  #   become: no
-  #   command:
-  #     cmd: /home/vagrant/ca/scripts/make-pi-server-certs
-  #     stdin: |
-  #       ip
-  #       .local
-  #       foobar
+      creates: "{{ ca_out }}"
+  - name: internet - generate server certs
+    become: no
+    command:
+      cmd: "{{ testbed_setup }}/generate-server-certs.sh {{ ca_out }} pi1 {{ pi1_ip }} pi2 {{ pi2_ip }}"
+      creates: certs-generated
