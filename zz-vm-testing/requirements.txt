@@ -3,5 +3,5 @@ codetiming
 cryptography
 python-vagrant
 requests
-testinfra
+pytest-testinfra
 trparse

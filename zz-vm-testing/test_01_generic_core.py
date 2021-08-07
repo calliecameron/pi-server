@@ -488,7 +488,7 @@ WantedBy=multi-user.target
 
             # Nothing to update
             email.clear()
-            with host.run_crons():
+            with host.run_crons(disable_sources_list=False):
                 pass
 
             assert host.package('pi-server-test').is_installed
@@ -501,7 +501,7 @@ WantedBy=multi-user.target
             internet.check_output('aptly publish update main')
 
             email.clear()
-            with host.run_crons():
+            with host.run_crons(disable_sources_list=False):
                 pass
 
             assert host.package('pi-server-test').is_installed
@@ -521,7 +521,7 @@ WantedBy=multi-user.target
             internet.check_output('aptly publish update main')
 
             email.clear()
-            with host.run_crons():
+            with host.run_crons(disable_sources_list=False):
                 pass
 
             assert host.package('pi-server-test').is_installed
@@ -541,7 +541,7 @@ WantedBy=multi-user.target
 
             # Nothing to update
             email.clear()
-            with host.run_crons():
+            with host.run_crons(disable_sources_list=False):
                 pass
 
             assert host.package('pi-server-test').is_installed

@@ -520,16 +520,24 @@ Host.disable_login_emails = _host_disable_login_emails # type: ignore
 
 
 class CronRunner:
-    def __init__(self, host: Host, time: str, cmd_to_watch: str) -> None:
+    def __init__(
+            self, host: Host, time: str, cmd_to_watch: str, disable_sources_list: bool) -> None:
         super().__init__()
         self._host = host
         self._time = time
         self._cmd_to_watch = cmd_to_watch
+        self._disable_sources_list = disable_sources_list
+        self._restore_guest_additions = False
+        self._sources_list = None # type: Optional[ShadowFile]
 
     def __enter__(self) -> None:
         with self._host.sudo():
+            if self._disable_sources_list:
+                self._sources_list = self._host.shadow_file('/etc/apt/sources.list')
+                self._sources_list.__enter__()
             if self._host.service('vboxadd-service').is_running:
                 self._host.check_output('systemctl stop vboxadd-service')
+                self._restore_guest_additions = True
             self._host.check_output('timedatectl set-ntp false')
             # Large change to override cron's daylight-saving-time handling
             self._host.check_output(
@@ -548,16 +556,18 @@ class CronRunner:
             "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
         with self._host.sudo():
             self._host.check_output('timedatectl set-ntp true')
-            if self._host.service('vboxadd-service').is_enabled:
+            if self._restore_guest_additions:
                 self._host.check_output('systemctl start vboxadd-service')
-
+            if self._sources_list:
+                self._sources_list.__exit__(None)
 
 
 def _host_run_crons(
         self: Host,
         time: str = '02:24:50',
-        cmd_to_watch: str = '/bin/bash /etc/cron.daily/pi-server') -> CronRunner:
-    return CronRunner(self, time, cmd_to_watch)
+        cmd_to_watch: str = '/bin/bash /etc/cron.daily/pi-server',
+        disable_sources_list: bool = True) -> CronRunner:
+    return CronRunner(self, time, cmd_to_watch, disable_sources_list)
 
 Host.run_crons = _host_run_crons # type: ignore
 
