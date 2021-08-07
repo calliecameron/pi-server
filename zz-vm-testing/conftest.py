@@ -157,9 +157,11 @@ class Vagrant:
         else:
             self.down(vm)
 
-    def set_states(self, vms_down: Sequence[str] = ()) -> None:
+    def set_states(self, vms_down: Sequence[str] = ()) -> bool:
+        old_state = self.running_vms()
         for vm in self.all_vms():
             self.set_state(vm, vm not in vms_down)
+        return self.running_vms() != old_state
 
 
 class Net:
@@ -700,7 +702,8 @@ def ensure_vm_state(vagrant: Vagrant, request: FixtureRequest) -> None:
     for mark in request.keywords.get('pytestmark', []):
         if mark.name == 'vms_down':
             vms_down = mark.kwargs['vms']
-    vagrant.set_states(vms_down)
+    if vagrant.set_states(vms_down):
+        time.sleep(60)
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:
