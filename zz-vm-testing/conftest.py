@@ -150,6 +150,7 @@ class Vagrant:
     def reboot(self, vm: str) -> None:
         self.down(vm)
         self.up(vm)
+        time.sleep(60)
 
     def set_state(self, vm: str, state: bool) -> None:
         if state:

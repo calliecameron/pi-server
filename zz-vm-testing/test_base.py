@@ -180,9 +180,9 @@ class TestFirewall:
                 'ubuntu': {'tcp': {22}, 'udp': set()},
             },
             'router1': {
-                'pi1': {'tcp': {22}, 'udp': set()},
+                'pi1': {'tcp': {22, 80}, 'udp': set()},
             },
             'router2': {
-                'pi2': {'tcp': {22}, 'udp': set()},
+                'pi2': {'tcp': {22, 80}, 'udp': set()},
             },
         })
