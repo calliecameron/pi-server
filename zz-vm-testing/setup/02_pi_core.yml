@@ -62,3 +62,7 @@
       y
       y
       y
+
+- name: 02-pi-core - 07-storage-directories
+  command:
+    cmd: "{{ pi_core }}/07-storage-directories"
