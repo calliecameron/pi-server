@@ -11,6 +11,7 @@ from collections import OrderedDict
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from functools import wraps
+from urllib.parse import urlparse, ParseResult
 import codetiming
 import pytest
 import requests
@@ -19,9 +20,13 @@ import vagrant as vagrant_lib
 from _pytest.fixtures import FixtureRequest
 from _pytest.mark.structures import MarkDecorator
 from _pytest.python import Metafunc
+from selenium.webdriver import Firefox
+from selenium.webdriver.common.by import By
 from testinfra.modules.file import File
 from testinfra.host import Host
 from testinfra.utils import ansible_runner
+from tidylib import tidy_document
+
 
 
 T = TypeVar('T')
@@ -121,8 +126,12 @@ class Vagrant:
     def __init__(self) -> None:
         super().__init__()
         self._v = vagrant_lib.Vagrant()
-        # VM operations are slow, so we cache the state. This requires that nothing else modifies
-        # the state while the tests are running.
+        # VM operations are slow, so we cache the state. If state is modified externally, run
+        # rescan_state to update the cache.
+        self._state = {} # type: Dict[str, bool]
+        self.rescan_state()
+
+    def rescan_state(self) -> None:
         self._state = {vm.name: vm.state == self._v.RUNNING for vm in self._v.status()}
 
     def state(self) -> Dict[str, bool]:
@@ -593,6 +602,37 @@ class Lines:
             out += self._name + ' '
         out += '(%d lines)]' % len(self._lines)
         return out
+
+
+class WebDriver(Firefox):
+    def validate_html(self) -> None:
+        errors = tidy_document(self.page_source, options={'show-warnings':0})[1]
+        assert not errors
+
+    def validate_links(self) -> Set[ParseResult]:
+        this_addr = urlparse(self.current_url).hostname
+
+        def elems(tag: str) -> List[Any]:
+            e = cast(List[Any], self.find_elements(By.TAG_NAME, tag))
+            assert e
+            return e
+
+        for e in elems('link'):
+            assert urlparse(e.get_attribute('href')).hostname == this_addr
+
+        for e in elems('img'):
+            assert urlparse(e.get_attribute('src')).hostname == this_addr
+
+        same = set()
+        other = set()
+        for e in elems('a'):
+            url = urlparse(e.get_attribute('href'))
+            if url.hostname == this_addr:
+                same.add(url)
+            else:
+                other.add(url)
+        assert same
+        return other
 
 
 def _hostnames() -> List[str]:

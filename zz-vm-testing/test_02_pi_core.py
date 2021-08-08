@@ -1,11 +1,10 @@
 import time
-from typing import Any, Dict, List, cast
+from typing import Dict, List
 from urllib.parse import urlparse
 import requests
-from selenium.webdriver import Firefox
-from selenium.webdriver.common.by import By
 from testinfra.host import Host
-from tidylib import tidy_document
+from conftest import WebDriver, Vagrant
+
 
 from conftest import for_host_types, host_number, Email, MockServer
 
@@ -137,37 +136,60 @@ class Test02PiCore:
             addrs: Dict[str, str]) -> None:
 
         def test(this_addr: str, other_addr: str) -> None:
-            with Firefox() as driver:
-                def elems(tag: str) -> List[Any]:
-                    e = cast(List[Any], driver.find_elements(By.TAG_NAME, tag))
-                    assert e
-                    return e
-
+            with WebDriver() as driver:
                 driver.get('http://' + this_addr)
-
-                for e in elems('link'):
-                    assert urlparse(e.get_attribute('href')).hostname == this_addr
-
-                for e in elems('img'):
-                    assert urlparse(e.get_attribute('src')).hostname == this_addr
-
-                same = set()
-                other = set()
-                for e in elems('a'):
-                    href = e.get_attribute('href')
-                    if urlparse(href).hostname == this_addr:
-                        same.add(href)
-                    else:
-                        other.add(href)
-                assert len(same) > 1
-                assert len(other) == 1 and urlparse(list(other)[0]).hostname == other_addr
-
-            r = requests.get('http://' + this_addr)
-            r.raise_for_status()
-            errors = tidy_document(r.text, options={'show-warnings':0})[1]
-            assert not errors
+                driver.validate_html()
+                other_links = driver.validate_links()
+                assert len(other_links) == 1 and list(other_links)[0].hostname == other_addr
 
         addr = addrs[hostname]
         local = hostname + '.local'
         test(addr, local)
         test(local, addr)
+
+    @for_host_types('pi')
+    def test_05_shutdownd(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str],
+            vagrant: Vagrant) -> None:
+        host = hosts[hostname]
+        path = '/tmp/disappear-on-reboot'
+
+        def test(this_addr: str) -> None:
+            def navigate_and_click(text: str) -> None:
+                host.file(path).write('')
+                with WebDriver() as driver:
+                    driver.get('http://' + this_addr)
+                    link = driver.find_element_by_link_text(text)
+
+                    assert urlparse(link.get_attribute('href')).hostname == this_addr
+
+                    link.click()
+                    driver.validate_html()
+                    other_links = driver.validate_links()
+                    assert not other_links
+                    button = driver.find_element_by_name('btn')
+
+                    button.click()
+                    driver.validate_html()
+                    other_links = driver.validate_links()
+                    assert not other_links
+
+            navigate_and_click('Restart')
+            time.sleep(20)
+            vagrant.rescan_state()
+            assert vagrant.state()[hostname]
+            assert not host.file(path).exists
+
+            navigate_and_click('Shut down')
+            time.sleep(10)
+            vagrant.rescan_state()
+            assert not vagrant.state()[hostname]
+            vagrant.reboot(hostname)
+            assert vagrant.state()[hostname]
+            assert not host.file(path).exists
+
+        test(addrs[hostname])
+        test(hostname + '.local')
