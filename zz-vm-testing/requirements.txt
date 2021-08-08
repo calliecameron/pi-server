@@ -4,4 +4,7 @@ cryptography
 python-vagrant
 requests
 pytest-testinfra
+pytidylib
+selenium
 trparse
+types-selenium

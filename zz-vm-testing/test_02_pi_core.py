@@ -1,7 +1,12 @@
 import time
-from typing import Dict
+from typing import Any, Dict, List, cast
+from urllib.parse import urlparse
 import requests
+from selenium.webdriver import Firefox
+from selenium.webdriver.common.by import By
 from testinfra.host import Host
+from tidylib import tidy_document
+
 from conftest import for_host_types, host_number, Email, MockServer
 
 
@@ -124,3 +129,45 @@ class Test02PiCore:
                                 r'ZoneEdit update failed; check the log file\n'),
                 },
             ], only_from=hostname)
+
+    @for_host_types('pi')
+    def test_04_nginx(
+            self,
+            hostname: str,
+            addrs: Dict[str, str]) -> None:
+
+        def test(this_addr: str, other_addr: str) -> None:
+            with Firefox() as driver:
+                def elems(tag: str) -> List[Any]:
+                    e = cast(List[Any], driver.find_elements(By.TAG_NAME, tag))
+                    assert e
+                    return e
+
+                driver.get('http://' + this_addr)
+
+                for e in elems('link'):
+                    assert urlparse(e.get_attribute('href')).hostname == this_addr
+
+                for e in elems('img'):
+                    assert urlparse(e.get_attribute('src')).hostname == this_addr
+
+                same = set()
+                other = set()
+                for e in elems('a'):
+                    href = e.get_attribute('href')
+                    if urlparse(href).hostname == this_addr:
+                        same.add(href)
+                    else:
+                        other.add(href)
+                assert len(same) > 1
+                assert len(other) == 1 and urlparse(list(other)[0]).hostname == other_addr
+
+            r = requests.get('http://' + this_addr)
+            r.raise_for_status()
+            errors = tidy_document(r.text, options={'show-warnings':0})[1]
+            assert not errors
+
+        addr = addrs[hostname]
+        local = hostname + '.local'
+        test(addr, local)
+        test(local, addr)
