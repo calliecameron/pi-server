@@ -311,3 +311,10 @@ class Test02PiCore:
         finally:
             with host.sudo():
                 host.check_output('umount /mnt/backup')
+
+    @for_host_types('pi')
+    def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
+        """This just installs the openvpn service, not any configs."""
+        host = hosts[hostname]
+        assert host.service('openvpn').is_enabled
+        assert host.service('openvpn').is_running

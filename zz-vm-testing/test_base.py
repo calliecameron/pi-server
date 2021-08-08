@@ -175,14 +175,14 @@ class TestFirewall:
     def test_firewall(self, net: Net) -> None:
         net.assert_ports_open({
             'internet': {
-                'router1_wan': {'tcp': set(), 'udp': set()},
-                'router2_wan': {'tcp': set(), 'udp': set()},
+                'router1_wan': {'tcp': {1194}, 'udp': set()},
+                'router2_wan': {'tcp': {1194}, 'udp': set()},
                 'ubuntu': {'tcp': {22}, 'udp': set()},
             },
             'router1': {
-                'pi1': {'tcp': {22, 80}, 'udp': set()},
+                'pi1': {'tcp': {22, 80, 1194}, 'udp': set()},
             },
             'router2': {
-                'pi2': {'tcp': {22, 80}, 'udp': set()},
+                'pi2': {'tcp': {22, 80, 1194}, 'udp': set()},
             },
         })
