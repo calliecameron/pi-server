@@ -520,6 +520,18 @@ def _host_client_ip(self: Host) -> str:
 Host.client_ip = _host_client_ip # type: ignore
 
 
+def _host_make_bigfile(self: Host, path: str, mount_point: str) -> None:
+    output = self.check_output('df --output=size,used %s | tail -n 1' % mount_point)
+    # Sizes in kiB
+    size = int(output.split()[0])
+    used = int(output.split()[1])
+    # Want to get it up to 92% full
+    needed = int(0.92 * size) - used
+    self.check_output('dd if=/dev/zero of=%s bs=1M count=%d' % (path, int(needed / 1024)))
+
+Host.make_bigfile = _host_make_bigfile # type: ignore
+
+
 @contextmanager
 def _host_disable_login_emails(self: Host) -> Iterator[None]:
     client_ip = self.client_ip()

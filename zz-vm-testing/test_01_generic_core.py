@@ -576,14 +576,8 @@ WantedBy=multi-user.target
             email.assert_emails([], only_from=hostname)
 
             # Not much space
-            output = host.check_output('df --output=size,used / | tail -n 1')
-            # Sizes in kiB
-            size = int(output.split()[0])
-            used = int(output.split()[1])
-            # Want to get it up to 92% full
-            needed = int(0.92 * size) - used
             try:
-                host.check_output('dd if=/dev/zero of=bigfile bs=1M count=%d' % int(needed / 1024))
+                host.make_bigfile('bigfile', '/')
 
                 email.clear()
                 with host.run_crons():
@@ -594,7 +588,7 @@ WantedBy=multi-user.target
                     'to': 'fake@fake.testbed',
                     'subject': '[%s] Storage space alert' % hostname,
                     'body_re': (r'A partition is above 90% full.\n(.*\n)*'
-                                r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*/\n(.*\n)*'),
+                                r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*9[0-9]%.*/\n(.*\n)*'),
                 }], only_from=hostname)
             finally:
                 host.check_output('rm -f bigfile')

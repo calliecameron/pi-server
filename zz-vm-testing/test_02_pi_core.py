@@ -3,10 +3,7 @@ from typing import Dict, List
 from urllib.parse import urlparse
 import requests
 from testinfra.host import Host
-from conftest import WebDriver, Vagrant
-
-
-from conftest import for_host_types, host_number, Email, MockServer
+from conftest import for_host_types, host_number, Email, MockServer, WebDriver, Vagrant
 
 
 class Test02PiCore:
@@ -193,3 +190,82 @@ class Test02PiCore:
 
         test(addrs[hostname])
         test(hostname + '.local')
+
+    @for_host_types('pi')
+    def test_06_storage_drives(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host],
+            email: Email) -> None:
+        host = hosts[hostname]
+
+        # Part 1 - fstab
+        data = host.mount_point('/mnt/data')
+        assert data.exists
+        assert data.filesystem == 'ext4'
+        assert data.device == '/dev/sdb1'
+
+        backup = host.mount_point('/mnt/backup')
+        assert not backup.exists
+
+        try:
+            with host.sudo():
+                host.check_output('mount /mnt/backup')
+
+            backup = host.mount_point('/mnt/backup')
+            assert backup.exists
+            assert backup.filesystem == 'ext4'
+            assert backup.device == '/dev/sdb2'
+        finally:
+            with host.sudo():
+                host.check_output('umount /mnt/backup')
+
+        # Part 2 - disk space checking
+        with host.disable_login_emails():
+            # Lots of space
+            email.clear()
+            with host.run_crons():
+                pass
+
+            email.assert_emails([], only_from=hostname)
+
+            # Not much space
+            try:
+                data_file = '/mnt/data/bigfile'
+                backup_file = '/mnt/backup/bigfile'
+                with host.sudo():
+                    host.make_bigfile(data_file, '/mnt/data')
+                    host.check_output('mount /mnt/backup')
+                    host.make_bigfile(backup_file, '/mnt/backup')
+                    host.check_output('umount /mnt/backup')
+
+                email.clear()
+                with host.run_crons():
+                    pass
+
+                email.assert_emails([{
+                    'from': 'notification@%s.testbed' % hostname,
+                    'to': 'fake@fake.testbed',
+                    'subject': '[%s] Storage space alert' % hostname,
+                    'body_re': (r'A partition is above 90% full.\n(.*\n)*'
+                                r'/dev/sdb2.*9[0-9]%.*/mnt/backup\n(.*\n)*'),
+                }, {
+                    'from': 'notification@%s.testbed' % hostname,
+                    'to': 'fake@fake.testbed',
+                    'subject': '[%s] Storage space alert' % hostname,
+                    'body_re': (r'A partition is above 90% full.\n(.*\n)*'
+                                r'/dev/sdb1.*9[0-9]%.*/mnt/data\n(.*\n)*'),
+                }], only_from=hostname)
+            finally:
+                with host.sudo():
+                    host.check_output('rm -f %s' % data_file)
+                    host.check_output('mount /mnt/backup')
+                    host.check_output('rm -f %s' % backup_file)
+                    host.check_output('umount /mnt/backup')
+
+            # Lots of space again
+            email.clear()
+            with host.run_crons():
+                pass
+
+            email.assert_emails([], only_from=hostname)

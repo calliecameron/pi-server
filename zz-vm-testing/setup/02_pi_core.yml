@@ -54,3 +54,11 @@
 - name: 02-pi-core - 05-shutdownd
   command:
     cmd: "{{ pi_core }}/05-shutdownd"
+
+- name: 02-pi-core - 06-storage-drives
+  command:
+    cmd: "{{ pi_core }}/06-storage-drives"
+    stdin: |
+      y
+      y
+      y
