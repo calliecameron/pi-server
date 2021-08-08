@@ -543,12 +543,30 @@ def _host_disable_login_emails(self: Host) -> Iterator[None]:
 Host.disable_login_emails = _host_disable_login_emails # type: ignore
 
 
+@contextmanager
+def _host_mount_backup_dir(self: Host) -> Iterator[None]:
+    try:
+        with self.sudo():
+            self.check_output('mount /mnt/backup')
+        yield
+    finally:
+        with self.sudo():
+            self.check_output('umount /mnt/backup')
+
+Host.mount_backup_dir = _host_mount_backup_dir # type: ignore
+
+
 class CronRunner:
     def __init__(
-            self, host: Host, time: str, cmd_to_watch: str, disable_sources_list: bool) -> None:
+            self, host: Host,
+            time: str,
+            cmd_to_watch: str,
+            disable_sources_list: bool,
+            date: str) -> None:
         super().__init__()
         self._host = host
         self._time = time
+        self._date = date
         self._cmd_to_watch = cmd_to_watch
         self._disable_sources_list = disable_sources_list
         self._restore_guest_additions = False
@@ -565,11 +583,11 @@ class CronRunner:
             self._host.check_output('timedatectl set-ntp false')
             # Large change to override cron's daylight-saving-time handling
             self._host.check_output(
-                "timedatectl set-time '%s 09:00:00'" % datetime.date.today().isoformat())
+                "timedatectl set-time '%s 09:00:00'" % self._date)
             time.sleep(90)
             # Wait for it to start
             self._host.check_output(
-                "timedatectl set-time '%s %s'" % (datetime.date.today().isoformat(), self._time))
+                "timedatectl set-time '%s %s'" % (self._date, self._time))
         self._host.check_output(
             ("timeout 60 bash -c "
              "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
@@ -590,8 +608,9 @@ def _host_run_crons(
         self: Host,
         time: str = '02:24:50',
         cmd_to_watch: str = '/bin/bash /etc/cron.daily/pi-server',
-        disable_sources_list: bool = True) -> CronRunner:
-    return CronRunner(self, time, cmd_to_watch, disable_sources_list)
+        disable_sources_list: bool = True,
+        date: str = datetime.date.today().isoformat()) -> CronRunner:
+    return CronRunner(self, time, cmd_to_watch, disable_sources_list, date)
 
 Host.run_crons = _host_run_crons # type: ignore
 

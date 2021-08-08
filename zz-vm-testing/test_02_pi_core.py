@@ -208,17 +208,11 @@ class Test02PiCore:
         backup = host.mount_point('/mnt/backup')
         assert not backup.exists
 
-        try:
-            with host.sudo():
-                host.check_output('mount /mnt/backup')
-
+        with host.mount_backup_dir():
             backup = host.mount_point('/mnt/backup')
             assert backup.exists
             assert backup.filesystem == 'ext4'
             assert backup.device == '/dev/sdb2'
-        finally:
-            with host.sudo():
-                host.check_output('umount /mnt/backup')
 
         # Part 2 - disk space checking
         with host.disable_login_emails():
@@ -235,9 +229,8 @@ class Test02PiCore:
                 backup_file = '/mnt/backup/bigfile'
                 with host.sudo():
                     host.make_bigfile(data_file, '/mnt/data')
-                    host.check_output('mount /mnt/backup')
-                    host.make_bigfile(backup_file, '/mnt/backup')
-                    host.check_output('umount /mnt/backup')
+                    with host.mount_backup_dir():
+                        host.make_bigfile(backup_file, '/mnt/backup')
 
                 email.clear()
                 with host.run_crons():
@@ -259,9 +252,8 @@ class Test02PiCore:
             finally:
                 with host.sudo():
                     host.check_output('rm -f %s' % data_file)
-                    host.check_output('mount /mnt/backup')
-                    host.check_output('rm -f %s' % backup_file)
-                    host.check_output('umount /mnt/backup')
+                    with host.mount_backup_dir():
+                        host.check_output('rm -f %s' % backup_file)
 
             # Lots of space again
             email.clear()
@@ -293,10 +285,7 @@ class Test02PiCore:
         assert host.file('/mnt/data/scratch').user == 'vagrant'
         assert host.file('/mnt/data/scratch').group == 'vagrant'
 
-        try:
-            with host.sudo():
-                host.check_output('mount /mnt/backup')
-
+        with host.mount_backup_dir():
             assert host.file('/mnt/backup/pi-server-backup/main').exists
             assert host.file('/mnt/backup/pi-server-backup/main').user == 'root'
             assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
@@ -308,9 +297,6 @@ class Test02PiCore:
             assert host.file('/mnt/backup/pi-server-backup/email').exists
             assert host.file('/mnt/backup/pi-server-backup/email').user == 'root'
             assert host.file('/mnt/backup/pi-server-backup/email').group == 'root'
-        finally:
-            with host.sudo():
-                host.check_output('umount /mnt/backup')
 
     @for_host_types('pi')
     def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
@@ -318,3 +304,124 @@ class Test02PiCore:
         host = hosts[hostname]
         assert host.service('openvpn').is_enabled
         assert host.service('openvpn').is_running
+
+    @for_host_types('pi')
+    def test_09_backup(self, hostname: str, hosts: Dict[str, Host]) -> None:
+        # Daily backups happen every day, weekly backups happen on Mondays, and monthly backups
+        # happen on the first day of the month. So we test the following dates:
+        #   - 2021/05/30 (Sun): daily only
+        #   - 2021/05/31 (Mon): daily and weekly
+        #   - 2021/06/01 (Tue): daily and monthly
+        #   - 2021/06/02 (Wed): daily only
+
+        host = hosts[hostname]
+
+        def backup_file(path: str, backup: str) -> str:
+            return '/mnt/backup/pi-server-backup/main/%s/%s%s' % (backup, hostname, path)
+
+        data_file = host.file('/mnt/data/pi-server-data/data/foo.txt')
+        config_file = host.file('/mnt/data/pi-server-data/config/foo.txt')
+
+        def write(s: str) -> None:
+            with host.sudo():
+                data_file.write(s)
+                config_file.write(s)
+
+        def check(backup: str, s: str) -> None:
+            with host.mount_backup_dir():
+                with host.sudo():
+                    assert (host.file(
+                        backup_file(data_file.path, backup)).content_string.strip('\n') == s)
+                    assert (host.file(
+                        backup_file(config_file.path, backup)).content_string.strip('\n') == s)
+
+        def run(date: str) -> None:
+            write(date)
+            with host.run_crons(date=date):
+                pass
+
+        def backfill(backup: str, num: int) -> None:
+            with host.mount_backup_dir():
+                with host.sudo():
+                    out_base = host.file(
+                        backup_file(data_file.path, backup + '.0')).content_string.strip('\n')
+                    for i in range(1, num + 1):
+                        host.check_output(
+                            ('cp -a /mnt/backup/pi-server-backup/main/%s.0 '
+                            '/mnt/backup/pi-server-backup/main/%s.%d') % (backup, backup, i))
+                        host.file(
+                            backup_file(data_file.path, '%s.%d' % (backup, i))).write(
+                                '%s %d' % (out_base, i))
+                        host.file(
+                            backup_file(config_file.path, '%s.%d' % (backup, i))).write(
+                                '%s %d' % (out_base, i))
+
+        try:
+            with host.mount_backup_dir():
+                with host.sudo():
+                    host.check_output('rm -rf /mnt/backup/pi-server-backup/main/*')
+                    host.check_output('rm -rf /mnt/backup/pi-server-backup/git/*')
+                    host.check_output('rm -f /mnt/backup/pi-server-backup/last-run-date.txt')
+
+            run('2021-05-30')
+            check('daily.0', '2021-05-30')
+
+            backfill('daily', 6)
+            check('daily.0', '2021-05-30')
+            check('daily.1', '2021-05-30 1')
+            check('daily.2', '2021-05-30 2')
+            check('daily.3', '2021-05-30 3')
+            check('daily.4', '2021-05-30 4')
+            check('daily.5', '2021-05-30 5')
+            check('daily.6', '2021-05-30 6')
+
+            run('2021-05-31')
+            check('daily.0', '2021-05-31')
+            check('daily.1', '2021-05-30')
+            check('daily.2', '2021-05-30 1')
+            check('daily.3', '2021-05-30 2')
+            check('daily.4', '2021-05-30 3')
+            check('daily.5', '2021-05-30 4')
+            check('weekly.0', '2021-05-30 5')
+
+            backfill('weekly', 3)
+            check('daily.0', '2021-05-31')
+            check('daily.1', '2021-05-30')
+            check('daily.2', '2021-05-30 1')
+            check('daily.3', '2021-05-30 2')
+            check('daily.4', '2021-05-30 3')
+            check('daily.5', '2021-05-30 4')
+            check('weekly.0', '2021-05-30 5')
+            check('weekly.1', '2021-05-30 5 1')
+            check('weekly.2', '2021-05-30 5 2')
+            check('weekly.3', '2021-05-30 5 3')
+
+            run('2021-06-01')
+            check('daily.0', '2021-06-01')
+            check('daily.1', '2021-05-31')
+            check('daily.2', '2021-05-30')
+            check('daily.3', '2021-05-30 1')
+            check('daily.4', '2021-05-30 2')
+            check('daily.5', '2021-05-30 3')
+            check('daily.6', '2021-05-30 4')
+            check('weekly.0', '2021-05-30 5')
+            check('weekly.1', '2021-05-30 5 1')
+            check('weekly.2', '2021-05-30 5 2')
+            check('monthly.0', '2021-05-30 5 3')
+
+            run('2021-06-02')
+            check('daily.0', '2021-06-02')
+            check('daily.1', '2021-06-01')
+            check('daily.2', '2021-05-31')
+            check('daily.3', '2021-05-30')
+            check('daily.4', '2021-05-30 1')
+            check('daily.5', '2021-05-30 2')
+            check('daily.6', '2021-05-30 3')
+            check('weekly.0', '2021-05-30 5')
+            check('weekly.1', '2021-05-30 5 1')
+            check('weekly.2', '2021-05-30 5 2')
+            check('monthly.0', '2021-05-30 5 3')
+        finally:
+            with host.sudo():
+                host.check_output('rm -f %s' % data_file.path)
+                host.check_output('rm -f %s' % data_file.path)
