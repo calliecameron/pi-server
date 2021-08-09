@@ -1,0 +1,29 @@
+---
+- name: 03-openvpn-clients - install client certs
+  become: yes
+  package: name="{{ inventory_hostname }}-client-certs"
+- name: 03-openvpn-clients - client config
+  become: yes
+  template:
+    src: openvpn-client-config
+    dest: "/etc/pi-server/openvpn-client-config.d/{{ openvpn_client_name }}-client"
+    owner: root
+    mode: a=r
+- name: 03-openvpn-clients - server to server config
+  become: yes
+  template:
+    src: openvpn-server-to-server-config
+    dest: /etc/pi-server/openvpn-server-to-server-clients
+    owner: root
+    mode: a=r
+- name: 03-openvpn-clients - don't autostart
+  become: yes
+  lineinfile:
+    path: /etc/default/openvpn
+    line: "AUTOSTART=\"openvpn-server\""
+- name: 03-openvpn-clients - server-to-server-client - 00-openvpn-server-to-server-client
+  command:
+    cmd: "{{ openvpn_clients }}/server-to-server-client/00-openvpn-server-to-server-client"
+    stdin: |
+      "{{ openvpn_target_ip }}"
+      y
