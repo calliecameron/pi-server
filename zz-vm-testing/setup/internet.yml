@@ -121,3 +121,12 @@
     command:
       cmd: "{{ testbed_setup }}/generate-server-certs.sh {{ ca_out }} pi1 {{ pi1_ip }} pi2 {{ pi2_ip }}"
       creates: certs-generated
+
+  # Git server
+  - name: internet - install git
+    package: name=git
+  - name: internet - setup git server
+    become: no
+    command:
+      cmd: "{{ testbed_setup }}/setup-git-server.sh"
+      creates: git

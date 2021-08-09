@@ -38,7 +38,8 @@ Files: ca.crt /etc/pi-server/certs/
 EOF
 
     equivs-build "${HOST}-server-certs" &&
-    aptly repo add certs "${HOST}-server-certs_1_all.deb" ||
+    aptly repo add certs "${HOST}-server-certs_1_all.deb" &&
+    cat 'deployment-key.pub' >> "${HOME}/.ssh/authorized_keys" ||
     exit 1
 
     shift

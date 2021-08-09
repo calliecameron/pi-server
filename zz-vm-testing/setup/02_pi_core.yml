@@ -62,6 +62,10 @@
       y
       y
       y
+- name: 02-pi-core - 06-storage-drives - mount
+  become: yes
+  command:
+    cmd: "mount -a"
 
 - name: 02-pi-core - 07-storage-directories
   command:
