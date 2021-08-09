@@ -370,7 +370,8 @@ class Test02PiCore:
                         for i in range(1, num + 1):
                             host.check_output(
                                 ('cp -a %s/%s.0 '
-                                 '%s/%s.%d') % (data_root, backup, data_root, backup, i))
+                                 '%s/%s.%d') % (
+                                     backup_main_root, backup, backup_main_root, backup, i))
                             main_backup_file(data_file, '%s.%d' % (backup, i)).write(
                                 '%s %d' % (out_base, i))
                             main_backup_file(config_file, '%s.%d' % (backup, i)).write(
