@@ -28,7 +28,6 @@ from testinfra.utils import ansible_runner
 from tidylib import tidy_document
 
 
-
 T = TypeVar('T')
 _ANSIBLE_RUNNER = ansible_runner.AnsibleRunner(
     '.vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory')
@@ -156,10 +155,11 @@ class Vagrant:
             self._state[vm] = False
 
     @timer
-    def reboot(self, vm: str) -> None:
-        self.down(vm)
-        self.up(vm)
-        time.sleep(60)
+    def reboot(self, *vms: str) -> None:
+        for vm in vms:
+            self.down(vm)
+            self.up(vm)
+        time.sleep(30)
 
     def set_state(self, vm: str, state: bool) -> None:
         if state:
@@ -666,6 +666,24 @@ class WebDriver(Firefox):
         return other
 
 
+class OpenVPN:
+    def __init__(self, hosts: Dict[str, Host], vagrant: Vagrant) -> None:
+        super().__init__()
+        self._hosts = hosts
+        self._vagrant = vagrant
+
+    @contextmanager
+    def connect(self, hostname: str, config: str, other_host: str) -> Iterator[None]:
+        try:
+            self._hosts[hostname].check_output(
+                'tmux new-session -s s1 -d sudo openvpn --config /etc/openvpn/%s' % config)
+            time.sleep(20)
+            yield
+        finally:
+            # OpenVPN doesn't clean up after itself properly, so just reboot
+            self._vagrant.reboot(hostname, other_host)
+
+
 def _hostnames() -> List[str]:
     """Returns all host names from the ansible inventory."""
     return sorted(_ANSIBLE_RUNNER.get_hosts())
@@ -704,7 +722,8 @@ def corresponding_hostname(hostname: str, host_type: str) -> str:
 @pytest.fixture(scope='session')
 def hosts() -> Dict[str, Host]:
     """Returns all hosts by name from the ansible inventory."""
-    return {name: _ANSIBLE_RUNNER.get_host(name) for name in _hostnames()}
+    return {name: _ANSIBLE_RUNNER.get_host(
+        name, ssh_config='ssh_config') for name in _hostnames()}
 
 
 @pytest.fixture(scope='session')
@@ -753,6 +772,11 @@ def net(hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant) -> Net:
     return Net(hosts, addrs, vagrant)
 
 
+@pytest.fixture(scope='session')
+def openvpn(hosts: Dict[str, Host], vagrant: Vagrant) -> OpenVPN:
+    return OpenVPN(hosts, vagrant)
+
+
 @pytest.fixture()
 def email(addrs: Dict[str, str]) -> Email:
     e = Email(addrs['internet'])
@@ -775,7 +799,7 @@ def ensure_vm_state(vagrant: Vagrant, request: FixtureRequest) -> None:
         if mark.name == 'vms_down':
             vms_down = mark.kwargs['vms']
     if vagrant.set_states(vms_down):
-        time.sleep(60)
+        time.sleep(30)
 
 
 def pytest_generate_tests(metafunc: Metafunc) -> None:

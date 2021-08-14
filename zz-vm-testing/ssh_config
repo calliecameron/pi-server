@@ -1,0 +1,4 @@
+UserKnownHostsFile=/dev/null
+GlobalKnownHostsFile=/dev/null
+CheckHostIP=no
+StrictHostKeyChecking=no

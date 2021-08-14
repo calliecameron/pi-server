@@ -1,8 +1,10 @@
 ---
 - name: 03-openvpn-clients - install client certs
+  when: openvpn_role == "client"
   become: yes
   package: name="{{ inventory_hostname }}-client-certs"
 - name: 03-openvpn-clients - client config
+  when: openvpn_role == "server"
   become: yes
   template:
     src: openvpn-client-config
@@ -10,6 +12,7 @@
     owner: root
     mode: a=r
 - name: 03-openvpn-clients - server to server config
+  when: openvpn_role == "server"
   become: yes
   template:
     src: openvpn-server-to-server-config
@@ -17,11 +20,13 @@
     owner: root
     mode: a=r
 - name: 03-openvpn-clients - don't autostart
+  when: openvpn_role == "client"
   become: yes
   lineinfile:
     path: /etc/default/openvpn
     line: "AUTOSTART=\"openvpn-server\""
 - name: 03-openvpn-clients - server-to-server-client - 00-openvpn-server-to-server-client
+  when: openvpn_role == "client"
   command:
     cmd: "{{ openvpn_clients }}/server-to-server-client/00-openvpn-server-to-server-client"
     stdin: |

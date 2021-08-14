@@ -44,7 +44,10 @@ EOF
 
     printf '%s\nfoobar\nfoobar\nfoobar\n' "${HOST}-client" | "${CA_OUT}/scripts/make-client-cert" &&
     cd "${CA_OUT}/certs/client" &&
-    cd "${HOST}-client"__* || exit 1
+    cd "${HOST}-client"__* &&
+
+    cp "${HOST}-client.crt" 'openvpn-server-to-server-client.crt' &&
+    cp "${HOST}-client.key" 'openvpn-server-to-server-client.key' || exit 1
 
     cat > "${HOST}-client-certs" <<EOF
 Section: misc
@@ -52,8 +55,8 @@ Priority: optional
 Standards-Version: 3.9.2
 Package: ${HOST}-client-certs
 Version: 1
-Files: ${HOST}-client.crt /etc/pi-server/certs/openvpn-server-to-server-client.crt
- ${HOST}-client.key /etc/pi-server/certs/openvpn-server-to-server-client.key
+Files: openvpn-server-to-server-client.crt /etc/pi-server/certs/
+ openvpn-server-to-server-client.key /etc/pi-server/certs/
 EOF
 
     equivs-build "${HOST}-client-certs" &&
