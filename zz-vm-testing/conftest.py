@@ -209,6 +209,10 @@ class Net:
                 # Traceroute returned '*'
                 out.append('')
 
+        # A failure is a failure, regardless of where it tried to go in the meantime
+        if addr != 'external' and out[-1] != self._addrs[addr]:
+            return []
+
         t.add_extra(result)
         return out
 
