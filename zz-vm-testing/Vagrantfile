@@ -34,7 +34,8 @@ def internet(config)
         lan1_mask: $masks["lan1"],
         lan2_mask: $masks["lan2"],
         pi1_ip: $addrs["pi1"],
-        pi2_ip: $addrs["pi2"]
+        pi2_ip: $addrs["pi2"],
+        ubuntu_ip: $addrs["ubuntu"]
       }
     end
     internet.vm.provision :reload
@@ -103,7 +104,9 @@ def ubuntu(config)
       ansible.extra_vars = {
         pi_ip: $addrs["ubuntu"],
         router_ip: $addrs["internet"],
-        internet_ip: $addrs["internet"]
+        internet_ip: $addrs["internet"],
+        openvpn_target_ip: $addrs["router2_wan"],
+        openvpn_role: "external_client"
       }
     end
     ubuntu.vm.provision :reload

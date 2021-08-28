@@ -119,7 +119,7 @@
   - name: internet - generate server certs
     become: no
     command:
-      cmd: "{{ testbed_setup }}/generate-server-certs.sh {{ ca_out }} pi1 {{ pi1_ip }} pi2 {{ pi2_ip }}"
+      cmd: "{{ testbed_setup }}/generate-server-certs.sh {{ ca_out }} pi1 {{ pi1_ip }} pi2 {{ pi2_ip }} ubuntu {{ ubuntu_ip }}"
       creates: certs-generated
 
   # Git server

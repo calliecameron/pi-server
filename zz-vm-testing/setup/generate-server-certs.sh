@@ -63,6 +63,26 @@ EOF
     aptly repo add certs "${HOST}-client-certs_1_all.deb" ||
     exit 1
 
+    cp "${HOST}-client.crt" 'openvpn-client.crt' &&
+    cp "${HOST}-client.key" 'openvpn-client.key' || exit 1
+
+    cat > "${HOST}-single-machine-client-certs" <<EOF
+Section: misc
+Priority: optional
+Standards-Version: 3.9.2
+Package: ${HOST}-single-machine-client-certs
+Version: 1
+Files: ca.crt /etc/pi-server/certs/
+ crl /etc/pi-server/certs/
+ openvpn-client.crt /etc/pi-server/certs/
+ openvpn-client.key /etc/pi-server/certs/
+ openvpn-tls-auth.key /etc/pi-server/certs/
+EOF
+
+    equivs-build "${HOST}-single-machine-client-certs" &&
+    aptly repo add certs "${HOST}-single-machine-client-certs_1_all.deb" ||
+    exit 1
+
     shift
     shift
 done

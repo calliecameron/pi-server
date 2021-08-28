@@ -2,6 +2,7 @@ from typing import (
     Any, Callable, Dict, Iterator, List, Optional, Sequence, Set, Tuple, TypeVar, cast)
 import datetime
 import inspect
+import ipaddress
 import json
 import logging
 import os.path
@@ -174,6 +175,22 @@ class Vagrant:
         return self.running_vms() != old_state
 
 
+class AddrInNet:
+    def __init__(self, mask: str) -> None:
+        super().__init__()
+        self._mask = mask
+        self._net = ipaddress.IPv4Network(mask)
+
+    def __eq__(self, other: object) -> bool:
+        return ipaddress.IPv4Address(other) in self._net
+
+    def __ne__(self, other: object) -> bool:
+        return not self.__eq__(other)
+
+    def __repr__(self) -> str:
+        return 'AddrInNet(%s)' % self._mask
+
+
 class Net:
     def __init__(self, hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant) -> None:
         super().__init__()
@@ -255,8 +272,8 @@ class Net:
 
     def _assert_result(
             self,
-            want_fn: Callable[[str, str], T],
-            got_fn: Callable[[str, str], T],
+            want_fn: Callable[[str, str], object],
+            got_fn: Callable[[str, str], object],
             host_addr_pairs: List[Tuple[str, str]]) -> None:
         expected = [want_fn(host, addr) for host, addr in host_addr_pairs]
         logging.debug('Running %d checks', len(host_addr_pairs))
@@ -290,7 +307,7 @@ class Net:
             self._host_addr_pairs(sorted(reachable)))
 
     @timer
-    def assert_routes(self, routes: Dict[str, Dict[str, List[str]]]) -> None:
+    def assert_routes(self, routes: Dict[str, Dict[str, List[object]]]) -> None:
         """Verify routes between all host/addr pairs are as expected.
 
         Args:
@@ -312,7 +329,7 @@ class Net:
             return result
 
         self._assert_result(
-            lambda host, addr: [self._addrs[hop] for hop in
+            lambda host, addr: [(self._addrs[hop] if isinstance(hop, str) else hop) for hop in
                                 (routes[host][addr] + [addr] if addr in routes[host] else [])],
             traceroute,
             self._host_addr_pairs(sorted(routes)))

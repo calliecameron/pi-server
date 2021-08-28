@@ -7,23 +7,23 @@ class TestReachability:
         net.assert_reachability({
             'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
             'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
-                        'ubuntu'],
+                        'pi1_vpn', 'ubuntu'],
             'router2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
-                        'ubuntu'],
+                        'pi2_vpn', 'ubuntu'],
             'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
-                    'ubuntu'],
+                    'pi1_vpn', 'ubuntu'],
             'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
-                    'ubuntu'],
+                    'pi2_vpn', 'ubuntu'],
             'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']})
 
     @vms_down('internet')
     def test_no_internet(self, net: Net) -> None:
         # If internet is down, nothing can reach the outside world
         net.assert_reachability({
-            'router1': ['router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'ubuntu'],
-            'router2': ['router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
-            'pi1': ['router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'ubuntu'],
-            'pi2': ['router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
+            'router1': ['router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'pi1_vpn', 'ubuntu'],
+            'router2': ['router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'pi2_vpn', 'ubuntu'],
+            'pi1': ['router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'pi1_vpn', 'ubuntu'],
+            'pi2': ['router1_wan', 'router2_lan', 'router2_wan', 'pi2', 'pi2_vpn', 'ubuntu'],
             'ubuntu': ['router1_wan', 'router2_wan', 'ubuntu']})
 
     @vms_down('router1')
@@ -31,9 +31,11 @@ class TestReachability:
         # If a router is down, that LAN can't access any other network
         net.assert_reachability({
             'internet': ['external', 'internet', 'router2_wan', 'ubuntu'],
-            'router2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
-            'pi1': ['pi1'],
-            'pi2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2', 'ubuntu'],
+            'router2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2', 'pi2_vpn',
+                        'ubuntu'],
+            'pi1': ['pi1', 'pi1_vpn'],
+            'pi2': ['external', 'internet', 'router2_lan', 'router2_wan', 'pi2', 'pi2_vpn',
+                    'ubuntu'],
             'ubuntu': ['external', 'internet', 'router2_wan', 'ubuntu']})
 
 
@@ -55,6 +57,7 @@ class TestRouting:
                 'router1_wan': [],
                 'router2_wan': [],
                 'pi1': [],
+                'pi1_vpn': [],
                 'ubuntu': [],
             },
             'router2': {
@@ -64,6 +67,7 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': [],
             },
             'pi1': {
@@ -73,6 +77,7 @@ class TestRouting:
                 'router1_wan': [],
                 'router2_wan': ['router1_lan'],
                 'pi1': [],
+                'pi1_vpn': [],
                 'ubuntu': ['router1_lan'],
             },
             'pi2': {
@@ -82,6 +87,7 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': ['router2_lan'],
             },
             'ubuntu': {
@@ -102,6 +108,7 @@ class TestRouting:
                 'router1_wan': [],
                 'router2_wan': [],
                 'pi1': [],
+                'pi1_vpn': [],
                 'ubuntu': [],
             },
             'router2': {
@@ -109,6 +116,7 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': [],
 
             },
@@ -117,6 +125,7 @@ class TestRouting:
                 'router1_wan': [],
                 'router2_wan': ['router1_lan'],
                 'pi1': [],
+                'pi1_vpn': [],
                 'ubuntu': ['router1_lan'],
             },
             'pi2': {
@@ -124,6 +133,7 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': ['router2_lan'],
             },
             'ubuntu': {
@@ -149,10 +159,12 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': [],
             },
             'pi1': {
                 'pi1': [],
+                'pi1_vpn': [],
             },
             'pi2': {
                 'external': ['router2_lan', 'internet'],
@@ -160,6 +172,7 @@ class TestRouting:
                 'router2_lan': [],
                 'router2_wan': [],
                 'pi2': [],
+                'pi2_vpn': [],
                 'ubuntu': ['router2_lan'],
             },
             'ubuntu': {
