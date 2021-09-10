@@ -160,7 +160,7 @@ class Vagrant:
         for vm in vms:
             self.down(vm)
             self.up(vm)
-        time.sleep(30)
+        time.sleep(60)
 
     def set_state(self, vm: str, state: bool) -> None:
         if state:
