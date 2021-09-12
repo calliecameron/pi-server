@@ -45,3 +45,6 @@
 
   - import_tasks: 04_syncthing.yml
     become: no
+
+  - import_tasks: 05_media_server.yml
+    become: no
