@@ -1,6 +1,22 @@
 from typing import Dict
 from testinfra.host import Host
-from conftest import AddrInNet, Email, Net, OpenVPN
+from conftest import BASE_REACHABILITY, AddrInNet, Email, Net, OpenVPN, Vagrant
+
+
+SERVER_TO_SERVER_REACHABILITY = {
+    'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
+    'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
+                'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'ubuntu'],
+    'router2': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
+                'router2_wan', 'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
+    'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
+            'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
+    # pi2 -> router1_lan should work, but doesn't, because the packets come from
+    # pi2's VPN address, and router1 doesn't know how to route the replies to that
+    # subnet. Same for pi2 -> pi1_vpn
+    'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan',
+            'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
+    'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']}
 
 
 class TestServerToServerClient:
@@ -14,20 +30,7 @@ class TestServerToServerClient:
         with hosts['pi2'].disable_login_emails():
             email.clear()
             with openvpn.connect('pi1', 'openvpn-server-to-server-client.conf', 'pi2'):
-                net.assert_reachability({
-                    'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
-                    'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
-                                'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'ubuntu'],
-                    'router2': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
-                                'router2_wan', 'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
-                    'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
-                            'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
-                    # pi2 -> router1_lan should work, but doesn't, because the packets come from
-                    # pi2's VPN address, and router1 doesn't know how to route the replies to that
-                    # subnet. Same for pi2 -> pi1_vpn
-                    'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan',
-                            'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
-                    'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']})
+                net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
                 email.assert_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
@@ -231,4 +234,41 @@ class TestSingleMachineClient:
                     'body_re': r'Connected at .*\n(.*\n)*',
                 }], only_from='pi2')
 
-# cron
+
+class TestCron:
+    def test_cron(
+            self,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str],
+            email: Email,
+            net: Net,
+            vagrant: Vagrant) -> None:
+        pi1 = hosts['pi1']
+        pi2 = hosts['pi2']
+
+        with pi2.disable_login_emails():
+            # No nightly config; nothing happens
+            email.clear()
+            with pi1.run_crons(
+                    time='22:59:50',
+                    cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
+                net.assert_reachability(BASE_REACHABILITY)
+                email.assert_emails([], only_from='pi2')
+
+            # Nightly config enabled
+            email.clear()
+            with pi1.shadow_file('/etc/pi-server/openvpn-nightly-config') as f:
+                with pi1.sudo():
+                    f.write('openvpn-server-to-server-client.conf')
+                with pi1.run_crons(
+                        time='22:59:50',
+                        cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
+                    net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
+                    email.assert_emails([{
+                        'from': 'notification@pi2.testbed',
+                        'to': 'fake@fake.testbed',
+                        'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
+                                    addrs['router1_wan']),
+                        'body_re': r'Connected at .*\n(.*\n)*',
+                    }], only_from='pi2')
+        vagrant.reboot('pi1', 'pi2')

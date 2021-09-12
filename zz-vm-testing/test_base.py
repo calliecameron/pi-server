@@ -1,20 +1,10 @@
-from conftest import Net, vms_down
+from conftest import BASE_REACHABILITY, Net, vms_down
 
 
 class TestReachability:
     def test_base(self, net: Net) -> None:
         # Base reachability when all VMs are up
-        net.assert_reachability({
-            'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
-            'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
-                        'pi1_vpn', 'ubuntu'],
-            'router2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
-                        'pi2_vpn', 'ubuntu'],
-            'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
-                    'pi1_vpn', 'ubuntu'],
-            'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
-                    'pi2_vpn', 'ubuntu'],
-            'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']})
+        net.assert_reachability(BASE_REACHABILITY)
 
     @vms_down('internet')
     def test_no_internet(self, net: Net) -> None:

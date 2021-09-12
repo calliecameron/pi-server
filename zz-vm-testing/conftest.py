@@ -347,6 +347,19 @@ class Net:
             host_addr_pairs)
 
 
+BASE_REACHABILITY = {
+    'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
+    'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
+                'pi1_vpn', 'ubuntu'],
+    'router2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
+                'pi2_vpn', 'ubuntu'],
+    'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan', 'pi1',
+            'pi1_vpn', 'ubuntu'],
+    'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan', 'pi2',
+            'pi2_vpn', 'ubuntu'],
+    'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']}
+
+
 class Email:
     _PORT = 1080
 
