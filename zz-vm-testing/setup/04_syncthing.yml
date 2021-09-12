@@ -1,0 +1,6 @@
+---
+- name: 04-syncthing - 00-syncthing
+  command:
+    cmd: "{{ syncthing }}/00-syncthing"
+    stdin: |
+      y

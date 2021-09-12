@@ -13,3 +13,4 @@
 - storage_data_partition: 1
 - storage_backup_partition: 2
 - openvpn_clients: "{{ pi_server_root }}/03-openvpn-clients"
+- syncthing: "{{ pi_server_root }}/04-syncthing"

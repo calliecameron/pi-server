@@ -237,7 +237,8 @@ class Net:
     def nmap(self, t: Timer, host: str, addr: str) -> Dict[str, Set[int]]:
         """Gets the open ports on addr as seen from host."""
         result = self._hosts[host].check_output(
-            'sudo nmap -p-2000 --open -Pn -oN - -T4 -sU -sS %s' % self._addrs[addr])
+            'sudo nmap -p-2000,8000-9000,20000-24000 --open -Pn -oN - -T4 -sU -sS %s'
+            % self._addrs[addr])
         udp = set()
         tcp = set()
         for line in result.split('\n'):

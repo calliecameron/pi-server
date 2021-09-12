@@ -42,3 +42,6 @@
 
   - import_tasks: 03_openvpn_clients.yml
     become: no
+
+  - import_tasks: 04_syncthing.yml
+    become: no
