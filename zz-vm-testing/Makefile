@@ -8,4 +8,4 @@ typecheck:
 
 .PHONY: clean
 clean:
-	rm -rf *~ .*~ *.pyc *.pyi .mypy_cache __pycache__
+	rm -rf *~ .*~ *.pyc *.pyi .mypy_cache __pycache__ *.log

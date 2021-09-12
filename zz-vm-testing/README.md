@@ -3,7 +3,7 @@ Testbed
 
 A collection of VMs for development and integration testing. The
 testbed simulates two LANs separated by the internet. Each LAN has a
-router, a pi, and a client (e.g. a laptop).
+router and a pi.
 
 Setup
 =====
@@ -17,4 +17,4 @@ Setup
 Integration tests
 =================
 
-TODO
+Run `pytest`. Note that this can take several hours.
