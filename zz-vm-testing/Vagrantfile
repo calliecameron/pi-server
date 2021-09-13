@@ -100,7 +100,7 @@ end
 
 def ubuntu(config)
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "bento/ubuntu-16.04"
+    ubuntu.vm.box = "ubuntu/focal64"
     ubuntu.vm.hostname = "ubuntu"
     ubuntu.vm.network "private_network", ip: $addrs["ubuntu"]
     sync_folders(ubuntu)
@@ -108,7 +108,7 @@ def ubuntu(config)
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/ubuntu.yml"
       ansible.extra_vars = {
-        lan_iface: "eth1",
+        lan_iface: "enp0s8",
         pi_ip: $addrs["ubuntu"],
         router_ip: $addrs["internet"],
         internet_ip: $addrs["internet"],
