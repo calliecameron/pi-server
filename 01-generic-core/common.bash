@@ -185,6 +185,8 @@ export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
 # shellcheck disable=SC2155
 export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
 
+export PI_SERVER_NET_UP_SCRIPTS='/etc/network/if-up.d'
+export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/network/if-pre-up.d'
 
 export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"

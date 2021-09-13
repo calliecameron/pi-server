@@ -18,7 +18,7 @@ sed-install "${DIR}/firewall-common.bash" "${PI_SERVER_IPTABLES_COMMON_BASH}" \
 sudo chmod a=r "${PI_SERVER_IPTABLES_COMMON_BASH}" &&
 
 
-SCRIPT='/etc/network/if-pre-up.d/iptables' &&
+SCRIPT="${PI_SERVER_NET_PRE_UP_SCRIPTS}/iptables" &&
 sed-install "${DIR}/iptables" "${SCRIPT}" \
             "${PI_SERVER_IPTABLES_COMMON_BASH}" \
             "${PI_SERVER_IPTABLES_RULES}" \

@@ -31,7 +31,7 @@ sed-install "${DIR}/send-notification-email" "${PI_SERVER_NOTIFICATION_EMAIL_SCR
 sudo chmod a=rx "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" &&
 
 
-EMAIL_ON_NET='/etc/network/if-up.d/net-up-notification' &&
+EMAIL_ON_NET="${PI_SERVER_NET_UP_SCRIPTS}/net-up-notification" &&
 sed-install "${DIR}/net-up-notification" "${EMAIL_ON_NET}" \
             "${PI_SERVER_NOTIFICATION_EMAIL_SCRIPT}" \
             "${PI_SERVER_LAN_IFACE_FILE}" &&
