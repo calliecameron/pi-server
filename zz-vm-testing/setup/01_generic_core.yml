@@ -25,7 +25,7 @@
     cmd: "{{ generic_core }}/04-vars"
     stdin: |
       {{ pi_ip }}
-      eth1
+      {{ lan_iface }}
       {{ ansible_hostname }}.testbed
       {{ email_to }}
       {{ internet_ip }}

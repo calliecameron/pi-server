@@ -7,9 +7,9 @@ DEFAULT_ROUTE='{{ internet_ip }}'
 PI_IP='{{ pi_ip }}'
 PI_VPN_NET='{{ pi_vpn_mask }}'
 OTHER_LAN_NET='{{ other_lan_mask }}'
-VAGRANT_IFACE='enp0s3'
-INTERNET_IFACE='enp0s8'
-LAN_IFACE='enp0s9'
+VAGRANT_IFACE='{{ vagrant_iface }}'
+INTERNET_IFACE='{{ internet_iface }}'
+LAN_IFACE='{{ lan_iface }}'
 
 function iface-exists() {
     ip a | grep "${1}" &>/dev/null

@@ -3,8 +3,8 @@
 
 source '{{ testbed_helper }}'
 
-VAGRANT_IFACE='enp0s3'
-INTERNET_IFACE='enp0s8'
+VAGRANT_IFACE='{{ vagrant_iface }}'
+INTERNET_IFACE='{{ internet_iface }}'
 
 function setup() {
     sysctl -w net.ipv4.ip_forward=1

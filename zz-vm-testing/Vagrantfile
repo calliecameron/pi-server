@@ -30,6 +30,8 @@ def internet(config)
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/internet.yml"
       ansible.extra_vars = {
+        vagrant_iface: "enp0s3",
+        internet_iface: "enp0s8",
         nonexistent_wan_ip: $addrs["nonexistent_wan"],
         lan1_mask: $masks["lan1"],
         lan2_mask: $masks["lan2"],
@@ -54,6 +56,9 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask, other_lan_mask)
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/router.yml"
       ansible.extra_vars = {
+        vagrant_iface: "enp0s3",
+        internet_iface: "enp0s8",
+        lan_iface: "enp0s9",
         internet_ip: $addrs["internet"],
         pi_ip: pi_ip,
         pi_vpn_mask: pi_vpn_mask,
@@ -76,6 +81,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/pi.yml"
       ansible.extra_vars = {
+        lan_iface: "eth1",
         pi_ip: pi_ip,
         router_ip: router_lan_ip,
         internet_ip: $addrs["internet"],
@@ -102,6 +108,7 @@ def ubuntu(config)
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/ubuntu.yml"
       ansible.extra_vars = {
+        lan_iface: "eth1",
         pi_ip: $addrs["ubuntu"],
         router_ip: $addrs["internet"],
         internet_ip: $addrs["internet"],
