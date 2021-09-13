@@ -9,7 +9,7 @@
 - email_to: fake@fake.testbed
 - email_smtp_port: 1025
 - pi_core: "{{ pi_server_root }}/02-pi-core"
-- storage_drive_dev: /dev/sdb
+- storage_drive_dev: /dev/sdc
 - storage_data_partition: 1
 - storage_backup_partition: 2
 - openvpn_clients: "{{ pi_server_root }}/03-openvpn-clients"

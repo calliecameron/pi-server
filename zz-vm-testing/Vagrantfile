@@ -72,7 +72,7 @@ end
 
 def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_role)
   config.vm.define name do |box|
-    box.vm.box = "debian/stretch64"
+    box.vm.box = "ubuntu/focal64"
     box.vm.hostname = name
     box.vm.network "private_network", ip: pi_ip
     box.vm.disk :disk, size: "100MB", name: "external"
@@ -81,7 +81,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
       ansible.compatibility_mode = "2.0"
       ansible.playbook = "setup/pi.yml"
       ansible.extra_vars = {
-        lan_iface: "eth1",
+        lan_iface: "enp0s8",
         pi_ip: pi_ip,
         router_ip: router_lan_ip,
         internet_ip: $addrs["internet"],
