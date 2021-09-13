@@ -30,7 +30,15 @@
     shell:
       cmd: timeout -s 9 5 sudo /usr/sbin/rngd -f -r /dev/urandom & gpg --yes --pinentry-mode loopback --passphrase '' --quick-generate-key vagrant; wait; true
       creates: .gnupg
+  - name: internet - add aptly key
+    apt_key:
+      url: https://www.aptly.info/pubkey.txt
+  - name: internet - add aptly repo
+    apt_repository:
+      repo: deb http://repo.aptly.info/ squeeze main
   - name: internet - install aptly
+    package: name=aptly state=present
+  - name: internet - configure aptly
     include_role:
       name: manala.aptly
     vars:
@@ -91,7 +99,7 @@
 
   # mockserver
   - name: internet - install java
-    package: name=openjdk-8-jre
+    package: name=openjdk-16-jre
   - name: internet - mockserver jar
     become: no
     get_url:

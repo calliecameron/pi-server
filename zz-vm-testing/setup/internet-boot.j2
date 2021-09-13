@@ -3,6 +3,9 @@
 
 source '{{ testbed_helper }}'
 
+VAGRANT_IFACE='enp0s3'
+INTERNET_IFACE='enp0s8'
+
 function setup() {
     sysctl -w net.ipv4.ip_forward=1
 
@@ -11,11 +14,11 @@ function setup() {
     # interfaces, circumventing the routers' firewalls. Make sure LAN
     # hosts really are inaccessible from hosts outside their LANs
     # (host {{ nonexistent_wan_ip }} must not exist).
-    ip route add '{{ lan1_mask }}/24' via '{{ nonexistent_wan_ip }}' dev eth1
-    ip route add '{{ lan2_mask }}/24' via '{{ nonexistent_wan_ip }}' dev eth1
+    ip route add '{{ lan1_mask }}/24' via '{{ nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
+    ip route add '{{ lan2_mask }}/24' via '{{ nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
 
     if first-time; then
-        iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+        iptables -t nat -A POSTROUTING -o "${VAGRANT_IFACE}" -j MASQUERADE
     fi
 }
 

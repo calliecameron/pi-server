@@ -22,7 +22,7 @@ end
 
 def internet(config)
   config.vm.define "internet" do |internet|
-    internet.vm.box = "debian/stretch64"
+    internet.vm.box = "ubuntu/focal64"
     internet.vm.hostname = "internet"
     internet.vm.network "private_network", ip: $addrs["internet"]
     sync_folders(internet)
@@ -45,7 +45,7 @@ end
 
 def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask, other_lan_mask)
   config.vm.define name do |box|
-    box.vm.box = "debian/stretch64"
+    box.vm.box = "ubuntu/focal64"
     box.vm.hostname = name
     box.vm.network "private_network", ip: wan_ip
     box.vm.network "private_network", ip: lan_ip

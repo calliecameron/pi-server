@@ -13,5 +13,9 @@
   copy: src=testbed.conf dest=/etc/sysctl.d/testbed.conf owner=root mode=a=r
 - name: testbed_helper - sudoers
   copy: src=sudoers dest=/etc/sudoers.d/pi-server-testbed owner=root mode=a=r
-- name: testbed_helper - boot script
+- name: testbed_helper - boot script (old)
   template: src={{ boot_script }} dest=/etc/network/if-up.d/testbed-boot owner=root mode=a=rx
+  when: ansible_facts['distribution_version'] != "20.04"
+- name: testbed_helper - boot script (new)
+  template: src={{ boot_script }} dest=/etc/networkd-dispatcher/routable.d/testbed-boot owner=root mode=a=rx
+  when: ansible_facts['distribution_version'] == "20.04"
