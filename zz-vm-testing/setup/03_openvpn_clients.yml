@@ -6,7 +6,7 @@
   when: openvpn_role == "external_client"
   become: yes
   apt_repository:
-    repo: "deb [trusted=yes] http://{{ internet_ip }}:8080/ certs certs"
+    repo: "deb [trusted=yes check-date=no date-max-future=86400] http://{{ internet_ip }}:8080/ certs certs"
 - name: 03-openvpn-clients - install client certs
   when: openvpn_role == "client"
   become: yes
