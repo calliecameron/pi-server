@@ -246,29 +246,31 @@ class TestCron:
         pi1 = hosts['pi1']
         pi2 = hosts['pi2']
 
-        with pi2.disable_login_emails():
-            # No nightly config; nothing happens
-            email.clear()
-            with pi1.run_crons(
-                    time='22:59:50',
-                    cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
-                net.assert_reachability(BASE_REACHABILITY)
-                email.assert_emails([], only_from='pi2')
-
-            # Nightly config enabled
-            email.clear()
-            with pi1.shadow_file('/etc/pi-server/openvpn-nightly-config') as f:
-                with pi1.sudo():
-                    f.write('openvpn-server-to-server-client.conf')
+        try:
+            with pi2.disable_login_emails():
+                # No nightly config; nothing happens
+                email.clear()
                 with pi1.run_crons(
                         time='22:59:50',
                         cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
-                    net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
-                    email.assert_emails([{
-                        'from': 'notification@pi2.testbed',
-                        'to': 'fake@fake.testbed',
-                        'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
-                                    addrs['router1_wan']),
-                        'body_re': r'Connected at .*\n(.*\n)*',
-                    }], only_from='pi2')
-        vagrant.reboot('pi1', 'pi2')
+                    net.assert_reachability(BASE_REACHABILITY)
+                    email.assert_emails([], only_from='pi2')
+
+                # Nightly config enabled
+                email.clear()
+                with pi1.shadow_file('/etc/pi-server/openvpn-nightly-config') as f:
+                    with pi1.sudo():
+                        f.write('openvpn-server-to-server-client.conf')
+                    with pi1.run_crons(
+                            time='22:59:50',
+                            cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
+                        net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
+                        email.assert_emails([{
+                            'from': 'notification@pi2.testbed',
+                            'to': 'fake@fake.testbed',
+                            'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
+                                        addrs['router1_wan']),
+                            'body_re': r'Connected at .*\n(.*\n)*',
+                        }], only_from='pi2')
+        finally:
+            vagrant.reboot('pi1', 'pi2')
