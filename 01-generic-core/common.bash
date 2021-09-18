@@ -114,7 +114,7 @@ function install-systemd-service() {
 }
 
 function get-pi-server-param() {
-    if [ ! -z "${1}" ] && [ -e "${1}" ]; then
+    if [ -n "${1}" ] && [ -e "${1}" ]; then
         cat "${1}"
     else
         echo
@@ -132,7 +132,7 @@ function set-pi-server-param() {
 
     # shellcheck disable=SC2155
     local CURRENT_VALUE="$(get-pi-server-param "${OUTPUT_FILE}")"
-    if [ ! -z "${CURRENT_VALUE}" ]; then
+    if [ -n "${CURRENT_VALUE}" ]; then
         CURRENT_VALUE=" [Current value: ${CURRENT_VALUE}]"
     fi
 
