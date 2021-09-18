@@ -1,0 +1,6 @@
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user	command
+0  23   * * *   root    test -x '@@@@@1@@@@@' && cd / && '@@@@@1@@@@@'
+#

@@ -220,6 +220,3 @@ export PI_SERVER_UPDATES_SCRIPT="${PI_SERVER_CRON_SAFE_DIR}/updates"
 export PI_SERVER_UPDATES_APT_LOG="${PI_SERVER_CRON_DIR}/apt-output.log"
 
 export PI_SERVER_DISK_USAGE_SCRIPT="${PI_SERVER_DIR}/check-disk-usage"
-
-# This is an odd one out here because it is pasted into the crontab
-export PI_SERVER_OPENVPN_NIGHTLY_SCRIPT="${PI_SERVER_DIR}/openvpn-nightly"

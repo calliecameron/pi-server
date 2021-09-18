@@ -6,8 +6,7 @@ source "${DIR}/common.bash" &&
 
 CRONTAB='/etc/crontab'
 
-sed-install "${DIR}/crontab" "${CRONTAB}" \
-            "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
+sed-install "${DIR}/crontab" "${CRONTAB}" &&
 sudo chmod u=rw "${CRONTAB}" &&
 sudo chmod go=r "${CRONTAB}" &&
 

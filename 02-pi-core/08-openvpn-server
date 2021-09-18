@@ -66,6 +66,13 @@ sed-install "${DIR}/openvpn-nightly" "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" \
 sudo chown root:root "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
 sudo chmod a=rx "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
 
+CRONTAB='/etc/cron.d/openvpn-nightly' &&
+
+sed-install "${DIR}/openvpn-crontab" "${CRONTAB}" \
+            "${PI_SERVER_OPENVPN_NIGHTLY_SCRIPT}" &&
+sudo chmod u=rw "${CRONTAB}" &&
+sudo chmod go=r "${CRONTAB}" &&
+
 
 # Firewall
 "${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 1194 tcp &&

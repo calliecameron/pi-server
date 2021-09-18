@@ -80,6 +80,7 @@ export PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG="${PI_SERVER_DIR}/openvpn-serve
 export PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR="${PI_SERVER_DIR}/openvpn-client-config.d"
 export PI_SERVER_OPENVPN_NIGHTLY_CONFIG="${PI_SERVER_DIR}/openvpn-nightly-config"
 export PI_SERVER_OPENVPN_NIGHTLY_LOG="${PI_SERVER_DIR}/openvpn-nightly.log"
+export PI_SERVER_OPENVPN_NIGHTLY_SCRIPT="${PI_SERVER_DIR}/openvpn-nightly"
 export PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/openvpn-email-on-login"
 
 export PI_SERVER_BACKUP_SCRIPT_DIR="${PI_SERVER_DIR}/backup"
