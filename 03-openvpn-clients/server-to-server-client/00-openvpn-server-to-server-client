@@ -31,28 +31,33 @@ sudo chmod go-rwx "${CONFIG}"
 
 
 less <<EOF
-On the remote server, create a file '${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}/<common name of this client's certificate>' containing the following line:
+On the remote server, create a file '${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}/<common name of this client's certificate>' containing the following lines:
 
 iroute ${PI_SERVER_LAN_NETWORK} 255.255.255.0
+iroute ${PI_SERVER_VPN_NETWORK} 255.255.255.0
 
 
 
 On the remote server, add the following lines to '${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}':
 
 route ${PI_SERVER_LAN_NETWORK} 255.255.255.0
+route ${PI_SERVER_VPN_NETWORK} 255.255.255.0
 push "route ${PI_SERVER_LAN_NETWORK} 255.255.255.0"
+push "route ${PI_SERVER_VPN_NETWORK} 255.255.255.0"
 
 
 
 On your local router, add the following route:
 
 route to <remote server's LAN subnet> via ${PI_SERVER_IP}
-
-
+route to <remote server's VPN subnet> via ${PI_SERVER_IP}
+route to ${PI_SERVER_VPN_NETWORK} via ${PI_SERVER_IP}
 
 On the remote server's router, add the following route:
 
 route to ${PI_SERVER_LAN_NETWORK} via <remote server's LAN IP>
+route to ${PI_SERVER_VPN_NETWORK} via <remote server's LAN IP>
+route to <remote server's VPN subnet via <remote server's LAN IP>
 EOF
 
 

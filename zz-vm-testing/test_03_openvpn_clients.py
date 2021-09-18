@@ -6,16 +6,13 @@ from conftest import BASE_REACHABILITY, AddrInNet, Email, Net, OpenVPN, Vagrant
 SERVER_TO_SERVER_REACHABILITY = {
     'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
     'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
-                'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'ubuntu'],
+                'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
     'router2': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
-                'router2_wan', 'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
+                'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
     'pi1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
             'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
-    # pi2 -> router1_lan should work, but doesn't, because the packets come from
-    # pi2's VPN address, and router1 doesn't know how to route the replies to that
-    # subnet. Same for pi2 -> pi1_vpn
-    'pi2': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan',
-            'pi1', 'pi2', 'pi2_vpn', 'ubuntu'],
+    'pi2': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_lan',
+            'router2_wan', 'pi1', 'pi1_vpn', 'pi2', 'pi2_vpn', 'ubuntu'],
     'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']}
 
 
@@ -68,6 +65,7 @@ class TestServerToServerClient:
                         'pi1': [],
                         'pi1_vpn': [],
                         'pi2': ['pi1'],
+                        'pi2_vpn': ['pi1'],
                         'ubuntu': [],
                     },
                     'router2': {
@@ -78,6 +76,7 @@ class TestServerToServerClient:
                         'router2_lan': [],
                         'router2_wan': [],
                         'pi1': ['pi2'],
+                        'pi1_vpn': ['pi2'],
                         'pi2': [],
                         'pi2_vpn': [],
                         'ubuntu': [],
@@ -98,14 +97,12 @@ class TestServerToServerClient:
                     'pi2': {
                         'external': ['router2_lan', 'internet'],
                         'internet': ['router2_lan'],
-                        # pi2 -> router1_lan should work, but doesn't, because the packets come from
-                        # pi2's VPN address, and router1 doesn't know how to route the replies to
-                        # that subnet.
+                        'router1_lan': [AddrInNet(masks['pi2_vpn'] + '/24')],
                         'router1_wan': ['router2_lan'],
                         'router2_lan': [],
                         'router2_wan': [],
                         'pi1': [],
-                        # pi2 -> pi1_vpn should also work
+                        'pi1_vpn': [],
                         'pi2': [],
                         'pi2_vpn': [],
                         'ubuntu': ['router2_lan'],

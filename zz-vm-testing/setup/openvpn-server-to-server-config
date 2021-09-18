@@ -1,2 +1,4 @@
 route {{ openvpn_client_lan_mask }} 255.255.255.0
+route {{ openvpn_client_vpn_mask }} 255.255.255.0
 push "route {{ openvpn_client_lan_mask }} 255.255.255.0"
+push "route {{ openvpn_client_vpn_mask }} 255.255.255.0"

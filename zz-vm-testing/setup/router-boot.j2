@@ -7,6 +7,7 @@ DEFAULT_ROUTE='{{ internet_ip }}'
 PI_IP='{{ pi_ip }}'
 PI_VPN_NET='{{ pi_vpn_mask }}'
 OTHER_LAN_NET='{{ other_lan_mask }}'
+OTHER_VPN_NET='{{ other_vpn_mask }}'
 VAGRANT_IFACE='{{ vagrant_iface }}'
 INTERNET_IFACE='{{ internet_iface }}'
 LAN_IFACE='{{ lan_iface }}'
@@ -25,11 +26,10 @@ function setup() {
         ip route del default
         ip route add default via "${DEFAULT_ROUTE}" dev "${INTERNET_IFACE}"
 
-        # Route for pi's VPN subnet (needed for single-machine clients)
-        ip route add "${PI_VPN_NET}/24" via "${PI_IP}" dev "${LAN_IFACE}"
-
-        # Route for the other LAN (needed for server-to-server clients)
+        # VPN routes
         ip route add "${OTHER_LAN_NET}/24" via "${PI_IP}" dev "${LAN_IFACE}"
+        ip route add "${PI_VPN_NET}/24" via "${PI_IP}" dev "${LAN_IFACE}"
+        ip route add "${OTHER_VPN_NET}/24" via "${PI_IP}" dev "${LAN_IFACE}"
 
         if first-time; then
             # Allow vagrant ssh access
