@@ -21,7 +21,7 @@ class Test02PiCore:
                 == masks['lan' + host_number(hostname)])
         assert (host.file('/etc/pi-server/vpn-network-addr').content_string.strip()
                 == masks['pi%s_vpn' % host_number(hostname)])
-        assert host.file('/etc/pi-server/storage-drive-dev').content_string.strip() == '/dev/sdb'
+        assert host.file('/etc/pi-server/storage-drive-dev').content_string.strip() == '/dev/sdc'
         assert host.file('/etc/pi-server/storage-data-partition').content_string.strip() == '1'
         assert host.file('/etc/pi-server/storage-backup-partition').content_string.strip() == '2'
         assert host.file('/etc/pi-server/storage-spinning-disk').content_string.strip() == 'n'
@@ -42,8 +42,8 @@ class Test02PiCore:
         host = hosts[hostname]
 
         # Part 1 - avahi
-        assert (host.check_output('getent hosts %s.local' % hostname) ==
-                '%s       %s.local' % (addrs[hostname], hostname))
+        assert (host.check_output('getent ahostsv4 %s.local | head -n 1' % hostname) ==
+                '%s       STREAM %s.local' % (addrs[hostname], hostname))
 
         # Part 2 - zoneedit
         auth_header = requests.Request()
@@ -183,7 +183,7 @@ class Test02PiCore:
             assert not host.file(path).exists
 
             navigate_and_click('Shut down')
-            time.sleep(10)
+            time.sleep(20)
             vagrant.rescan_state()
             assert not vagrant.state()[hostname]
             vagrant.reboot(hostname)
@@ -205,7 +205,7 @@ class Test02PiCore:
         data = host.mount_point('/mnt/data')
         assert data.exists
         assert data.filesystem == 'ext4'
-        assert data.device == '/dev/sdb1'
+        assert data.device == '/dev/sdc1'
 
         backup = host.mount_point('/mnt/backup')
         assert not backup.exists
@@ -214,7 +214,7 @@ class Test02PiCore:
             backup = host.mount_point('/mnt/backup')
             assert backup.exists
             assert backup.filesystem == 'ext4'
-            assert backup.device == '/dev/sdb2'
+            assert backup.device == '/dev/sdc2'
 
         # Part 2 - disk space checking
         with host.disable_login_emails():
@@ -243,13 +243,13 @@ class Test02PiCore:
                     'to': 'fake@fake.testbed',
                     'subject': '[%s] Storage space alert' % hostname,
                     'body_re': (r'A partition is above 90% full.\n(.*\n)*'
-                                r'/dev/sdb2.*9[0-9]%.*/mnt/backup\n(.*\n)*'),
+                                r'/dev/sdc2.*9[0-9]%.*/mnt/backup\n(.*\n)*'),
                 }, {
                     'from': 'notification@%s.testbed' % hostname,
                     'to': 'fake@fake.testbed',
                     'subject': '[%s] Storage space alert' % hostname,
                     'body_re': (r'A partition is above 90% full.\n(.*\n)*'
-                                r'/dev/sdb1.*9[0-9]%.*/mnt/data\n(.*\n)*'),
+                                r'/dev/sdc1.*9[0-9]%.*/mnt/data\n(.*\n)*'),
                 }], only_from=hostname)
             finally:
                 with host.sudo():
