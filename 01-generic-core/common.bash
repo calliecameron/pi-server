@@ -25,8 +25,8 @@ function echo-blue() {
 
 # Make sure we are on a supported OS
 if [ -z "${SKIP_OS_CHECK}" ]; then
-    if ! grep stretch /etc/apt/sources.list &>/dev/null && ! grep focal /etc/apt/sources.list &>/dev/null; then
-        echo-red "This only works on Raspbian/Debian Stretch or Ubuntu Focal; you are not on either of these."
+    if ! grep focal /etc/apt/sources.list &>/dev/null; then
+        echo-red "This only works on Ubuntu Focal; you are not on this."
         exit 1
     fi
 fi
@@ -185,13 +185,8 @@ export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
 # shellcheck disable=SC2155
 export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
 
-if grep focal /etc/apt/sources.list &>/dev/null; then
-    export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
-    export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
-else
-    export PI_SERVER_NET_UP_SCRIPTS='/etc/network/if-up.d'
-    export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/network/if-pre-up.d'
-fi
+export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
+export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
 
 export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
