@@ -3,6 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
+sudo apt-get -y install ssmtp &&
 
 if [ ! -e "${PI_SERVER_SSMTP_EXTRA}" ]; then
     sed-install "${DIR}/ssmtp-extra-conf" "${PI_SERVER_SSMTP_EXTRA}" &&

@@ -1,0 +1,39 @@
+# When updating this file, you can use 'aptitude' to check for any other packages that should be removed;
+# once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages.
+
+- include_role:
+    name: pi_server.base
+
+- name: remove packages
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - byobu
+      - eatmydata
+      - landscape-common
+      - motd-news-config
+      - pastebinit
+      - popularity-contest
+      - snapd
+      - ubuntu-advantage-tools
+      - unattended-upgrades
+      - wpasupplicant
+    state: absent
+    autoremove: yes
+    purge: yes
+
+- name: install packages
+  become: yes
+  ansible.builtin.apt:
+    name:
+      - apt-listchanges
+      - curl
+      - dialog
+      - etckeeper
+      - git
+      - htop
+      - rsync
+      - tmux
+      - unzip
+      - wget
+    update_cache: yes
