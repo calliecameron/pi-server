@@ -84,6 +84,11 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
       ansible.extra_vars = {
         pi_server_hostname: name,
         pi_server_timezone: "Europe/Zurich",
+        pi_server_email_target: "fake@fake.testbed",
+        pi_server_email_smtp_server: $addrs["internet"],
+        pi_server_email_smtp_port: "1025",
+        pi_server_fqdn: name + ".testbed",
+        pi_server_lan_iface: "enp0s8",
         lan_iface: "enp0s8",
         pi_ip: pi_ip,
         router_ip: router_lan_ip,
@@ -114,6 +119,11 @@ def ubuntu(config)
       ansible.extra_vars = {
         pi_server_hostname: "ubuntu",
         pi_server_timezone: "Europe/Zurich",
+        pi_server_email_target: "fake@fake.testbed",
+        pi_server_email_smtp_server: $addrs["internet"],
+        pi_server_email_smtp_port: "1025",
+        pi_server_fqdn: "ubuntu.testbed",
+        pi_server_lan_iface: "enp0s8",
         lan_iface: "enp0s8",
         pi_ip: $addrs["ubuntu"],
         router_ip: $addrs["internet"],

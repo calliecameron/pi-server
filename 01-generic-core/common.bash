@@ -173,23 +173,10 @@ export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 # shellcheck disable=SC2155
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
 
-export PI_SERVER_EMAIL_TARGET_FILE="${PI_SERVER_DIR}/email-target"
-# shellcheck disable=SC2155
-export PI_SERVER_EMAIL_TARGET="$(get-pi-server-param "${PI_SERVER_EMAIL_TARGET_FILE}")"
-
-export PI_SERVER_EMAIL_SMTP_FILE="${PI_SERVER_DIR}/email-smtp-server"
-# shellcheck disable=SC2155
-export PI_SERVER_EMAIL_SMTP="$(get-pi-server-param "${PI_SERVER_EMAIL_SMTP_FILE}")"
-
-export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
-# shellcheck disable=SC2155
-export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
-
 export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_up
 export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_pre_up
 
-export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
-export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
+export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script
 export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
 export PI_SERVER_SSH_LOGIN_EXCEPTIONS="${PI_SERVER_DIR}/ssh-email-on-login-exceptions"
 export PI_SERVER_SSH_REGENERATED_KEYS="${PI_SERVER_DIR}/ssh-regenerated-keys"

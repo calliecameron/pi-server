@@ -1,0 +1,18 @@
+root={{ pi_server_email_target }}
+mailhub={{ pi_server_email_smtp_server }}:{{ pi_server_email_smtp_port }}
+rewritedomain={{ pi_server_fqdn }}
+fromlineoverride=yes
+
+{% if pi_server_email_auth_user and pi_server_email_auth_password %}
+# To send mail via a gmail account, use the following settings:
+#
+# UseTLS=Yes
+# AuthUser=<username>
+# AuthPass=<password>
+#
+# The mail server should be smtp.gmail.com:465
+
+UseTLS=Yes
+AuthUser={{ pi_server_email_auth_user }}
+AuthPass={{ pi_server_email_auth_password }}
+{% endif %}

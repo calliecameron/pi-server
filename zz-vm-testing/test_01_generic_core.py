@@ -34,11 +34,6 @@ class Test01GenericCore:
         assert host.file('/etc/pi-server/lan-ip').content_string.strip() == addrs[hostname]
         assert host.file('/etc/pi-server/lan-iface').content_string.strip() == 'enp0s8'
         assert host.file('/etc/pi-server/fqdn').content_string.strip() == hostname + '.testbed'
-        assert (host.file('/etc/pi-server/email-target').content_string.strip() ==
-                'fake@fake.testbed')
-        assert (host.file('/etc/pi-server/email-smtp-server').content_string.strip() ==
-                addrs['internet'])
-        assert host.file('/etc/pi-server/email-smtp-port').content_string.strip() == '1025'
 
     @for_host_types('pi', 'ubuntu')
     def test_06_email(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:

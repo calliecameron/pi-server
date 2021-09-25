@@ -1,0 +1,44 @@
+- include_role:
+    name: pi_server.base
+
+- name: install ssmtp
+  become: yes
+  ansible.builtin.package:
+    name: ssmtp
+    state: present
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_email_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: ssmtp.conf
+  become: yes
+  ansible.builtin.template:
+    src: ssmtp.conf.j2
+    dest: /etc/ssmtp/ssmtp.conf
+    owner: root
+    group: root
+    mode: a=r
+
+- name: email script
+  become: yes
+  ansible.builtin.template:
+    src: send-email.j2
+    dest: "{{ pi_server_apps_email_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: send email on net up
+  become: yes
+  ansible.builtin.template:
+    src: net-up-email.j2
+    dest: "{{ pi_server_net_up }}/net-up-email"
+    owner: root
+    group: root
+    mode: a=rx

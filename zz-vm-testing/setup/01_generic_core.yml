@@ -15,16 +15,10 @@
       {{ pi_ip }}
       {{ lan_iface }}
       {{ ansible_hostname }}.testbed
-      {{ email_to }}
-      {{ internet_ip }}
-      {{ email_smtp_port }}
-- name: 01-generic-core - 06-email
-  command:
-    cmd: "{{ testbed_setup }}/sudoedit-wrapper {{ generic_core }}/06-email"
-    stdin: |
-      y
-  environment:
-    SUDO_EDITOR: "true"
+
+- name: 01-generic-core - 06_email
+  include_tasks: "../../01-generic-core/06_email.yml"
+
 - name: 01-generic-core - ssh-keygen
   command:
     cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""

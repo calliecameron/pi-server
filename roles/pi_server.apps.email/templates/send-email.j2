@@ -1,8 +1,8 @@
 #!/bin/bash
 # Send a notification email to the default target address
 
-FROM_FILE='@@@@@1@@@@@'
-TO_FILE='@@@@@2@@@@@'
+FROM='{{ pi_server_fqdn }}'
+TO='{{ pi_server_email_target }}'
 
 function usage() {
     echo "Usage: $(basename "${0}") subject body"
@@ -11,9 +11,6 @@ function usage() {
 
 test -z "${1}" && usage
 test -z "${2}" && usage
-
-FROM="$(cat "${FROM_FILE}")"
-TO="$(cat "${TO_FILE}")"
 
 function no-values() {
     echo 'Default values are invalid'
