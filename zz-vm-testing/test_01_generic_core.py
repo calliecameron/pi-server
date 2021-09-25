@@ -44,7 +44,7 @@ class Test01GenericCore:
 
         # SSH login emails are on by default, so we expect one email for logging in, and one for
         # the command we actually ran.
-        host.check_output('/etc/pi-server/send-notification-email foo bar')
+        host.check_output('/etc/pi-server/email/send-email foo bar')
         time.sleep(10)
         email.assert_emails([
             {
@@ -66,7 +66,7 @@ class Test01GenericCore:
         with host.disable_login_emails():
             email.clear()
 
-            host.check_output('/etc/pi-server/send-notification-email foo bar')
+            host.check_output('/etc/pi-server/email/send-email foo bar')
             time.sleep(10)
             email.assert_emails([
                 {

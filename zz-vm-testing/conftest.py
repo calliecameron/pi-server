@@ -570,7 +570,7 @@ Host.make_bigfile = _host_make_bigfile # type: ignore
 @contextmanager
 def _host_disable_login_emails(self: Host) -> Iterator[None]:
     client_ip = self.client_ip()
-    with self.shadow_file('/etc/pi-server/ssh-email-on-login-exceptions') as f:
+    with self.shadow_file('/etc/pi-server/ssh/email-on-login-exceptions') as f:
         with self.sudo():
             f.write('vagrant:%s' % client_ip)
         yield

@@ -23,11 +23,9 @@
   command:
     cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
     creates: /home/vagrant/.ssh/id_rsa
-- name: 01-generic-core - 07-sshd
-  command:
-    cmd: "{{ generic_core }}/07-sshd"
-    stdin: |
-      y
+
+- name: 01-generic-core - 07_sshd
+  include_tasks: "../../01-generic-core/07_sshd.yml"
 
 - name: 01-generic-core - 08_firewall
   include_tasks: "../../01-generic-core/08_firewall.yml"

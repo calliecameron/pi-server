@@ -177,9 +177,6 @@ export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_serve
 export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_pre_up
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script
-export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
-export PI_SERVER_SSH_LOGIN_EXCEPTIONS="${PI_SERVER_DIR}/ssh-email-on-login-exceptions"
-export PI_SERVER_SSH_REGENERATED_KEYS="${PI_SERVER_DIR}/ssh-regenerated-keys"
 
 export PI_SERVER_IPTABLES_DIR="${PI_SERVER_DIR}/firewall" # pi_server_apps_firewall_etc
 export PI_SERVER_IPTABLES_PORT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port" # pi_server_apps_firewall_port_script

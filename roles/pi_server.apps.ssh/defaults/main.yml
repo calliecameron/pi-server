@@ -1,0 +1,3 @@
+pi_server_apps_ssh_etc: "{{ pi_server_etc }}/ssh"
+pi_server_apps_ssh_login_exceptions: "{{ pi_server_apps_ssh_etc }}/email-on-login-exceptions"
+pi_server_apps_ssh_login_email_script: "{{ pi_server_apps_ssh_etc }}/email-on-login"
