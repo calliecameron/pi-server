@@ -40,8 +40,6 @@ class Test01GenericCore:
                 addrs['internet'])
         assert host.file('/etc/pi-server/email-smtp-port').content_string.strip() == '1025'
 
-    # 05-network is tested by test_base's reachability and routing tests.
-
     @for_host_types('pi', 'ubuntu')
     def test_06_email(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
