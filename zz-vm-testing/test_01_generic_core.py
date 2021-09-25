@@ -7,9 +7,8 @@ from conftest import Email, Lines, Net, Vagrant, corresponding_hostname, for_hos
 class Test01GenericCore:
     @for_host_types('pi', 'ubuntu')
     def test_00_base_config(self, hostname: str, hosts: Dict[str, Host]) -> None:
-        lines = Lines(hosts[hostname].check_output('debconf-show locales'), hostname)
-        assert lines.contains(r'[^a-zA-Z]*locales/locales_to_be_generated: en_GB.UTF-8 UTF-8')
-        assert lines.contains(r'[^a-zA-Z]*locales/default_environment_locale: en_GB.UTF-8')
+        lines = Lines(hosts[hostname].check_output('localectl status'), hostname)
+        assert lines.contains(r' *System Locale: LANG=en_GB.UTF-8')
 
     @for_host_types('pi', 'ubuntu')
     def test_01_packages(self, hostname: str, hosts: Dict[str, Host]) -> None:

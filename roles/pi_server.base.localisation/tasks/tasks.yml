@@ -1,0 +1,22 @@
+- include_role:
+    name: pi_server.base
+
+- name: set timezone
+  become: yes
+  community.general.timezone:
+    name: "{{ pi_server_timezone }}"
+
+- name: generate locale
+  become: yes
+  community.general.locale_gen:
+    name: "en_GB.UTF-8"
+
+- name: check system locale
+  ansible.builtin.command: localectl status
+  register: locale_status
+  changed_when: False
+
+- name: set system locale
+  become: yes
+  ansible.builtin.command: "localectl set-locale en_GB.UTF-8"
+  when: "locale_status.stdout.find('System Locale: LANG=en_GB.UTF-8') == -1"

@@ -1,14 +1,6 @@
 ---
-- name: 01-generic-core - 00-base-config
-  command:
-    cmd: "{{ generic_core }}/00-base-config"
-    stdin: |
-      y
-      y
-      y
-  environment:
-    EDITOR: "{{ testbed_setup }}/debconf-edit.sh"
-    DEBIAN_FRONTEND: editor
+- name: 01-generic-core - 00_base_config
+  include_tasks: "../../01-generic-core/00_base_config.yml"
 
 - name: 01-generic-core - 01_packages
   include_tasks: "../../01-generic-core/01_packages.yml"

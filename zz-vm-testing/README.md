@@ -11,8 +11,9 @@ Setup
 1. Install VirtualBox and Vagrant.
 2. Run `sudo apt-get install firefox-geckodriver tidy`.
 3. Run `pip install -r requirements.txt`.
-4. Run `ansible-galaxy install -r requirements.yml`.
-5. Start the testbed with `vagrant up`.
+4. Run `ansible-galaxy install -r ../requirements.yml`
+5. Run `ansible-galaxy install -r requirements.yml`.
+6. Start the testbed with `vagrant up`.
 
 Integration tests
 =================
