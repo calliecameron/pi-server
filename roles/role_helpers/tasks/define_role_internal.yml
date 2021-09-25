@@ -1,0 +1,14 @@
+- name: validate args
+  ansible.builtin.fail:
+    msg: "Expected arg '{{ item }}' is not set"
+  loop: "{{ args|default([]) }}"
+  when: lookup('vars', item, default='__undefined__') == '__undefined__'
+- name: run tasks
+  include_tasks: tasks.yml
+- name: export vars
+  ansible.builtin.set_fact:
+    "{{ item }}": "{{ lookup('vars', item) }}"
+  loop: "{{ export_vars|default([]) }}"
+- name: mark done
+  ansible.builtin.set_fact:
+    "{{ '_' + role_name.replace('.', '_') + '_done' }}": true

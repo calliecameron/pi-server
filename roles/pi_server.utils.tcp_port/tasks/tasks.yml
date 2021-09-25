@@ -1,0 +1,13 @@
+- include_role:
+    name: pi_server.apps.firewall
+
+- name: "open tcp {{ port }} at boot"
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_firewall_tcp_open_boot }}"
+    line: "{{ port }}"
+    create: yes
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify: reload firewall

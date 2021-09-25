@@ -1,0 +1,57 @@
+- include_role:
+    name: pi_server.base
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_firewall_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: default rules
+  become: yes
+  ansible.builtin.copy:
+    src: iptables-rules
+    dest: "{{ pi_server_apps_firewall_iptables_rules }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload firewall
+
+- name: common functions
+  become: yes
+  ansible.builtin.template:
+    src: firewall-common.bash.j2
+    dest: "{{ pi_server_apps_firewall_common_script }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload firewall
+
+- name: start firewall at boot
+  become: yes
+  ansible.builtin.template:
+    src: setup-firewall.j2
+    dest: "{{ pi_server_apps_firewall_boot_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+  notify: reload firewall
+
+- name: port script
+  become: yes
+  ansible.builtin.template:
+    src: port.j2
+    dest: "{{ pi_server_apps_firewall_port_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+  notify: reload firewall
+
+- name: enable forwarding in the kernel
+  become: yes
+  ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'

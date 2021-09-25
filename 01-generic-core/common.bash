@@ -158,7 +158,7 @@ function set-pi-server-param() {
 }
 
 
-export PI_SERVER_DIR='/etc/pi-server'
+export PI_SERVER_DIR='/etc/pi-server' # pi_server_etc
 
 
 export PI_SERVER_IP_FILE="${PI_SERVER_DIR}/lan-ip"
@@ -185,8 +185,8 @@ export PI_SERVER_EMAIL_PORT_FILE="${PI_SERVER_DIR}/email-smtp-port"
 # shellcheck disable=SC2155
 export PI_SERVER_EMAIL_PORT="$(get-pi-server-param "${PI_SERVER_EMAIL_PORT_FILE}")"
 
-export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
-export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d'
+export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_up
+export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_pre_up
 
 export PI_SERVER_SSMTP_EXTRA="${PI_SERVER_DIR}/ssmtp-extra-conf"
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/send-notification-email"
@@ -194,13 +194,9 @@ export PI_SERVER_SSH_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/ssh-email-on-login"
 export PI_SERVER_SSH_LOGIN_EXCEPTIONS="${PI_SERVER_DIR}/ssh-email-on-login-exceptions"
 export PI_SERVER_SSH_REGENERATED_KEYS="${PI_SERVER_DIR}/ssh-regenerated-keys"
 
-export PI_SERVER_IPTABLES_DIR="${PI_SERVER_DIR}/firewall"
-export PI_SERVER_IPTABLES_RULES="${PI_SERVER_IPTABLES_DIR}/iptables-rules"
-export PI_SERVER_IPTABLES_TCP_OPEN_BOOT="${PI_SERVER_IPTABLES_DIR}/iptables-tcp-open-boot"
-export PI_SERVER_IPTABLES_UDP_OPEN_BOOT="${PI_SERVER_IPTABLES_DIR}/iptables-udp-open-boot"
-export PI_SERVER_IPTABLES_COMMON_BASH="${PI_SERVER_IPTABLES_DIR}/iptables-common.bash"
-export PI_SERVER_IPTABLES_PORT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port"
-export PI_SERVER_IPTABLES_ALLOW_FORWARDING="${PI_SERVER_IPTABLES_DIR}/allow-forwarding"
+export PI_SERVER_IPTABLES_DIR="${PI_SERVER_DIR}/firewall" # pi_server_apps_firewall_etc
+export PI_SERVER_IPTABLES_PORT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port" # pi_server_apps_firewall_port_script
+export PI_SERVER_IPTABLES_ALLOW_FORWARDING="${PI_SERVER_IPTABLES_DIR}/allow-forwarding" # pi_server_apps_firewall_allow_forwarding
 
 export PI_SERVER_CRON_DIR="${PI_SERVER_DIR}/cron"
 export PI_SERVER_CRON_NORMAL_DIR="${PI_SERVER_CRON_DIR}/cron-normal.d"

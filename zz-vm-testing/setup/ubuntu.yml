@@ -9,6 +9,8 @@
       boot_script: pi-boot.j2
   - name: ubuntu - default route
     template: src=fakepi-default-route.j2 dest=/fakepi-default-route owner=root mode=a=r
+  - include_role:
+      name: role_helpers
   - import_tasks: 01_generic_core.yml
     become: no
   - import_tasks: 03_openvpn_clients.yml

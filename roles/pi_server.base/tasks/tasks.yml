@@ -1,0 +1,4 @@
+- name: fail on incompatible OS
+  when: ansible_facts['distribution'] != "Ubuntu" or ansible_facts['distribution_version'] != "20.04"
+  ansible.builtin.fail:
+    msg: "Only compatible with Ubuntu Focal."

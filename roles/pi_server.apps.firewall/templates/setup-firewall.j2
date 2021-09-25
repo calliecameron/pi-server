@@ -1,11 +1,11 @@
 #!/bin/bash
-# This file runs at boot to initialise the firewall
+# This script runs at boot to initialise the firewall
 
-source '@@@@@1@@@@@' || exit 1
+source '{{ pi_server_apps_firewall_common_script }}' || exit 1
 
-/sbin/iptables-restore < '@@@@@2@@@@@'
+/sbin/iptables-restore < '{{ pi_server_apps_firewall_iptables_rules }}'
 
-if [ -f '@@@@@3@@@@@' ]; then
+if [ -f '{{ pi_server_apps_firewall_allow_forwarding }}' ]; then
     /sbin/iptables -A FORWARD -j ACCEPT
 else
     /sbin/iptables -A FORWARD -j DROP
@@ -19,7 +19,6 @@ function do-protocol() {
     if [ -f "${FILE}" ]; then
         while read -r port; do
             if valid-port "${port}"; then
-                # shellcheck disable=SC2086
                 /sbin/iptables -I INPUT -p "${PROTOCOL}" --dport "${port}" -j ACCEPT
             fi
         done < "${FILE}"

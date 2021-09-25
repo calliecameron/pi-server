@@ -140,8 +140,8 @@ class Test01GenericCore:
             cmd = host.run('%s opens-at-boot %d %s' % (port_script, port, protocol))
             return cmd.rc == 1 and cmd.stdout == 'No\n'
 
-        with host.shadow_file('/etc/pi-server/firewall/iptables-tcp-open-boot'), \
-             host.shadow_file('/etc/pi-server/firewall/iptables-udp-open-boot'):
+        with host.shadow_file('/etc/pi-server/firewall/tcp-open-boot'), \
+             host.shadow_file('/etc/pi-server/firewall/udp-open-boot'):
             # Base state - only hardcoded ports open at boot
             vagrant.reboot(hostname)
             net.assert_ports_open(

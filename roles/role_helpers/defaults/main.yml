@@ -1,0 +1,2 @@
+define_role: "{{ role_path }}/tasks/define_role.yml"
+_define_role_internal: "{{ role_path }}/tasks/define_role_internal.yml"

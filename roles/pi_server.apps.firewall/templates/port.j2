@@ -1,7 +1,7 @@
 #!/bin/bash
 # Manipulate ports
 
-source '@@@@@1@@@@@' || exit 1
+source '{{ pi_server_apps_firewall_common_script }}' || exit 1
 COMMANDS='is-valid|is-open|open|close|opens-at-boot|open-at-boot|dont-open-at-boot'
 DEFAULT_PROTOCOL='tcp'
 
@@ -44,13 +44,14 @@ function process-args() {
 function port-is-valid() {
     if valid-port "${PORT}"; then
         echo 'Yes'
-    else
-        echo 'No'
+        return 0
     fi
+
+    echo 'No'
+    return 1
 }
 
 function port-is-open() {
-    # shellcheck disable=SC2086
     if sudo iptables -C INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null; then
         echo 'Yes'
         return 0
@@ -62,13 +63,11 @@ function port-is-open() {
 
 function port-open() {
     if ! port-is-open &>/dev/null; then
-        # shellcheck disable=SC2086
         sudo iptables -I INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT
     fi
 }
 
 function port-close() {
-    # shellcheck disable=SC2086
     sudo iptables -D INPUT -p "${PROTOCOL}" --dport "${PORT}" -j ACCEPT &>/dev/null
 }
 

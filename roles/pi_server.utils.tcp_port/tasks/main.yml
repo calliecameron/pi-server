@@ -1,0 +1,5 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    args:
+      - port

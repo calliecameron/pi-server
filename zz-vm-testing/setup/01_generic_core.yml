@@ -48,11 +48,10 @@
     cmd: "{{ generic_core }}/07-sshd"
     stdin: |
       y
-- name: 01-generic-core - 08-firewall
-  command:
-    cmd: "{{ generic_core }}/08-firewall"
-    stdin: |
-      y
+
+- name: 01-generic-core - 08_firewall
+  include_tasks: "../../01-generic-core/08_firewall.yml"
+
 - name: 01-generic-core - 09-cron
   command: "{{ generic_core }}/09-cron"
 - name: 01-generic-core - 10-automatic-updates
