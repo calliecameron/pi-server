@@ -5,9 +5,6 @@
 - name: 01-generic-core - 01_packages
   include_tasks: "../../01-generic-core/01_packages.yml"
 
-- name: 01-generic-core - 02-pi-new-user
-  command: "{{ generic_core }}/02-pi-new-user"
-
 - name: 01-generic-core - 03_cleanup_users
   include_tasks: "../../01-generic-core/03_cleanup_users.yml"
 
