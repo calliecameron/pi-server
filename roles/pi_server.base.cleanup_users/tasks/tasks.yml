@@ -1,0 +1,22 @@
+- include_role:
+    name: pi_server.base
+
+- name: remove default user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_base_cleanup_users_default_user }}"
+    state: absent
+    remove: yes
+  when: ansible_facts['user_id'] != pi_server_base_cleanup_users_default_user
+
+- name: remove passwordless sudo for default user
+  become: yes
+  ansible.builtin.file:
+    path: /etc/sudoers.d/90-cloud-init-users
+    state: absent
+
+- name: lock root
+  become: yes
+  ansible.builtin.user:
+    name: root
+    password_lock: yes

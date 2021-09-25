@@ -24,9 +24,9 @@ class Test01GenericCore:
         with host.sudo():
             assert host.user('root').password == '!*'
             assert host.user('systemd-timesync').shell == '/usr/sbin/nologin'
-            assert host.user('systemd-timesync').password == '!*'
+            assert host.user('systemd-timesync').password == '*'
             assert host.user('messagebus').shell == '/usr/sbin/nologin'
-            assert host.user('messagebus').password == '!*'
+            assert host.user('messagebus').password == '*'
 
     @for_host_types('pi', 'ubuntu')
     def test_04_vars(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
