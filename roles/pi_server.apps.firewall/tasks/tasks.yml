@@ -22,9 +22,3 @@
     proto: tcp
     rule: allow
   notify: reload firewall
-
-- name: enable forwarding in the kernel
-  become: yes
-  ansible.posix.sysctl:
-    name: net.ipv4.ip_forward
-    value: '1'

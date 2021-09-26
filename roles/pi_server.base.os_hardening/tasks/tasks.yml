@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.base
+
+- include_role:
+    name: devsec.hardening.os_hardening
+    apply:
+      become: yes
+  vars:
+    os_auth_pw_max_age: -1
+    sysctl_overwrite:
+      net.ipv4.ip_forward: 1
