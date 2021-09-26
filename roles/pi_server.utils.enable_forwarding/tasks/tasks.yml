@@ -3,10 +3,7 @@
 
 - name: enable forwarding in the firewall
   become: yes
-  ansible.builtin.copy:
-    content: ""
-    dest: "{{ pi_server_apps_firewall_allow_forwarding }}"
-    owner: root
-    group: root
-    mode: u=rw,go=r
+  community.general.ufw:
+    default: allow
+    direction: routed
   notify: reload firewall

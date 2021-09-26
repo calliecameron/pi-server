@@ -1,3 +1,4 @@
 - name: reload firewall
   become: yes
-  ansible.builtin.command: "{{ pi_server_apps_firewall_boot_script }}"
+  community.general.ufw:
+    state: enabled

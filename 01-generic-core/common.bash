@@ -178,10 +178,6 @@ export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_s
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script
 
-export PI_SERVER_IPTABLES_DIR="${PI_SERVER_DIR}/firewall" # pi_server_apps_firewall_etc
-export PI_SERVER_IPTABLES_PORT_SCRIPT="${PI_SERVER_IPTABLES_DIR}/port" # pi_server_apps_firewall_port_script
-export PI_SERVER_IPTABLES_ALLOW_FORWARDING="${PI_SERVER_IPTABLES_DIR}/allow-forwarding" # pi_server_apps_firewall_allow_forwarding
-
 export PI_SERVER_CRON_DIR="${PI_SERVER_DIR}/cron"
 export PI_SERVER_CRON_NORMAL_DIR="${PI_SERVER_CRON_DIR}/cron-normal.d"
 export PI_SERVER_CRON_SAFE_DIR="${PI_SERVER_CRON_DIR}/cron-safe.d"

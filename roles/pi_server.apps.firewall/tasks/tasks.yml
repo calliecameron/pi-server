@@ -1,53 +1,26 @@
 - include_role:
     name: pi_server.base
 
-- name: etc dir
+- name: default incoming
   become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_firewall_etc }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: default rules
-  become: yes
-  ansible.builtin.copy:
-    src: iptables-rules
-    dest: "{{ pi_server_apps_firewall_iptables_rules }}"
-    owner: root
-    group: root
-    mode: a=r
+  community.general.ufw:
+    default: deny
+    direction: incoming
   notify: reload firewall
 
-- name: common functions
+- name: default outgoing
   become: yes
-  ansible.builtin.template:
-    src: firewall-common.bash.j2
-    dest: "{{ pi_server_apps_firewall_common_script }}"
-    owner: root
-    group: root
-    mode: a=r
+  community.general.ufw:
+    default: allow
+    direction: outgoing
   notify: reload firewall
 
-- name: start firewall at boot
+- name: allow ssh
   become: yes
-  ansible.builtin.template:
-    src: setup-firewall.j2
-    dest: "{{ pi_server_apps_firewall_boot_script }}"
-    owner: root
-    group: root
-    mode: a=rx
-  notify: reload firewall
-
-- name: port script
-  become: yes
-  ansible.builtin.template:
-    src: port.j2
-    dest: "{{ pi_server_apps_firewall_port_script }}"
-    owner: root
-    group: root
-    mode: a=rx
+  community.general.ufw:
+    port: 22
+    proto: tcp
+    rule: allow
   notify: reload firewall
 
 - name: enable forwarding in the kernel

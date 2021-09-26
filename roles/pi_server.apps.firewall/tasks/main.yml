@@ -2,7 +2,3 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
-    export_vars:
-      - pi_server_apps_firewall_tcp_open_boot
-      - pi_server_apps_firewall_udp_open_boot
-      - pi_server_apps_firewall_allow_forwarding
