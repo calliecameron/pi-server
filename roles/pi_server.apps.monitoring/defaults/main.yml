@@ -1,0 +1,5 @@
+pi_server_apps_monitoring_webhook_etc: "{{ pi_server_etc }}/webhook"
+pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
+pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_webhook_etc }}/send-alert-email"
+pi_server_apps_monitoring_webhook_port: "9000"
+pi_server_apps_monitoring_webhook_id: "alert"

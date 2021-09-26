@@ -1,0 +1,6 @@
+- name: reload webhook
+  become: yes
+  ansible.builtin.systemd:
+    name: webhook
+    daemon_reload: yes
+    state: restarted

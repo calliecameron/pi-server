@@ -1,0 +1,7 @@
+- include_role:
+    name: pi_server.apps.email
+
+- include_role:
+    name: pi_server.apps.docker
+
+- include_tasks: webhook.yml

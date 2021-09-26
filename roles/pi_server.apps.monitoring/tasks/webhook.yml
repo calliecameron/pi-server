@@ -1,0 +1,53 @@
+- name: webhook etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_webhook_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: webhook user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_monitoring_webhook_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+    system: yes
+
+- name: install webhook
+  become: yes
+  ansible.builtin.package:
+    name: webhook
+    state: present
+
+- name: webhook systemd unit
+  become: yes
+  ansible.builtin.template:
+    src: webhook.service.j2
+    dest: /etc/systemd/system/webhook.service
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload webhook
+
+- name: configure webhook
+  become: yes
+  ansible.builtin.template:
+    src: webhook.conf.j2
+    dest: /etc/webhook.conf
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload webhook
+
+- name: webhook alert script
+  become: yes
+  ansible.builtin.template:
+    src: send-alert-email.j2
+    dest: "{{ pi_server_apps_monitoring_webhook_script }}"
+    owner: root
+    group: root
+    mode: a=rx

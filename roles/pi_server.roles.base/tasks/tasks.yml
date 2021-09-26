@@ -24,3 +24,6 @@
 
 - include_role:
     name: pi_server.apps.docker
+
+- include_role:
+    name: pi_server.apps.monitoring
