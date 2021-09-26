@@ -1,3 +1,6 @@
 collections:
 - community.general
 - devsec.hardening
+
+roles:
+- geerlingguy.docker
