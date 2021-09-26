@@ -1,0 +1,20 @@
+- include_role:
+    name: pi_server.base.hostname
+
+- include_role:
+    name: pi_server.base.localisation
+
+- include_role:
+    name: pi_server.base.packages
+
+- include_role:
+    name: pi_server.base.cleanup_users
+
+- include_role:
+    name: pi_server.apps.email
+
+- include_role:
+    name: pi_server.apps.ssh
+
+- include_role:
+    name: pi_server.apps.firewall

@@ -13,5 +13,6 @@
       name: role_helpers
   - import_tasks: 01_generic_core.yml
     become: no
-  - import_tasks: 03_openvpn_clients.yml
-    become: no
+  # TODO convert to ansible
+  # - import_tasks: 03_openvpn_clients.yml
+  #   become: no

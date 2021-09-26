@@ -1,40 +1,25 @@
 ---
-- name: 01-generic-core - 00_base_config
-  include_tasks: "../../01-generic-core/00_base_config.yml"
-
-- name: 01-generic-core - 01_packages
-  include_tasks: "../../01-generic-core/01_packages.yml"
-
-- name: 01-generic-core - 03_cleanup_users
-  include_tasks: "../../01-generic-core/03_cleanup_users.yml"
-
-- name: 01-generic-core - 04-vars
-  command:
-    cmd: "{{ generic_core }}/04-vars"
-    stdin: |
-      {{ pi_ip }}
-      {{ lan_iface }}
-      {{ ansible_hostname }}.testbed
-
-- name: 01-generic-core - 06_email
-  include_tasks: "../../01-generic-core/06_email.yml"
-
 - name: 01-generic-core - ssh-keygen
   command:
     cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
     creates: /home/vagrant/.ssh/id_rsa
 
-- name: 01-generic-core - 07_sshd
-  include_tasks: "../../01-generic-core/07_sshd.yml"
+- include_role:
+    name: pi_server.roles.base
 
-- name: 01-generic-core - 08_firewall
-  include_tasks: "../../01-generic-core/08_firewall.yml"
-
-- name: 01-generic-core - 09-cron
-  command: "{{ generic_core }}/09-cron"
-- name: 01-generic-core - 10-automatic-updates
-  command: "{{ generic_core }}/10-automatic-updates"
-- name: 01-generic-core - 11-disk-usage
-  command: "{{ generic_core }}/11-disk-usage"
-- name: 01-generic-core - 12-nginx
-  command: "{{ generic_core }}/12-nginx"
+# TODO convert to ansible
+# - name: 01-generic-core - 04-vars
+#   command:
+#     cmd: "{{ generic_core }}/04-vars"
+#     stdin: |
+#       {{ pi_ip }}
+#       {{ lan_iface }}
+#       {{ ansible_hostname }}.testbed
+# - name: 01-generic-core - 09-cron
+#   command: "{{ generic_core }}/09-cron"
+# - name: 01-generic-core - 10-automatic-updates
+#   command: "{{ generic_core }}/10-automatic-updates"
+# - name: 01-generic-core - 11-disk-usage
+#   command: "{{ generic_core }}/11-disk-usage"
+# - name: 01-generic-core - 12-nginx
+#   command: "{{ generic_core }}/12-nginx"
