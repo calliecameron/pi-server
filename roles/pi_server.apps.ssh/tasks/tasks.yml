@@ -46,7 +46,7 @@
   become: yes
   ansible.builtin.lineinfile:
     path: /etc/pam.d/sshd
-    line: "session optional pam_exec.so seteuid {{ pi_server_apps_ssh_login_email_script }}"
+    line: "session    optional pam_exec.so seteuid {{ pi_server_apps_ssh_login_email_script }}"
 
 - include_role:
     name: devsec.hardening.ssh_hardening
