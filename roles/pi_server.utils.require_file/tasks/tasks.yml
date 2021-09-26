@@ -1,0 +1,14 @@
+- include_role:
+    name: pi_server.base
+
+- name: "check if {{ path }} exists"
+  become: yes
+  ansible.builtin.command: "ls {{ path }}"
+  register: exists
+  failed_when: False
+  changed_when: False
+
+- name: "fail if {{ path }} doesn't exist"
+  ansible.builtin.fail:
+    msg: "{{ msg }}"
+  when: exists.rc != 0

@@ -1,16 +1,19 @@
 - include_role:
     name: pi_server.apps.email
 
-- name: check for authorised keys
-  ansible.builtin.command: ls .ssh/authorized_keys
-  register: authorized_keys_exists
-  failed_when: False
-  changed_when: False
+- name: check for user keys
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "/home/{{ ansible_user }}/.ssh/id_rsa"
+    msg: "User's SSH key doesn't exist"
 
-- name: fail if no authorized keys
-  ansible.builtin.fail:
-    msg: "No authorized_keys exist."
-  when: authorized_keys_exists.rc != 0
+- name: check for authorised keys
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
+    msg: "No authorised keys exist"
 
 - name: etc dir
   become: yes
@@ -31,21 +34,14 @@
     mode: a=r
   notify: reload sshd
 
-- name: check login email exceptions
-  ansible.builtin.command: "ls {{ pi_server_apps_ssh_login_exceptions }}"
-  register: login_exceptions_exists
-  failed_when: False
-  changed_when: False
-
 - name: login email exceptions
-  become: yes
-  ansible.builtin.copy:
-    content: ""
-    dest: "{{ pi_server_apps_ssh_login_exceptions }}"
+  include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_ssh_login_exceptions }}"
     owner: root
     group: root
     mode: u=rw,go=r
-  when: login_exceptions_exists.rc != 0
 
 - name: email on login script
   become: yes

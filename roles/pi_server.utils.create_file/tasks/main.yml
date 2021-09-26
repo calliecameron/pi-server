@@ -3,4 +3,7 @@
   vars:
     run_once: False
     args:
-      - port
+      - path
+      - owner
+      - group
+      - mode
