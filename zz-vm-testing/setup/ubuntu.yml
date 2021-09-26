@@ -10,7 +10,7 @@
   - name: ubuntu - default route
     template: src=fakepi-default-route.j2 dest=/fakepi-default-route owner=root mode=a=r
   - include_role:
-      name: role_helpers
+      name: pi_server.role_helpers
   - import_tasks: 01_generic_core.yml
     become: no
   # TODO convert to ansible
