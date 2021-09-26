@@ -1,0 +1,5 @@
+# On the testbed, ICMP ratelimiting must be disabled otherwise ping-based tests
+# will fail. Map keys are whether we're in the testbed.
+pi_server_base_os_hardening_icmp_ratelimit_map:
+  True: 0
+  False: 100

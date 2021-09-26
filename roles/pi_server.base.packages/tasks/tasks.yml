@@ -8,6 +8,7 @@
   become: yes
   ansible.builtin.apt:
     name:
+      - apport
       - byobu
       - eatmydata
       - landscape-common
