@@ -1,4 +1,5 @@
 collections:
+- community.docker
 - community.general
 - devsec.hardening
 

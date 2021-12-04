@@ -1,0 +1,18 @@
+# BEGIN DOCKER
+# From https://github.com/chaifeng/ufw-docker
+*filter
+:ufw-user-forward - [0:0]
+:ufw-docker-logging-deny - [0:0]
+:DOCKER-USER - [0:0]
+
+-A DOCKER-USER -j ufw-user-forward
+-A DOCKER-USER -s {{ pi_server_apps_docker_address_pool }} -j RETURN
+-A DOCKER-USER -d {{ pi_server_apps_docker_address_pool }} -p tcp -m tcp -j ufw-docker-logging-deny
+-A DOCKER-USER -d {{ pi_server_apps_docker_address_pool }} -p udp -m udp --dport 0:32767 -j ufw-docker-logging-deny
+-A DOCKER-USER -j RETURN
+
+-A ufw-docker-logging-deny -m limit --limit 3/min --limit-burst 10 -j LOG --log-prefix "[UFW DOCKER BLOCK] "
+-A ufw-docker-logging-deny -j DROP
+
+COMMIT
+# END UFW AND DOCKER

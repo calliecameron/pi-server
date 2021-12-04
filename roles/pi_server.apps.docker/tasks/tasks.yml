@@ -1,5 +1,12 @@
 - include_role:
-    name: pi_server.base
+    name: pi_server.apps.firewall
+
+- name: customise firewall
+  include_role:
+    name: pi_server.utils.extra_firewall_rules
+  vars:
+    src: docker.rules.j2
+    dest: docker.rules
 
 - name: opt dir
   become: yes
@@ -20,6 +27,9 @@
     docker_install_compose: False
     docker_daemon_options:
       log-driver: journald
+      default-address-pools:
+        - base: "{{ pi_server_apps_docker_address_pool }}"
+          size: 24
 
 - name: install pip
   become: yes
@@ -37,14 +47,10 @@
   become: yes
   ansible.builtin.pip:
     name: docker-compose
-    virtualenv: "{{ pi_server_apps_docker_venv }}"
     umask: "0022"
 
-- name: symlink compose
+- name: install python SDK
   become: yes
-  ansible.builtin.file:
-    src: "{{ pi_server_apps_docker_venv }}/bin/docker-compose"
-    dest: /usr/local/bin/docker-compose
-    owner: root
-    group: root
-    state: link
+  ansible.builtin.pip:
+    name: docker
+    umask: "0022"
