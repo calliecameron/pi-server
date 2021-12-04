@@ -21,10 +21,30 @@
     mode: u=rw,g=r,o=
   notify: reload firewall
 
+- name: after.rules dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_firewall_after_rules }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=
+  notify: reload firewall
+
 - name: after.rules
   become: yes
   ansible.builtin.copy:
     src: after.rules
+    dest: "{{ pi_server_apps_firewall_after_rules }}/00_default.rules"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
+- name: assemble after.rules
+  become: yes
+  ansible.builtin.assemble:
+    src: "{{ pi_server_apps_firewall_after_rules }}"
     dest: /etc/ufw/after.rules
     owner: root
     group: root

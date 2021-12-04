@@ -1,0 +1,22 @@
+- include_role:
+    name: pi_server.apps.firewall
+
+- name: install rules
+  become: yes
+  ansible.builtin.template:
+    src: "{{ src }}"
+    dest: "{{ pi_server_apps_firewall_after_rules }}/{{ dest }}"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
+- name: assemble after.rules
+  become: yes
+  ansible.builtin.assemble:
+    src: "{{ pi_server_apps_firewall_after_rules }}"
+    dest: /etc/ufw/after.rules
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall

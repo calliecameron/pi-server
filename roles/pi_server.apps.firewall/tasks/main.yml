@@ -2,3 +2,5 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    export_vars:
+      - pi_server_apps_firewall_after_rules
