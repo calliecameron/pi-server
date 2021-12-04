@@ -1,6 +1,46 @@
 - include_role:
     name: pi_server.base
 
+- name: before.rules
+  become: yes
+  ansible.builtin.copy:
+    src: before.rules
+    dest: /etc/ufw/before.rules
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
+- name: before6.rules
+  become: yes
+  ansible.builtin.copy:
+    src: before6.rules
+    dest: /etc/ufw/before6.rules
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
+- name: after.rules
+  become: yes
+  ansible.builtin.copy:
+    src: after.rules
+    dest: /etc/ufw/after.rules
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
+- name: after6.rules
+  become: yes
+  ansible.builtin.copy:
+    src: after6.rules
+    dest: /etc/ufw/after6.rules
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
+  notify: reload firewall
+
 - name: default incoming
   become: yes
   community.general.ufw:
