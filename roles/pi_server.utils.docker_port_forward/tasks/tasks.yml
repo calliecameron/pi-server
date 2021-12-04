@@ -1,0 +1,29 @@
+- include_role:
+    name: pi_server.apps.firewall
+
+- include_role:
+    name: pi_server.apps.docker
+
+- name: get container ID
+  become: yes
+  ansible.builtin.command:
+    cmd: "docker-compose -f {{ compose_file }} ps -q --filter {{ service }}"
+  register: container_id
+  changed_when: false
+
+- name: get IP address
+  become: yes
+  ansible.builtin.command:
+    cmd: "docker inspect  --format '{{ '{{' }} range .NetworkSettings.Networks {{ '}}{{' }} .IPAddress {{ '}}{{' }} end {{ '}}' }}' {{ container_id.stdout }}"
+  register: container_addr
+  changed_when: false
+
+- name: "open tcp port {{ container_port }}"
+  become: yes
+  community.general.ufw:
+    route: yes
+    rule: allow
+    proto: tcp
+    to_ip: "{{ container_addr.stdout }}"
+    to_port: "{{ container_port }}"
+  notify: reload firewall
