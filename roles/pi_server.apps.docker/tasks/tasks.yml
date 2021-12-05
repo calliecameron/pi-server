@@ -30,7 +30,7 @@
       default-address-pools:
         - base: "{{ pi_server_apps_docker_address_pool }}"
           size: 24
-      metrics-addr: "127.0.0.1:{{ pi_server_apps_docker_metrics_port }}"
+      metrics-addr: "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}"
       experimental: true
 
 - name: install pip

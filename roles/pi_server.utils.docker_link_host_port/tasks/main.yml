@@ -1,0 +1,8 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: False
+    args:
+      - compose_file
+      - service
+      - host_port
