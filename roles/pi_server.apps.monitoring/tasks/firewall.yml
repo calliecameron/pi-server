@@ -5,6 +5,7 @@
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
     service: prometheus
     container_port: "{{ pi_server_apps_monitoring_prometheus_port }}"
+  when: pi_server_monitoring_open_ports
 
 - name: let prometheus scrape docker
   include_role:

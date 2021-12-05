@@ -56,3 +56,7 @@
   ansible.builtin.pip:
     name: docker
     umask: "0022"
+
+- name: refresh facts
+  become: yes
+  ansible.builtin.setup:

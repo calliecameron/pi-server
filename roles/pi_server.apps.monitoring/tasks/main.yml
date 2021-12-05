@@ -5,3 +5,5 @@
     # export_vars:
     #   - pi_server_apps_monitoring_webhook_port
     #   - pi_server_apps_monitoring_webhook_id
+    host_vars:
+      - pi_server_monitoring_open_ports
