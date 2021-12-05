@@ -14,7 +14,7 @@ scrape_configs:
     relabel_configs:
       - target_label: instance
         replacement: "{{ pi_server_hostname }}"
-  - job_name: node_exporter
+  - job_name: node
     honor_labels: true
     static_configs:
       - targets: ['host.docker.internal:{{ pi_server_apps_monitoring_node_exporter_port }}']
