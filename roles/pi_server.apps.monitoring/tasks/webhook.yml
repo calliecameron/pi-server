@@ -27,7 +27,7 @@
 - name: webhook alert script
   become: yes
   ansible.builtin.template:
-    src: webhook-alert.j2
+    src: webhook_alert.j2
     dest: "{{ pi_server_apps_monitoring_webhook_script }}"
     owner: root
     group: root

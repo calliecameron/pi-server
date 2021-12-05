@@ -4,4 +4,4 @@ route:
 receivers:
   - name: webhook
     webhook_configs:
-      - url: "http://host.docker.internal:{{ pi_server_apps_monitoring_webhook_port }}"
+      - url: "http://host.docker.internal:{{ pi_server_apps_monitoring_webhook_port }}/hooks/{{ pi_server_apps_monitoring_webhook_id }}"

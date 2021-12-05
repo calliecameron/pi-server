@@ -1,0 +1,95 @@
+#!/usr/bin/env python3
+"""Send an email from an alertmanager alert."""
+
+import json
+import subprocess
+import sys
+from typing import Any, Dict, List, NoReturn
+
+EMAIL_SCRIPT = '{{ pi_server_apps_email_script }}'
+
+
+def _send(subject: str, body: str, retval: int) -> NoReturn:
+    """Send an email."""
+    try:
+        sys.stderr.write("Sending email '%s'\n" % subject)
+        subprocess.run([EMAIL_SCRIPT, subject, body], check=True)
+        sys.stderr.write("Sent email '%s'\n" % subject)
+    except subprocess.CalledProcessError as inst:
+        sys.stderr.write("Failed to send email '%s'\n" % subject)
+        sys.exit(inst.returncode)
+    sys.exit(retval)
+
+def send_good(subject: str, body: str) -> NoReturn:
+    """Send an email with successful exit code."""
+    _send(subject, body, 0)
+
+def send_bad(subject: str, body: str) -> NoReturn:
+    """Send an email with failure exit code."""
+    _send(subject, body, 1)
+
+def process_args() -> Dict[str, Any]:
+    """Validate and process args."""
+    if len(sys.argv) != 2:
+        send_bad(
+            'Malformed alert',
+            'Wrong args passed to webhook-alert:\n\n%s' % str(sys.argv))
+    try:
+        return json.loads(sys.argv[1])
+    except json.JSONDecodeError:
+        send_bad(
+            'Malformed alert',
+            'Data passed to webhook-alert is not json:\n\n%s' % sys.argv[1])
+
+def pretty_format(
+        annotations: Dict[str, str], labels: Dict[str, str]) -> List[str]:
+    """Pretty-format annotations and labels."""
+    annotations = dict(annotations)
+    labels = dict(labels)
+    out = []
+
+    if 'summary' in annotations:
+        out += [annotations['summary'], '']
+        del annotations['summary']
+
+    if 'description' in annotations:
+        out += [annotations['description'], '']
+        del annotations['description']
+
+    for key in sorted(annotations):
+        out.append('%s: %s' % (key.capitalize(), annotations[key]))
+    for key in sorted(labels):
+        out.append('%s: %s' % (key.capitalize(), labels[key]))
+
+    out += ['', '']
+    return out
+
+def main() -> None:
+    """Send an email from an alertmanager alert."""
+    j = process_args()
+
+    try:
+        if j.get('commonLabels') and j.get('commonAnnotations'):
+            subject = j['commonLabels']['alertname']
+            body = pretty_format(j['commonAnnotations'], j['commonLabels'])
+        else:
+            subject = j['alerts'][0]['labels']['alertname']
+            body = pretty_format(
+                j['alerts'][0]['annotations'], j['alerts'][0]['labels'])
+
+        alerts = j['alerts']
+        for i, alert in enumerate(alerts):
+            body += [
+                'Alert %d of %d:' % (i + 1, len(alerts)),
+                'Status: %s' % alert['status'],
+                'Firing since: %s' % alert['startsAt'],
+            ]
+            body += pretty_format(alert['annotations'], alert['labels'])
+
+        send_good(subject, '\n'.join(body))
+    except KeyError as inst:
+        send_bad('Malformed alert', '%s\n\n%s' % (str(inst), str(j)))
+
+
+if __name__ == '__main__':
+    main()
