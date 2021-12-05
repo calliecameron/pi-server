@@ -1,0 +1,24 @@
+- name: node exporter collect dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
+    state: directory
+    owner: root
+    group: "{{ pi_server_apps_monitoring_writer_group }}"
+    mode: u=rwx,g=rwxt,o=rx
+
+- name: install acl
+  become: yes
+  ansible.builtin.package:
+    name: acl
+    state: present
+
+- name: collect dir ACLs
+  become: yes
+  ansible.posix.acl:
+    path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
+    default: yes
+    entity: "{{ pi_server_apps_monitoring_user }}"
+    etype: user
+    permissions: r
+    state: present

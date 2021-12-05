@@ -4,15 +4,20 @@
 - include_role:
     name: pi_server.apps.docker
 
-# - name: user
-#   become: yes
-#   ansible.builtin.user:
-#     name: "{{ pi_server_apps_monitoring_user }}"
-#     password: !
-#     password_lock: yes
-#     shell: /usr/sbin/nologin
-#     create_home: no
-#   register: monitoring_user
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_monitoring_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  register: monitoring_user
+
+- name: writers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_monitoring_writer_group }}"
 
 - name: etc dir
   become: yes
@@ -23,7 +28,18 @@
     group: root
     mode: u=rwx,go=rx
 
+- name: var dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_var }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
 - include_tasks: prometheus.yml
+
+- include_tasks: node_exporter.yml
 
 - name: docker compose file
   become: yes

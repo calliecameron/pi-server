@@ -1,5 +1,7 @@
 pi_server_apps_monitoring_etc: "{{ pi_server_etc }}/monitoring"
-# pi_server_apps_monitoring_user: "pi-server-monitoring"
+pi_server_apps_monitoring_var: "{{ pi_server_var }}/monitoring"
+pi_server_apps_monitoring_user: "pi-server-monitoring"
+pi_server_apps_monitoring_writer_group: "pi-server-monitoring-writers"
 pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/docker-compose.yml"
 
 pi_server_apps_monitoring_prometheus_port: "9090"
@@ -7,6 +9,8 @@ pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }
 pi_server_apps_monitoring_prometheus_scrapes: "{{ pi_server_apps_monitoring_etc }}/scrape.d"
 pi_server_apps_monitoring_prometheus_rules: "{{ pi_server_apps_monitoring_etc }}/rules.d"
 
+pi_server_apps_monitoring_node_exporter_port: "9100"
+pi_server_apps_monitoring_node_exporter_collect: "{{ pi_server_apps_monitoring_var }}/collect"
 
 
 # pi_server_apps_monitoring_webhook_etc: "{{ pi_server_etc }}/webhook"

@@ -14,3 +14,11 @@
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
     service: prometheus
     host_port: "{{ pi_server_apps_docker_metrics_port }}"
+
+- name: let prometheus scrape node exporter
+  include_role:
+    name: pi_server.utils.docker_link_host_port
+  vars:
+    compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
+    service: prometheus
+    host_port: "{{ pi_server_apps_monitoring_node_exporter_port }}"

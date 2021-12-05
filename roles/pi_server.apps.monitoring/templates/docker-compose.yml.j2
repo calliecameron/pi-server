@@ -12,5 +12,18 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
 
+  node_exporter:
+    image: prom/node-exporter
+    restart: always
+    user: "{{ monitoring_user.uid }}:{{ monitoring_user.group }}"
+    command:
+      - '--path.rootfs=/host'
+      - '--collector.textfile.directory=/collect'
+    network_mode: host
+    pid: host
+    volumes:
+      - '/:/host:ro,rslave'
+      - "{{ pi_server_apps_monitoring_node_exporter_collect }}:/collect"
+
 volumes:
   prometheus-data:
