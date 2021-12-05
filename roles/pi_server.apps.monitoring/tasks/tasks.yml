@@ -1,5 +1,5 @@
-# - include_role:
-#     name: pi_server.apps.email
+- include_role:
+    name: pi_server.apps.email
 
 - include_role:
     name: pi_server.apps.docker
@@ -42,6 +42,10 @@
 - include_tasks: node_exporter.yml
 
 - include_tasks: grafana.yml
+
+- include_tasks: alertmanager.yml
+
+- include_tasks: webhook.yml
 
 - name: docker compose file
   become: yes

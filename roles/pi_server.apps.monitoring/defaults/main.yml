@@ -20,8 +20,9 @@ pi_server_apps_monitoring_grafana_dashboards: "{{ pi_server_apps_monitoring_graf
 pi_server_apps_monitoring_grafana_plugins: "{{ pi_server_apps_monitoring_grafana_etc }}/plugins"
 pi_server_apps_monitoring_grafana_notifiers: "{{ pi_server_apps_monitoring_grafana_etc }}/notifiers"
 
-# pi_server_apps_monitoring_webhook_etc: "{{ pi_server_etc }}/webhook"
-# pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
-# pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_webhook_etc }}/send-alert-email"
-# pi_server_apps_monitoring_webhook_port: "9000"
-# pi_server_apps_monitoring_webhook_id: "alert"
+pi_server_apps_monitoring_alertmanager_port: "9093"
+pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"
+
+pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_etc }}/webhook-alert"
+pi_server_apps_monitoring_webhook_port: "9000"
+pi_server_apps_monitoring_webhook_id: "alert"

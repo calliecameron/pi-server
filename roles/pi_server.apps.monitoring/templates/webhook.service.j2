@@ -4,9 +4,9 @@ Documentation=https://github.com/adnanh/webhook/
 ConditionPathExists=/etc/webhook.conf
 
 [Service]
-ExecStart=/usr/bin/webhook -nopanic -hooks /etc/webhook.conf -ip 127.0.0.1 -port {{ pi_server_apps_monitoring_webhook_port }}
-User={{ pi_server_apps_monitoring_webhook_user }}
-Group={{ pi_server_apps_monitoring_webhook_user }}
+ExecStart=/usr/bin/webhook -nopanic -hooks /etc/webhook.conf -ip 0.0.0.0 -port {{ pi_server_apps_monitoring_webhook_port }}
+User={{ pi_server_apps_monitoring_user }}
+Group={{ pi_server_apps_monitoring_user }}
 
 [Install]
 WantedBy=multi-user.target

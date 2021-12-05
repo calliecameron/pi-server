@@ -36,6 +36,18 @@ services:
       - "{{ pi_server_apps_monitoring_grafana_etc }}:/etc/grafana/provisioning:ro"
       - grafana-data:/var/lib/grafana
 
+  alertmanager:
+    image: prom/alertmanager
+    ports:
+      - "{{ pi_server_apps_monitoring_alertmanager_port }}:{{ pi_server_apps_monitoring_alertmanager_port }}"
+    restart: always
+    volumes:
+      - "{{ pi_server_apps_monitoring_alertmanager_config }}:/etc/alertmanager/alertmanager.yml:ro"
+      - alertmanager-data:/alertmanager
+    extra_hosts:
+      - host.docker.internal:host-gateway
+
 volumes:
   prometheus-data:
   grafana-data:
+  alertmanager-data:
