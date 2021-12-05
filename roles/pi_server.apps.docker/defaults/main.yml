@@ -4,3 +4,4 @@ pi_server_apps_docker_arch_map:
   x86_64: amd64
   aarch64: arm64
 pi_server_apps_docker_address_pool: "172.30.0.0/16"
+pi_server_apps_docker_metrics_port: "9323"
