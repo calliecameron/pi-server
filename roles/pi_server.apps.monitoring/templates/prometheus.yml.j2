@@ -12,6 +12,9 @@ scrape_configs:
     honor_labels: true
     static_configs:
       - targets: ['host.docker.internal:{{ pi_server_apps_monitoring_node_exporter_port }}']
+  - job_name: grafana
+    static_configs:
+      - targets: ['grafana:{{ pi_server_apps_monitoring_grafana_port }}']
   - job_name: other
     honor_labels: true
     file_sd_configs:

@@ -41,6 +41,8 @@
 
 - include_tasks: node_exporter.yml
 
+- include_tasks: grafana.yml
+
 - name: docker compose file
   become: yes
   ansible.builtin.template:

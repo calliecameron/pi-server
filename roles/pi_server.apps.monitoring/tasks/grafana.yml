@@ -1,0 +1,55 @@
+- name: grafana config
+  become: yes
+  ansible.builtin.template:
+    src: grafana.ini.j2
+    dest: "{{ pi_server_apps_monitoring_grafana_config }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload monitoring
+
+- name: grafana datasources dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_datasources }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana dashboards dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_dashboards }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana plugins dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_plugins }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana notifiers dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_notifiers }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana datasources
+  become: yes
+  ansible.builtin.template:
+    src: datasources.yml.j2
+    dest: "{{ pi_server_apps_monitoring_grafana_datasources }}/datasources.yml"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload monitoring

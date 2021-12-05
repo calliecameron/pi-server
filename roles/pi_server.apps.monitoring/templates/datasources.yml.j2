@@ -1,0 +1,7 @@
+apiVersion: 1
+datasources:
+  - name: prometheus
+    type: prometheus
+    access: proxy
+    url: "http://prometheus:{{ pi_server_apps_monitoring_prometheus_port }}"
+    isDefault: true

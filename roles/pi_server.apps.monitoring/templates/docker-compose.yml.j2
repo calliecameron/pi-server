@@ -25,5 +25,17 @@ services:
       - '/:/host:ro,rslave'
       - "{{ pi_server_apps_monitoring_node_exporter_collect }}:/collect"
 
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "{{ pi_server_apps_monitoring_grafana_port }}:{{ pi_server_apps_monitoring_grafana_port }}"
+    restart: always
+    user: "{{ monitoring_user.uid }}:{{ monitoring_user.group }}"
+    volumes:
+      - "{{ pi_server_apps_monitoring_grafana_config }}:/etc/grafana/grafana.ini:ro"
+      - "{{ pi_server_apps_monitoring_grafana_etc }}:/etc/grafana/provisioning:ro"
+      - grafana-data:/var/lib/grafana
+
 volumes:
   prometheus-data:
+  grafana-data:
