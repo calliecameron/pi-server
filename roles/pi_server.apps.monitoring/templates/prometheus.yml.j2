@@ -1,0 +1,14 @@
+rule_files:
+  - /rules.d/*.yml
+
+scrape_configs:
+  - job_name: prometheus
+    static_configs:
+      - targets: ['localhost:{{ pi_server_apps_monitoring_prometheus_port }}']
+  - job_name: docker
+    static_configs:
+      - targets: ['host.docker.internal:{{ pi_server_apps_docker_metrics_port }}']
+  - job_name: other
+    file_sd_configs:
+      - files:
+          - /scrapes.d/*.yml

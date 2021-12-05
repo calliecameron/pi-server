@@ -1,7 +1,42 @@
-- include_role:
-    name: pi_server.apps.email
+# - include_role:
+#     name: pi_server.apps.email
 
 - include_role:
     name: pi_server.apps.docker
 
-- include_tasks: webhook.yml
+# - name: user
+#   become: yes
+#   ansible.builtin.user:
+#     name: "{{ pi_server_apps_monitoring_user }}"
+#     password: !
+#     password_lock: yes
+#     shell: /usr/sbin/nologin
+#     create_home: no
+#   register: monitoring_user
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- include_tasks: prometheus.yml
+
+- name: docker compose file
+  become: yes
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_monitoring_docker_compose }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: docker compose
+  become: yes
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_monitoring_etc }}"
+
+- include_tasks: firewall.yml

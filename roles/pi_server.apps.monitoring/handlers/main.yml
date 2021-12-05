@@ -1,6 +1,12 @@
-- name: reload webhook
+- name: reload monitoring
   become: yes
-  ansible.builtin.systemd:
-    name: webhook
-    daemon_reload: yes
-    state: restarted
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_monitoring_etc }}"
+    restarted: yes
+
+# - name: reload webhook
+#   become: yes
+#   ansible.builtin.systemd:
+#     name: webhook
+#     daemon_reload: yes
+#     state: restarted

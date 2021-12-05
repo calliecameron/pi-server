@@ -1,5 +1,16 @@
-pi_server_apps_monitoring_webhook_etc: "{{ pi_server_etc }}/webhook"
-pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
-pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_webhook_etc }}/send-alert-email"
-pi_server_apps_monitoring_webhook_port: "9000"
-pi_server_apps_monitoring_webhook_id: "alert"
+pi_server_apps_monitoring_etc: "{{ pi_server_etc }}/monitoring"
+# pi_server_apps_monitoring_user: "pi-server-monitoring"
+pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/docker-compose.yml"
+
+pi_server_apps_monitoring_prometheus_port: "9090"
+pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }}/prometheus.yml"
+pi_server_apps_monitoring_prometheus_scrapes: "{{ pi_server_apps_monitoring_etc }}/scrape.d"
+pi_server_apps_monitoring_prometheus_rules: "{{ pi_server_apps_monitoring_etc }}/rules.d"
+
+
+
+# pi_server_apps_monitoring_webhook_etc: "{{ pi_server_etc }}/webhook"
+# pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
+# pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_webhook_etc }}/send-alert-email"
+# pi_server_apps_monitoring_webhook_port: "9000"
+# pi_server_apps_monitoring_webhook_id: "alert"

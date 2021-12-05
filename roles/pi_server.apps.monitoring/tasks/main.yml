@@ -2,6 +2,6 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
-    export_vars:
-      - pi_server_apps_monitoring_webhook_port
-      - pi_server_apps_monitoring_webhook_id
+    # export_vars:
+    #   - pi_server_apps_monitoring_webhook_port
+    #   - pi_server_apps_monitoring_webhook_id

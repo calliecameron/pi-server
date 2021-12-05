@@ -1,0 +1,15 @@
+- name: forward prometheus port
+  include_role:
+    name: pi_server.utils.docker_port_forward
+  vars:
+    compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
+    service: prometheus
+    container_port: "{{ pi_server_apps_monitoring_prometheus_port }}"
+
+- name: let prometheus scrape docker
+  include_role:
+    name: pi_server.utils.docker_link_host_port
+  vars:
+    compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
+    service: prometheus
+    host_port: "{{ pi_server_apps_docker_metrics_port }}"
