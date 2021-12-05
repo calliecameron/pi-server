@@ -8,15 +8,6 @@
     src: docker.rules.j2
     dest: docker.rules
 
-- name: opt dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_docker_opt }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - name: install docker
   include_role:
     name: geerlingguy.docker
@@ -37,12 +28,6 @@
   become: yes
   ansible.builtin.package:
     name: python3-pip
-    state: present
-
-- name: install virtualenv
-  become: yes
-  ansible.builtin.package:
-    name: python3-virtualenv
     state: present
 
 - name: install compose
