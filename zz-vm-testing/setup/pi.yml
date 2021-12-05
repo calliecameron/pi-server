@@ -34,6 +34,9 @@
     when: backup_partition_formatted.rc != 0
     command: mkfs.ext4 "{{ storage_drive_dev }}{{ storage_backup_partition }}"
 
+  - include_role:
+      name: pi_server.role_helpers
+
   - import_tasks: 01_generic_core.yml
     become: no
 
