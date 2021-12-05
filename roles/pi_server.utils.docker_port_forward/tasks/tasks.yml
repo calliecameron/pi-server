@@ -7,7 +7,7 @@
 - name: get container ID
   become: yes
   ansible.builtin.command:
-    cmd: "docker-compose -f {{ compose_file }} ps -q --filter {{ service }}"
+    cmd: "docker-compose -f {{ compose_file }} ps -q {{ service }}"
   register: container_id
   changed_when: false
 
