@@ -11,6 +11,9 @@ services:
       - prometheus-data:/prometheus
     extra_hosts:
       - host.docker.internal:host-gateway
+    networks:
+      monitoring:
+        ipv4_address: 172.30.2.2
 
   node_exporter:
     image: prom/node-exporter
@@ -35,6 +38,9 @@ services:
       - "{{ pi_server_apps_monitoring_grafana_config }}:/etc/grafana/grafana.ini:ro"
       - "{{ pi_server_apps_monitoring_grafana_etc }}:/etc/grafana/provisioning:ro"
       - grafana-data:/var/lib/grafana
+    networks:
+      monitoring:
+        ipv4_address: 172.30.2.3
 
   alertmanager:
     image: prom/alertmanager
@@ -46,8 +52,19 @@ services:
       - alertmanager-data:/alertmanager
     extra_hosts:
       - host.docker.internal:host-gateway
+    networks:
+      monitoring:
+        ipv4_address: 172.30.2.4
 
 volumes:
   prometheus-data:
   grafana-data:
   alertmanager-data:
+
+networks:
+  monitoring:
+    driver: bridge
+    ipam:
+     config:
+       - subnet: 172.30.2.0/24
+         gateway: 172.30.2.1
