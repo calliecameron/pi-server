@@ -4,6 +4,12 @@ services:
     ports:
       - "{{ pi_server_apps_monitoring_prometheus_port }}:{{ pi_server_apps_monitoring_prometheus_port }}"
     restart: always
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+      - "--web.console.libraries=/usr/share/prometheus/console_libraries"
+      - "--web.console.templates=/usr/share/prometheus/consoles"
+      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_prometheus_port }}"
     volumes:
       - "{{ pi_server_apps_monitoring_prometheus_config }}:/etc/prometheus/prometheus.yml:ro"
       - "{{ pi_server_apps_monitoring_prometheus_scrapes }}:/scrapes.d:ro"
@@ -47,6 +53,10 @@ services:
     ports:
       - "{{ pi_server_apps_monitoring_alertmanager_port }}:{{ pi_server_apps_monitoring_alertmanager_port }}"
     restart: always
+    command:
+      - "--config.file=/etc/alertmanager/alertmanager.yml"
+      - "--storage.path=/alertmanager"
+      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_alertmanager_port }}"
     volumes:
       - "{{ pi_server_apps_monitoring_alertmanager_config }}:/etc/alertmanager/alertmanager.yml:ro"
       - alertmanager-data:/alertmanager

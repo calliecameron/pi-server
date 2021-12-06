@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Send an email from an alertmanager alert."""
 
+import datetime
 import json
+import re
 import subprocess
 import sys
-from typing import Any, Dict, List, NoReturn
+from typing import Any, Dict, List, NoReturn, Optional
 
 EMAIL_SCRIPT = '{{ pi_server_apps_email_script }}'
 
@@ -20,13 +22,16 @@ def _send(subject: str, body: str, retval: int) -> NoReturn:
         sys.exit(inst.returncode)
     sys.exit(retval)
 
+
 def send_good(subject: str, body: str) -> NoReturn:
     """Send an email with successful exit code."""
     _send(subject, body, 0)
 
+
 def send_bad(subject: str, body: str) -> NoReturn:
     """Send an email with failure exit code."""
     _send(subject, body, 1)
+
 
 def process_args() -> Dict[str, Any]:
     """Validate and process args."""
@@ -41,54 +46,114 @@ def process_args() -> Dict[str, Any]:
             'Malformed alert',
             'Data passed to webhook-alert is not json:\n\n%s' % sys.argv[1])
 
+
+def pair(key: str, value: str) -> str:
+    """Format a key-value pair."""
+    return '%s: %s' % (key.capitalize(), value)
+
+
+def pretty_format_annotations(annotations: Dict[str, str]) -> List[str]:
+    """Pretty format alert annotations."""
+    annotations = dict(annotations)
+    out = []
+
+    def _format_and_remove(key: str) -> None:
+        value = annotations.get(key)
+        if value:
+            out.append(pair(key, value))
+            del annotations[key]
+
+    _format_and_remove('summary')
+    _format_and_remove('description')
+
+    for key, value in sorted(annotations.items()):
+        out.append(pair(key, value))
+
+    return out
+
+
+def pretty_format_labels(labels: Dict[str, str]) -> List[str]:
+    """Pretty format alert labels."""
+    return [pair(key, value) for key, value in sorted(labels.items())]
+
+
 def pretty_format(
         annotations: Dict[str, str], labels: Dict[str, str]) -> List[str]:
     """Pretty-format annotations and labels."""
-    annotations = dict(annotations)
-    labels = dict(labels)
-    out = []
+    return (pretty_format_annotations(annotations) +
+            pretty_format_labels(labels))
 
-    if 'summary' in annotations:
-        out += [annotations['summary'], '']
-        del annotations['summary']
 
-    if 'description' in annotations:
-        out += [annotations['description'], '']
-        del annotations['description']
+def pretty_format_time(raw: Optional[str]) -> str:
+    """Pretty format a date and time."""
+    if not raw:
+        return '[UNKNOWN]'
 
-    for key in sorted(annotations):
-        out.append('%s: %s' % (key.capitalize(), annotations[key]))
-    for key in sorted(labels):
-        out.append('%s: %s' % (key.capitalize(), labels[key]))
+    # Alertmanager's times are in RFC3339 format. But datetime can only handle
+    # the date/time part, not the microseconds or the 'Z' timezone. So we split
+    # them and handle the timezone manually.
+    match = re.match(r'(.+)(\.[0-9]+)(Z|(\+|-)([0-9][0-9]):([0-9][0-9]))', raw)
 
-    out += ['', '']
-    return out
+    if match is None or len(match.groups()) < 3:
+        return raw
+
+    timezone = match.group(3)
+    if timezone == 'Z':
+        timezone = '+00:00'
+
+    try:
+        time = datetime.datetime.fromisoformat(match.group(1) + timezone)
+    except ValueError:
+        return raw
+
+    return time.strftime('%a %Y-%m-%d %H:%M %Z (UTC%z)')
+
+
+def get_subject(j: Dict[str, Any]) -> str:
+    """Get the email subject."""
+    subject = j.get('commonLabels', {}).get('alertname')
+    if subject:
+        return subject
+    alerts = j.get('alerts', [])
+    if alerts:
+        subject = alerts[0].get('labels', {}).get('alertname')
+        if subject:
+            return subject
+    return '[NO ALERTNAME]'
+
 
 def main() -> None:
     """Send an email from an alertmanager alert."""
     j = process_args()
 
-    try:
-        if j.get('commonLabels') and j.get('commonAnnotations'):
-            subject = j['commonLabels']['alertname']
-            body = pretty_format(j['commonAnnotations'], j['commonLabels'])
-        else:
-            subject = j['alerts'][0]['labels']['alertname']
-            body = pretty_format(
-                j['alerts'][0]['annotations'], j['alerts'][0]['labels'])
+    body = pretty_format(j.get('commonAnnotations', {}),
+                         j.get('commonLabels', {}))
 
-        alerts = j['alerts']
-        for i, alert in enumerate(alerts):
-            body += [
-                'Alert %d of %d:' % (i + 1, len(alerts)),
-                'Status: %s' % alert['status'],
-                'Firing since: %s' % alert['startsAt'],
-            ]
-            body += pretty_format(alert['annotations'], alert['labels'])
+    alerts = j.get('alerts', [])
+    for i, alert in enumerate(alerts):
+        body += [
+            '',
+            'Alert %d of %d:' % (i + 1, len(alerts)),
+            pair('Status', alert.get('status', '[UNKNOWN]')),
+            pair('Firing since', pretty_format_time(alert.get('startsAt'))),
+        ]
 
-        send_good(subject, '\n'.join(body))
-    except KeyError as inst:
-        send_bad('Malformed alert', '%s\n\n%s' % (str(inst), str(j)))
+        if alert.get('status') == 'resolved':
+            body.append(pair('Resolved at',
+                             pretty_format_time(alert.get('endsAt'))))
+
+        generator_url = alert.get('generatorURL')
+        if generator_url:
+            body.append(pair('Generator URL', generator_url))
+
+        body += pretty_format(alert.get('annotations', {}),
+                              alert.get('labels', {}))
+
+    external_url = j.get('externalURL')
+    if external_url:
+        body += ['', pair('Alertmanager', external_url)]
+
+    send_good(get_subject(j), '\n'.join(body))
 
 
 if __name__ == '__main__':
