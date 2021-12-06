@@ -1,5 +1,6 @@
 route:
   receiver: webhook
+  group_by: [alertname, job, instance]
 
 receivers:
   - name: webhook
