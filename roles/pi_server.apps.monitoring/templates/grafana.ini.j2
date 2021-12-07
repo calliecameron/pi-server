@@ -1,3 +1,8 @@
+instance_name = {{ pi_server_hostname }}
+
+[server]
+root_url = http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_grafana_port }}
+
 [analytics]
 reporting_enabled = false
 
@@ -7,20 +12,18 @@ disable_gravatar = true
 [snapshots]
 external_enabled = false
 
+[dashboards]
+default_home_dashboard_path = /etc/grafana/provisioning/dashboards/node.json
+
 [auth]
 disable_login_form = true
 
 [auth.anonymous]
 enabled = true
-
-[users]
-viewers_can_edit = true
+org_role = Editor
 
 [unified_alerting]
 enabled = false
 
 [alerting]
 enabled = false
-
-[dashboards]
-default_home_dashboard_path = /etc/grafana/provisioning/dashboards/node.json

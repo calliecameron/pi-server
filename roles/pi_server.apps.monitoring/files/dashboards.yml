@@ -1,5 +1,6 @@
 apiVersion: 1
 providers:
   - name: Default
+    allowUiUpdates: false
     options:
       path: /etc/grafana/provisioning/dashboards

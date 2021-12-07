@@ -18,7 +18,6 @@ pi_server_apps_monitoring_grafana_etc: "{{ pi_server_apps_monitoring_etc }}/graf
 pi_server_apps_monitoring_grafana_datasources: "{{ pi_server_apps_monitoring_grafana_etc }}/datasources"
 pi_server_apps_monitoring_grafana_dashboards: "{{ pi_server_apps_monitoring_grafana_etc }}/dashboards"
 pi_server_apps_monitoring_grafana_plugins: "{{ pi_server_apps_monitoring_grafana_etc }}/plugins"
-pi_server_apps_monitoring_grafana_notifiers: "{{ pi_server_apps_monitoring_grafana_etc }}/notifiers"
 
 pi_server_apps_monitoring_alertmanager_port: "9093"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"

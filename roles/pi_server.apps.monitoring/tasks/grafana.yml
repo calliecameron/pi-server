@@ -35,15 +35,6 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: grafana notifiers dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_grafana_notifiers }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - name: grafana datasources
   become: yes
   ansible.builtin.template:
