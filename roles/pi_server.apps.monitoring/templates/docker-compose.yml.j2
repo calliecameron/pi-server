@@ -66,6 +66,24 @@ services:
       monitoring:
         ipv4_address: 172.30.2.4
 
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor
+    ports:
+      - "{{ pi_server_apps_monitoring_cadvisor_port }}:{{ pi_server_apps_monitoring_cadvisor_port }}"
+    restart: always
+    privileged: true
+    volumes:
+       - "/:/rootfs:ro"
+       - "/var/run:/var/run:ro"
+       - "/sys:/sys:ro"
+       - "/var/lib/docker/:/var/lib/docker:ro"
+       - "/dev/disk/:/dev/disk:ro"
+    devices:
+      - "/dev/kmsg:/dev/kmsg"
+    networks:
+      monitoring:
+        ipv4_address: 172.30.2.5
+
 volumes:
   prometheus-data:
   grafana-data:

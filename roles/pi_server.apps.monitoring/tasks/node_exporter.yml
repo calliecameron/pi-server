@@ -42,3 +42,13 @@
     group: root
     mode: a=r
   notify: reload monitoring
+
+- name: node exporter dashboard
+  become: yes
+  ansible.builtin.copy:
+    src: node.json
+    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/node.json"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload monitoring
