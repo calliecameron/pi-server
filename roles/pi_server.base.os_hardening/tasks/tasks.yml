@@ -6,6 +6,7 @@
     apply:
       become: yes
   vars:
+    hidepid_option: 0
     os_auth_pw_max_age: -1
     sysctl_overwrite:
       net.ipv4.ip_forward: 1
