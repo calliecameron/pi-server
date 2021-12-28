@@ -172,8 +172,3 @@ export PI_SERVER_LAN_IFACE="$(get-pi-server-param "${PI_SERVER_LAN_IFACE_FILE}")
 export PI_SERVER_FQDN_FILE="${PI_SERVER_DIR}/fqdn"
 # shellcheck disable=SC2155
 export PI_SERVER_FQDN="$(get-pi-server-param "${PI_SERVER_FQDN_FILE}")"
-
-export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_up
-export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_pre_up
-
-export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script

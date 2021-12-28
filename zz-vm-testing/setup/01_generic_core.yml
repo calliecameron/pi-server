@@ -6,12 +6,3 @@
 
 - include_role:
     name: pi_server.roles.base
-
-# TODO convert to ansible
-# - name: 01-generic-core - 04-vars
-#   command:
-#     cmd: "{{ generic_core }}/04-vars"
-#     stdin: |
-#       {{ pi_ip }}
-#       {{ lan_iface }}
-#       {{ ansible_hostname }}.testbed
