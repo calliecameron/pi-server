@@ -152,7 +152,8 @@ WantedBy=multi-user.target
                     assert fake1_service.is_running
                     assert fake2_service.is_running
 
-                    safe_log = Lines(safe_log_file.content_string)
+                    with host.sudo():
+                        safe_log = Lines(safe_log_file.content_string)
                     assert safe_log.contains(r'Stopping services...')
                     assert safe_log.contains(r'Stopped services$')
                     assert safe_log.contains(r"STARTED 'safe1' at .*")
@@ -164,7 +165,8 @@ WantedBy=multi-user.target
                     assert safe_log.contains(r'Starting services...')
                     assert safe_log.contains(r'Started services')
 
-                    assert normal_out.content_string == 'normal good\n'
+                    with host.sudo():
+                        assert normal_out.content_string == 'normal good\n'
 
                     time.sleep(15)
                     email.assert_emails([], only_from=hostname)
@@ -190,7 +192,8 @@ WantedBy=multi-user.target
                     assert fake1_service.is_running
                     assert fake2_service.is_running
 
-                    safe_log = Lines(safe_log_file.content_string)
+                    with host.sudo():
+                        safe_log = Lines(safe_log_file.content_string)
                     assert safe_log.contains(r'Stopping services...')
                     assert safe_log.contains(r'Stopped services$')
                     assert safe_log.contains(r"STARTED 'safe1' at .*")
@@ -203,7 +206,8 @@ WantedBy=multi-user.target
                     assert safe_log.contains(r'Starting services...')
                     assert safe_log.contains(r'Started services')
 
-                    assert normal_out.content_string == 'normal bad\n'
+                    with host.sudo():
+                        assert normal_out.content_string == 'normal bad\n'
 
                     time.sleep(15)
                     email.assert_emails([
@@ -241,8 +245,9 @@ WantedBy=multi-user.target
 
                         assert fake1_service.is_running
                         assert fake2_service.is_running
-                        assert safe_log_file.content_string == '\n'
-                        assert normal_out.content_string == '\n'
+                        with host.sudo():
+                            assert safe_log_file.content_string == '\n'
+                            assert normal_out.content_string == '\n'
 
                         time.sleep(15)
                         email.assert_emails([], only_from=hostname)

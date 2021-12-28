@@ -612,8 +612,8 @@ class CronRunner:
             if self._disable_sources_list:
                 self._sources_list = self._host.shadow_file('/etc/apt/sources.list')
                 self._sources_list.__enter__()
-            if self._host.service('vboxadd-service').is_running:
-                self._host.check_output('systemctl stop vboxadd-service')
+            if self._host.service('virtualbox-guest-utils').is_running:
+                self._host.check_output('systemctl stop virtualbox-guest-utils')
                 self._restore_guest_additions = True
             self._host.check_output('timedatectl set-ntp false')
             # Large change to override cron's daylight-saving-time handling
@@ -623,18 +623,18 @@ class CronRunner:
             # Wait for it to start
             self._host.check_output(
                 "timedatectl set-time '%s %s'" % (self._date, self._time))
-            self._host.check_output(
-                ("timeout 60 bash -c "
-                 "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
+        self._host.check_output(
+            ("timeout 60 bash -c "
+             "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
 
     def __exit__(self, *exc_info: Any) -> None:
+        # Wait for cron to finish
+        self._host.check_output(
+            "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
         with self._host.sudo():
-            # Wait for cron to finish
-            self._host.check_output(
-                "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
             self._host.check_output('timedatectl set-ntp true')
             if self._restore_guest_additions:
-                self._host.check_output('systemctl start vboxadd-service')
+                self._host.check_output('systemctl start virtualbox-guest-utils')
             if self._sources_list:
                 self._sources_list.__exit__(None)
 
