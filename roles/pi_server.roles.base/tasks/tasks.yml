@@ -36,3 +36,6 @@
 
 - include_role:
     name: pi_server.legacy.disk_usage
+
+- include_role:
+    name: pi_server.legacy.nginx

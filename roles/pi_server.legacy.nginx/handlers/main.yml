@@ -1,0 +1,5 @@
+- name: reload nginx
+  become: yes
+  ansible.builtin.systemd:
+    name: nginx
+    state: restarted

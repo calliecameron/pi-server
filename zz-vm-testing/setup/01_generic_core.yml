@@ -15,5 +15,3 @@
 #       {{ pi_ip }}
 #       {{ lan_iface }}
 #       {{ ansible_hostname }}.testbed
-# - name: 01-generic-core - 12-nginx
-#   command: "{{ generic_core }}/12-nginx"
