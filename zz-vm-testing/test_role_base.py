@@ -33,13 +33,6 @@ class TestRoleBase:
             assert host.user('messagebus').shell == '/usr/sbin/nologin'
             assert host.user('messagebus').password == '*'
 
-    # @for_host_types('pi', 'ubuntu')
-    # def test_04_vars(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
-    #     host = hosts[hostname]
-    #     assert host.file('/etc/pi-server/lan-ip').content_string.strip() == addrs[hostname]
-    #     assert host.file('/etc/pi-server/lan-iface').content_string.strip() == 'enp0s8'
-    #     assert host.file('/etc/pi-server/fqdn').content_string.strip() == hostname + '.testbed'
-
     @for_host_types('pi', 'ubuntu')
     def test_email(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
