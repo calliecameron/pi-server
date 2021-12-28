@@ -80,12 +80,12 @@ class TestRoleBase:
 
     # Firewall is tested by the port scan in test_base.py.
 
-    @for_host_types('pi', 'ubuntu')
-    def test_docker(self, hostname: str, hosts: Dict[str, Host]) -> None:
-        host = hosts[hostname]
-        assert host.service('docker').is_enabled
-        assert host.service('docker').is_running
-        assert host.exists('docker-compose')
+    # @for_host_types('pi', 'ubuntu')
+    # def test_docker(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    #     host = hosts[hostname]
+    #     assert host.service('docker').is_enabled
+    #     assert host.service('docker').is_running
+    #     assert host.exists('docker-compose')
 
 #     @for_host_types('pi', 'ubuntu')
 #     def test_09_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
