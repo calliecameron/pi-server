@@ -1,11 +1,11 @@
 #!/bin/bash
 # Run scripts that need services to be paused, and with locking for safety
 
-EMAIL_SCRIPT='@@@@@1@@@@@'
-CRON_LOCK='@@@@@2@@@@@'
-PAUSE_DIR='@@@@@3@@@@@'
-SCRIPTS_DIR='@@@@@4@@@@@'
-LOG='@@@@@5@@@@@'
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
+CRON_LOCK='{{ pi_server_legacy_cron_lock }}'
+PAUSE_DIR='{{ pi_server_legacy_cron_pause_dir }}'
+SCRIPTS_DIR='{{ pi_server_legacy_cron_safe_dir }}'
+LOG='{{ pi_server_legacy_cron_log_file }}'
 HAS_LOCK=''
 
 function lock() {

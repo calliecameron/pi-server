@@ -1,0 +1,8 @@
+pi_server_legacy_cron_etc: "{{ pi_server_etc }}/cron"
+pi_server_legacy_cron_normal_dir: "{{ pi_server_legacy_cron_etc }}/cron-normal.d"
+pi_server_legacy_cron_safe_dir: "{{ pi_server_legacy_cron_etc }}/cron-safe.d"
+pi_server_legacy_cron_pause_dir: "{{ pi_server_legacy_cron_etc }}/pause-on-cron.d"
+pi_server_legacy_cron_disabled: "{{ pi_server_legacy_cron_etc }}/cron-disabled"
+pi_server_legacy_cron_lock: "/run/lock/pi-server-cron.lock"
+pi_server_legacy_cron_log_file: "{{ pi_server_legacy_cron_etc }}/last-run.log"
+pi_server_legacy_cron_safe_script: "{{ pi_server_legacy_cron_etc }}/cron-safe"

@@ -1,0 +1,65 @@
+- include_role:
+    name: pi_server.apps.email
+
+- name: install crontab
+  become: yes
+  ansible.builtin.copy:
+    src: crontab
+    dest: /etc/crontab
+    owner: root
+    group: root
+    mode: u=rw,go=
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_legacy_cron_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: normal dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_legacy_cron_normal_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: safe dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_legacy_cron_safe_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: pause dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_legacy_cron_pause_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: cron script
+  become: yes
+  ansible.builtin.template:
+    src: pi-server-cron.j2
+    dest: "/etc/cron.daily/pi-server"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: cron safe script
+  become: yes
+  ansible.builtin.template:
+    src: cron-safe.j2
+    dest: "{{ pi_server_legacy_cron_safe_script }}"
+    owner: root
+    group: root
+    mode: a=rx

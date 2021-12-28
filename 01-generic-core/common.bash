@@ -178,15 +178,6 @@ export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_s
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script
 
-export PI_SERVER_CRON_DIR="${PI_SERVER_DIR}/cron"
-export PI_SERVER_CRON_NORMAL_DIR="${PI_SERVER_CRON_DIR}/cron-normal.d"
-export PI_SERVER_CRON_SAFE_DIR="${PI_SERVER_CRON_DIR}/cron-safe.d"
-export PI_SERVER_CRON_PAUSE_DIR="${PI_SERVER_CRON_DIR}/pause-on-cron.d"
-export PI_SERVER_CRON_DISABLED="${PI_SERVER_CRON_DIR}/cron-disabled"
-export PI_SERVER_CRON_LOCK='/run/lock/pi-server-cron.lock'
-export PI_SERVER_CRON_LOG_FILE="${PI_SERVER_CRON_DIR}/last-run.log"
-export PI_SERVER_CRON_SAFE_SCRIPT="${PI_SERVER_CRON_DIR}/cron-safe"
-
 export PI_SERVER_UPDATES_SCRIPT="${PI_SERVER_CRON_SAFE_DIR}/updates"
 export PI_SERVER_UPDATES_APT_LOG="${PI_SERVER_CRON_DIR}/apt-output.log"
 
