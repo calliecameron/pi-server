@@ -5,4 +5,5 @@
     export_vars:
       - pi_server_legacy_cron_etc
       - pi_server_legacy_cron_safe_dir
+      - pi_server_legacy_cron_normal_dir
       - pi_server_legacy_cron_pause_dir

@@ -177,5 +177,3 @@ export PI_SERVER_NET_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_serve
 export PI_SERVER_NET_PRE_UP_SCRIPTS='/etc/networkd-dispatcher/routable.d' # pi_server_net_pre_up
 
 export PI_SERVER_NOTIFICATION_EMAIL_SCRIPT="${PI_SERVER_DIR}/email/send-email" # pi_server_apps_email_script
-
-export PI_SERVER_DISK_USAGE_SCRIPT="${PI_SERVER_DIR}/check-disk-usage"

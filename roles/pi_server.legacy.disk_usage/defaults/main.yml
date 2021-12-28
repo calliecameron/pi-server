@@ -1,0 +1,1 @@
+pi_server_legacy_disk_usage_script: "{{ pi_server_etc }}/check-disk-usage"

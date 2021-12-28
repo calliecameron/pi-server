@@ -33,3 +33,6 @@
 
 - include_role:
     name: pi_server.legacy.automatic_updates
+
+- include_role:
+    name: pi_server.legacy.disk_usage
