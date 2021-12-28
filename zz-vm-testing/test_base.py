@@ -192,22 +192,22 @@ class TestFirewall:
                 'pi1': {'tcp': {
                     22, # SSH
                     80, # Nginx
-                    1194, # OpenVPN
-                    8080, # Syncthing GUI
-                    8200, # Minidlna status
-                    22000, # Syncthing
-                    23145, # Shutdownd
+                    # 1194, # OpenVPN
+                    # 8080, # Syncthing GUI
+                    # 8200, # Minidlna status
+                    # 22000, # Syncthing
+                    # 23145, # Shutdownd
                 }, 'udp': set()},
             },
             'router2': {
                 'pi2': {'tcp': {
                     22, # SSH
                     80, # Nginx
-                    1194, # OpenVPN
-                    8080, # Syncthing GUI
-                    8200, # Minidlna status
-                    22000, # Syncthing
-                    23145, # Shutdownd
+                    # 1194, # OpenVPN
+                    # 8080, # Syncthing GUI
+                    # 8200, # Minidlna status
+                    # 22000, # Syncthing
+                    # 23145, # Shutdownd
                 }, 'udp': set()},
             },
         })

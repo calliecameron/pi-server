@@ -623,15 +623,15 @@ class CronRunner:
             # Wait for it to start
             self._host.check_output(
                 "timedatectl set-time '%s %s'" % (self._date, self._time))
-        self._host.check_output(
-            ("timeout 60 bash -c "
-             "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
+            self._host.check_output(
+                ("timeout 60 bash -c "
+                 "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
 
     def __exit__(self, *exc_info: Any) -> None:
-        # Wait for cron to finish
-        self._host.check_output(
-            "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
         with self._host.sudo():
+            # Wait for cron to finish
+            self._host.check_output(
+                "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
             self._host.check_output('timedatectl set-ntp true')
             if self._restore_guest_additions:
                 self._host.check_output('systemctl start vboxadd-service')
