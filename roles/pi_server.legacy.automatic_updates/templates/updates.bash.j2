@@ -1,4 +1,4 @@
-APT_OUTPUT='@@@@@1@@@@@'
+APT_OUTPUT='{{ pi_server_legacy_automatic_updates_apt_log }}'
 
 apt-get update &>> "${LOG}" &&
 GIT_AUTHOR_NAME='root' GIT_AUTHOR_EMAIL="root@$(hostname)" GIT_COMMITTER_NAME='root' GIT_COMMITTER_EMAIL="root@$(hostname)" DEBIAN_FRONTEND='noninteractive' apt-get -y upgrade 2>&1 | tee "${APT_OUTPUT}" >> "${LOG}" &&

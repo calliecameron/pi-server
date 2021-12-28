@@ -30,3 +30,6 @@
 
 - include_role:
     name: pi_server.legacy.cron
+
+- include_role:
+    name: pi_server.legacy.automatic_updates

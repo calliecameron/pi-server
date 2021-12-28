@@ -1,0 +1,29 @@
+- include_role:
+    name: pi_server.legacy.cron
+
+- name: listchanges.conf
+  become: yes
+  ansible.builtin.copy:
+    src: listchanges.conf
+    dest: /etc/apt/listchanges.conf
+    owner: root
+    group: root
+    mode: a=r
+
+- name: apt-periodic
+  become: yes
+  ansible.builtin.copy:
+    src: apt-periodic
+    dest: /etc/apt/apt.conf.d/20periodic
+    owner: root
+    group: root
+    mode: a=r
+
+- name: update script
+  become: yes
+  ansible.builtin.template:
+    src: updates.bash.j2
+    dest: "{{ pi_server_legacy_automatic_updates_script }}"
+    owner: root
+    group: root
+    mode: a=r
