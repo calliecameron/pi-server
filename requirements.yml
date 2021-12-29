@@ -5,3 +5,4 @@ collections:
 
 roles:
 - geerlingguy.docker
+- geerlingguy.swap
