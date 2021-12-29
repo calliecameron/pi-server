@@ -15,7 +15,7 @@
   copy: src=sudoers dest=/etc/sudoers.d/pi-server-testbed owner=root mode=a=r
 - name: testbed_helper - boot script
   template: src={{ boot_script }} dest=/etc/networkd-dispatcher/routable.d/testbed-boot owner=root mode=a=rx
-- name: ssh-keygen
+- name: testbed_helper - ssh-keygen
   become: no
   command:
     cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
