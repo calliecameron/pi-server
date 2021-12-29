@@ -37,8 +37,8 @@
   - include_role:
       name: pi_server.role_helpers
 
-  - import_tasks: 01_generic_core.yml
-    become: no
+  - include_role:
+      name: pi_server.roles.base
 
 #  - import_tasks: 02_pi_core.yml
 #    become: no

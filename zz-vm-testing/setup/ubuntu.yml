@@ -13,8 +13,9 @@
   - include_role:
       name: pi_server.role_helpers
 
-  - import_tasks: 01_generic_core.yml
-    become: no
+  - include_role:
+      name: pi_server.roles.base
+
   # TODO convert to ansible
   # - import_tasks: 03_openvpn_clients.yml
   #   become: no
