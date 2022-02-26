@@ -7,20 +7,21 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: prometheus rules dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_prometheus_rules }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - name: prometheus config
   become: yes
   ansible.builtin.template:
     src: prometheus.yml.j2
     dest: "{{ pi_server_apps_monitoring_prometheus_config }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload monitoring
+
+- name: prometheus custom alerts
+  become: yes
+  ansible.builtin.copy:
+    src: prometheus-alerts-custom.yml
+    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/prometheus-alerts-custom.yml"
     owner: root
     group: root
     mode: a=r

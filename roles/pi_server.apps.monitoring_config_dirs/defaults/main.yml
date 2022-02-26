@@ -1,0 +1,2 @@
+pi_server_apps_monitoring_etc: "{{ pi_server_etc }}/monitoring"
+pi_server_apps_monitoring_prometheus_rules: "{{ pi_server_apps_monitoring_etc }}/rules.d"

@@ -22,20 +22,19 @@
 - include_role:
     name: pi_server.apps.firewall
 
+- include_role:
+    name: pi_server.apps.docker
+
+- include_role:
+    name: pi_server.apps.monitoring
 # - include_role:
-#    name: pi_server.apps.docker
+#     name: pi_server.legacy.cron
 
 # - include_role:
-#    name: pi_server.apps.monitoring
+#     name: pi_server.legacy.automatic_updates
 
-- include_role:
-    name: pi_server.legacy.cron
+# - include_role:
+#     name: pi_server.legacy.disk_usage
 
-- include_role:
-    name: pi_server.legacy.automatic_updates
-
-- include_role:
-    name: pi_server.legacy.disk_usage
-
-- include_role:
-    name: pi_server.legacy.nginx
+# - include_role:
+#     name: pi_server.legacy.nginx

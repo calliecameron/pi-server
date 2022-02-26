@@ -32,3 +32,8 @@
     owner: root
     group: root
     mode: a=rx
+
+- include_role:
+    name: pi_server.utils.monitor_systemd_service
+  vars:
+    systemd_service: webhook

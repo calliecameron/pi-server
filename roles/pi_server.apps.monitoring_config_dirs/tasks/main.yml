@@ -1,0 +1,7 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: True
+    export_vars:
+    - pi_server_apps_monitoring_etc
+    - pi_server_apps_monitoring_prometheus_rules

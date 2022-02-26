@@ -4,6 +4,9 @@
 - include_role:
     name: pi_server.apps.docker
 
+- include_role:
+    name: pi_server.apps.monitoring_config_dirs
+
 - name: user
   become: yes
   ansible.builtin.user:
@@ -18,15 +21,6 @@
   become: yes
   ansible.builtin.group:
     name: "{{ pi_server_apps_monitoring_writer_group }}"
-
-- name: etc dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_etc }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
 
 - name: var dir
   become: yes
@@ -62,3 +56,8 @@
     project_src: "{{ pi_server_apps_monitoring_etc }}"
 
 - include_tasks: firewall.yml
+
+- include_role:
+    name: pi_server.utils.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"

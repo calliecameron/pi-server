@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.apps.monitoring_config_dirs
+
+- name: "{{ systemd_service }} standard alerts"
+  become: yes
+  ansible.builtin.template:
+    src: systemd-alerts-standard.yml.j2
+    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ systemd_service }}-alerts-standard.yml"
+    owner: root
+    group: root
+    mode: a=r

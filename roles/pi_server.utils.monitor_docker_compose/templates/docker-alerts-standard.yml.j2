@@ -1,0 +1,13 @@
+groups:
+  - name: "{{ container }} alerts standard"
+    rules:
+      - alert: DockerJobMissing
+        expr: 'absent(container_last_seen{job="cadvisor", name="{{ container }}"})'
+        for: 4h
+        annotations:
+          summary: "Docker container '{{ container }}' has been missing for more than 4h"
+      - alert: DockerTooManyRestarts
+        expr: 'changes(container_start_time_seconds{job="cadvisor", name="{{ container }}"}[15m]) > 2'
+        for: 0m
+        annotations:
+          summary: "Docker container '{{ container }}' has restarted more than twice in 15m. It might be crashlooping."

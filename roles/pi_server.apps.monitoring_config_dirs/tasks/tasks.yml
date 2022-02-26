@@ -1,0 +1,17 @@
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: prometheus rules dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_prometheus_rules }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx

@@ -1,0 +1,13 @@
+groups:
+  - name: "{{ systemd_service }} alerts standard"
+    rules:
+      - alert: SystemdJobMissing
+        expr: 'absent(container_last_seen{job="cadvisor", id="/system.slice/{{ systemd_service }}.service"})'
+        for: 4h
+        annotations:
+          summary: "Systemd service '{{ systemd_service }}' has been missing for more than 4h"
+      - alert: SystemdTooManyRestarts
+        expr: 'changes(container_start_time_seconds{job="cadvisor", id="/system.slice/{{ systemd_service }}.service"}[15m]) > 2'
+        for: 0m
+        annotations:
+          summary: "Systemd service '{{ systemd_service }}' has restarted more than twice in 15m. It might be crashlooping."

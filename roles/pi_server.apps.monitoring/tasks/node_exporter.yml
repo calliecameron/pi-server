@@ -23,31 +23,11 @@
     permissions: r
     state: present
 
-- name: node exporter rules
+- name: node exporter custom alerts
   become: yes
   ansible.builtin.copy:
-    src: node.yml
-    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/node.yml"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload monitoring
-
-- name: node exporter alerts
-  become: yes
-  ansible.builtin.copy:
-    src: node-alerts.yml
-    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/node-alerts.yml"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload monitoring
-
-- name: node exporter dashboard
-  become: yes
-  ansible.builtin.copy:
-    src: node.json
-    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/node.json"
+    src: node-alerts-custom.yml
+    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/node-alerts-custom.yml"
     owner: root
     group: root
     mode: a=r

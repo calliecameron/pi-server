@@ -42,6 +42,11 @@
     name: docker
     umask: "0022"
 
+- include_role:
+    name: pi_server.utils.monitor_systemd_service
+  vars:
+    systemd_service: docker
+
 - name: refresh facts
   become: yes
   ansible.builtin.setup:
