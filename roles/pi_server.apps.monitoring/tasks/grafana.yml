@@ -54,3 +54,13 @@
     group: root
     mode: a=r
   notify: reload monitoring
+
+- name: system dashboard
+  become: yes
+  ansible.builtin.copy:
+    src: system.json
+    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload monitoring
