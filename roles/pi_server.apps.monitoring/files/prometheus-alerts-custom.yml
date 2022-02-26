@@ -40,7 +40,7 @@ groups:
           description: "Prometheus configuration reload error\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTooManyRestarts
-        expr: changes(process_start_time_seconds{job=~"prometheus|pushgateway|alertmanager"}[15m]) > 2
+        expr: changes(process_start_time_seconds{job=~"prometheus|node|grafana|cadvisor|alertmanager"}[15m]) > 2
         for: 0m
         labels:
           severity: warning
@@ -128,15 +128,6 @@ groups:
         annotations:
           summary: Prometheus AlertManager notification failing (instance {{ $labels.instance }})
           description: "Alertmanager is failing sending notifications\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
-
-      - alert: PrometheusTargetEmpty
-        expr: prometheus_sd_discovered_targets == 0
-        for: 0m
-        labels:
-          severity: critical
-        annotations:
-          summary: Prometheus target empty (instance {{ $labels.instance }})
-          description: "Prometheus has no target in service discovery\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}"
 
       - alert: PrometheusTargetScrapingSlow
         expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 60
