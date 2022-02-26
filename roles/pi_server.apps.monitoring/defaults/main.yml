@@ -5,18 +5,12 @@ pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/d
 
 pi_server_apps_monitoring_prometheus_port: "9090"
 pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }}/prometheus.yml"
-pi_server_apps_monitoring_prometheus_scrapes: "{{ pi_server_apps_monitoring_etc }}/scrape.d"
-
 
 pi_server_apps_monitoring_node_exporter_port: "9100"
 pi_server_apps_monitoring_node_exporter_collect: "{{ pi_server_apps_monitoring_var }}/collect"
 
 pi_server_apps_monitoring_grafana_port: "3000"
 pi_server_apps_monitoring_grafana_config: "{{ pi_server_apps_monitoring_etc }}/grafana.ini"
-pi_server_apps_monitoring_grafana_etc: "{{ pi_server_apps_monitoring_etc }}/grafana"
-pi_server_apps_monitoring_grafana_datasources: "{{ pi_server_apps_monitoring_grafana_etc }}/datasources"
-pi_server_apps_monitoring_grafana_dashboards: "{{ pi_server_apps_monitoring_grafana_etc }}/dashboards"
-pi_server_apps_monitoring_grafana_plugins: "{{ pi_server_apps_monitoring_grafana_etc }}/plugins"
 
 pi_server_apps_monitoring_alertmanager_port: "9093"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"

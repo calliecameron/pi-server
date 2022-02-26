@@ -1,0 +1,98 @@
+- include_role:
+    name: pi_server.base
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: prometheus scrape dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_prometheus_scrapes }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: prometheus rules dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_prometheus_rules }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana datasources dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_datasources }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana dashboards dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_dashboards }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: grafana plugins dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_grafana_plugins }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_monitoring_monitored_docker }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: get monitored systemd services
+  become: yes
+  ansible.builtin.command:
+    cmd: "cat {{ pi_server_apps_monitoring_monitored_systemd }}"
+  register: monitored_systemd
+  changed_when: false
+
+- name: get monitored docker containers
+  become: yes
+  ansible.builtin.command:
+    cmd: "cat {{ pi_server_apps_monitoring_monitored_docker }}"
+  register: monitored_docker
+  changed_when: false
+
+- name: generate system dashboard
+  become: yes
+  vars:
+    systemd_services: "{{ monitored_systemd.stdout_lines }}"
+    docker_containers: "{{ monitored_docker.stdout_lines }}"
+  ansible.builtin.template:
+    src: system.json.j2
+    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"
+    owner: root
+    group: root
+    mode: a=r

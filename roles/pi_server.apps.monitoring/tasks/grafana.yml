@@ -8,33 +8,6 @@
     mode: a=r
   notify: reload monitoring
 
-- name: grafana datasources dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_grafana_datasources }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: grafana dashboards dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_grafana_dashboards }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: grafana plugins dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_grafana_plugins }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - name: grafana datasources
   become: yes
   ansible.builtin.template:
@@ -50,16 +23,6 @@
   ansible.builtin.copy:
     src: dashboards.yml
     dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/dashboards.yml"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload monitoring
-
-- name: system dashboard
-  become: yes
-  ansible.builtin.copy:
-    src: system.json
-    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"
     owner: root
     group: root
     mode: a=r

@@ -1,5 +1,5 @@
 - include_role:
-    name: pi_server.apps.monitoring_config_dirs
+    name: pi_server.apps.monitoring_base
 
 - name: get container IDs
   become: yes
@@ -26,3 +26,14 @@
     group: root
     mode: a=r
   loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
+
+- name: "standard dashboard for {{ compose_file }}"
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_monitoring_monitored_docker }}"
+    line: "{{ item }}"
+    owner: root
+    group: root
+    mode: a=r
+  loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
+  notify: "reload system dashboard"

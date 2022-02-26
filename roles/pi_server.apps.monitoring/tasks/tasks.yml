@@ -5,7 +5,7 @@
     name: pi_server.apps.docker
 
 - include_role:
-    name: pi_server.apps.monitoring_config_dirs
+    name: pi_server.apps.monitoring_base
 
 - name: user
   become: yes

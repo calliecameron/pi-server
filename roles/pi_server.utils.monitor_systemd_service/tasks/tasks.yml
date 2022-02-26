@@ -1,5 +1,5 @@
 - include_role:
-    name: pi_server.apps.monitoring_config_dirs
+    name: pi_server.apps.monitoring_base
 
 - name: "{{ systemd_service }} standard alerts"
   become: yes
@@ -9,3 +9,13 @@
     owner: root
     group: root
     mode: a=r
+
+- name: "{{ systemd_service }} standard dashboard"
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
+    line: "{{ systemd_service }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: "reload system dashboard"
