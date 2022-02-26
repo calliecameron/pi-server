@@ -2,50 +2,7 @@ rule_files:
   - /rules.d/*.yml
 
 scrape_configs:
-  - job_name: prometheus
-    static_configs:
-      - targets: ['localhost:{{ pi_server_apps_monitoring_prometheus_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: docker
-    static_configs:
-      - targets: ['host.docker.internal:{{ pi_server_apps_docker_metrics_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: node
-    honor_labels: true
-    static_configs:
-      - targets: ['host.docker.internal:{{ pi_server_apps_monitoring_node_exporter_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: grafana
-    static_configs:
-      - targets: ['grafana:{{ pi_server_apps_monitoring_grafana_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: alertmanager
-    static_configs:
-      - targets: ['alertmanager:{{ pi_server_apps_monitoring_alertmanager_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: cadvisor
-    static_configs:
-      - targets: ['cadvisor:{{ pi_server_apps_monitoring_cadvisor_port }}']
-    relabel_configs:
-      - target_label: instance
-        replacement: "{{ pi_server_hostname }}"
-
-  - job_name: other
+  - job_name: jobs
     honor_labels: true
     file_sd_configs:
       - files:

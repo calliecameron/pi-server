@@ -27,3 +27,10 @@
     group: root
     mode: a=r
   notify: reload monitoring
+
+- include_role:
+    name: pi_server.utils.scrape_job
+  vars:
+    job: grafana
+    host: grafana
+    port: "{{ pi_server_apps_monitoring_grafana_port }}"

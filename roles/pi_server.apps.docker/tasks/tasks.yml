@@ -43,6 +43,13 @@
     umask: "0022"
 
 - include_role:
+    name: pi_server.utils.scrape_job
+  vars:
+    job: docker
+    host: host.docker.internal
+    port: "{{ pi_server_apps_docker_metrics_port }}"
+
+- include_role:
     name: pi_server.utils.monitor_systemd_service
   vars:
     systemd_service: docker

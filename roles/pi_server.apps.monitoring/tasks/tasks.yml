@@ -37,6 +37,8 @@
 
 - include_tasks: node_exporter.yml
 
+- include_tasks: cadvisor.yml
+
 - include_tasks: alertmanager.yml
 
 - include_tasks: webhook.yml

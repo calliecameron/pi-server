@@ -32,3 +32,10 @@
     group: root
     mode: a=r
   notify: reload monitoring
+
+- include_role:
+    name: pi_server.utils.scrape_job
+  vars:
+    job: node
+    host: host.docker.internal
+    port: "{{ pi_server_apps_monitoring_node_exporter_port }}"
