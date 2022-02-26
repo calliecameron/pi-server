@@ -23,15 +23,11 @@
     permissions: r
     state: present
 
-- name: node exporter custom alerts
-  become: yes
-  ansible.builtin.copy:
+- include_role:
+    name: pi_server.utils.custom_alerts
+  vars:
     src: node-alerts-custom.yml
-    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/node-alerts-custom.yml"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload monitoring
+    job: node
 
 - include_role:
     name: pi_server.utils.scrape_job

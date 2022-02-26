@@ -9,15 +9,11 @@
     mode: a=r
   notify: reload monitoring
 
-- name: prometheus custom alerts
-  become: yes
-  ansible.builtin.copy:
+- include_role:
+    name: pi_server.utils.custom_alerts
+  vars:
     src: prometheus-alerts-custom.yml
-    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/prometheus-alerts-custom.yml"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload monitoring
+    job: prometheus
 
 - include_role:
     name: pi_server.utils.scrape_job

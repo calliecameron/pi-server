@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.apps.monitoring_base
+
+- name: "custom alerts for {{ job }}"
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ src }}"
+    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ job }}-alerts-custom.yml"
+    owner: root
+    group: root
+    mode: a=r
