@@ -179,19 +179,19 @@ class TestFirewall:
         net.assert_ports_open({
             'internet': {
                 'router1_wan': {'tcp': {
-                    1194, # OpenVPN port forwarding
+                    1194,  # OpenVPN port forwarding
                 }, 'udp': set()},
                 'router2_wan': {'tcp': {
-                    1194, # OpenVPN port forwarding
+                    1194,  # OpenVPN port forwarding
                 }, 'udp': set()},
                 'ubuntu': {'tcp': {
-                    22, # SSH
+                    22,  # SSH
                 }, 'udp': set()},
             },
             'router1': {
                 'pi1': {'tcp': {
-                    22, # SSH
-                    80, # Nginx
+                    22,  # SSH
+                    80,  # Nginx
                     # 1194, # OpenVPN
                     # 8080, # Syncthing GUI
                     # 8200, # Minidlna status
@@ -201,8 +201,8 @@ class TestFirewall:
             },
             'router2': {
                 'pi2': {'tcp': {
-                    22, # SSH
-                    80, # Nginx
+                    22,  # SSH
+                    80,  # Nginx
                     # 1194, # OpenVPN
                     # 8080, # Syncthing GUI
                     # 8200, # Minidlna status

@@ -35,15 +35,17 @@ _ANSIBLE_RUNNER = ansible_runner.AnsibleRunner(
 
 
 def _file_write(self: File, content: str) -> None:
-    self.check_output('echo \'%s\' > %s' % (content, self.path))
+    self.check_output(f'echo \'{content}\' > {self.path}')
 
-File.write = _file_write # type: ignore
+
+File.write = _file_write  # type: ignore
 
 
 def _file_clear(self: File) -> None:
     self.write('')
 
-File.clear = _file_clear # type: ignore
+
+File.clear = _file_clear  # type: ignore
 
 
 class Timer(codetiming.Timer):
@@ -128,7 +130,7 @@ class Vagrant:
         self._v = vagrant_lib.Vagrant()
         # VM operations are slow, so we cache the state. If state is modified externally, run
         # rescan_state to update the cache.
-        self._state = {} # type: Dict[str, bool]
+        self._state = {}  # type: Dict[str, bool]
         self.rescan_state()
 
     def rescan_state(self) -> None:
@@ -188,7 +190,7 @@ class AddrInNet:
         return not self.__eq__(other)
 
     def __repr__(self) -> str:
-        return 'AddrInNet(%s)' % self._mask
+        return f'AddrInNet({self._mask})'
 
 
 class Net:
@@ -220,8 +222,7 @@ class Net:
             if len(ips) == 1:
                 out.append(list(ips)[0])
             elif len(ips) > 1:
-                raise ValueError('Traceroute %s -> %s returned multiple IPs: %s' % (
-                    host, addr, ips))
+                raise ValueError(f'Traceroute {host} -> {addr} returned multiple IPs: {ips}')
             else:
                 # Traceroute returned '*'
                 out.append('')
@@ -237,8 +238,8 @@ class Net:
     def nmap(self, t: Timer, host: str, addr: str) -> Dict[str, Set[int]]:
         """Gets the open ports on addr as seen from host."""
         result = self._hosts[host].check_output(
-            'sudo nmap -p-2000,8000-9000,20000-24000 --open -Pn -oN - -T4 -sU -sS %s'
-            % self._addrs[addr])
+            'sudo nmap -p-2000,8000-9000,20000-24000 --open -Pn -oN - -T4 -sU -sS ' +
+            self._addrs[addr])
         udp = set()
         tcp = set()
         for line in result.split('\n'):
@@ -253,7 +254,7 @@ class Net:
                     elif protocol == 'tcp':
                         tcp.add(port)
                     else:
-                        raise ValueError("nmap returned an unknown protocol '%s'" % protocol)
+                        raise ValueError(f"nmap returned an unknown protocol '{protocol}'")
         t.add_extra(result)
         return {'tcp': tcp, 'udp': udp}
 
@@ -261,9 +262,9 @@ class Net:
         running_vms = self._vagrant.running_vms()
         if sorted(hosts) != running_vms:
             raise ValueError(
-                ("'hosts' must exactly match the running VMs: got %s, want %s. Either the wrong "
-                 "hosts were passed in , or some VMs are in the wrong state.") % (
-                     sorted(hosts), running_vms))
+                (f"'hosts' must exactly match the running VMs: got {sorted(hosts)}, want "
+                 f"{running_vms}. Either the wrong hosts were passed in , or some VMs are in the "
+                 "wrong state."))
 
         out = []
         for host in sorted(hosts):
@@ -286,11 +287,10 @@ class Net:
                 host, addr = pair
                 incorrect.append((host, addr, want, got))
         if incorrect:
-            lines = ['%s gave the wrong result for the following host/addr combinations:' %
-                     got_fn.__name__]
+            lines = [f'{got_fn.__name__} gave the wrong result for the following host/addr '
+                     'combinations:']
             for host, addr, want, got in incorrect:
-                lines.append('  %s -> %s (%s): want %s, got %s' % (
-                    host, addr, self._addrs[addr], want, got))
+                lines.append(f'  {host} -> {addr} ({self._addrs[addr]}): want {want}, got {got}')
             pytest.fail('\n'.join(lines))
 
     @timer
@@ -372,32 +372,31 @@ class Email:
         # SSH login emails are sent asynchronously so they don't delay login. So we
         # sleep to allow login emails from previous tests to arrive before clearing.
         time.sleep(5)
-        r = requests.delete('http://%s:%d/api/emails' % (self._host, self._PORT))
+        r = requests.delete(f'http://{self._host}:{self._PORT}/api/emails')
         r.raise_for_status()
 
     def assert_emails(self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
-        r = requests.get('http://%s:%d/api/emails' % (self._host, self._PORT))
+        r = requests.get(f'http://{self._host}:{self._PORT}/api/emails')
         r.raise_for_status()
         got_emails = r.json()
         if only_from:
             got_emails = [
                 e for e in got_emails
-                if e['from']['value'][0]['address'] == 'notification@%s.testbed' % only_from
+                if e['from']['value'][0]['address'] == f'notification@{only_from}.testbed'
                 or not e['from']['value'][0]['address']]
 
         if len(got_emails) != len(emails):
             raise ValueError(
-                'Length of want and got differ (%d vs %d); all emails:\n%s' %
-                (len(emails), len(got_emails), json.dumps(got_emails, sort_keys=True, indent=2)))
+                f'Length of want and got differ ({len(emails)} vs {len(got_emails)}); all '
+                'emails:\n' + json.dumps(got_emails, sort_keys=True, indent=2))
         for email, expected in zip(sorted(got_emails, key=lambda e: cast(str, e['subject'])),
                                    sorted(emails, key=lambda e: e['subject'])):
             # pylint: disable=cell-var-from-loop
             def fail(field_name: str, want: str, got: str) -> None:
                 pytest.fail(
-                    ("Email field '%s' doesn't match: want:\n%s\ngot:\n%s\n"
-                     "full want:\n%s\nfull got:\n%s") % (
-                         field_name, want, got, str(expected),
-                         json.dumps(email, sort_keys=True, indent=2)))
+                    (f"Email field '{field_name}' doesn't match: want:\n{want}\ngot:\n{got}\n"
+                     f"full want:\n{str(expected)}\nfull got:\n" +
+                     json.dumps(email, sort_keys=True, indent=2)))
 
             def check_field(field_name: str, want: str, got: str) -> None:
                 if want != got:
@@ -425,27 +424,27 @@ class MockServer:
     def __init__(self, host: str) -> None:
         super().__init__()
         self._host = host
-        self._expectations = [] # type: List[str]
+        self._expectations = []  # type: List[str]
 
     def clear(self) -> None:
         self._expectations = []
-        r = requests.put('http://%s:%d/reset' % (self._host, self._PORT))
+        r = requests.put(f'http://{self._host}:{self._PORT}/reset')
         r.raise_for_status()
 
         # Catch-all expectation
-        r = requests.put('http://%s:%d/expectation' % (self._host, self._PORT),
+        r = requests.put(f'http://{self._host}:{self._PORT}/expectation',
                          json=self._CATCH_ALL)
         r.raise_for_status()
 
     def expect(self, json: Dict[Any, Any]) -> None:
         json['times'] = {'remainingTimes': 1}
-        r = requests.put('http://%s:%d/expectation' % (self._host, self._PORT), json=json)
+        r = requests.put(f'http://{self._host}:{self._PORT}/expectation', json=json)
         r.raise_for_status()
         self._expectations.append(r.json()[0]['httpRequest'])
 
     def assert_called(self, times: int = 1) -> None:
         for request in self._expectations:
-            r = requests.put('http://%s:%d/verify' % (self._host, self._PORT), json={
+            r = requests.put(f'http://{self._host}:{self._PORT}/verify', json={
                 'httpRequest': request,
                 'times': {
                     'atLeast': times,
@@ -464,6 +463,7 @@ class ShadowFile:
     This lets tests modify the file's content without messing up the original
     content. Shadow persists across reboots.
     """
+
     def __init__(self, host: Host, path: str) -> None:
         super().__init__()
         self._host = host
@@ -479,15 +479,14 @@ class ShadowFile:
         if self._path_existed:
             if self._backup_file.exists:
                 raise ValueError(
-                    ("Cannot shadow '%s' because backup file '%s' already "
-                     "exists. Fix it manually.") % (
-                         self._path, self._backup_path))
+                    (f"Cannot shadow '{self._path}' because backup file '{self._backup_path}' "
+                     "already exists. Fix it manually."))
             with self._host.sudo():
                 self._host.check_output(
-                    'cp -p %s %s' % (self._path, self._backup_path))
+                    f'cp -p {self._path} {self._backup_path}')
         else:
             with self._host.sudo():
-                self._host.check_output('touch %s' % self._path)
+                self._host.check_output(f'touch {self._path}')
 
         with self._host.sudo():
             f.clear()
@@ -497,16 +496,17 @@ class ShadowFile:
         if self._path_existed:
             if self._backup_file.exists:
                 with self._host.sudo():
-                    self._host.check_output('mv %s %s' % (self._backup_path, self._path))
+                    self._host.check_output(f'mv {self._backup_path} {self._path}')
         else:
             with self._host.sudo():
-                self._host.check_output('rm %s' % self._path)
+                self._host.check_output(f'rm {self._path}')
 
 
 def _host_shadow_file(self: Host, path: str) -> ShadowFile:
     return ShadowFile(self, path)
 
-Host.shadow_file = _host_shadow_file # type: ignore
+
+Host.shadow_file = _host_shadow_file  # type: ignore
 
 
 class ShadowDir:
@@ -515,29 +515,30 @@ class ShadowDir:
     This lets tests modify the dir's content without messing up the original
     content. Shadow does not persist across reboots.
     """
+
     def __init__(self, host: Host, path: str) -> None:
         super().__init__()
         self._host = host
         self._path = path
-        self._tmpdir = None # type: Optional[str]
+        self._tmpdir = None  # type: Optional[str]
 
     def __enter__(self) -> 'ShadowDir':
         with self._host.sudo():
             tmpdir = self._host.check_output('mktemp -d')
             self._host.check_output(
-                'chown --reference=%s %s' % (self._path, tmpdir))
+                f'chown --reference={self._path} {tmpdir}')
             self._host.check_output(
-                'chmod --reference=%s %s' % (self._path, tmpdir))
+                f'chmod --reference={self._path} {tmpdir}')
             self._host.check_output(
-                'mount --bind %s %s' % (tmpdir, self._path))
+                f'mount --bind {tmpdir} {self._path}')
             self._tmpdir = tmpdir
         return self
 
     def __exit__(self, *exc_info: Any) -> None:
         if self._tmpdir:
             with self._host.sudo():
-                self._host.check_output('umount %s' % self._path)
-                self._host.check_output('rm -r %s' % self._tmpdir)
+                self._host.check_output(f'umount {self._path}')
+                self._host.check_output(f'rm -r {self._tmpdir}')
 
     def file(self, path: str) -> File:
         return self._host.file(os.path.join(self._path, path))
@@ -546,25 +547,28 @@ class ShadowDir:
 def _host_shadow_dir(self: Host, path: str) -> ShadowDir:
     return ShadowDir(self, path)
 
-Host.shadow_dir = _host_shadow_dir # type: ignore
+
+Host.shadow_dir = _host_shadow_dir  # type: ignore
 
 
 def _host_client_ip(self: Host) -> str:
     return self.check_output('echo "${SSH_CLIENT}"').split()[0]
 
-Host.client_ip = _host_client_ip # type: ignore
+
+Host.client_ip = _host_client_ip  # type: ignore
 
 
 def _host_make_bigfile(self: Host, path: str, mount_point: str) -> None:
-    output = self.check_output('df --output=size,used %s | tail -n 1' % mount_point)
+    output = self.check_output(f'df --output=size,used {mount_point} | tail -n 1')
     # Sizes in kiB
     size = int(output.split()[0])
     used = int(output.split()[1])
     # Want to get it up to 92% full
     needed = int(0.92 * size) - used
-    self.check_output('dd if=/dev/zero of=%s bs=1M count=%d' % (path, int(needed / 1024)))
+    self.check_output(f'dd if=/dev/zero of={path} bs=1M count={int(needed / 1024)}')
 
-Host.make_bigfile = _host_make_bigfile # type: ignore
+
+Host.make_bigfile = _host_make_bigfile  # type: ignore
 
 
 @contextmanager
@@ -572,10 +576,11 @@ def _host_disable_login_emails(self: Host) -> Iterator[None]:
     client_ip = self.client_ip()
     with self.shadow_file('/etc/pi-server/ssh/email-on-login-exceptions') as f:
         with self.sudo():
-            f.write('vagrant:%s' % client_ip)
+            f.write(f'vagrant:{client_ip}')
         yield
 
-Host.disable_login_emails = _host_disable_login_emails # type: ignore
+
+Host.disable_login_emails = _host_disable_login_emails  # type: ignore
 
 
 @contextmanager
@@ -588,7 +593,8 @@ def _host_mount_backup_dir(self: Host) -> Iterator[None]:
         with self.sudo():
             self.check_output('umount /mnt/backup')
 
-Host.mount_backup_dir = _host_mount_backup_dir # type: ignore
+
+Host.mount_backup_dir = _host_mount_backup_dir  # type: ignore
 
 
 class CronRunner:
@@ -605,7 +611,7 @@ class CronRunner:
         self._cmd_to_watch = cmd_to_watch
         self._disable_sources_list = disable_sources_list
         self._restore_guest_additions = False
-        self._sources_list = None # type: Optional[ShadowFile]
+        self._sources_list = None  # type: Optional[ShadowFile]
 
     def __enter__(self) -> None:
         with self._host.sudo():
@@ -618,19 +624,19 @@ class CronRunner:
             self._host.check_output('timedatectl set-ntp false')
             # Large change to override cron's daylight-saving-time handling
             self._host.check_output(
-                "timedatectl set-time '%s 09:00:00'" % self._date)
+                f"timedatectl set-time '{self._date} 09:00:00'")
             time.sleep(90)
             # Wait for it to start
             self._host.check_output(
-                "timedatectl set-time '%s %s'" % (self._date, self._time))
+                f"timedatectl set-time '{self._date} {self._time}'")
         self._host.check_output(
             ("timeout 60 bash -c "
-             "\"while ! pgrep -x -f '%s'; do true; done\"; true") % self._cmd_to_watch)
+             f"\"while ! pgrep -x -f '{self._cmd_to_watch}'; do true; done\"; true"))
 
     def __exit__(self, *exc_info: Any) -> None:
         # Wait for cron to finish
         self._host.check_output(
-            "while pgrep -x -f '%s'; do true; done" % self._cmd_to_watch)
+            f"while pgrep -x -f '{self._cmd_to_watch}'; do true; done")
         with self._host.sudo():
             self._host.check_output('timedatectl set-ntp true')
             if self._restore_guest_additions:
@@ -647,7 +653,8 @@ def _host_run_crons(
         date: str = datetime.date.today().isoformat()) -> CronRunner:
     return CronRunner(self, time, cmd_to_watch, disable_sources_list, date)
 
-Host.run_crons = _host_run_crons # type: ignore
+
+Host.run_crons = _host_run_crons  # type: ignore
 
 
 class Lines:
@@ -666,13 +673,13 @@ class Lines:
         out = '['
         if self._name:
             out += self._name + ' '
-        out += '(%d lines)]' % len(self._lines)
+        out += f'({len(self._lines)} lines)]'
         return out
 
 
 class WebDriver(Firefox):
     def validate_html(self) -> None:
-        errors = tidy_document(self.page_source, options={'show-warnings':0})[1]
+        errors = tidy_document(self.page_source, options={'show-warnings': 0})[1]
         assert not errors
 
     def validate_links(self) -> Set[ParseResult]:
@@ -711,7 +718,7 @@ class OpenVPN:
     def connect(self, hostname: str, config: str, other_host: str) -> Iterator[None]:
         try:
             self._hosts[hostname].check_output(
-                'tmux new-session -s s1 -d sudo openvpn --config /etc/openvpn/%s' % config)
+                f'tmux new-session -s s1 -d sudo openvpn --config /etc/openvpn/{config}')
             time.sleep(20)
             yield
         finally:
@@ -727,19 +734,19 @@ def _hostnames() -> List[str]:
 def _host_type(hostname: str) -> str:
     match = re.fullmatch(r'([^0-9]+)[0-9]*', hostname)
     if match is None:
-        raise ValueError("Can't find host type for host '%s'" % hostname)
+        raise ValueError(f"Can't find host type for host '{hostname}'")
     return match.group(1)
 
 
 def host_number(hostname: str) -> str:
     match = re.fullmatch(r'[^0-9]+([0-9]*)', hostname)
     if match is None:
-        raise ValueError("Can't find host number for host '%s'" % hostname)
+        raise ValueError(f"Can't find host number for host '{hostname}'")
     return match.group(1)
 
 
 def _hostnames_by_type() -> Dict[str, List[str]]:
-    out = {} # type: Dict[str, List[str]]
+    out = {}  # type: Dict[str, List[str]]
     for hostname in _hostnames():
         out.setdefault(_host_type(hostname), []).append(hostname)
     for value in out.values():
@@ -763,7 +770,7 @@ def hosts() -> Dict[str, Host]:
 
 @pytest.fixture(scope='session')
 def hosts_by_type(hosts: Dict[str, Host]) -> Dict[str, List[Tuple[str, Host]]]:
-    out = {} # type: Dict[str, List[Tuple[str, Host]]]
+    out = {}  # type: Dict[str, List[Tuple[str, Host]]]
     for host_type, hostnames in _hostnames_by_type().items():
         out[host_type] = [(hostname, hosts[hostname]) for hostname in hostnames]
     return out
@@ -786,14 +793,14 @@ def for_host_types(*args: str) -> MarkDecorator:
 @pytest.fixture(scope='session')
 def addrs() -> Dict[str, str]:
     """Returns all IP addresses by name."""
-    with open('config.json') as f:
+    with open('config.json', encoding="utf-8") as f:
         return cast(Dict[str, str], json.load(f)['addrs'])
 
 
 @pytest.fixture(scope='session')
 def masks() -> Dict[str, str]:
     """Returns all net masks by name."""
-    with open('config.json') as f:
+    with open('config.json', encoding="utf-8") as f:
         return cast(Dict[str, str], json.load(f)['masks'])
 
 

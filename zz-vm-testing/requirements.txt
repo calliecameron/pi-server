@@ -8,4 +8,5 @@ pytest-testinfra
 pytidylib
 selenium
 trparse
+types-requests
 types-selenium

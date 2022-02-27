@@ -1,7 +1,7 @@
 import time
-from typing import Dict, List, Tuple
+from typing import Dict
 from testinfra.host import Host
-from conftest import Email, Lines, Net, Vagrant, corresponding_hostname, for_host_types
+from conftest import Email, Lines, for_host_types
 
 
 class TestRoleBase:
@@ -46,16 +46,16 @@ class TestRoleBase:
         time.sleep(10)
         email.assert_emails([
             {
-                'from': 'notification@%s.testbed' % hostname,
+                'from': f'notification@{hostname}.testbed',
                 'to': 'fake@fake.testbed',
-                'subject': '[%s] SSH login: vagrant from %s' % (hostname, client_ip),
+                'subject': f'[{hostname}] SSH login: vagrant from {client_ip}',
                 'body_re': (r'(.*\n)*PAM_USER=vagrant\n(.*\n)*PAM_RHOST=%s\n(.*\n)*' %
                             client_ip.replace('.', r'\.')),
             },
             {
-                'from': 'notification@%s.testbed' % hostname,
+                'from': f'notification@{hostname}.testbed',
                 'to': 'fake@fake.testbed',
-                'subject': '[%s] foo' % hostname,
+                'subject': f'[{hostname}] foo',
                 'body_re': r'bar\n\n',
             },
         ], only_from=hostname)
@@ -68,9 +68,9 @@ class TestRoleBase:
             time.sleep(10)
             email.assert_emails([
                 {
-                    'from': 'notification@%s.testbed' % hostname,
+                    'from': f'notification@{hostname}.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': '[%s] foo' % hostname,
+                    'subject': f'[{hostname}] foo',
                     'body_re': r'bar\n\n',
                 },
             ], only_from=hostname)
@@ -80,332 +80,332 @@ class TestRoleBase:
 
     # Firewall is tested by the port scan in test_base.py.
 
-    # @for_host_types('pi', 'ubuntu')
-    # def test_docker(self, hostname: str, hosts: Dict[str, Host]) -> None:
-    #     host = hosts[hostname]
-    #     assert host.service('docker').is_enabled
-    #     assert host.service('docker').is_running
-    #     assert host.exists('docker-compose')
-
     @for_host_types('pi', 'ubuntu')
-    def test_legacy_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
-        """This tests the cron system, not any particular cronjob."""
+    def test_docker(self, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
-        systemd_template = """[Unit]
-Description=Fake service
-After=network.target
+        assert host.service('docker').is_enabled
+        assert host.service('docker').is_running
+        assert host.exists('docker-compose')
 
-[Service]
-ExecStart=/bin/sleep 1h
-Restart=always
-User=root
-Group=root
+#     @for_host_types('pi', 'ubuntu')
+#     def test_legacy_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
+#         """This tests the cron system, not any particular cronjob."""
+#         host = hosts[hostname]
+#         systemd_template = """[Unit]
+# Description=Fake service
+# After=network.target
 
-[Install]
-WantedBy=multi-user.target
-"""
-        try:
-            with host.shadow_file('/etc/systemd/system/fake1.service') as fake1_file, \
-                 host.shadow_file('/etc/systemd/system/fake2.service') as fake2_file, \
-                 host.shadow_dir('/etc/pi-server/cron/cron-normal.d') as normal_dir, \
-                 host.shadow_dir('/etc/pi-server/cron/cron-safe.d') as safe_dir, \
-                 host.shadow_dir('/etc/pi-server/cron/pause-on-cron.d') as pause_dir, \
-                 host.shadow_file('/etc/pi-server/cron/last-run.log') as safe_log_file, \
-                 host.shadow_file('/cron-test-normal-output') as normal_out, \
-                 host.disable_login_emails():
-                try:
-                    with host.sudo():
-                        fake1_file.write(systemd_template)
-                        fake2_file.write(systemd_template)
-                        host.check_output('systemctl daemon-reload')
-                        host.check_output('systemctl start fake1.service')
-                        host.check_output('systemctl start fake2.service')
+# [Service]
+# ExecStart=/bin/sleep 1h
+# Restart=always
+# User=root
+# Group=root
 
-                    fake1_service = host.service('fake1.service')
-                    fake2_service = host.service('fake2.service')
-                    assert fake1_service.is_running
-                    assert fake2_service.is_running
+# [Install]
+# WantedBy=multi-user.target
+# """
+#         try:
+#             with host.shadow_file('/etc/systemd/system/fake1.service') as fake1_file, \
+#                  host.shadow_file('/etc/systemd/system/fake2.service') as fake2_file, \
+#                  host.shadow_dir('/etc/pi-server/cron/cron-normal.d') as normal_dir, \
+#                  host.shadow_dir('/etc/pi-server/cron/cron-safe.d') as safe_dir, \
+#                  host.shadow_dir('/etc/pi-server/cron/pause-on-cron.d') as pause_dir, \
+#                  host.shadow_file('/etc/pi-server/cron/last-run.log') as safe_log_file, \
+#                  host.shadow_file('/cron-test-normal-output') as normal_out, \
+#                  host.disable_login_emails():
+#                 try:
+#                     with host.sudo():
+#                         fake1_file.write(systemd_template)
+#                         fake2_file.write(systemd_template)
+#                         host.check_output('systemctl daemon-reload')
+#                         host.check_output('systemctl start fake1.service')
+#                         host.check_output('systemctl start fake2.service')
 
-                    with host.sudo():
-                        pause_dir.file('fake1.service').write('')
-                        pause_dir.file('fake2.service').write('')
+#                     fake1_service = host.service('fake1.service')
+#                     fake2_service = host.service('fake2.service')
+#                     assert fake1_service.is_running
+#                     assert fake2_service.is_running
 
-                    safe_cron1 = safe_dir.file('safe1')
-                    safe_cron2 = safe_dir.file('safe2')
-                    normal_cron = normal_dir.file('normal')
+#                     with host.sudo():
+#                         pause_dir.file('fake1.service').write('')
+#                         pause_dir.file('fake2.service').write('')
 
-                    # Successful run
-                    email.clear()
-                    run_stamp = 'good'
-                    with host.sudo():
-                        safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
-                        safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
-                        normal_cron.write('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
-                            run_stamp, normal_out.path))
-                        host.check_output('chmod a+x %s' % normal_cron.path)
+#                     safe_cron1 = safe_dir.file('safe1')
+#                     safe_cron2 = safe_dir.file('safe2')
+#                     normal_cron = normal_dir.file('normal')
 
-                    with host.run_crons():
-                        time.sleep(2)
-                        assert not fake1_service.is_running
-                        assert not fake2_service.is_running
+#                     # Successful run
+#                     email.clear()
+#                     run_stamp = 'good'
+#                     with host.sudo():
+#                         safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
+#                         safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
+#                         normal_cron.write('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
+#                             run_stamp, normal_out.path))
+#                         host.check_output('chmod a+x %s' % normal_cron.path)
 
-                    assert fake1_service.is_running
-                    assert fake2_service.is_running
+#                     with host.run_crons():
+#                         time.sleep(2)
+#                         assert not fake1_service.is_running
+#                         assert not fake2_service.is_running
 
-                    with host.sudo():
-                        safe_log = Lines(safe_log_file.content_string)
-                    assert safe_log.contains(r'Stopping services...')
-                    assert safe_log.contains(r'Stopped services$')
-                    assert safe_log.contains(r"STARTED 'safe1' at .*")
-                    assert safe_log.contains(r'safe1 good')
-                    assert safe_log.contains(r"FINISHED 'safe1' at .*")
-                    assert safe_log.contains(r"STARTED 'safe2' at .*")
-                    assert safe_log.contains(r'safe2 good')
-                    assert safe_log.contains(r"FINISHED 'safe2' at .*")
-                    assert safe_log.contains(r'Starting services...')
-                    assert safe_log.contains(r'Started services')
+#                     assert fake1_service.is_running
+#                     assert fake2_service.is_running
 
-                    with host.sudo():
-                        assert normal_out.content_string == 'normal good\n'
+#                     with host.sudo():
+#                         safe_log = Lines(safe_log_file.content_string)
+#                     assert safe_log.contains(r'Stopping services...')
+#                     assert safe_log.contains(r'Stopped services$')
+#                     assert safe_log.contains(r"STARTED 'safe1' at .*")
+#                     assert safe_log.contains(r'safe1 good')
+#                     assert safe_log.contains(r"FINISHED 'safe1' at .*")
+#                     assert safe_log.contains(r"STARTED 'safe2' at .*")
+#                     assert safe_log.contains(r'safe2 good')
+#                     assert safe_log.contains(r"FINISHED 'safe2' at .*")
+#                     assert safe_log.contains(r'Starting services...')
+#                     assert safe_log.contains(r'Started services')
 
-                    time.sleep(15)
-                    email.assert_emails([], only_from=hostname)
+#                     with host.sudo():
+#                         assert normal_out.content_string == 'normal good\n'
 
-                    # Run with failures
-                    email.clear()
-                    run_stamp = 'bad'
-                    with host.sudo():
-                        safe_cron1.write(
-                            'sleep 5\necho \'safe1 %s\' >> "${LOG}"\necho \'safe1 echo\''
-                            % run_stamp)
-                        safe_cron2.write(
-                            'sleep 5\necho \'safe2 %s\' >> "${LOG}"\nfalse' % run_stamp)
-                        normal_cron.write(
-                            ('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'\necho '
-                             '\'normal echo\'') % (run_stamp, normal_out.path))
+#                     time.sleep(15)
+#                     email.assert_emails([], only_from=hostname)
 
-                    with host.run_crons():
-                        time.sleep(2)
-                        assert not fake1_service.is_running
-                        assert not fake2_service.is_running
+#                     # Run with failures
+#                     email.clear()
+#                     run_stamp = 'bad'
+#                     with host.sudo():
+#                         safe_cron1.write(
+#                             'sleep 5\necho \'safe1 %s\' >> "${LOG}"\necho \'safe1 echo\''
+#                             % run_stamp)
+#                         safe_cron2.write(
+#                             'sleep 5\necho \'safe2 %s\' >> "${LOG}"\nfalse' % run_stamp)
+#                         normal_cron.write(
+#                             ('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'\necho '
+#                              '\'normal echo\'') % (run_stamp, normal_out.path))
 
-                    assert fake1_service.is_running
-                    assert fake2_service.is_running
+#                     with host.run_crons():
+#                         time.sleep(2)
+#                         assert not fake1_service.is_running
+#                         assert not fake2_service.is_running
 
-                    with host.sudo():
-                        safe_log = Lines(safe_log_file.content_string)
-                    assert safe_log.contains(r'Stopping services...')
-                    assert safe_log.contains(r'Stopped services$')
-                    assert safe_log.contains(r"STARTED 'safe1' at .*")
-                    assert safe_log.contains(r'safe1 bad')
-                    assert safe_log.contains(r"FINISHED 'safe1' at .*")
-                    assert safe_log.contains(r"STARTED 'safe2' at .*")
-                    assert safe_log.contains(r'safe2 bad')
-                    assert not safe_log.contains(r"FINISHED 'safe2' at .*")
-                    assert safe_log.contains(r"Couldn't run safe2\.")
-                    assert safe_log.contains(r'Starting services...')
-                    assert safe_log.contains(r'Started services')
+#                     assert fake1_service.is_running
+#                     assert fake2_service.is_running
 
-                    with host.sudo():
-                        assert normal_out.content_string == 'normal bad\n'
+#                     with host.sudo():
+#                         safe_log = Lines(safe_log_file.content_string)
+#                     assert safe_log.contains(r'Stopping services...')
+#                     assert safe_log.contains(r'Stopped services$')
+#                     assert safe_log.contains(r"STARTED 'safe1' at .*")
+#                     assert safe_log.contains(r'safe1 bad')
+#                     assert safe_log.contains(r"FINISHED 'safe1' at .*")
+#                     assert safe_log.contains(r"STARTED 'safe2' at .*")
+#                     assert safe_log.contains(r'safe2 bad')
+#                     assert not safe_log.contains(r"FINISHED 'safe2' at .*")
+#                     assert safe_log.contains(r"Couldn't run safe2\.")
+#                     assert safe_log.contains(r'Starting services...')
+#                     assert safe_log.contains(r'Started services')
 
-                    time.sleep(15)
-                    email.assert_emails([
-                        {
-                            'from': 'notification@%s.testbed' % hostname,
-                            'to': 'fake@fake.testbed',
-                            'subject': '[%s] Cron failed' % hostname,
-                            'body_re': r"Couldn't run safe2.\n\n",
-                        },
-                        {
-                            'from': '',
-                            'to': '',
-                            'subject': (('Cron <root@%s> test -x /usr/sbin/anacron || '
-                                         '( cd / && run-parts --report /etc/cron.daily )')
-                                        % hostname),
-                            'body_re': r"/etc/cron.daily/pi-server:\nsafe1 echo\nnormal echo\n",
-                        },
-                    ], only_from=hostname)
+#                     with host.sudo():
+#                         assert normal_out.content_string == 'normal bad\n'
 
-                    # Disable running
-                    with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
-                        email.clear()
-                        run_stamp = 'disabled'
-                        with host.sudo():
-                            safe_log_file.clear()
-                            normal_out.clear()
-                            safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
-                            safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
-                            normal_cron.write(
-                                '#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
-                                    run_stamp, normal_out.path))
+#                     time.sleep(15)
+#                     email.assert_emails([
+#                         {
+#                             'from': 'notification@%s.testbed' % hostname,
+#                             'to': 'fake@fake.testbed',
+#                             'subject': '[%s] Cron failed' % hostname,
+#                             'body_re': r"Couldn't run safe2.\n\n",
+#                         },
+#                         {
+#                             'from': '',
+#                             'to': '',
+#                             'subject': (('Cron <root@%s> test -x /usr/sbin/anacron || '
+#                                          '( cd / && run-parts --report /etc/cron.daily )')
+#                                         % hostname),
+#                             'body_re': r"/etc/cron.daily/pi-server:\nsafe1 echo\nnormal echo\n",
+#                         },
+#                     ], only_from=hostname)
 
-                        with host.run_crons():
-                            pass
+#                     # Disable running
+#                     with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
+#                         email.clear()
+#                         run_stamp = 'disabled'
+#                         with host.sudo():
+#                             safe_log_file.clear()
+#                             normal_out.clear()
+#                             safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
+#                             safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
+#                             normal_cron.write(
+#                                 '#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
+#                                     run_stamp, normal_out.path))
 
-                        assert fake1_service.is_running
-                        assert fake2_service.is_running
-                        with host.sudo():
-                            assert safe_log_file.content_string == '\n'
-                            assert normal_out.content_string == '\n'
+#                         with host.run_crons():
+#                             pass
 
-                        time.sleep(15)
-                        email.assert_emails([], only_from=hostname)
-                finally:
-                    # Cleanup
-                    with host.sudo():
-                        host.check_output('systemctl stop fake1.service')
-                        host.check_output('systemctl stop fake2.service')
+#                         assert fake1_service.is_running
+#                         assert fake2_service.is_running
+#                         with host.sudo():
+#                             assert safe_log_file.content_string == '\n'
+#                             assert normal_out.content_string == '\n'
 
-                    assert not fake1_service.is_running
-                    assert not fake2_service.is_running
-        finally:
-            with host.sudo():
-                host.check_output('systemctl daemon-reload')
+#                         time.sleep(15)
+#                         email.assert_emails([], only_from=hostname)
+#                 finally:
+#                     # Cleanup
+#                     with host.sudo():
+#                         host.check_output('systemctl stop fake1.service')
+#                         host.check_output('systemctl stop fake2.service')
 
-    @for_host_types('pi', 'ubuntu')
-    def test_legacy_automatic_updates(
-            self, hostname: str,
-            hosts: Dict[str, Host],
-            addrs: Dict[str, str],
-            email: Email) -> None:
-        host = hosts[hostname]
-        internet = hosts['internet']
-        known_packages = []
+#                     assert not fake1_service.is_running
+#                     assert not fake2_service.is_running
+#         finally:
+#             with host.sudo():
+#                 host.check_output('systemctl daemon-reload')
 
-        try:
-            with host.shadow_file('/etc/apt/sources.list') as sources_list, \
-                 host.disable_login_emails():
-                internet.check_output('aptly repo add main aptly/pi-server-test_1_all.deb')
-                internet.check_output('aptly publish update main')
-                known_packages.append('pi-server-test')
+#     @for_host_types('pi', 'ubuntu')
+#     def test_legacy_automatic_updates(
+#             self, hostname: str,
+#             hosts: Dict[str, Host],
+#             addrs: Dict[str, str],
+#             email: Email) -> None:
+#         host = hosts[hostname]
+#         internet = hosts['internet']
+#         known_packages = []
 
-                with host.sudo():
-                    sources_list.write(
-                        ('deb [trusted=yes check-date=no date-max-future=86400] '
-                         'http://%s:8080/ main main') % addrs['internet'])
-                    host.check_output('apt-get update')
-                    host.check_output('apt-get install pi-server-test')
+#         try:
+#             with host.shadow_file('/etc/apt/sources.list') as sources_list, \
+#                  host.disable_login_emails():
+#                 internet.check_output('aptly repo add main aptly/pi-server-test_1_all.deb')
+#                 internet.check_output('aptly publish update main')
+#                 known_packages.append('pi-server-test')
 
-                # Nothing to update
-                email.clear()
-                with host.run_crons(disable_sources_list=False):
-                    pass
+#                 with host.sudo():
+#                     sources_list.write(
+#                         ('deb [trusted=yes check-date=no date-max-future=86400] '
+#                          'http://%s:8080/ main main') % addrs['internet'])
+#                     host.check_output('apt-get update')
+#                     host.check_output('apt-get install pi-server-test')
 
-                assert host.package('pi-server-test').is_installed
-                assert host.package('pi-server-test').version == '1'
-                assert not host.package('pi-server-test2').is_installed
-                email.assert_emails([], only_from=hostname)
+#                 # Nothing to update
+#                 email.clear()
+#                 with host.run_crons(disable_sources_list=False):
+#                     pass
 
-                # One package to update
-                internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
-                internet.check_output('aptly publish update main')
+#                 assert host.package('pi-server-test').is_installed
+#                 assert host.package('pi-server-test').version == '1'
+#                 assert not host.package('pi-server-test2').is_installed
+#                 email.assert_emails([], only_from=hostname)
 
-                email.clear()
-                with host.run_crons(disable_sources_list=False):
-                    pass
+#                 # One package to update
+#                 internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
+#                 internet.check_output('aptly publish update main')
 
-                assert host.package('pi-server-test').is_installed
-                assert host.package('pi-server-test').version == '1.1'
-                assert not host.package('pi-server-test2').is_installed
-                email.assert_emails([{
-                    'from': 'notification@%s.testbed' % hostname,
-                    'to': 'fake@fake.testbed',
-                    'subject': '[%s] Installed 1 update' % hostname,
-                    'body_re': (r"(.*\n)*1 upgraded, 0 newly installed, "
-                                r"0 to remove and 0 not upgraded.\n(.*\n)*"),
-                }], only_from=hostname)
+#                 email.clear()
+#                 with host.run_crons(disable_sources_list=False):
+#                     pass
 
-                # One not upgraded
-                internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
-                internet.check_output('aptly repo add main aptly/pi-server-test2_1_all.deb')
-                internet.check_output('aptly publish update main')
-                known_packages.append('pi-server-test2')
+#                 assert host.package('pi-server-test').is_installed
+#                 assert host.package('pi-server-test').version == '1.1'
+#                 assert not host.package('pi-server-test2').is_installed
+#                 email.assert_emails([{
+#                     'from': 'notification@%s.testbed' % hostname,
+#                     'to': 'fake@fake.testbed',
+#                     'subject': '[%s] Installed 1 update' % hostname,
+#                     'body_re': (r"(.*\n)*1 upgraded, 0 newly installed, "
+#                                 r"0 to remove and 0 not upgraded.\n(.*\n)*"),
+#                 }], only_from=hostname)
 
-                email.clear()
-                with host.run_crons(disable_sources_list=False):
-                    pass
+#                 # One not upgraded
+#                 internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
+#                 internet.check_output('aptly repo add main aptly/pi-server-test2_1_all.deb')
+#                 internet.check_output('aptly publish update main')
+#                 known_packages.append('pi-server-test2')
 
-                assert host.package('pi-server-test').is_installed
-                assert host.package('pi-server-test').version == '1.1'
-                assert not host.package('pi-server-test2').is_installed
-                email.assert_emails([{
-                    'from': 'notification@%s.testbed' % hostname,
-                    'to': 'fake@fake.testbed',
-                    'subject': '[%s] 1 package not updated' % hostname,
-                    'body_re': (r"(.*\n)*0 upgraded, 0 newly installed, "
-                                r"0 to remove and 1 not upgraded.\n(.*\n)*"),
-                }], only_from=hostname)
+#                 email.clear()
+#                 with host.run_crons(disable_sources_list=False):
+#                     pass
 
-                # Manual dist-upgrade
-                with host.sudo():
-                    host.check_output('apt-get -y dist-upgrade')
+#                 assert host.package('pi-server-test').is_installed
+#                 assert host.package('pi-server-test').version == '1.1'
+#                 assert not host.package('pi-server-test2').is_installed
+#                 email.assert_emails([{
+#                     'from': 'notification@%s.testbed' % hostname,
+#                     'to': 'fake@fake.testbed',
+#                     'subject': '[%s] 1 package not updated' % hostname,
+#                     'body_re': (r"(.*\n)*0 upgraded, 0 newly installed, "
+#                                 r"0 to remove and 1 not upgraded.\n(.*\n)*"),
+#                 }], only_from=hostname)
 
-                # Nothing to update
-                email.clear()
-                with host.run_crons(disable_sources_list=False):
-                    pass
+#                 # Manual dist-upgrade
+#                 with host.sudo():
+#                     host.check_output('apt-get -y dist-upgrade')
 
-                assert host.package('pi-server-test').is_installed
-                assert host.package('pi-server-test').version == '1.2'
-                assert host.package('pi-server-test2').is_installed
-                assert host.package('pi-server-test2').version == '1'
-                email.assert_emails([], only_from=hostname)
+#                 # Nothing to update
+#                 email.clear()
+#                 with host.run_crons(disable_sources_list=False):
+#                     pass
 
-        finally:
-            # Cleanup
-            with host.sudo():
-                host.check_output('apt-get -y remove %s' % ' '.join(known_packages))
+#                 assert host.package('pi-server-test').is_installed
+#                 assert host.package('pi-server-test').version == '1.2'
+#                 assert host.package('pi-server-test2').is_installed
+#                 assert host.package('pi-server-test2').version == '1'
+#                 email.assert_emails([], only_from=hostname)
 
-            internet.check_output("aptly repo remove main 'Name (% *)'")
-            internet.check_output('aptly publish update main')
+#         finally:
+#             # Cleanup
+#             with host.sudo():
+#                 host.check_output('apt-get -y remove %s' % ' '.join(known_packages))
 
-            with host.sudo():
-                host.check_output('apt-get update')
+#             internet.check_output("aptly repo remove main 'Name (% *)'")
+#             internet.check_output('aptly publish update main')
 
-    @for_host_types('pi', 'ubuntu')
-    def test_legacy_disk_usage(
-            self, hostname: str,
-            hosts: Dict[str, Host],
-            email: Email) -> None:
-        host = hosts[hostname]
+#             with host.sudo():
+#                 host.check_output('apt-get update')
 
-        with host.disable_login_emails():
-            # Lots of space
-            email.clear()
-            with host.run_crons():
-                pass
+#     @for_host_types('pi', 'ubuntu')
+#     def test_legacy_disk_usage(
+#             self, hostname: str,
+#             hosts: Dict[str, Host],
+#             email: Email) -> None:
+#         host = hosts[hostname]
 
-            email.assert_emails([], only_from=hostname)
+#         with host.disable_login_emails():
+#             # Lots of space
+#             email.clear()
+#             with host.run_crons():
+#                 pass
 
-            # Not much space
-            try:
-                host.make_bigfile('bigfile', '/')
+#             email.assert_emails([], only_from=hostname)
 
-                email.clear()
-                with host.run_crons():
-                    pass
+#             # Not much space
+#             try:
+#                 host.make_bigfile('bigfile', '/')
 
-                email.assert_emails([{
-                    'from': 'notification@%s.testbed' % hostname,
-                    'to': 'fake@fake.testbed',
-                    'subject': '[%s] Storage space alert' % hostname,
-                    'body_re': (r'A partition is above 90% full.\n(.*\n)*'
-                                r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*9[0-9]%.*/\n(.*\n)*'),
-                }], only_from=hostname)
-            finally:
-                host.check_output('rm -f bigfile')
+#                 email.clear()
+#                 with host.run_crons():
+#                     pass
 
-            # Lots of space again
-            email.clear()
-            with host.run_crons():
-                pass
+#                 email.assert_emails([{
+#                     'from': 'notification@%s.testbed' % hostname,
+#                     'to': 'fake@fake.testbed',
+#                     'subject': '[%s] Storage space alert' % hostname,
+#                     'body_re': (r'A partition is above 90% full.\n(.*\n)*'
+#                                 r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*9[0-9]%.*/\n(.*\n)*'),
+#                 }], only_from=hostname)
+#             finally:
+#                 host.check_output('rm -f bigfile')
 
-            email.assert_emails([], only_from=hostname)
+#             # Lots of space again
+#             email.clear()
+#             with host.run_crons():
+#                 pass
 
-    @for_host_types('pi', 'ubuntu')
-    def test_legacy_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
-        """This just installs the nginx service, not any sites."""
-        host = hosts[hostname]
-        assert host.service('nginx').is_enabled
-        assert host.service('nginx').is_running
+#             email.assert_emails([], only_from=hostname)
+
+#     @for_host_types('pi', 'ubuntu')
+#     def test_legacy_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
+#         """This just installs the nginx service, not any sites."""
+#         host = hosts[hostname]
+#         assert host.service('nginx').is_enabled
+#         assert host.service('nginx').is_running
