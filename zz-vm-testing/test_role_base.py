@@ -99,20 +99,33 @@ groups:
         annotations:
           summary: "Test alert."
         """
-        try:
-            with host.disable_login_emails():
-                # Custom alert through the textfile exporter
-                # textfile -> node exporter -> scrape -> prometheus -> alertmanager -> webhook
-                email.clear()
+        jobmissing_alerts = """
+groups:
+  - name: "test alerts"
+    rules:
+      - alert: TestDockerJobMissing
+        expr: absent(container_last_seen{job="cadvisor", name="monitoring_grafana_1"})
+        annotations:
+          summary: "Grafana missing"
+      - alert: TestSystemdJobMissing
+        expr: absent(container_last_seen{job="cadvisor", id="/system.slice/cron.service"})
+        annotations:
+          summary: "Cron missing"
+        """
+        with host.disable_login_emails():
+            # Custom alert through the textfile exporter
+            # textfile -> node exporter -> scrape -> prometheus -> alertmanager -> webhook
+            email.clear()
+            try:
                 with host.shadow_file('/etc/pi-server/monitoring/rules.d/test.yml') as rules, \
                         host.shadow_file('/var/pi-server/monitoring/collect/test.prom') as data:
                     with host.sudo():
                         rules.write(textfile_alert)
-                        host.check_output("chmod a=r /etc/pi-server/monitoring/rules.d/test.yml")
-                        host.check_output("pkill -HUP prometheus")  # reload rules
+                        host.check_output('chmod a=r /etc/pi-server/monitoring/rules.d/test.yml')
+                        host.check_output('pkill -HUP prometheus')  # reload rules
                         data.write('pi_server_test_test{job="test"} 1')
                     time.sleep(90)  # prometheus scrapes every minute
-                    email.assert_emails([
+                    email.assert_has_emails([
                         {
                             'from': f'notification@{hostname}.testbed',
                             'to': 'fake@fake.testbed',
@@ -121,27 +134,69 @@ groups:
                                         r'Job: test(.*\n)+Alert 1 of 1:(.*\n)+'),
                         }
                     ], only_from=hostname)
+            finally:
+                with host.sudo():
+                    host.check_output('pkill -HUP prometheus')  # reload rules
 
-                # Disk space full alert through the node exporter
-                # node exporter -> scrape -> prometheus -> alertmanager -> webhook
-                email.clear()
-                try:
-                    host.make_bigfile('bigfile', '/')
-                    time.sleep(300)  # alert has a 2m trigger duration, plus scrape delay
+            # Disk space full alert through the node exporter
+            # node exporter -> scrape -> prometheus -> alertmanager -> webhook
+            email.clear()
+            try:
+                host.make_bigfile('bigfile', '/')
+                time.sleep(300)  # alert has a 2m trigger duration, plus scrape delay
+                email.assert_has_emails([
+                    {
+                        'from': f'notification@{hostname}.testbed',
+                        'to': 'fake@fake.testbed',
+                        'subject': f'[{hostname}] HostOutOfDiskSpace',
+                        'body_re': (r'Summary: Host out of disk space(.*\n)+Instance: '
+                                    fr'{hostname}(.*\n)+Job: node(.*\n)+Alert 1 of 1:(.*\n)+'),
+                    }
+                ], only_from=hostname)
+            finally:
+                host.check_output('rm -f bigfile')
+
+            # Job missing alerts. The real version has a 4h trigger
+            # duration, so we test on a shorter version.
+            # cadvisor -> scrape -> prometheus -> alertmanager -> webhook
+            email.clear()
+            try:
+                with host.shadow_file('/etc/pi-server/monitoring/rules.d/test.yml') as rules:
+                    with host.sudo():
+                        rules.write(jobmissing_alerts)
+                        host.check_output('chmod a=r /etc/pi-server/monitoring/rules.d/test.yml')
+                        host.check_output('pkill -HUP prometheus')  # reload rules
+                        host.check_output('systemctl stop cron.service')
+                        host.check_output(
+                            'docker-compose -f /etc/pi-server/monitoring/docker-compose.yml stop '
+                            'grafana')
+
+                    time.sleep(300)  # absent takes a while to show up
                     email.assert_has_emails([
                         {
                             'from': f'notification@{hostname}.testbed',
                             'to': 'fake@fake.testbed',
-                            'subject': f'[{hostname}] HostOutOfDiskSpace',
-                            'body_re': (r'Summary: Host out of disk space(.*\n)+Instance: '
-                                        fr'{hostname}(.*\n)+Job: node(.*\n)+Alert 1 of 1:(.*\n)+'),
-                        }
+                            'subject': f'[{hostname}] TestDockerJobMissing',
+                            'body_re': (r'Summary: Grafana missing(.*\n)+Job: cadvisor(.*\n)+'
+                                        r'Name: monitoring_grafana_1(.*\n)+Alert 1 of 1:(.*\n)+'),
+                        },
+                        {
+                            'from': f'notification@{hostname}.testbed',
+                            'to': 'fake@fake.testbed',
+                            'subject': f'[{hostname}] TestSystemdJobMissing',
+                            'body_re': (r'Summary: Cron missing(.*\n)+'
+                                        r'Id: /system.slice/cron.service(.*\n)+'
+                                        r'Job: cadvisor(.*\n)+'
+                                        r'Alert 1 of 1:(.*\n)+'),
+                        },
                     ], only_from=hostname)
-                finally:
-                    host.check_output('rm -f bigfile')
-        finally:
-            with host.sudo():
-                host.check_output("pkill -HUP prometheus")  # reload rules
+            finally:
+                with host.sudo():
+                    host.check_output('pkill -HUP prometheus')  # reload rules
+                    host.check_output('systemctl start cron.service')
+                    host.check_output(
+                        'docker-compose -f /etc/pi-server/monitoring/docker-compose.yml start '
+                        'grafana')
 
 
 #     @for_host_types('pi', 'ubuntu')
