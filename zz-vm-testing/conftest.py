@@ -375,7 +375,7 @@ class Email:
         r = requests.delete(f'http://{self._host}:{self._PORT}/api/emails')
         r.raise_for_status()
 
-    def assert_emails(self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
+    def _get(self, only_from: Optional[str] = None) -> List[Any]:
         r = requests.get(f'http://{self._host}:{self._PORT}/api/emails')
         r.raise_for_status()
         got_emails = r.json()
@@ -384,6 +384,40 @@ class Email:
                 e for e in got_emails
                 if e['from']['value'][0]['address'] == f'notification@{only_from}.testbed'
                 or not e['from']['value'][0]['address']]
+        return got_emails
+
+    @staticmethod
+    def _matches(expected: Dict[str, Any], email: Dict[str, Any]) -> Tuple[bool, str]:
+        def fail_msg(field_name: str, want: str, got: str) -> str:
+            return (f"Email field '{field_name}' doesn't match: want:\n{want}\ngot:\n{got}\n"
+                    f"full want:\n{str(expected)}\nfull got:\n" +
+                    json.dumps(email, sort_keys=True, indent=2))
+
+        def check_field(field_name: str, want: str, got: str) -> str:
+            if want != got:
+                return fail_msg(field_name, want, got)
+            return ''
+
+        msg = check_field('to', expected['to'], email['to']['value'][0]['address'])
+        if msg:
+            return False, msg
+
+        msg = check_field('from', expected['from'], email['from']['value'][0]['address'])
+        if msg:
+            return False, msg
+
+        msg = check_field('subject', expected['subject'], email['subject'])
+        if msg:
+            return False, msg
+
+        if re.fullmatch(expected['body_re'], email['text']) is None:
+            return False, fail_msg('text', expected['body_re'], email['text'])
+
+        return True, ''
+
+    def assert_emails(self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
+        """Emails must exactly match."""
+        got_emails = self._get(only_from)
 
         if len(got_emails) != len(emails):
             raise ValueError(
@@ -391,23 +425,24 @@ class Email:
                 'emails:\n' + json.dumps(got_emails, sort_keys=True, indent=2))
         for email, expected in zip(sorted(got_emails, key=lambda e: cast(str, e['subject'])),
                                    sorted(emails, key=lambda e: e['subject'])):
-            # pylint: disable=cell-var-from-loop
-            def fail(field_name: str, want: str, got: str) -> None:
-                pytest.fail(
-                    (f"Email field '{field_name}' doesn't match: want:\n{want}\ngot:\n{got}\n"
-                     f"full want:\n{str(expected)}\nfull got:\n" +
-                     json.dumps(email, sort_keys=True, indent=2)))
+            matches, msg = self._matches(expected, email)
+            if not matches:
+                pytest.fail(msg)
 
-            def check_field(field_name: str, want: str, got: str) -> None:
-                if want != got:
-                    fail(field_name, want, got)
+    def assert_has_emails(
+            self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
+        """Emails must be a subset of what's on the server."""
+        got_emails = sorted(self._get(only_from), key=lambda e: cast(str, e['subject']))
 
-            check_field('to', expected['to'], email['to']['value'][0]['address'])
-            check_field('from', expected['from'], email['from']['value'][0]['address'])
-            check_field('subject', expected['subject'], email['subject'])
-
-            if re.fullmatch(expected['body_re'], email['text']) is None:
-                fail('text', expected['body_re'], email['text'])
+        for expected in sorted(emails, key=lambda e: e['subject']):
+            found = False
+            for email in got_emails:
+                if self._matches(expected, email)[0]:
+                    found = True
+                    break
+            if not found:
+                pytest.fail(f'Found no email matching:\n{str(expected)}\nfull got:\n' +
+                            json.dumps(got_emails, sort_keys=True, indent=2))
 
 
 class MockServer:

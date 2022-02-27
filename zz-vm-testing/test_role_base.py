@@ -87,6 +87,63 @@ class TestRoleBase:
         assert host.service('docker').is_running
         assert host.exists('docker-compose')
 
+    @for_host_types('pi', 'ubuntu')
+    def test_monitoring(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        textfile_alert = """
+groups:
+  - name: "test alerts"
+    rules:
+      - alert: TestAlert
+        expr: pi_server_test_test{job="test"} > 0
+        annotations:
+          summary: "Test alert."
+        """
+        try:
+            with host.disable_login_emails():
+                # Custom alert through the textfile exporter
+                # textfile -> node exporter -> scrape -> prometheus -> alertmanager -> webhook
+                email.clear()
+                with host.shadow_file('/etc/pi-server/monitoring/rules.d/test.yml') as rules, \
+                        host.shadow_file('/var/pi-server/monitoring/collect/test.prom') as data:
+                    with host.sudo():
+                        rules.write(textfile_alert)
+                        host.check_output("chmod a=r /etc/pi-server/monitoring/rules.d/test.yml")
+                        host.check_output("pkill -HUP prometheus")  # reload rules
+                        data.write('pi_server_test_test{job="test"} 1')
+                    time.sleep(90)  # prometheus scrapes every minute
+                    email.assert_emails([
+                        {
+                            'from': f'notification@{hostname}.testbed',
+                            'to': 'fake@fake.testbed',
+                            'subject': f'[{hostname}] TestAlert',
+                            'body_re': (fr'Summary: Test alert.(.*\n)+Instance: {hostname}(.*\n)+'
+                                        r'Job: test(.*\n)+Alert 1 of 1:(.*\n)+'),
+                        }
+                    ], only_from=hostname)
+
+                # Disk space full alert through the node exporter
+                # node exporter -> scrape -> prometheus -> alertmanager -> webhook
+                email.clear()
+                try:
+                    host.make_bigfile('bigfile', '/')
+                    time.sleep(300)  # alert has a 2m trigger duration, plus scrape delay
+                    email.assert_has_emails([
+                        {
+                            'from': f'notification@{hostname}.testbed',
+                            'to': 'fake@fake.testbed',
+                            'subject': f'[{hostname}] HostOutOfDiskSpace',
+                            'body_re': (r'Summary: Host out of disk space(.*\n)+Instance: '
+                                        fr'{hostname}(.*\n)+Job: node(.*\n)+Alert 1 of 1:(.*\n)+'),
+                        }
+                    ], only_from=hostname)
+                finally:
+                    host.check_output('rm -f bigfile')
+        finally:
+            with host.sudo():
+                host.check_output("pkill -HUP prometheus")  # reload rules
+
+
 #     @for_host_types('pi', 'ubuntu')
 #     def test_legacy_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
 #         """This tests the cron system, not any particular cronjob."""
@@ -362,46 +419,6 @@ class TestRoleBase:
 
 #             with host.sudo():
 #                 host.check_output('apt-get update')
-
-#     @for_host_types('pi', 'ubuntu')
-#     def test_legacy_disk_usage(
-#             self, hostname: str,
-#             hosts: Dict[str, Host],
-#             email: Email) -> None:
-#         host = hosts[hostname]
-
-#         with host.disable_login_emails():
-#             # Lots of space
-#             email.clear()
-#             with host.run_crons():
-#                 pass
-
-#             email.assert_emails([], only_from=hostname)
-
-#             # Not much space
-#             try:
-#                 host.make_bigfile('bigfile', '/')
-
-#                 email.clear()
-#                 with host.run_crons():
-#                     pass
-
-#                 email.assert_emails([{
-#                     'from': 'notification@%s.testbed' % hostname,
-#                     'to': 'fake@fake.testbed',
-#                     'subject': '[%s] Storage space alert' % hostname,
-#                     'body_re': (r'A partition is above 90% full.\n(.*\n)*'
-#                                 r'(/dev/sda1|/dev/mapper/vagrant--vg-root).*9[0-9]%.*/\n(.*\n)*'),
-#                 }], only_from=hostname)
-#             finally:
-#                 host.check_output('rm -f bigfile')
-
-#             # Lots of space again
-#             email.clear()
-#             with host.run_crons():
-#                 pass
-
-#             email.assert_emails([], only_from=hostname)
 
 #     @for_host_types('pi', 'ubuntu')
 #     def test_legacy_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
