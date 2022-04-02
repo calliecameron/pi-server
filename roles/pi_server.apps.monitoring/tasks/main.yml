@@ -6,3 +6,5 @@
       - pi_server_hostname
       - pi_server_lan_ip
       - pi_server_monitoring_open_ports
+    export_vars:
+      - pi_server_apps_monitoring_node_exporter_collect

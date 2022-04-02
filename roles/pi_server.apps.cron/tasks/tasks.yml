@@ -1,0 +1,29 @@
+- include_role:
+    name: pi_server.apps.monitoring
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_cron_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: cron wrapper
+  become: yes
+  ansible.builtin.template:
+    src: cron-wrapper.bash.j2
+    dest: "{{ pi_server_apps_cron_wrapper }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: cron wrapper internal
+  become: yes
+  ansible.builtin.template:
+    src: cron-wrapper-internal.j2
+    dest: "{{ pi_server_apps_cron_wrapper_internal }}"
+    owner: root
+    group: root
+    mode: a=rx

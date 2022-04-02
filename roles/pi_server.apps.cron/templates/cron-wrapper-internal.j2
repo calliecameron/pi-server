@@ -1,0 +1,242 @@
+#!/bin/bash
+# Wrapper script for cronjobs.
+
+set -u
+
+function msg() {
+    # We prepend the script name to distinguish between messages from the
+    # wrapper, and command's own messages, since they'll be in the same
+    # output stream.
+    echo "$(basename "${0}"):" "${@}"
+    return 0
+}
+
+function warning() {
+    msg "WARNING:" "${@}"
+}
+
+function error() {
+    msg "ERROR:" "${@}"
+}
+
+function usage() {
+    if [ -n "${1:-}" ]; then
+        error "${1}"
+    fi
+    cat <<EOF
+Usage: $(basename "${0}") [options] command [command_args]
+
+Wraps a cronjob 'command' in common operations, e.g. monitoring, logging and
+single-instance protection. 'command_args' are passed to 'command'.
+
+Options:
+  -u user:    the user the script must execute as; must be specified exactly
+              once. Will exit if not running as this user.
+  -c service: systemd service the script conflicts with. May be specified any
+              number of times. Will exit if any of these services are running.
+EOF
+    exit 1
+}
+
+TEMP=$(getopt -n "$(basename "${0}")" -o '+u:,c:' -- "${@}") || usage
+eval set -- "${TEMP}"
+unset TEMP
+
+declare -a OPT_CONFLICTS
+
+while true; do
+    case "${1}" in
+    '-u')
+        if [ -n "${OPT_USER:-}" ]; then
+            usage "-u must be specified exactly once"
+        fi
+        OPT_USER="${2}"
+        shift 2
+        ;;
+    '-c')
+        OPT_CONFLICTS+=("${2}")
+        shift 2
+        ;;
+    '--')
+        shift
+        break
+        ;;
+    *)
+        usage
+        exit 1
+        ;;
+    esac
+done
+
+OPT_COMMAND="${1:-}"
+
+test -z "${OPT_USER:-}" && usage "-u must be specified exactly once"
+test -z "${OPT_COMMAND:-}" && usage "'command' must be specified"
+
+JOB="$(basename "${OPT_COMMAND}")"
+test -z "${JOB}" && usage "could not find the basename of command '${OPT_COMMAND}'"
+
+LOCKFILE="/run/lock/pi-server-cron-${JOB}"
+
+function write-metric-file() {
+    if [ -z "${1:-}" ] || [ -z "${2:-}" ]; then
+        warning "missing arg to write-metric-file"
+        return 0
+    fi
+    local FILE_BASE="${1:-}"
+    local OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
+    local OUTPUT_FILE="${OUTPUT_DIR}/cron-${JOB}-${FILE_BASE}.prom"
+    local TMP_FILE="${OUTPUT_FILE}.tmp"
+    if ! : >"${TMP_FILE}"; then
+        warning "failed to initialize '${TMP_FILE}' in write-metric-file"
+        return 0
+    fi
+    shift
+    while (($#)); do
+        if ! echo "${1}" >>"${TMP_FILE}"; then
+            warning "failed to write to '${TMP_FILE}' in write-metric-file"
+            return 0
+        fi
+        shift
+    done
+    if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
+        msg "wrote metrics to '${OUTPUT_FILE}'"
+    else
+        warning "failed to write to '${OUTPUT_FILE}' in write-metric-file"
+    fi
+}
+
+function set-state() {
+    local RUNNING="${1:-}"
+    local SUCCESS="${2:-}"
+    local FAILURE="${3:-}"
+    if [ -z "${RUNNING}" ] || [ -z "${SUCCESS}" ] || [ -z "${FAILURE}" ]; then
+        warning "missing arg to set-state"
+        return 0
+    fi
+    write-metric-file 'state' \
+        "cron_state{job=\"${JOB}\", state=\"RUNNING\"} ${RUNNING}" \
+        "cron_state{job=\"${JOB}\", state=\"SUCCESS\"} ${SUCCESS}" \
+        "cron_state{job=\"${JOB}\", state=\"FAILURE\"} ${FAILURE}"
+}
+
+function set-running() {
+    set-state 1 0 0
+}
+
+function set-success() {
+    set-state 0 1 0
+}
+
+function set-failure() {
+    set-state 0 0 1
+}
+
+function set-timestamp() {
+    if [ -z "${1:-}" ]; then
+        warning 'missing arg to set-timestamp'
+        return 0
+    fi
+    write-metric-file "${1}" "cron_start_time{job=\"${JOB}\"} $(date +%s)"
+}
+
+function set-start-time() {
+    set-timestamp 'start'
+}
+
+function set-stop-time() {
+    set-timestamp 'stop'
+}
+
+function set-success-time() {
+    set-timestamp 'success'
+}
+
+function lock() {
+    if mkdir "${LOCKFILE}" &>/dev/null; then
+        msg "locked '${LOCKFILE}'"
+        HAS_LOCK='t'
+    else
+        error "another instance of '${OPT_COMMAND}' is already running"
+        exit 1
+    fi
+}
+
+function unlock() {
+    if [ -n "${HAS_LOCK:-}" ] && [ -e "${LOCKFILE}" ]; then
+        if rmdir "${LOCKFILE}"; then
+            msg "unlocked '${LOCKFILE}'"
+        else
+            warning "couldn't unlock '${LOCKFILE}'"
+        fi
+    fi
+}
+
+function initialise() {
+    if [ "$(id -un)" != "${OPT_USER}" ]; then
+        error "running as wrong user; want '${OPT_USER}', got '$(id -un)'"
+        exit 1
+    fi
+    msg 'user is correct'
+
+    lock
+    set-running
+    set-start-time
+
+    if [ -z "${INVOCATION_ID:-}" ]; then
+        failure 'must be run by systemd, not run directly'
+    fi
+    msg 'running under systemd'
+
+    for service in "${OPT_CONFLICTS[@]}"; do
+        if systemctl --quiet is-active "${service}"; then
+            failure "conflicting service '${service}' is running"
+        fi
+    done
+    msg 'no conflicting services are running'
+}
+
+function success() {
+    set-stop-time
+    set-success-time
+    set-success
+    unlock
+    msg "SUCCESS"
+    exit 0
+}
+
+function failure() {
+    set-stop-time
+    set-failure
+    unlock
+    msg "FAILURE:" "${@}"
+    exit 1
+}
+
+function handle-signal() {
+    msg 'caught a signal'
+    if [ -n "${PID:-}" ]; then
+        kill "${PID}" || warning "failed to kill pid ${PID} (has it already terminated?)"
+        msg 'KILLED wrapped script'
+        wait "${PID}"
+        unset PID
+    fi
+    failure 'interrupted by a signal'
+}
+
+trap handle-signal SIGINT SIGTERM
+
+initialise
+
+msg "RUNNING wrapped script:" "${@}"
+PI_SERVER_CRON_WRAPPED=t "${@}" &
+PID="$!"
+wait "${PID}"
+EXIT_CODE="${?}"
+unset PID
+msg "FINISHED RUNNING wrapped script"
+
+if [ "${EXIT_CODE}" != 0 ]; then
+    failure "wrapped script failed with exit code ${EXIT_CODE}"
+fi
+success

@@ -1,0 +1,7 @@
+# Intended to be sourced, not executed.
+
+if [ -n "${PI_SERVER_CRON_WRAPPED:-}" ]; then
+    true
+else
+    exec '{{ pi_server_apps_cron_wrapper_internal }}' "${@}" "$(readlink -f "${0}")" || exit 1
+fi
