@@ -1,0 +1,85 @@
+#!/bin/bash
+# Run other cronjobs.
+
+set -eu
+
+source '{{ pi_server_apps_cron_wrapper }}' -u root
+
+PAUSE_DIR='{{ pi_server_apps_cron_pause_dir }}'
+SCRIPTS_DIR='{{ pi_server_apps_cron_scripts_dir }}'
+
+function warning() {
+    echo "WARNING:" "${@}"
+}
+
+function error() {
+    echo "ERROR:" "${@}"
+}
+
+function start-services() {
+    echo 'Starting services...'
+    find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
+        if systemctl restart "$(basename "${line}")"; then
+            echo "Started service '${line}'"
+        else
+            warning "failed to start service '${line}'"
+        fi
+    done
+    echo 'Finished starting services'
+}
+
+function stop-services() {
+    echo 'Stopping services...'
+    find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
+        if systemctl stop "$(basename "${line}")"; then
+            echo "Stopped service '${line}'"
+        else
+            error "couldn't stop service '${line}'"
+            exit 1
+        fi
+    done
+    echo 'Finished stopping services'
+}
+
+function handle-signal() {
+    echo 'caught a signal'
+    start-services
+    error 'interrupted by a signal'
+    exit 1
+}
+
+SCRIPT_LIST="$(mktemp)"
+if [ -z "${SCRIPT_LIST:-}" ]; then
+    error "couldn't create script list file"
+    exit 1
+fi
+
+if ! find "${SCRIPTS_DIR}" -type f | LC_ALL=C sort >"${SCRIPT_LIST}"; then
+    error "couldn't list scripts"
+    exit 1
+fi
+
+trap handle-signal SIGINT SIGTERM
+
+stop-services
+
+echo "Running $(wc -l <"${SCRIPT_LIST}") script(s)"
+
+while read -r script; do
+    BASENAME="$(basename "${script}")"
+    if [ -z "${BASENAME:-}" ]; then
+        warning "couldn't get basename of '${script}'; skipping this script"
+        continue
+    fi
+    SERVICE="pi-server-cron-${BASENAME}"
+    echo "RUNNING service '${SERVICE}'"
+    if systemctl start --wait "${SERVICE}"; then
+        echo "FINISHED RUNNING service '${SERVICE}'"
+    else
+        warning "couldn't run service '${SERVICE}'; skipping this service"
+    fi
+done <"${SCRIPT_LIST}"
+
+rm -f "${SCRIPT_LIST}"
+
+start-services

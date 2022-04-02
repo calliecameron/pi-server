@@ -137,7 +137,7 @@ function set-timestamp() {
         warning 'missing arg to set-timestamp'
         return 0
     fi
-    write-metric-file "${1}" "cron_start_time{job=\"${JOB}\"} $(date +%s)"
+    write-metric-file "${1}" "cron_${1}_time{job=\"${JOB}\"} $(date +%s)"
 }
 
 function set-start-time() {

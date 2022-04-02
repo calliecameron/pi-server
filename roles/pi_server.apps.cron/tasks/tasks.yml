@@ -10,6 +10,24 @@
     group: root
     mode: u=rwx,go=rx
 
+- name: pause dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_cron_pause_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: scripts dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_cron_scripts_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
 - name: cron wrapper
   become: yes
   ansible.builtin.template:
@@ -27,3 +45,22 @@
     owner: root
     group: root
     mode: a=rx
+
+- name: cron runner
+  become: yes
+  ansible.builtin.template:
+    src: cron-runner.j2
+    dest: "{{ pi_server_apps_cron_runner }}"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: cron runner systemd unit
+  become: yes
+  ansible.builtin.template:
+    src: pi-server-cron.service.j2
+    dest: /etc/systemd/system/pi-server-cron.service
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload cron runner

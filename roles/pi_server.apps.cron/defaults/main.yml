@@ -1,3 +1,6 @@
 pi_server_apps_cron_etc: "{{ pi_server_etc }}/cron"
 pi_server_apps_cron_wrapper: "{{ pi_server_apps_cron_etc }}/cron-wrapper.bash"
 pi_server_apps_cron_wrapper_internal: "{{ pi_server_apps_cron_etc }}/cron-wrapper-internal"
+pi_server_apps_cron_pause_dir: "{{ pi_server_apps_cron_etc }}/pause.d"
+pi_server_apps_cron_scripts_dir: "{{ pi_server_apps_cron_etc }}/cron.d"
+pi_server_apps_cron_runner: "{{ pi_server_apps_cron_etc }}/cron-runner"
