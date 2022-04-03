@@ -20,9 +20,9 @@ function start-services() {
     echo 'Starting services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
         if systemctl restart "$(basename "${line}")"; then
-            echo "Started service '${line}'"
+            echo "Started service '$(basename "${line}")'"
         else
-            warning "failed to start service '${line}'"
+            warning "failed to start service '$(basename "${line}")'"
         fi
     done
     echo 'Finished starting services'
@@ -32,9 +32,9 @@ function stop-services() {
     echo 'Stopping services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
         if systemctl stop "$(basename "${line}")"; then
-            echo "Stopped service '${line}'"
+            echo "Stopped service '$(basename "${line}")'"
         else
-            error "couldn't stop service '${line}'"
+            error "couldn't stop service '$(basename "${line}")'"
             exit 1
         fi
     done
@@ -47,6 +47,11 @@ function handle-signal() {
     error 'interrupted by a signal'
     exit 1
 }
+
+if [ -e '{{ pi_server_apps_cron_disabled }}' ]; then
+    error 'running is disabled'
+    exit 1
+fi
 
 SCRIPT_LIST="$(mktemp)"
 if [ -z "${SCRIPT_LIST:-}" ]; then
@@ -76,7 +81,7 @@ while read -r script; do
     if systemctl start --wait "${SERVICE}"; then
         echo "FINISHED RUNNING service '${SERVICE}'"
     else
-        warning "couldn't run service '${SERVICE}'; skipping this service"
+        warning "service '${SERVICE}' failed"
     fi
 done <"${SCRIPT_LIST}"
 

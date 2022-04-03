@@ -199,9 +199,10 @@ groups:
                         'grafana')
 
     @for_host_types('pi', 'ubuntu')
-    def test_cron(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
+    def test_cron(self, hostname: str, hosts: Dict[str, Host]) -> None:
         """This tests the cron system, not any particular cronjob."""
         host = hosts[hostname]
+        journal = host.journal()
         service_unit_template = """[Unit]
 Description=Fake service
 After=network.target
@@ -216,21 +217,37 @@ Group=root
 WantedBy=multi-user.target
 """
         cron_unit_template = """[Service]
-ExecStart=/etc/pi-server/cron/cron.d/%s
-User=root
-Group=root
+ExecStart=/etc/pi-server/cron/cron.d/{}
+User={}
+Group={}
 
 [Install]
 WantedBy=multi-user.target
 """
         cron_template = """#!/bin/bash
-source '/etc/pi-server/cron/cron-wrapper.bash' -u root -c fake1 -c fake2
+echo foo
+source '/etc/pi-server/cron/cron-wrapper.bash' -u {} -c fake1 -c fake2
+echo bar
 
-%s
+{}
 """
 
+        def check_state(
+            service: str, running: bool = False, success: bool = False, failure: bool = False
+        ) -> None:
+            with host.sudo():
+                lines = Lines(host.file(
+                    f'/var/pi-server/monitoring/collect/cron-{service}-state.prom').content_string)
+                assert lines.contains(
+                    f'cron_state\\{{job="{service}", state="RUNNING"\\}} {int(running)}')
+                assert lines.contains(
+                    f'cron_state\\{{job="{service}", state="SUCCESS"\\}} {int(success)}')
+                assert lines.contains(
+                    f'cron_state\\{{job="{service}", state="FAILURE"\\}} {int(failure)}')
+
         try:
-            with host.shadow_file('/etc/systemd/system/fake1.service') as fake1_unit, \
+            with host.group_membership('vagrant', 'pi-server-monitoring-writers'), \
+                    host.shadow_file('/etc/systemd/system/fake1.service') as fake1_unit, \
                     host.shadow_file('/etc/systemd/system/fake2.service') as fake2_unit, \
                     host.shadow_file(
                         '/etc/systemd/system/pi-server-cron-cron1.service') as cron1_unit, \
@@ -238,24 +255,25 @@ source '/etc/pi-server/cron/cron-wrapper.bash' -u root -c fake1 -c fake2
                         '/etc/systemd/system/pi-server-cron-cron2.service') as cron2_unit, \
                     host.shadow_dir('/etc/pi-server/cron/cron.d') as cron_dir, \
                     host.shadow_dir('/etc/pi-server/cron/pause.d') as pause_dir, \
-                    host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir, \
                     host.disable_login_emails():
                 try:
                     with host.sudo():
                         fake1_unit.write(service_unit_template)
                         fake2_unit.write(service_unit_template)
-                        cron1_unit.write(cron_unit_template % 'cron1')
-                        cron2_unit.write(cron_unit_template % 'cron2')
+                        cron1_unit.write(cron_unit_template.format('cron1', 'root', 'root'))
+                        cron2_unit.write(cron_unit_template.format('cron2', 'vagrant', 'vagrant'))
                         host.check_output('systemctl daemon-reload')
                         host.check_output('systemctl start fake1.service')
                         host.check_output('systemctl start fake2.service')
 
                     fake1_service = host.service('fake1.service')
                     fake2_service = host.service('fake2.service')
+                    runner = host.service('pi-server-cron.service')
                     cron1_service = host.service('pi-server-cron-cron1.service')
                     cron2_service = host.service('pi-server-cron-cron2.service')
                     assert fake1_service.is_running
                     assert fake2_service.is_running
+                    assert not runner.is_running
                     assert not cron1_service.is_running
                     assert not cron2_service.is_running
 
@@ -266,123 +284,208 @@ source '/etc/pi-server/cron/cron-wrapper.bash' -u root -c fake1 -c fake2
                     cron1 = cron_dir.file('cron1')
                     cron2 = cron_dir.file('cron2')
                     with host.sudo():
-                        host.check_output(f"chmod a+x '{cron1.path}'")
-                        host.check_output(f"chmod a+x '{cron2.path}'")
+                        cron1.write('')
+                        cron2.write('')
+                        host.check_output(f"chmod u=rwx,go=rx '{cron1.path}'")
+                        host.check_output(f"chmod u=rwx,go=rx '{cron2.path}'")
 
                     # Successful run
-                    email.clear()
-                    run_stamp = 'good'
-                    with host.sudo():
-                        cron1.write(cron_template % f"sleep 5\necho 'cron1 {run_stamp}'")
-                        cron2.write(cron_template % f"sleep 5\necho 'cron2 {run_stamp}'")
+                    with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
+                        journal.clear()
+                        run_stamp = 'good'
+                        with host.sudo():
+                            cron1.write(cron_template.format(
+                                'root', f"sleep 5\necho 'cron1 {run_stamp}'"))
+                            cron2.write(cron_template.format(
+                                'vagrant', f"sleep 5\necho 'cron2 {run_stamp}'"))
 
-                    with host.run_crons():
-                        time.sleep(2)
-                        assert not fake1_service.is_running
-                        assert not fake2_service.is_running
+                        with host.run_crons():
+                            time.sleep(2)
+                            assert not fake1_service.is_running
+                            assert not fake2_service.is_running
+                            check_state('cron-runner', running=True)
 
-                    assert fake1_service.is_running
-                    assert fake2_service.is_running
+                        assert fake1_service.is_running
+                        assert fake2_service.is_running
+                        assert not runner.is_running
+                        assert not cron1_service.is_running
+                        assert not cron2_service.is_running
 
-                    # with host.sudo():
-                    #     safe_log = Lines(safe_log_file.content_string)
-                    # assert safe_log.contains(r'Stopping services...')
-                    # assert safe_log.contains(r'Stopped services$')
-                    # assert safe_log.contains(r"STARTED 'safe1' at .*")
-                    # assert safe_log.contains(r'safe1 good')
-                    # assert safe_log.contains(r"FINISHED 'safe1' at .*")
-                    # assert safe_log.contains(r"STARTED 'safe2' at .*")
-                    # assert safe_log.contains(r'safe2 good')
-                    # assert safe_log.contains(r"FINISHED 'safe2' at .*")
-                    # assert safe_log.contains(r'Starting services...')
-                    # assert safe_log.contains(r'Started services')
+                        runner_log = journal.entries('pi-server-cron')
+                        assert runner_log.count(r'.*ERROR.*') == 0
+                        assert runner_log.count(r'.*WARNING.*') == 0
+                        assert runner_log.count(r'.*FAILURE.*') == 0
+                        assert runner_log.count(r'.*KILLED.*') == 0
+                        assert runner_log.count(r'.*SUCCESS.*') == 1
+                        assert runner_log.count(r"Stopped service 'fake1'") == 1
+                        assert runner_log.count(r"Stopped service 'fake2'") == 1
+                        assert runner_log.count(r"Started service 'fake1'") == 1
+                        assert runner_log.count(r"Started service 'fake2'") == 1
+                        assert runner_log.count(r'Running 2 script\(s\)') == 1
+                        assert runner_log.count(r"RUNNING service 'pi-server-cron-cron1'") == 1
+                        assert runner_log.count(r"RUNNING service 'pi-server-cron-cron2'") == 1
+                        assert runner_log.count(
+                            r"FINISHED RUNNING service 'pi-server-cron-cron1'") == 1
+                        assert runner_log.count(
+                            r"FINISHED RUNNING service 'pi-server-cron-cron2'") == 1
+                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-success.prom').user == 'root'
+                        check_state('cron-runner', success=True)
 
-                    # with host.sudo():
-                    #     assert normal_out.content_string == 'normal good\n'
+                        cron1_log = journal.entries('pi-server-cron-cron1')
+                        assert cron1_log.count(r'.*ERROR.*') == 0
+                        assert cron1_log.count(r'.*WARNING.*') == 0
+                        assert cron1_log.count(r'.*FAILURE.*') == 0
+                        assert cron1_log.count(r'.*KILLED.*') == 0
+                        assert cron1_log.count(r'.*SUCCESS.*') == 1
+                        assert cron1_log.count(r'foo') == 2
+                        assert cron1_log.count(r'bar') == 1
+                        assert cron1_log.count(r'cron1 good') == 1
+                        assert collect_dir.file('cron-cron1-state.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-start.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-stop.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-success.prom').user == 'root'
+                        check_state('cron1', success=True)
 
-                    # time.sleep(15)
-                    # email.assert_emails([], only_from=hostname)
+                        cron2_log = journal.entries('pi-server-cron-cron2')
+                        assert cron2_log.count(r'.*ERROR.*') == 0
+                        assert cron2_log.count(r'.*WARNING.*') == 0
+                        assert cron2_log.count(r'.*FAILURE.*') == 0
+                        assert cron2_log.count(r'.*KILLED.*') == 0
+                        assert cron2_log.count(r'.*SUCCESS.*') == 1
+                        assert cron2_log.count(r'foo') == 2
+                        assert cron2_log.count(r'bar') == 1
+                        assert cron2_log.count(r'cron2 good') == 1
+                        assert collect_dir.file('cron-cron2-state.prom').user == 'vagrant'
+                        assert collect_dir.file('cron-cron2-start.prom').user == 'vagrant'
+                        assert collect_dir.file('cron-cron2-stop.prom').user == 'vagrant'
+                        assert collect_dir.file('cron-cron2-success.prom').user == 'vagrant'
+                        check_state('cron2', success=True)
 
-                    # # Run with failures
-                    # email.clear()
-                    # run_stamp = 'bad'
-                    # with host.sudo():
-                    #     safe_cron1.write(
-                    #         'sleep 5\necho \'safe1 %s\' >> "${LOG}"\necho \'safe1 echo\''
-                    #         % run_stamp)
-                    #     safe_cron2.write(
-                    #         'sleep 5\necho \'safe2 %s\' >> "${LOG}"\nfalse' % run_stamp)
-                    #     normal_cron.write(
-                    #         ('#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'\necho '
-                    #          '\'normal echo\'') % (run_stamp, normal_out.path))
+                    # Run with failures
+                    with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
+                        journal.clear()
+                        run_stamp = 'bad'
+                        with host.sudo():
+                            cron1.write(cron_template.format(
+                                'root', f"sleep 5\necho 'cron1 {run_stamp}'"))
+                            cron2.write(cron_template.format(
+                                'vagrant', f"sleep 5\necho 'cron2 {run_stamp}'\nfalse"))
 
-                    # with host.run_crons():
-                    #     time.sleep(2)
-                    #     assert not fake1_service.is_running
-                    #     assert not fake2_service.is_running
+                        with host.run_crons():
+                            time.sleep(2)
+                            assert not fake1_service.is_running
+                            assert not fake2_service.is_running
+                            check_state('cron-runner', running=True)
 
-                    # assert fake1_service.is_running
-                    # assert fake2_service.is_running
+                        assert fake1_service.is_running
+                        assert fake2_service.is_running
+                        assert not runner.is_running
+                        assert not cron1_service.is_running
+                        assert not cron2_service.is_running
 
-                    # with host.sudo():
-                    #     safe_log = Lines(safe_log_file.content_string)
-                    # assert safe_log.contains(r'Stopping services...')
-                    # assert safe_log.contains(r'Stopped services$')
-                    # assert safe_log.contains(r"STARTED 'safe1' at .*")
-                    # assert safe_log.contains(r'safe1 bad')
-                    # assert safe_log.contains(r"FINISHED 'safe1' at .*")
-                    # assert safe_log.contains(r"STARTED 'safe2' at .*")
-                    # assert safe_log.contains(r'safe2 bad')
-                    # assert not safe_log.contains(r"FINISHED 'safe2' at .*")
-                    # assert safe_log.contains(r"Couldn't run safe2\.")
-                    # assert safe_log.contains(r'Starting services...')
-                    # assert safe_log.contains(r'Started services')
+                        runner_log = journal.entries('pi-server-cron')
+                        assert runner_log.count(r'.*ERROR.*') == 0
+                        assert runner_log.count(r'.*WARNING.*') == 1
+                        assert runner_log.count(r'.*FAILURE.*') == 0
+                        assert runner_log.count(r'.*KILLED.*') == 0
+                        assert runner_log.count(r'.*SUCCESS.*') == 1
+                        assert runner_log.count(r"Stopped service 'fake1'") == 1
+                        assert runner_log.count(r"Stopped service 'fake2'") == 1
+                        assert runner_log.count(r"Started service 'fake1'") == 1
+                        assert runner_log.count(r"Started service 'fake2'") == 1
+                        assert runner_log.count(r'Running 2 script\(s\)') == 1
+                        assert runner_log.count(r"RUNNING service 'pi-server-cron-cron1'") == 1
+                        assert runner_log.count(r"RUNNING service 'pi-server-cron-cron2'") == 1
+                        assert runner_log.count(
+                            r"FINISHED RUNNING service 'pi-server-cron-cron1'") == 1
+                        assert runner_log.count(
+                            r".*service 'pi-server-cron-cron2' failed") == 1
+                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-success.prom').user == 'root'
+                        check_state('cron-runner', success=True)
 
-                    # with host.sudo():
-                    #     assert normal_out.content_string == 'normal bad\n'
+                        cron1_log = journal.entries('pi-server-cron-cron1')
+                        assert cron1_log.count(r'.*ERROR.*') == 0
+                        assert cron1_log.count(r'.*WARNING.*') == 0
+                        assert cron1_log.count(r'.*FAILURE.*') == 0
+                        assert cron1_log.count(r'.*KILLED.*') == 0
+                        assert cron1_log.count(r'.*SUCCESS.*') == 1
+                        assert cron1_log.count(r'foo') == 2
+                        assert cron1_log.count(r'bar') == 1
+                        assert cron1_log.count(r'cron1 bad') == 1
+                        assert collect_dir.file('cron-cron1-state.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-start.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-stop.prom').user == 'root'
+                        assert collect_dir.file('cron-cron1-success.prom').user == 'root'
+                        check_state('cron1', success=True)
 
-                    # time.sleep(15)
-                    # email.assert_emails([
-                    #     {
-                    #         'from': 'notification@%s.testbed' % hostname,
-                    #         'to': 'fake@fake.testbed',
-                    #         'subject': '[%s] Cron failed' % hostname,
-                    #         'body_re': r"Couldn't run safe2.\n\n",
-                    #     },
-                    #     {
-                    #         'from': '',
-                    #         'to': '',
-                    #         'subject': (('Cron <root@%s> test -x /usr/sbin/anacron || '
-                    #                      '( cd / && run-parts --report /etc/cron.daily )')
-                    #                     % hostname),
-                    #         'body_re': r"/etc/cron.daily/pi-server:\nsafe1 echo\nnormal echo\n",
-                    #     },
-                    # ], only_from=hostname)
+                        cron2_log = journal.entries('pi-server-cron-cron2')
+                        assert cron2_log.count(r'.*ERROR.*') == 0
+                        assert cron2_log.count(r'.*WARNING.*') == 0
+                        assert cron2_log.count(r'.*FAILURE.*') == 2
+                        assert cron2_log.count(r'.*KILLED.*') == 0
+                        assert cron2_log.count(r'.*SUCCESS.*') == 0
+                        assert cron2_log.count(r'foo') == 2
+                        assert cron2_log.count(r'bar') == 1
+                        assert cron2_log.count(r'cron2 bad') == 1
+                        assert collect_dir.file('cron-cron2-state.prom').user == 'vagrant'
+                        assert collect_dir.file('cron-cron2-start.prom').user == 'vagrant'
+                        assert collect_dir.file('cron-cron2-stop.prom').user == 'vagrant'
+                        assert not collect_dir.file('cron-cron2-success.prom').exists
+                        check_state('cron2', failure=True)
 
-                    # # Disable running
-                    # with host.shadow_file('/etc/pi-server/cron/cron-disabled'):
-                    #     email.clear()
-                    #     run_stamp = 'disabled'
-                    #     with host.sudo():
-                    #         safe_log_file.clear()
-                    #         normal_out.clear()
-                    #         safe_cron1.write('sleep 5\necho \'safe1 %s\' >> "${LOG}"' % run_stamp)
-                    #         safe_cron2.write('sleep 5\necho \'safe2 %s\' >> "${LOG}"' % run_stamp)
-                    #         normal_cron.write(
-                    #             '#!/bin/bash\nsleep 5\necho \'normal %s\' > \'%s\'' % (
-                    #                 run_stamp, normal_out.path))
+                    # Disable running
+                    with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir, \
+                            host.shadow_file('/etc/pi-server/cron/disabled'):
+                        journal.clear()
+                        run_stamp = 'disabled'
+                        with host.sudo():
+                            cron1.write(cron_template.format(
+                                'root', f"sleep 5\necho 'cron1 {run_stamp}'"))
+                            cron2.write(cron_template.format(
+                                'vagrant', f"sleep 5\necho 'cron2 {run_stamp}'"))
 
-                    #     with host.run_crons():
-                    #         pass
+                        with host.run_crons():
+                            pass
 
-                    #     assert fake1_service.is_running
-                    #     assert fake2_service.is_running
-                    #     with host.sudo():
-                    #         assert safe_log_file.content_string == '\n'
-                    #         assert normal_out.content_string == '\n'
+                        assert fake1_service.is_running
+                        assert fake2_service.is_running
+                        assert not runner.is_running
+                        assert not cron1_service.is_running
+                        assert not cron2_service.is_running
 
-                    #     time.sleep(15)
-                    #     email.assert_emails([], only_from=hostname)
+                        runner_log = journal.entries('pi-server-cron')
+                        assert runner_log.count(r'.*ERROR.*') == 1
+                        assert runner_log.count(r'.*WARNING.*') == 0
+                        assert runner_log.count(r'.*FAILURE.*') == 2
+                        assert runner_log.count(r'.*KILLED.*') == 0
+                        assert runner_log.count(r'.*SUCCESS.*') == 0
+                        assert runner_log.count(r'ERROR: running is disabled') == 1
+                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
+                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
+                        assert not collect_dir.file('cron-cron-runner-success.prom').exists
+                        check_state('cron-runner', failure=True)
+
+                        cron1_log = journal.entries('pi-server-cron-cron1')
+                        assert not cron1_log
+                        assert not collect_dir.file('cron-cron1-state.prom').exists
+                        assert not collect_dir.file('cron-cron1-start.prom').exists
+                        assert not collect_dir.file('cron-cron1-stop.prom').exists
+                        assert not collect_dir.file('cron-cron1-success.prom').exists
+
+                        cron2_log = journal.entries('pi-server-cron-cron2')
+                        assert not cron2_log
+                        assert not collect_dir.file('cron-cron2-state.prom').exists
+                        assert not collect_dir.file('cron-cron2-start.prom').exists
+                        assert not collect_dir.file('cron-cron2-stop.prom').exists
+                        assert not collect_dir.file('cron-cron2-success.prom').exists
+
                 finally:
                     # Cleanup
                     with host.sudo():
@@ -391,6 +494,7 @@ source '/etc/pi-server/cron/cron-wrapper.bash' -u root -c fake1 -c fake2
 
                     assert not fake1_service.is_running
                     assert not fake2_service.is_running
+                    assert not runner.is_running
                     assert not cron1_service.is_running
                     assert not cron2_service.is_running
         finally:

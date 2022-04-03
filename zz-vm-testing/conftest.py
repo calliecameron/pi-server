@@ -638,6 +638,23 @@ def _host_mount_backup_dir(self: Host) -> Iterator[None]:
 Host.mount_backup_dir = _host_mount_backup_dir  # type: ignore
 
 
+@contextmanager
+def _host_group_membership(self: Host, user: str, group: str) -> Iterator[None]:
+    in_group = group in self.user(user).groups
+    try:
+        if not in_group:
+            with self.sudo():
+                self.check_output(f"adduser '{user}' '{group}'")
+            yield
+    finally:
+        if not in_group:
+            with self.sudo():
+                self.check_output(f"deluser '{user}' '{group}'")
+
+
+Host.group_membership = _host_group_membership  # type: ignore
+
+
 class CronRunner:
     def __init__(
             self, host: Host,
@@ -684,6 +701,7 @@ class CronRunner:
                 self._host.check_output('systemctl start virtualbox-guest-utils')
             if self._sources_list:
                 self._sources_list.__exit__(None)
+        time.sleep(2)
 
 
 def _host_run_crons(
@@ -717,18 +735,41 @@ class Lines:
                 i += 1
         return i
 
+    def __len__(self) -> int:
+        return len(self._lines)
+
+    def __bool__(self) -> bool:
+        return len(self) != 0
+
     def __repr__(self) -> str:
         out = '['
         if self._name:
             out += self._name + ' '
-        out += f'({len(self._lines)} lines)]'
+        out += f'({len(self._lines)} lines)'
+        for line in self._lines:
+            out += f'\n  [{line}]'
+        out += ']'
         return out
 
 
-def _host_journal(self: Host, service: str) -> Lines:
-    with self.sudo():
-        return Lines(self.check_output(
-            f'journalctl "_SYSTEMD_INVOCATION_ID=$(systemctl show -p InvocationID --value {service}.service)"'))
+class Journal:
+    def __init__(self, host: Host) -> None:
+        super().__init__()
+        self._host = host
+
+    def clear(self) -> None:
+        with self._host.sudo():
+            self._host.check_output('journalctl --flush')
+            self._host.check_output('journalctl --rotate --vacuum-time=1s')
+
+    def entries(self, service: str) -> Lines:
+        with self._host.sudo():
+            self._host.check_output('journalctl --flush')
+            return Lines(self._host.check_output(f"journalctl -o cat -u '{service}'"))
+
+
+def _host_journal(self: Host) -> Journal:
+    return Journal(self)
 
 
 Host.journal = _host_journal  # type: ignore
