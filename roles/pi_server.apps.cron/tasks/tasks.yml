@@ -73,3 +73,14 @@
     owner: root
     group: root
     mode: u=rw,go=
+
+- include_role:
+    name: pi_server.utils.custom_dashboard
+  vars:
+    src: cron.json
+
+- include_role:
+    name: pi_server.utils.custom_alerts
+  vars:
+    src: cron-alerts-custom.yml
+    job: cron

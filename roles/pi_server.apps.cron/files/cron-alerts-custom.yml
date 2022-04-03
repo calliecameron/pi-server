@@ -1,0 +1,7 @@
+groups:
+  - name: cron alerts custom
+    rules:
+      - alert: TooLongSinceCronSucceeded
+        expr: (avg by (job) (time() - cron_success_time{})) > (3 * 24 * 60 * 60)
+        annotations:
+          summary: Cronjob {{ $labels.job }} hasn't completed successfully in 3 days.
