@@ -504,105 +504,95 @@ echo bar
             with host.sudo():
                 host.check_output('systemctl daemon-reload')
 
-#     @for_host_types('pi', 'ubuntu')
-#     def test_legacy_automatic_updates(
-#             self, hostname: str,
-#             hosts: Dict[str, Host],
-#             addrs: Dict[str, str],
-#             email: Email) -> None:
-#         host = hosts[hostname]
-#         internet = hosts['internet']
-#         known_packages = []
+    @for_host_types('pi', 'ubuntu')
+    def test_automatic_updates(
+            self, hostname: str,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str]) -> None:
+        host = hosts[hostname]
+        internet = hosts['internet']
+        known_packages = []
 
-#         try:
-#             with host.shadow_file('/etc/apt/sources.list') as sources_list, \
-#                  host.disable_login_emails():
-#                 internet.check_output('aptly repo add main aptly/pi-server-test_1_all.deb')
-#                 internet.check_output('aptly publish update main')
-#                 known_packages.append('pi-server-test')
+        def check_state(updated: int, not_updated: int) -> None:
+            with host.sudo():
+                lines = Lines(host.file(
+                    '/var/pi-server/monitoring/collect/updates.prom').content_string)
+                assert lines.contains(f'apt_packages_upgraded\\{{job="updates"\\}} {updated}')
+                assert lines.contains(
+                    f'apt_packages_not_upgraded\\{{job="updates"\\}} {not_updated}')
 
-#                 with host.sudo():
-#                     sources_list.write(
-#                         ('deb [trusted=yes check-date=no date-max-future=86400] '
-#                          'http://%s:8080/ main main') % addrs['internet'])
-#                     host.check_output('apt-get update')
-#                     host.check_output('apt-get install pi-server-test')
+        try:
+            with host.shadow_file('/etc/apt/sources.list') as sources_list:
+                internet.check_output('aptly repo add main aptly/pi-server-test_1_all.deb')
+                internet.check_output('aptly publish update main')
+                known_packages.append('pi-server-test')
 
-#                 # Nothing to update
-#                 email.clear()
-#                 with host.run_crons(disable_sources_list=False):
-#                     pass
+                with host.sudo():
+                    sources_list.write(
+                        'deb [trusted=yes check-date=no date-max-future=86400] ' +
+                        f'http://{addrs["internet"]}:8080/ main main')
+                    host.check_output('apt-get update')
+                    host.check_output('apt-get install pi-server-test')
 
-#                 assert host.package('pi-server-test').is_installed
-#                 assert host.package('pi-server-test').version == '1'
-#                 assert not host.package('pi-server-test2').is_installed
-#                 email.assert_emails([], only_from=hostname)
+                # Nothing to update
+                with host.run_crons(disable_sources_list=False):
+                    pass
 
-#                 # One package to update
-#                 internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
-#                 internet.check_output('aptly publish update main')
+                assert host.package('pi-server-test').is_installed
+                assert host.package('pi-server-test').version == '1'
+                assert not host.package('pi-server-test2').is_installed
+                check_state(0, 0)
 
-#                 email.clear()
-#                 with host.run_crons(disable_sources_list=False):
-#                     pass
+                # One package to update
+                internet.check_output('aptly repo add main aptly/pi-server-test_1.1_all.deb')
+                internet.check_output('aptly publish update main')
 
-#                 assert host.package('pi-server-test').is_installed
-#                 assert host.package('pi-server-test').version == '1.1'
-#                 assert not host.package('pi-server-test2').is_installed
-#                 email.assert_emails([{
-#                     'from': 'notification@%s.testbed' % hostname,
-#                     'to': 'fake@fake.testbed',
-#                     'subject': '[%s] Installed 1 update' % hostname,
-#                     'body_re': (r"(.*\n)*1 upgraded, 0 newly installed, "
-#                                 r"0 to remove and 0 not upgraded.\n(.*\n)*"),
-#                 }], only_from=hostname)
+                with host.run_crons(disable_sources_list=False):
+                    pass
 
-#                 # One not upgraded
-#                 internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
-#                 internet.check_output('aptly repo add main aptly/pi-server-test2_1_all.deb')
-#                 internet.check_output('aptly publish update main')
-#                 known_packages.append('pi-server-test2')
+                assert host.package('pi-server-test').is_installed
+                assert host.package('pi-server-test').version == '1.1'
+                assert not host.package('pi-server-test2').is_installed
+                check_state(1, 0)
 
-#                 email.clear()
-#                 with host.run_crons(disable_sources_list=False):
-#                     pass
+                # One not upgraded
+                internet.check_output('aptly repo add main aptly/pi-server-test_1.2_all.deb')
+                internet.check_output('aptly repo add main aptly/pi-server-test2_1_all.deb')
+                internet.check_output('aptly publish update main')
+                known_packages.append('pi-server-test2')
 
-#                 assert host.package('pi-server-test').is_installed
-#                 assert host.package('pi-server-test').version == '1.1'
-#                 assert not host.package('pi-server-test2').is_installed
-#                 email.assert_emails([{
-#                     'from': 'notification@%s.testbed' % hostname,
-#                     'to': 'fake@fake.testbed',
-#                     'subject': '[%s] 1 package not updated' % hostname,
-#                     'body_re': (r"(.*\n)*0 upgraded, 0 newly installed, "
-#                                 r"0 to remove and 1 not upgraded.\n(.*\n)*"),
-#                 }], only_from=hostname)
+                with host.run_crons(disable_sources_list=False):
+                    pass
 
-#                 # Manual dist-upgrade
-#                 with host.sudo():
-#                     host.check_output('apt-get -y dist-upgrade')
+                assert host.package('pi-server-test').is_installed
+                assert host.package('pi-server-test').version == '1.1'
+                assert not host.package('pi-server-test2').is_installed
+                check_state(0, 1)
 
-#                 # Nothing to update
-#                 email.clear()
-#                 with host.run_crons(disable_sources_list=False):
-#                     pass
+                # Manual dist-upgrade
+                with host.sudo():
+                    host.check_output('apt-get -y dist-upgrade')
 
-#                 assert host.package('pi-server-test').is_installed
-#                 assert host.package('pi-server-test').version == '1.2'
-#                 assert host.package('pi-server-test2').is_installed
-#                 assert host.package('pi-server-test2').version == '1'
-#                 email.assert_emails([], only_from=hostname)
+                # Nothing to update
+                with host.run_crons(disable_sources_list=False):
+                    pass
 
-#         finally:
-#             # Cleanup
-#             with host.sudo():
-#                 host.check_output('apt-get -y remove %s' % ' '.join(known_packages))
+                assert host.package('pi-server-test').is_installed
+                assert host.package('pi-server-test').version == '1.2'
+                assert host.package('pi-server-test2').is_installed
+                assert host.package('pi-server-test2').version == '1'
+                check_state(0, 0)
 
-#             internet.check_output("aptly repo remove main 'Name (% *)'")
-#             internet.check_output('aptly publish update main')
+        finally:
+            # Cleanup
+            with host.sudo():
+                host.check_output(f'apt-get -y remove {" ".join(known_packages)}')
 
-#             with host.sudo():
-#                 host.check_output('apt-get update')
+            internet.check_output("aptly repo remove main 'Name (% *)'")
+            internet.check_output('aptly publish update main')
+
+            with host.sudo():
+                host.check_output('apt-get update')
 
 #     @for_host_types('pi', 'ubuntu')
 #     def test_legacy_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
