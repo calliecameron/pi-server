@@ -102,7 +102,7 @@
                         "uid": "P1809F7CD0C75ACF3"
                     },
                     "exemplar": true,
-                    "expr": "sum by (job, state) (cron_state{})",
+                    "expr": "sum by (cronjob, state) (cron_state{job=\"cron\"})",
                     "interval": "",
                     "legendFormat": "",
                     "refId": "A"
@@ -189,7 +189,7 @@
                         "uid": "P1809F7CD0C75ACF3"
                     },
                     "exemplar": true,
-                    "expr": "avg by (job) ((time() - cron_success_time{}) / (60 * 60 * 24))",
+                    "expr": "avg by (cronjob) ((time() - cron_success_time{job=\"cron\"}) / (60 * 60 * 24))",
                     "interval": "",
                     "legendFormat": "",
                     "refId": "A"
@@ -274,7 +274,7 @@
                         "uid": "P1809F7CD0C75ACF3"
                     },
                     "exemplar": true,
-                    "expr": "avg by (job) ((time() - cron_start_time{}) / (60 * 60 * 24))",
+                    "expr": "avg by (cronjob) ((time() - cron_start_time{job=\"cron\"}) / (60 * 60 * 24))",
                     "interval": "",
                     "legendFormat": "",
                     "refId": "A"
@@ -358,7 +358,7 @@
                         "uid": "P1809F7CD0C75ACF3"
                     },
                     "exemplar": true,
-                    "expr": "avg by (job) ((time() - cron_stop_time{}) / (60 * 60 * 24))",
+                    "expr": "avg by (cronjob) ((time() - cron_stop_time{job=\"cron\"}) / (60 * 60 * 24))",
                     "interval": "",
                     "legendFormat": "",
                     "refId": "A"

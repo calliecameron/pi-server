@@ -239,11 +239,14 @@ echo bar
                 lines = Lines(host.file(
                     f'/var/pi-server/monitoring/collect/cron-{service}-state.prom').content_string)
                 assert lines.contains(
-                    f'cron_state\\{{job="{service}", state="RUNNING"\\}} {int(running)}')
+                    f'cron_state\\{{job="cron", cronjob="{service}", ' +
+                    f'state="RUNNING"\\}} {int(running)}')
                 assert lines.contains(
-                    f'cron_state\\{{job="{service}", state="SUCCESS"\\}} {int(success)}')
+                    f'cron_state\\{{job="cron", cronjob="{service}", ' +
+                    f'state="SUCCESS"\\}} {int(success)}')
                 assert lines.contains(
-                    f'cron_state\\{{job="{service}", state="FAILURE"\\}} {int(failure)}')
+                    f'cron_state\\{{job="cron", cronjob="{service}", ' +
+                    f'state="FAILURE"\\}} {int(failure)}')
 
         try:
             with host.group_membership('vagrant', 'pi-server-monitoring-writers'), \
