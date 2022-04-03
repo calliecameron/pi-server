@@ -719,7 +719,7 @@ Host.run_crons = _host_run_crons  # type: ignore
 class Lines:
     def __init__(self, s: str, name: Optional[str] = None) -> None:
         super().__init__()
-        self._lines = s.split('\n')
+        self._lines = s.split('\n') if s else []
         self._name = name
 
     def contains(self, pattern: str) -> bool:
