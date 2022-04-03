@@ -1,2 +1,0 @@
-pi_server_legacy_automatic_updates_script: "{{ pi_server_legacy_cron_safe_dir }}/updates"
-pi_server_legacy_automatic_updates_apt_log: "{{ pi_server_legacy_cron_etc }}/apt-output.log"
