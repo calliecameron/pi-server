@@ -2,3 +2,7 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    export_vars:
+      - pi_server_apps_cron_scripts_dir
+      - pi_server_apps_cron_pause_dir
+      - pi_server_apps_cron_wrapper

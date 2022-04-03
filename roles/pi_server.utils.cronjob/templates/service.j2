@@ -1,0 +1,7 @@
+[Service]
+ExecStart={{ pi_server_apps_cron_scripts_dir }}/{{ job }}
+User={{ user }}
+Group={{ user }}
+
+[Install]
+WantedBy=multi-user.target

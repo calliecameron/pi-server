@@ -1,0 +1,55 @@
+#!/bin/bash
+# Install apt updates.
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+function error() {
+    echo "ERROR:" "${@}"
+    exit 1
+}
+
+function warning() {
+    echo "WARNING:" "${@}"
+}
+
+if ! apt-get update; then
+    error 'apt-get update failed'
+fi
+
+APT_OUTPUT="$(GIT_AUTHOR_NAME='root' GIT_AUTHOR_EMAIL="root@$(hostname)" GIT_COMMITTER_NAME='root' GIT_COMMITTER_EMAIL="root@$(hostname)" DEBIAN_FRONTEND='noninteractive' apt-get -y upgrade)"
+EXIT_CODE="${?}"
+
+echo "${APT_OUTPUT}"
+
+if [ "${EXIT_CODE}" != 0 ]; then
+    error 'apt-get upgrade failed'
+fi
+
+UPGRADED="$(echo "${APT_OUTPUT}" | grep -o '[0-9]\+ upgraded' | grep -o '[0-9]\+')"
+NOT_UPGRADED="$(echo "${APT_OUTPUT}" | grep -o '[0-9]\+ not upgraded' | grep -o '[0-9]\+')"
+
+if [ -z "${UPGRADED}" ]; then
+    UPGRADED='0'
+fi
+
+if [ -z "${NOT_UPGRADED}" ]; then
+    NOT_UPGRADED='0'
+fi
+
+echo "Upgraded: ${UPGRADED}"
+echo "Not upgraded: ${NOT_UPGRADED}"
+
+OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
+OUTPUT_FILE="${OUTPUT_DIR}/updates.prom"
+TMP_FILE="${OUTPUT_FILE}.tmp"
+if ! printf "apt_packages_upgraded{job=\"updates\"} %s\napt_packages_not_upgraded{job=\"updates\"} %s\n" "${UPGRADED}" "${NOT_UPGRADED}" >"${TMP_FILE}"; then
+    warning "failed to write to '${TMP_FILE}'"
+    exit 0
+fi
+if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
+    echo "wrote metrics to '${OUTPUT_FILE}'"
+else
+    warning "failed to write to '${OUTPUT_FILE}'"
+fi

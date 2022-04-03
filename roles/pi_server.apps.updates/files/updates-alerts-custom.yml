@@ -1,0 +1,7 @@
+groups:
+  - name: updates alerts custom
+    rules:
+      - alert: PackagesNotUpgraded
+        expr: (avg by () (apt_packages_not_upgraded{job="updates"})) > 0
+        annotations:
+          summary: Some packages were not upgraded. Upgrade them manually.

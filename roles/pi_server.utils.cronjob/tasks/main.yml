@@ -1,0 +1,9 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: False
+    args:
+      - job
+      - src
+      - user
+      # may optionally set 'conflicts'

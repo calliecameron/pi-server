@@ -1,0 +1,27 @@
+- name: cronjob
+  vars:
+    job: updates
+    src: updates.j2
+    user: root
+  include_role:
+    name: pi_server.utils.cronjob
+
+- name: listchanges.conf
+  become: yes
+  ansible.builtin.copy:
+    src: listchanges.conf
+    dest: /etc/apt/listchanges.conf
+    owner: root
+    group: root
+    mode: a=r
+
+- include_role:
+    name: pi_server.utils.custom_dashboard
+  vars:
+    src: updates.json
+
+- include_role:
+    name: pi_server.utils.custom_alerts
+  vars:
+    src: updates-alerts-custom.yml
+    job: updates
