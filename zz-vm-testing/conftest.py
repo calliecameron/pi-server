@@ -384,7 +384,7 @@ class Email:
                 e for e in got_emails
                 if e['from']['value'][0]['address'] == f'notification@{only_from}.testbed'
                 or not e['from']['value'][0]['address']]
-        return got_emails
+        return cast(List[Any], got_emails)
 
     @staticmethod
     def _matches(expected: Dict[str, Any], email: Dict[str, Any]) -> Tuple[bool, str]:
@@ -536,6 +536,10 @@ class ShadowFile:
             with self._host.sudo():
                 self._host.check_output(f'rm {self._path}')
 
+    @property
+    def path(self) -> str:
+        return self._path
+
 
 def _host_shadow_file(self: Host, path: str) -> ShadowFile:
     return ShadowFile(self, path)
@@ -564,6 +568,8 @@ class ShadowDir:
                 f'chown --reference={self._path} {tmpdir}')
             self._host.check_output(
                 f'chmod --reference={self._path} {tmpdir}')
+            self._host.check_output(
+                f'getfacl {self._path} | setfacl --set-file=- {tmpdir}')
             self._host.check_output(
                 f'mount --bind {tmpdir} {self._path}')
             self._tmpdir = tmpdir
@@ -683,7 +689,7 @@ class CronRunner:
 def _host_run_crons(
         self: Host,
         time: str = '02:24:50',
-        cmd_to_watch: str = '/bin/bash /etc/cron.daily/pi-server',
+        cmd_to_watch: str = '/bin/bash /etc/pi-server/cron/cron-runner',
         disable_sources_list: bool = True,
         date: str = datetime.date.today().isoformat()) -> CronRunner:
     return CronRunner(self, time, cmd_to_watch, disable_sources_list, date)
@@ -704,12 +710,28 @@ class Lines:
                 return True
         return False
 
+    def count(self, pattern: str) -> int:
+        i = 0
+        for line in self._lines:
+            if re.fullmatch(pattern, line) is not None:
+                i += 1
+        return i
+
     def __repr__(self) -> str:
         out = '['
         if self._name:
             out += self._name + ' '
         out += f'({len(self._lines)} lines)]'
         return out
+
+
+def _host_journal(self: Host, service: str) -> Lines:
+    with self.sudo():
+        return Lines(self.check_output(
+            f'journalctl "_SYSTEMD_INVOCATION_ID=$(systemctl show -p InvocationID --value {service}.service)"'))
+
+
+Host.journal = _host_journal  # type: ignore
 
 
 class WebDriver(Firefox):
