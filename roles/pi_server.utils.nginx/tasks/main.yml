@@ -1,0 +1,11 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: False
+    args:
+      - compose_dir
+      - network_number
+      - uid
+      - gid
+      - web_root
+      - host_port

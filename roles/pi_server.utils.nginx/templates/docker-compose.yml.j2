@@ -1,0 +1,20 @@
+services:
+  nginx:
+    image: "nginxinc/nginx-unprivileged:stable-alpine"
+    ports:
+      - "{{ host_port }}:{{ pi_server_utils_nginx_container_port }}"
+    restart: always
+    user: "{{ uid }}:{{ gid }}"
+    volumes:
+      - "{{ web_root }}:/usr/share/nginx/html:ro"
+    networks:
+      nginx:
+        ipv4_address: "172.30.{{ network_number }}.2"
+
+networks:
+  nginx:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: "172.30.{{ network_number }}.0/24"
+          gateway: "172.30.{{ network_number }}.1"
