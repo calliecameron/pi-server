@@ -1,0 +1,9 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: True
+    export_vars:
+      - pi_server_apps_main_site_etc
+      - pi_server_apps_main_site_fragments_dir
+      - pi_server_apps_main_site_var
+      - pi_server_apps_main_site_web_root

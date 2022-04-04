@@ -1,0 +1,38 @@
+- include_role:
+    name: pi_server.base
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_site_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: fragments dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_site_fragments_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: var dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_site_var }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: web root dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_site_web_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
