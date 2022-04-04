@@ -1,0 +1,11 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: False
+    args:
+      - dest_dir
+      - head_title
+      - body_title
+      - bootstrap_version
+      - jquery_version
+      - fragments_notify

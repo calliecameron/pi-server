@@ -1,0 +1,15 @@
+<script type="text/javascript">
+  var bootstrapScript = document.createElement("script");
+  bootstrapScript.src = "http://" + window.location.hostname + "/bootstrap-{{ bootstrap_version }}-dist/js/bootstrap.min.js";
+  bootstrapScript.async = false;
+
+  var jqueryScript = document.createElement("script");
+  jqueryScript.src = "http://" + window.location.hostname + "/jquery-{{ jquery_version }}.min.js";
+  jqueryScript.async = false;
+
+  document.body.append(jqueryScript);
+  document.body.append(bootstrapScript);
+</script>
+</body>
+
+</html>

@@ -1,0 +1,22 @@
+- include_role:
+    name: pi_server.base
+
+- name: header
+  become: yes
+  ansible.builtin.template:
+    src: header.html.j2
+    dest: "{{ dest_dir }}/00-header.html"
+    owner: root
+    group: root
+    mode: a=r
+  notify: "{{ fragments_notify }}"
+
+- name: footer
+  become: yes
+  ansible.builtin.template:
+    src: footer.html.j2
+    dest: "{{ dest_dir }}/zz-footer.html"
+    owner: root
+    group: root
+    mode: a=r
+  notify: "{{ fragments_notify }}"
