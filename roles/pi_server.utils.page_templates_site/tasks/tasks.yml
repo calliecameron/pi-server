@@ -1,0 +1,81 @@
+- name: main templates
+  include_role:
+    name: pi_server.utils.page_templates
+  vars:
+    dest_dir: "{{ fragments_dir }}"
+    bootstrap_version: "{{ pi_server_utils_page_templates_site_bootstrap_version }}"
+    jquery_version: "{{ pi_server_utils_page_templates_site_jquery_version }}"
+
+- name: css
+  become: yes
+  ansible.builtin.copy:
+    src: pi.css
+    dest: "{{ web_root }}/pi.css"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: favicon.ico
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ favicon_basename }}.ico"
+    dest: "{{ web_root }}/favicon.ico"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: favicon.png
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ favicon_basename }}.png"
+    dest: "{{ web_root }}/favicon.png"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: favicon-apple.png
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ favicon_basename }}-apple.png"
+    dest: "{{ web_root }}/favicon-apple.png"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: download bootstrap
+  become: yes
+  ansible.builtin.get_url:
+    url: "https://github.com/twbs/bootstrap/releases/download/v{{ pi_server_utils_page_templates_site_bootstrap_version }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}-dist.zip"
+    dest: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}.zip"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: extract bootstrap
+  become: yes
+  ansible.builtin.unarchive:
+    src: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}.zip"
+    remote_src: yes
+    dest: "{{ web_root }}"
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: download jquery
+  become: yes
+  ansible.builtin.get_url:
+    url: "http://code.jquery.com/jquery-{{ pi_server_utils_page_templates_site_jquery_version }}.min.js"
+    dest: "{{ web_root }}/jquery-{{ pi_server_utils_page_templates_site_jquery_version }}.min.js"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: fix permissions
+  become: yes
+  ansible.builtin.file:
+    path: "{{ web_root }}"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+    mode: u=rwX,go=rX
