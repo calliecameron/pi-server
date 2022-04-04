@@ -1,0 +1,8 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: True
+    host_vars:
+      - pi_server_hostname
+      - pi_server_lan_ip
+      - pi_server_fqdn

@@ -1,0 +1,58 @@
+- include_role:
+    name: pi_server.apps.main_site_base
+
+- name: temp dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_site_temp_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_main_site_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  register: main_site_user
+
+- name: base files
+  include_role:
+    name: pi_server.utils.page_templates_site
+  vars:
+    fragments_dir: "{{ pi_server_apps_main_site_fragments_dir }}"
+    web_root: "{{ pi_server_apps_main_site_web_root }}"
+    temp_dir: "{{ pi_server_apps_main_site_temp_dir }}"
+    head_title: "Home | {{ pi_server_hostname }}"
+    body_title: "{{ pi_server_hostname }}"
+    favicon_basename: "favicon"
+    fragments_notify: "assemble main site"
+
+- name: header
+  include_role:
+    name: pi_server.utils.main_site_fragment
+  vars:
+    src: main-header.html.j2
+    dest: 00-main-header.html
+
+- name: footer
+  include_role:
+    name: pi_server.utils.main_site_fragment
+  vars:
+    src: main-footer.html.j2
+    dest: zz-main-footer.html
+
+- name: nginx
+  include_role:
+    name: pi_server.utils.nginx
+  vars:
+    compose_dir: "{{ pi_server_apps_main_site_etc }}"
+    network_number: "3"
+    uid: "{{ main_site_user.uid }}"
+    gid: "{{ main_site_user.group }}"
+    web_root: "{{ pi_server_apps_main_site_web_root }}"
+    host_port: "{{ pi_server_apps_main_site_port }}"
