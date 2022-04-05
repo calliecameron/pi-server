@@ -1,8 +1,0 @@
-#!/bin/bash
-# Generate the main pi-server web page. Should run as root.
-
-INDEX='@@@@@1@@@@@/index.html'
-
-test -f "${INDEX}" && chmod u+w "${INDEX}"
-sed 's/#####1#####/Home/g' < '@@@@@3@@@@@' | cat - '@@@@@5@@@@@' '@@@@@2@@@@@'/* '@@@@@6@@@@@' '@@@@@4@@@@@' > "${INDEX}"
-chmod a=r "${INDEX}"

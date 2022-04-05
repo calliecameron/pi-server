@@ -593,10 +593,3 @@ echo bar
 
             with host.sudo():
                 host.check_output('apt-get update')
-
-#     @for_host_types('pi', 'ubuntu')
-#     def test_legacy_nginx(self, hostname: str, hosts: Dict[str, Host]) -> None:
-#         """This just installs the nginx service, not any sites."""
-#         host = hosts[hostname]
-#         assert host.service('nginx').is_enabled
-#         assert host.service('nginx').is_running
