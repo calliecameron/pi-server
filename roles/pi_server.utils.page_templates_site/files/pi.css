@@ -1,17 +1,17 @@
-body {
-    padding-top: 70px;
-}
-
 h1 {
     text-align: center;
 }
 
 .logo-image {
-    width: 20px;
-    height: 20px;
+    width: 30px;
+    height: 30px;
 }
 
 .main-image {
     width: 100px;
     height: 100px;
+}
+
+.main-image-p {
+    padding-top: 20px;
 }

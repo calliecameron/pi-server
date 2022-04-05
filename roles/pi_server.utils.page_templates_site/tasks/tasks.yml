@@ -4,7 +4,6 @@
   vars:
     dest_dir: "{{ fragments_dir }}"
     bootstrap_version: "{{ pi_server_utils_page_templates_site_bootstrap_version }}"
-    jquery_version: "{{ pi_server_utils_page_templates_site_jquery_version }}"
 
 - name: css
   become: yes
@@ -60,15 +59,6 @@
     owner: root
     group: root
     mode: u=rwx,go=rx
-
-- name: download jquery
-  become: yes
-  ansible.builtin.get_url:
-    url: "http://code.jquery.com/jquery-{{ pi_server_utils_page_templates_site_jquery_version }}.min.js"
-    dest: "{{ web_root }}/jquery-{{ pi_server_utils_page_templates_site_jquery_version }}.min.js"
-    owner: root
-    group: root
-    mode: u=rw,go=r
 
 - name: fix permissions
   become: yes

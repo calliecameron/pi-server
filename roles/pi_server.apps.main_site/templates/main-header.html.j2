@@ -1,23 +1,21 @@
 <div class="container">
   <div class="row">
-    <p><img class="center-block main-image" src="favicon.png" alt="Raspberry Pi"></p>
-    <h1>{{ pi_server_hostname }}</h1>
+    <div class="col">
+      <p class="text-center main-image-p"><img class="center-block main-image" src="favicon.png" alt="Raspberry Pi"></p>
+      <h1>{{ pi_server_hostname }}</h1>
 
-    <h3>Details</h3>
-    <table class="table">
-      <tr>
-        <td>Local address</td>
-        <td><a href="http://{{ pi_server_hostname }}.local/">{{ pi_server_hostname }}.local</a></td>
-      </tr>
-      <tr>
-        <td>IP address</td>
-        <td><a href="http://{{ pi_server_lan_ip }}/">{{ pi_server_lan_ip }}</a></td>
-      </tr>
-      <tr>
-        <td>External domain name</td>
-        <td>{{ pi_server_fqdn }}</td>
-      </tr>
-    </table>
-
-    <h3>Pages</h3>
-    <ul>
+      <h3>Details</h3>
+      <table class="table">
+        <tr>
+          <td>Local address</td>
+          <td><a href="http://{{ pi_server_hostname }}.local/">{{ pi_server_hostname }}.local</a></td>
+        </tr>
+        <tr>
+          <td>IP address</td>
+          <td><a href="http://{{ pi_server_lan_ip }}/">{{ pi_server_lan_ip }}</a></td>
+        </tr>
+        <tr>
+          <td>External domain name</td>
+          <td>{{ pi_server_fqdn }}</td>
+        </tr>
+      </table>

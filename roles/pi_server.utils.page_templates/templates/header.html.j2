@@ -1,15 +1,13 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
 
 <head>
   <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <title>{{ head_title }}</title>
 
   <script type="text/javascript">
-    document.write('<!--[if IE]><link rel="shortcut icon" href="http://' + window.location.hostname + '/favicon.ico"><![endif]-->');
     document.write('<link rel="apple-touch-icon-precomposed" href="http://' + window.location.hostname + '/favicon-apple.png">');
     document.write('<link rel="icon" href="http://' + window.location.hostname + '/favicon.png">');
     document.write('<link type="text/css" rel="stylesheet" href="http://' + window.location.hostname + '/bootstrap-{{ bootstrap_version }}-dist/css/bootstrap.min.css">');
@@ -19,21 +17,10 @@
 </head>
 
 <body>
-  <nav class="navbar navbar-default navbar-fixed-top">
+  <nav class="navbar navbar-light bg-light">
     <div class="container-fluid">
-      <div class="navbar-header">
-        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
-          <span class="sr-only">Toggle navigation</span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-          <span class="icon-bar"></span>
-        </button>
-        <script type="text/javascript">
-          document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/"><img class="logo-image" src="http://' + window.location.hostname + '/favicon.png"></a>');
-          document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/">{{ body_title }}</a>');
-        </script>
-      </div>
-      <div class="collapse navbar-collapse" id="navbar">
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container -->
+      <script type="text/javascript">
+        document.write('<a class="navbar-brand" href="http://' + window.location.hostname + '/"><img class="logo-image d-inline-block" src="http://' + window.location.hostname + '/favicon.png">{{ body_title }}</a>');
+      </script>
+    </div>
   </nav>

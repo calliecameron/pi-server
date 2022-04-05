@@ -7,5 +7,4 @@
       - head_title
       - body_title
       - bootstrap_version
-      - jquery_version
       - fragments_notify
