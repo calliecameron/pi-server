@@ -1,0 +1,23 @@
+<h3>Monitoring</h3>
+<ul>
+    <li>
+        <script type="text/javascript">
+            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_monitoring_grafana_port }}/">Grafana</a>');
+        </script>
+    </li>
+    <li>
+        <script type="text/javascript">
+            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_monitoring_prometheus_port }}/">Prometheus</a>');
+        </script>
+    </li>
+    <li>
+        <script type="text/javascript">
+            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_monitoring_alertmanager_port }}/">Alert manager</a>');
+        </script>
+    </li>
+    <li>
+        <script type="text/javascript">
+            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_monitoring_cadvisor_port }}/">cAdvisor</a>');
+        </script>
+    </li>
+</ul>

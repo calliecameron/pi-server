@@ -63,3 +63,9 @@
     name: pi_server.utils.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
+
+- include_role:
+    name: pi_server.utils.main_site_fragment
+  vars:
+    src: fragment.html.j2
+    dest: monitoring.html
