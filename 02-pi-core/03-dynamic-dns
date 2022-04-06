@@ -4,22 +4,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
 
-sudo apt-get update &&
-sudo apt-get -y install avahi-daemon &&
-
-
 sudo mkdir -p "${PI_SERVER_ZONEEDIT_DIR}" &&
-
-
-# Avahi daemon for local name resolution
-AVAHI_CONF='/etc/avahi/avahi-daemon.conf' &&
-
-sed-install "${DIR}/avahi-daemon-normal.conf" "${AVAHI_CONF}" &&
-
-sudo chmod a=r "${AVAHI_CONF}" &&
-
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open-at-boot 5353 udp &&
-"${PI_SERVER_IPTABLES_PORT_SCRIPT}" open 5353 udp &&
 
 
 # ZoneEdit boot and cron setup
