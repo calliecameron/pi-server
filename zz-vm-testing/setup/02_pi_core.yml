@@ -1,7 +1,4 @@
 ---
-- name: 02-pi-core - 00-packages
-  command:
-    cmd: "{{ pi_core }}/00-packages"
 - name: 02-pi-core - 01-vars
   command:
     cmd: "{{ pi_core }}/01-vars"
@@ -12,11 +9,6 @@
       {{ storage_data_partition }}
       {{ storage_backup_partition }}
       n
-- name: 02-pi-core - 02-firewall
-  command:
-    cmd: "{{ pi_core }}/02-firewall"
-    stdin: |
-      y
 
 - name: 02-pi-core - 03-dynamic-dns - zoneedit in /etc/hosts
   become: yes

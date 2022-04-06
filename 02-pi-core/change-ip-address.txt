@@ -1,4 +1,0 @@
-If you need to change the pi's IP address, you can do so by modifying /etc/pi-server/lan-ip. However, this is not completely reliable; some things will still use the original IP address:
-
- - certificates (but you can access pages using <hostname>.local, which works regardless of IP address)
- - OpenVPN
