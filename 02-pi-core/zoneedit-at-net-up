@@ -1,9 +1,0 @@
-#!/bin/bash
-
-LAN_IFACE="$(cat '@@@@@2@@@@@')"
-
-if [ ! -z "${LAN_IFACE}" ] && [ "${IFACE}" = "${LAN_IFACE}" ]; then
-    ( sleep 1m; '@@@@@1@@@@@' ) &
-fi
-
-exit 0

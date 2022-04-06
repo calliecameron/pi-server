@@ -1,0 +1,12 @@
+#!/bin/bash
+
+LAN_IFACE='{{ pi_server_lan_iface }}'
+
+if [ -n "${LAN_IFACE}" ] && [ "${IFACE}" = "${LAN_IFACE}" ]; then
+    (
+        sleep 1m
+        systemctl start --wait '{{ pi_server_apps_zoneedit_systemd_unit }}'
+    ) &
+fi
+
+exit 0

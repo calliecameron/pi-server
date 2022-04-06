@@ -47,13 +47,6 @@ export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-
 # shellcheck disable=SC2155
 export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
-export PI_SERVER_ZONEEDIT_DIR="${PI_SERVER_DIR}/zoneedit"
-export PI_SERVER_ZONEEDIT_USERNAME_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-username"
-export PI_SERVER_ZONEEDIT_PASSWORD_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-password"
-export PI_SERVER_ZONEEDIT_LOG_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-last-attempt.log"
-export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-config"
-export PI_SERVER_ZONEEDIT_UPDATE_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-update"
-
 export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
 export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"
 export PI_SERVER_WEB_PAGE_HEADER="${PI_SERVER_DIR}/web-page-header"

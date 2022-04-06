@@ -8,6 +8,9 @@
     name: pi_server.apps.avahi
 
 - include_role:
+    name: pi_server.apps.zoneedit
+
+- include_role:
     name: pi_server.apps.main_site
 
 - include_role:

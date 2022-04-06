@@ -25,102 +25,122 @@ class Test02PiCore:
         assert (host.check_output('getent ahostsv4 %s.local | head -n 1' % hostname) ==
                 '%s       STREAM %s.local' % (addrs[hostname], hostname))
 
-    # @for_host_types('pi')
-    # def test_03_dynamic_dns(
-    #         self,
-    #         hostname: str,
-    #         hosts: Dict[str, Host],
-    #         addrs: Dict[str, str],
-    #         email: Email,
-    #         mockserver: MockServer) -> None:
-    #     host = hosts[hostname]
+    @for_host_types('pi')
+    def test_zoneedit(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host],
+            mockserver: MockServer) -> None:
+        host = hosts[hostname]
+        service = host.service('pi-server-cron-zoneedit')
+        journal = host.journal()
+        auth_header = requests.Request()
+        requests.auth.HTTPBasicAuth('foo', 'bar')(auth_header)
 
-    #     # Part 1 - avahi
-    #     assert (host.check_output('getent ahostsv4 %s.local | head -n 1' % hostname) ==
-    #             '%s       STREAM %s.local' % (addrs[hostname], hostname))
+        zoneedit_req = {
+            'httpRequest': {
+                'method': 'GET',
+                'path': '/auth/dynamic.html',
+                'queryStringParameters': {
+                    'host': [hostname + '.testbed'],
+                },
+                'headers': [
+                    {
+                        'name': 'Authorization',
+                        'values': [auth_header.headers['Authorization']],
+                    },
+                ],
+                'secure': True,
+            },
+            'httpResponse': {
+                'statusCode': 200,
+            },
+        }
 
-    #     # Part 2 - zoneedit
-    #     auth_header = requests.Request()
-    #     requests.auth.HTTPBasicAuth('foo', 'bar')(auth_header)
+        with host.shadow_file('/etc/pi-server/zoneedit/username.txt') as username_file, \
+                host.shadow_file('/etc/pi-server/zoneedit/password.txt') as password_file:
 
-    #     zoneedit_req = {
-    #         'httpRequest': {
-    #             'method': 'GET',
-    #             'path': '/auth/dynamic.html',
-    #             'queryStringParameters': {
-    #                 'host': [hostname + '.testbed'],
-    #             },
-    #             'headers': [
-    #                 {
-    #                     'name': 'Authorization',
-    #                     'values': [auth_header.headers['Authorization']],
-    #                 },
-    #             ],
-    #             'secure': True,
-    #         },
-    #         'httpResponse': {
-    #             'statusCode': 200,
-    #         },
-    #     }
+            # No username or password, no request
+            journal.clear()
+            mockserver.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/pi-server-zoneedit'):
+                pass
+            mockserver.assert_not_called()
 
-    #     with host.shadow_file('/etc/pi-server/zoneedit/zoneedit-username') as username_file, \
-    #          host.shadow_file('/etc/pi-server/zoneedit/zoneedit-password') as password_file, \
-    #          host.disable_login_emails():
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-zoneedit')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Updated ZoneEdit') == 0
+            assert log.count(r'Not running.*') == 1
+            assert log.count(r'.*ZoneEdit update failed') == 0
 
-    #         # No username or password, no request or emails
-    #         mockserver.clear()
-    #         email.clear()
-    #         mockserver.expect(zoneedit_req)
-    #         with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
-    #             pass
-    #         mockserver.assert_not_called()
-    #         time.sleep(15)
-    #         email.assert_emails([], only_from=hostname)
+            # Correct username/password, manual run
+            with host.sudo():
+                username_file.write('foo')
+                password_file.write('bar')
 
-    #         # Correct username/password, manual run
-    #         with host.sudo():
-    #             username_file.write('foo')
-    #             password_file.write('bar')
+            journal.clear()
+            mockserver.clear()
+            mockserver.expect(zoneedit_req)
+            with host.sudo():
+                host.check_output('sudo systemctl start --wait pi-server-cron-zoneedit')
+            mockserver.assert_called()
 
-    #         mockserver.clear()
-    #         email.clear()
-    #         mockserver.expect(zoneedit_req)
-    #         with host.sudo():
-    #             host.check_output('/etc/pi-server/zoneedit/zoneedit-update')
-    #         mockserver.assert_called()
-    #         time.sleep(15)
-    #         email.assert_emails([], only_from=hostname)
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-zoneedit')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Updated ZoneEdit') == 1
+            assert log.count(r'Not running.*') == 0
+            assert log.count(r'.*ZoneEdit update failed') == 0
 
-    #         # Correct username/password in cronjob
-    #         mockserver.clear()
-    #         email.clear()
-    #         mockserver.expect(zoneedit_req)
-    #         with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
-    #             pass
-    #         mockserver.assert_called()
-    #         time.sleep(15)
-    #         email.assert_emails([], only_from=hostname)
+            # Correct username/password in cronjob
+            journal.clear()
+            mockserver.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+                pass
+            mockserver.assert_called()
 
-    #         # Wrong password in cronjob
-    #         with host.sudo():
-    #             password_file.write('baz')
-    #         mockserver.clear()
-    #         email.clear()
-    #         mockserver.expect(zoneedit_req)
-    #         with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
-    #             pass
-    #         mockserver.assert_not_called()
-    #         time.sleep(15)
-    #         email.assert_emails([
-    #             {
-    #                 'from': '',
-    #                 'to': '',
-    #                 'subject': ('Cron <root@%s>    cd / && run-parts --report /etc/cron.hourly'
-    #                             % hostname),
-    #                 'body_re': (r'/etc/cron.hourly/zoneedit-update:\n'
-    #                             r'ZoneEdit update failed; check the log file\n'),
-    #             },
-    #         ], only_from=hostname)
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-zoneedit')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Updated ZoneEdit') == 1
+            assert log.count(r'Not running.*') == 0
+            assert log.count(r'.*ZoneEdit update failed') == 0
+
+            # Wrong password in cronjob
+            with host.sudo():
+                password_file.write('baz')
+            journal.clear()
+            mockserver.clear()
+            mockserver.expect(zoneedit_req)
+            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+                pass
+            mockserver.assert_not_called()
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-zoneedit')
+            assert log.count(r'.*ERROR.*') == 1
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 2
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 0
+            assert log.count(r'Updated ZoneEdit') == 0
+            assert log.count(r'Not running.*') == 0
+            assert log.count(r'.*ZoneEdit update failed') == 1
 
     @for_host_types('pi')
     def test_main_site(

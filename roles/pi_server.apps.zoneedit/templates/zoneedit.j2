@@ -1,0 +1,35 @@
+#!/bin/bash
+# Update a ZoneEdit record
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+function error() {
+    echo "ERROR:" "${@}"
+    exit 1
+}
+
+function stop() {
+    echo "Not running:" "${@}"
+    exit 0
+}
+
+HOST='{{ pi_server_fqdn }}'
+USERNAME_FILE='{{ pi_server_apps_zoneedit_username_file }}'
+PASSWORD_FILE='{{ pi_server_apps_zoneedit_password_file }}'
+
+test ! -f "${USERNAME_FILE}" && error 'username file does not exist'
+test ! -f "${PASSWORD_FILE}" && error 'password file does not exist'
+
+USERNAME="$(grep -v '^#' "${USERNAME_FILE}" | head -n 1)"
+PASSWORD="$(grep -v '^#' "${PASSWORD_FILE}" | head -n 1)"
+
+test -z "${USERNAME}" && stop 'username not set'
+test -z "${PASSWORD}" && stop 'password not set'
+
+if ! curl --fail --user "${USERNAME}:${PASSWORD}" "https://dynamic.zoneedit.com/auth/dynamic.html?host=${HOST}"; then
+    error 'ZoneEdit update failed'
+fi
+
+echo 'Updated ZoneEdit'

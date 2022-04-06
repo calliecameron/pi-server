@@ -1,0 +1,5 @@
+pi_server_apps_zoneedit_etc: "{{ pi_server_etc }}/zoneedit"
+pi_server_apps_zoneedit_username_file: "{{ pi_server_apps_zoneedit_etc }}/username.txt"
+pi_server_apps_zoneedit_password_file: "{{ pi_server_apps_zoneedit_etc }}/password.txt"
+pi_server_apps_zoneedit_user: "pi-server-zoneedit"
+pi_server_apps_zoneedit_systemd_unit: "pi-server-cron-zoneedit"

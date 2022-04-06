@@ -1,30 +1,7 @@
 - include_role:
     name: pi_server.apps.cron
 
-- name: "cronjob '{{ job }}' script"
-  become: yes
+- include_role:
+    name: pi_server.utils.cronjob_script
   vars:
-    cron_wrapper_line: "source '{{ pi_server_apps_cron_wrapper }}' -u '{{ user }}'{% for c in conflicts | default([]) %} -c '{{ c }}'{% endfor %}"
-  ansible.builtin.template:
-    src: "{{ src }}"
-    dest: "{{ pi_server_apps_cron_scripts_dir }}/{{ job }}"
-    owner: root
-    group: root
-    mode: a=rx
-
-- name: "conjob '{{ job }}' conflicts"
-  vars:
-    service: "{{ item }}"
-  include_role:
-    name: pi_server.utils.pause_on_cron
-  loop: "{{ conflicts | default([]) }}"
-
-- name: "cronjob '{{ job }}' systemd unit"
-  become: yes
-  ansible.builtin.template:
-    src: service.j2
-    dest: "/etc/systemd/system/pi-server-cron-{{ job }}.service"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload cronjobs
+    dest_dir: "{{ pi_server_apps_cron_scripts_dir }}"

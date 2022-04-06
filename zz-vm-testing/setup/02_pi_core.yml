@@ -10,28 +10,6 @@
       {{ storage_backup_partition }}
       n
 
-- name: 02-pi-core - 03-dynamic-dns - zoneedit in /etc/hosts
-  become: yes
-  lineinfile:
-    path: /etc/hosts
-    line: "{{ internet_ip }} dynamic.zoneedit.com"
-- name: 02-pi-core - 03-dynamic-dns - fetch mockserver CA cert
-  become: yes
-  get_url:
-    url: https://raw.githubusercontent.com/mock-server/mockserver/master/mockserver-core/src/main/resources/org/mockserver/socket/CertificateAuthorityCertificate.pem
-    dest: /usr/local/share/ca-certificates/mockserver.crt
-- name: 02-pi-core - 03-dynamic-dns - install mockserver CA cert
-  become: yes
-  command: update-ca-certificates
-- name: 02-pi-core - 03-dynamic-dns
-  command:
-    cmd: "{{ testbed_setup }}/sudoedit-wrapper {{ pi_core }}/03-dynamic-dns"
-    stdin: |
-      y
-      y
-  environment:
-    SUDO_EDITOR: "true"
-
 - name: 02-pi-core - 04-nginx - add certs repo
   become: yes
   apt_repository:

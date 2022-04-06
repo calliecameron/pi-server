@@ -1,0 +1,71 @@
+- include_role:
+    name: pi_server.base
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_zoneedit_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_zoneedit_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+
+- name: username file
+  become: yes
+  ansible.builtin.template:
+    src: username.txt.j2
+    dest: "{{ pi_server_apps_zoneedit_username_file }}"
+    owner: "{{ pi_server_apps_zoneedit_user }}"
+    group: "{{ pi_server_apps_zoneedit_user }}"
+    mode: u=r,o=
+
+- name: password file
+  become: yes
+  ansible.builtin.template:
+    src: password.txt.j2
+    dest: "{{ pi_server_apps_zoneedit_password_file }}"
+    owner: "{{ pi_server_apps_zoneedit_user }}"
+    group: "{{ pi_server_apps_zoneedit_user }}"
+    mode: u=r,o=
+
+- name: script
+  include_role:
+    name: pi_server.utils.cronjob_script
+  vars:
+    job: zoneedit
+    src: zoneedit.j2
+    dest_dir: "{{ pi_server_apps_zoneedit_etc }}"
+    user: "{{ pi_server_apps_zoneedit_user }}"
+
+- name: hourly cronjob
+  become: yes
+  ansible.builtin.template:
+    src: hourly.j2
+    dest: "/etc/cron.hourly/pi-server-zoneedit"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: run at net up
+  become: yes
+  ansible.builtin.template:
+    src: net-up.j2
+    dest: "{{ pi_server_net_up }}/pi-server-zoneedit"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: monitoring writer
+  include_role:
+    name: pi_server.utils.monitoring_writer
+  vars:
+    user: "{{ pi_server_apps_zoneedit_user }}"

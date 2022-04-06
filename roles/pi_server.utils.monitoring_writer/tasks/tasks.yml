@@ -1,0 +1,10 @@
+- include_role:
+    name: pi_server.apps.monitoring
+
+- name: "add {{ user }} to monitoring writers"
+  become: yes
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups:
+      - "{{ pi_server_apps_monitoring_writer_group }}"
+    append: yes
