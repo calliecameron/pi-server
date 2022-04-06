@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.apps.cron
+
+- name: "pause {{ service }} on cron"
+  vars:
+    path: "{{ pi_server_apps_cron_pause_dir }}/{{ service }}"
+    owner: root
+    group: root
+    mode: a=r
+  include_role:
+    name: pi_server.utils.create_file

@@ -1,6 +1,6 @@
 # Common stuff; should be sourced, not run!
 
-source "$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/../01-generic-core/common.bash" || exit 1
+source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/../01-generic-core/common.bash" || exit 1
 
 if [ -z "${SKIP_OS_CHECK}" ]; then
     if ! grep focal /etc/apt/sources.list &>/dev/null; then
@@ -8,7 +8,6 @@ if [ -z "${SKIP_OS_CHECK}" ]; then
         exit 1
     fi
 fi
-
 
 # Stored data paths (on external drive)
 export PI_SERVER_DATA_MOUNT_DIR='/mnt/data'
@@ -23,7 +22,6 @@ export PI_SERVER_BACKUP_DIR="${PI_SERVER_BACKUP_MOUNT_DIR}/pi-server-backup"
 export PI_SERVER_BACKUP_MAIN_DIR="${PI_SERVER_BACKUP_DIR}/main"
 export PI_SERVER_BACKUP_GIT_DIR="${PI_SERVER_BACKUP_DIR}/git"
 export PI_SERVER_BACKUP_EMAIL_DIR="${PI_SERVER_BACKUP_DIR}/email"
-
 
 export PI_SERVER_LAN_NETWORK_FILE="${PI_SERVER_DIR}/lan-network-addr"
 # shellcheck disable=SC2155
@@ -49,17 +47,12 @@ export PI_SERVER_STORAGE_SPINNING_DRIVE_FILE="${PI_SERVER_DIR}/storage-spinning-
 # shellcheck disable=SC2155
 export PI_SERVER_STORAGE_SPINNING_DRIVE="$(get-pi-server-param "${PI_SERVER_STORAGE_SPINNING_DRIVE_FILE}")"
 
-
 export PI_SERVER_ZONEEDIT_DIR="${PI_SERVER_DIR}/zoneedit"
 export PI_SERVER_ZONEEDIT_USERNAME_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-username"
 export PI_SERVER_ZONEEDIT_PASSWORD_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-password"
 export PI_SERVER_ZONEEDIT_LOG_FILE="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-last-attempt.log"
 export PI_SERVER_ZONEEDIT_CONFIG_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-config"
 export PI_SERVER_ZONEEDIT_UPDATE_SCRIPT="${PI_SERVER_ZONEEDIT_DIR}/zoneedit-update"
-
-export PI_SERVER_SHUTDOWND_SCRIPT="${PI_SERVER_DIR}/shutdownd"
-export PI_SERVER_SHUTDOWND_SERVICE='pi-server-shutdownd.service'
-export PI_SERVER_SHUTDOWND_PORT='23145'
 
 export PI_SERVER_WEB_PAGE_DIR='/var/www/pi-server'
 export PI_SERVER_WEB_PAGE_PARTS_DIR="${PI_SERVER_DIR}/web-page-parts"
@@ -92,7 +85,6 @@ export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"
 export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_CERT_DIR}/deployment-key"
 export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_CERT_DIR}/deployment-key.pub"
 
-
 function pi-server-cert() {
     echo "${PI_SERVER_CERT_DIR}/${1}.crt"
 }
@@ -109,9 +101,9 @@ function check-pi-server-cert() {
     local KEY="$(pi-server-key "${2}")"
 
     if [ ! -e "${PI_SERVER_CA_CERT}" ] ||
-       [ ! -e "${PI_SERVER_CRL}" ] ||
-       [ ! -e "${CERT}" ] ||
-       [ ! -e "${KEY}" ]; then
+        [ ! -e "${PI_SERVER_CRL}" ] ||
+        [ ! -e "${CERT}" ] ||
+        [ ! -e "${KEY}" ]; then
         cat <<EOF
 Certificates are missing; not going any further
 Put the certificates at:
@@ -123,12 +115,12 @@ EOF
         exit 1
     else
         sudo chown root:root "${PI_SERVER_CA_CERT}" "${PI_SERVER_CRL}" "${CERT}" "${KEY}" &&
-        sudo chmod u=r "${PI_SERVER_CA_CERT}" "${CERT}" "${KEY}" &&
-        sudo chmod go-rwx "${KEY}" &&
-        sudo chmod go=r "${PI_SERVER_CA_CERT}" "${CERT}" &&
+            sudo chmod u=r "${PI_SERVER_CA_CERT}" "${CERT}" "${KEY}" &&
+            sudo chmod go-rwx "${KEY}" &&
+            sudo chmod go=r "${PI_SERVER_CA_CERT}" "${CERT}" &&
 
-        # The CRL is not secret, and must be world-readable
-        sudo chmod a=r "${PI_SERVER_CRL}" || return 1
+            # The CRL is not secret, and must be world-readable
+            sudo chmod a=r "${PI_SERVER_CRL}" || return 1
     fi
 
     # Check extra files
@@ -145,8 +137,8 @@ EOF
             exit 1
         else
             sudo chown root:root "${FILENAME}" &&
-            sudo chmod u=r "${FILENAME}" &&
-            sudo chmod go-rwx "${FILENAME}" || return 1
+                sudo chmod u=r "${FILENAME}" &&
+                sudo chmod go-rwx "${FILENAME}" || return 1
         fi
 
         shift
@@ -154,5 +146,5 @@ EOF
 
     # Install the CA cert for OS use
     sudo cp -t '/usr/local/share/ca-certificates' "${PI_SERVER_CA_CERT}" &&
-    sudo update-ca-certificates || return 1
+        sudo update-ca-certificates || return 1
 }

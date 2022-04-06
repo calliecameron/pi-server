@@ -1,0 +1,83 @@
+- include_role:
+    name: pi_server.apps.main_site
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_shutdownd_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_shutdownd_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+
+- name: sudoers
+  become: yes
+  ansible.builtin.template:
+    src: sudoers.j2
+    dest: "/etc/sudoers.d/pi-server-shutdownd"
+    owner: root
+    group: root
+    mode: ug=r,o=
+
+- name: main templates
+  include_role:
+    name: pi_server.utils.page_templates
+  vars:
+    dest_dir: "{{ pi_server_apps_shutdownd_etc }}"
+    head_title: "#####1##### | {{ pi_server_hostname }}"
+    body_title: "{{ pi_server_hostname }}"
+    bootstrap_version: "{{ pi_server_utils_page_templates_site_bootstrap_version }}"
+    fragments_notify:
+
+- name: script
+  become: yes
+  ansible.builtin.template:
+    src: shutdownd.j2
+    dest: "{{ pi_server_apps_shutdownd_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: systemd unit
+  become: yes
+  ansible.builtin.template:
+    src: service.j2
+    dest: "/etc/systemd/system/{{ pi_server_apps_shutdownd_service }}.service"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload shutdownd
+
+- name: pause on cron
+  include_role:
+    name: pi_server.utils.pause_on_cron
+  vars:
+    service: "{{ pi_server_apps_shutdownd_service }}"
+
+- name: firewall
+  include_role:
+    name: pi_server.utils.tcp_port
+  vars:
+    port: "{{ pi_server_apps_shutdownd_port }}"
+
+- name: monitorng
+  include_role:
+    name: pi_server.utils.monitor_systemd_service
+  vars:
+    systemd_service: "{{ pi_server_apps_shutdownd_service }}"
+
+- name: dashboard links
+  include_role:
+    name: pi_server.utils.main_site_fragment
+  vars:
+    src: fragment.html.j2
+    dest: zz-shutdownd.html

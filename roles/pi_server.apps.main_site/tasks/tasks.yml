@@ -37,14 +37,14 @@
     name: pi_server.utils.main_site_fragment
   vars:
     src: main-header.html.j2
-    dest: 00-main-header.html
+    dest: 00-00-main-header.html
 
 - name: footer
   include_role:
     name: pi_server.utils.main_site_fragment
   vars:
     src: main-footer.html.j2
-    dest: zz-main-footer.html
+    dest: zz-zz-main-footer.html
 
 - name: nginx
   include_role:

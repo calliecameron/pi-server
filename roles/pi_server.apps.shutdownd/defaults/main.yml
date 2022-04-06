@@ -1,0 +1,5 @@
+pi_server_apps_shutdownd_etc: "{{ pi_server_etc }}/shutdownd"
+pi_server_apps_shutdownd_script: "{{ pi_server_apps_shutdownd_etc }}/shutdownd"
+pi_server_apps_shutdownd_service: "pi-server-shutdownd"
+pi_server_apps_shutdownd_user: "pi-server-shutdownd"
+pi_server_apps_shutdownd_port: "23145"

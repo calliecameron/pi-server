@@ -1,0 +1,7 @@
+- name: reload shutdownd
+  become: yes
+  ansible.builtin.systemd:
+    name: "{{ pi_server_apps_shutdownd_service }}"
+    daemon_reload: yes
+    enabled: yes
+    state: restarted

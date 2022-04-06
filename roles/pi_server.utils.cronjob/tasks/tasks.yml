@@ -14,12 +14,9 @@
 
 - name: "conjob '{{ job }}' conflicts"
   vars:
-    path: "{{ pi_server_apps_cron_pause_dir }}/{{ item }}"
-    user: root
-    group: root
-    mode: a=r
+    service: "{{ item }}"
   include_role:
-    name: pi_server.utils.create_file
+    name: pi_server.utils.pause_on_cron
   loop: "{{ conflicts | default([]) }}"
 
 - name: "cronjob '{{ job }}' systemd unit"
