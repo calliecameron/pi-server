@@ -10,5 +10,3 @@
       - body_title
       - favicon_basename
       - fragments_notify
-    export_vars:
-      - pi_server_utils_page_templates_site_bootstrap_version

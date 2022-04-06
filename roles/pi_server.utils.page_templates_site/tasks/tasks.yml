@@ -3,7 +3,6 @@
     name: pi_server.utils.page_templates
   vars:
     dest_dir: "{{ fragments_dir }}"
-    bootstrap_version: "{{ pi_server_utils_page_templates_site_bootstrap_version }}"
 
 - name: css
   become: yes
@@ -44,8 +43,8 @@
 - name: download bootstrap
   become: yes
   ansible.builtin.get_url:
-    url: "https://github.com/twbs/bootstrap/releases/download/v{{ pi_server_utils_page_templates_site_bootstrap_version }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}-dist.zip"
-    dest: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}.zip"
+    url: "https://github.com/twbs/bootstrap/releases/download/v{{ pi_server_utils_page_templates_bootstrap_version }}/bootstrap-{{ pi_server_utils_page_templates_bootstrap_version }}-dist.zip"
+    dest: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_bootstrap_version }}.zip"
     owner: root
     group: root
     mode: a=r
@@ -53,7 +52,7 @@
 - name: extract bootstrap
   become: yes
   ansible.builtin.unarchive:
-    src: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_site_bootstrap_version }}.zip"
+    src: "{{ temp_dir }}/bootstrap-{{ pi_server_utils_page_templates_bootstrap_version }}.zip"
     remote_src: yes
     dest: "{{ web_root }}"
     owner: root

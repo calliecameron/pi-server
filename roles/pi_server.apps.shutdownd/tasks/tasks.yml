@@ -35,7 +35,6 @@
     dest_dir: "{{ pi_server_apps_shutdownd_etc }}"
     head_title: "#####1##### | {{ pi_server_hostname }}"
     body_title: "{{ pi_server_hostname }}"
-    bootstrap_version: "{{ pi_server_utils_page_templates_site_bootstrap_version }}"
     fragments_notify:
 
 - name: script

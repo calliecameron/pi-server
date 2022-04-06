@@ -6,5 +6,6 @@
       - dest_dir
       - head_title
       - body_title
-      - bootstrap_version
       - fragments_notify
+    export_vars:
+      - pi_server_utils_page_templates_bootstrap_version

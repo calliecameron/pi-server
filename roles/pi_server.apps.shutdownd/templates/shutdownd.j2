@@ -17,16 +17,18 @@ MAIN_PAGE_BODY = """
 <h1>%s</h1>
 <p>%s the Raspberry Pi?</p>
 <form action="%s" method="post">
-  <button class="btn btn-light"
-    style="margin-top: 10px; margin-bottom: 10px;"
-    type="submit" name="btn" value="btn">%s</button>
-  <script type="text/javascript">
-    document.write(
-      '<a class="btn btn-light" style="margin-top: 10px; ' +
-      'margin-bottom: 10px;" href="http://' +
-      window.location.hostname +
-      '/">Cancel</a>');
-  </script>
+  <div class="d-grid gap-2">
+    <button class="btn btn-outline-primary"
+      style="margin-top: 10px; margin-bottom: 10px;"
+      type="submit" name="btn" value="btn">%s</button>
+    <script type="text/javascript">
+      document.write(
+        '<a class="btn btn-outline-primary" style="margin-top: 10px; ' +
+        'margin-bottom: 10px;" href="http://' +
+        window.location.hostname +
+        '/">Cancel</a>');
+    </script>
+  </div>
 </form>
 """
 
@@ -56,7 +58,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
             page += ('<html><head><meta charset="utf-8">' +
                      f'<title>{title}</title></head><body>')
 
-        page += ('<div class="container"><div class="row"><div class="col">' +
+        page += ('<div class="container first-container"><div class="row"><div class="col">' +
                  body + '</div></div></div>')
 
         try:
