@@ -10,17 +10,6 @@
       {{ pi_server_storage_backup_partition }}
       n
 
-- name: 02-pi-core - 04-nginx - add certs repo
-  become: yes
-  apt_repository:
-    repo: "deb [trusted=yes check-date=no date-max-future=86400] http://{{ internet_ip }}:8080/ certs certs"
-- name: 02-pi-core - 04-nginx - install certs
-  become: yes
-  package: name="{{ inventory_hostname }}-server-certs"
-- name: 02-pi-core - 04-nginx
-  command:
-    cmd: "{{ pi_core }}/04-nginx"
-
 - name: 02-pi-core - 08-openvpn-server
   command:
     cmd: "{{ pi_core }}/08-openvpn-server"

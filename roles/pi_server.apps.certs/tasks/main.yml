@@ -1,0 +1,8 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: True
+    args: []
+    host_vars: []
+    export_vars:
+      - pi_server_apps_certs_https_key_reader_group

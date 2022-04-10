@@ -1,0 +1,10 @@
+- include_role:
+    name: pi_server.apps.certs
+
+- name: "add {{ user }} to HTTPS key readers"
+  become: yes
+  ansible.builtin.user:
+    name: "{{ user }}"
+    groups:
+      - "{{ pi_server_apps_certs_https_key_reader_group }}"
+    append: yes

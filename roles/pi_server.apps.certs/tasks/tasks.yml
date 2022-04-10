@@ -1,0 +1,103 @@
+- include_role:
+    name: pi_server.apps.main_site
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: https key readers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_certs_https_key_reader_group }}"
+
+- name: check that ca cert exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_ca }}"
+    msg: "CA cert ({{ pi_server_apps_certs_ca }}) doesn't exist"
+
+- name: check that crl exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_crl }}"
+    msg: "CRL ({{ pi_server_apps_certs_crl }}) doesn't exist"
+
+- name: check that https cert exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_https_cert }}"
+    msg: "HTTPS cert ({{ pi_server_apps_certs_https_cert }}) doesn't exist"
+
+- name: check that https key exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_https_key }}"
+    msg: "HTTPS key ({{ pi_server_apps_certs_https_key }}) doesn't exist"
+
+- name: ca cert
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_ca }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: crl
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_crl }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: https cert
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_https_cert }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: https key
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_https_key }}"
+    owner: root
+    group: "{{ pi_server_apps_certs_https_key_reader_group }}"
+    mode: ug=r,o=
+
+- name: copy ca cert
+  become: yes
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ pi_server_apps_certs_ca }}"
+    dest: /usr/local/share/ca-certificates/ca.crt
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload ca cert
+
+- name: ca crt in main site
+  become: yes
+  ansible.builtin.copy:
+    remote_src: yes
+    src: "{{ pi_server_apps_certs_ca }}"
+    dest: "{{ pi_server_apps_main_site_web_root }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- include_role:
+    name: pi_server.utils.main_site_fragment
+  vars:
+    src: fragment.html.j2
+    dest: certs.html

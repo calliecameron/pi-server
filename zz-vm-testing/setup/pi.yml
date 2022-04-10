@@ -53,6 +53,13 @@
       command: update-ca-certificates
       changed_when: false
 
+    - name: add certs repo
+      apt_repository:
+        repo: "deb [trusted=yes check-date=no date-max-future=86400] http://{{ internet_ip }}:8080/ certs certs"
+
+    - name: install certs
+      package: name="{{ inventory_hostname }}-server-certs"
+
     - include_role:
         name: pi_server.role_helpers
 

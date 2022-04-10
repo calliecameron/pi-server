@@ -1,0 +1,6 @@
+pi_server_apps_certs_etc: "{{ pi_server_etc }}/certs"
+pi_server_apps_certs_ca: "{{ pi_server_apps_certs_etc }}/ca.crt"
+pi_server_apps_certs_crl: "{{ pi_server_apps_certs_etc }}/crl"
+pi_server_apps_certs_https_cert: "{{ pi_server_apps_certs_etc }}/nginx.crt"
+pi_server_apps_certs_https_key: "{{ pi_server_apps_certs_etc }}/nginx.key"
+pi_server_apps_certs_https_key_reader_group: "pi-server-https-key-readers"
