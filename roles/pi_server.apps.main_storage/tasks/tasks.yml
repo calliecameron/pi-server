@@ -54,7 +54,7 @@
 - name: data mount dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_storage_data_mount_dir }}"
+    path: "{{ pi_server_apps_main_storage_data_mount_dir }}"
     state: directory
     owner: root
     group: root
@@ -63,7 +63,7 @@
 - name: backup mount dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_storage_backup_mount_dir }}"
+    path: "{{ pi_server_apps_main_storage_backup_mount_dir }}"
     state: directory
     owner: root
     group: root
@@ -87,7 +87,7 @@
   become: yes
   ansible.posix.mount:
     src: "UUID={{ data_uuid.stdout }}"
-    path: "{{ pi_server_apps_storage_data_mount_dir }}"
+    path: "{{ pi_server_apps_main_storage_data_mount_dir }}"
     fstype: ext4
     opts: defaults,noatime,nofail
     state: mounted
@@ -96,7 +96,7 @@
   become: yes
   ansible.posix.mount:
     src: "UUID={{ backup_uuid.stdout }}"
-    path: "{{ pi_server_apps_storage_backup_mount_dir }}"
+    path: "{{ pi_server_apps_main_storage_backup_mount_dir }}"
     fstype: ext4
     opts: defaults,noatime,nofail,noauto
     state: present

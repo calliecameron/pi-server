@@ -8,5 +8,5 @@
       - pi_server_storage_backup_partition
       - pi_server_storage_spinning_drive
     export_vars:
-      - pi_server_apps_storage_data_mount_dir
-      - pi_server_apps_storage_backup_mount_dir
+      - pi_server_apps_main_storage_data_mount_dir
+      - pi_server_apps_main_storage_backup_mount_dir

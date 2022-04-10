@@ -1,2 +1,0 @@
-pi_server_apps_storage_data_mount_dir: "/mnt/data"
-pi_server_apps_storage_backup_mount_dir: "/mnt/backup"

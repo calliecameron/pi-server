@@ -208,7 +208,7 @@ class Test02PiCore:
         test(hostname + '.local')
 
     @for_host_types('pi')
-    def test_storage(
+    def test_main_storage(
             self,
             hostname: str,
             hosts: Dict[str, Host]) -> None:
