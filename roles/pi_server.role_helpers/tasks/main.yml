@@ -2,6 +2,8 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
+    host_vars: []
     export_vars:
       - define_role
       - _define_role_internal

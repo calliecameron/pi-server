@@ -2,7 +2,9 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
     host_vars:
       - pi_server_fqdn
       - pi_server_lan_iface
+    export_vars: []
 # May optionally set host vars 'pi_server_zoneedit_user' and 'pi_server_zoneedit_password'

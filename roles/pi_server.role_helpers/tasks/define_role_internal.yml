@@ -1,13 +1,13 @@
 - name: validate args
   ansible.builtin.fail:
     msg: "Expected arg '{{ item }}' is not set"
-  loop: "{{ args|default([]) }}"
+  loop: "{{ args }}"
   when: lookup('vars', item, default='__undefined__') == '__undefined__'
 
 - name: validate host vars
   ansible.builtin.fail:
     msg: "Expected host var '{{ item }}' is not set; set it in your inventory"
-  loop: "{{ host_vars|default([]) }}"
+  loop: "{{ host_vars }}"
   when: lookup('vars', item, default='__undefined__') == '__undefined__'
 
 - name: run tasks
@@ -16,7 +16,7 @@
 - name: export vars
   ansible.builtin.set_fact:
     "{{ item }}": "{{ lookup('vars', item) }}"
-  loop: "{{ export_vars|default([]) }}"
+  loop: "{{ export_vars }}"
 
 - name: mark done
   ansible.builtin.set_fact:

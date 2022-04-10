@@ -9,3 +9,5 @@
       - gid
       - web_root
       - host_port
+    host_vars: []
+    export_vars: []

@@ -2,6 +2,7 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
     host_vars:
       - pi_server_email_target
       - pi_server_email_smtp_server

@@ -7,3 +7,5 @@
       - owner
       - group
       - mode
+    host_vars: []
+    export_vars: []

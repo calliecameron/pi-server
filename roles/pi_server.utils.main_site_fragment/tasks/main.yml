@@ -5,3 +5,5 @@
     args:
       - src
       - dest
+    host_vars: []
+    export_vars: []

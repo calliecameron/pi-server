@@ -5,3 +5,5 @@
     args:
       - src
       - job
+    host_vars: []
+    export_vars: []

@@ -7,5 +7,6 @@
       - head_title
       - body_title
       - fragments_notify
+    host_vars: []
     export_vars:
       - pi_server_utils_page_templates_bootstrap_version

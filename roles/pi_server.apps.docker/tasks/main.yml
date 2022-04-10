@@ -2,5 +2,7 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
+    host_vars: []
     export_vars:
       - pi_server_apps_docker_metrics_port

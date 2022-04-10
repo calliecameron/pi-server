@@ -6,3 +6,5 @@
       - job
       - host
       - port
+    host_vars: []
+    export_vars: []

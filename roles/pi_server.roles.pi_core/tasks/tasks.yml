@@ -17,4 +17,4 @@
     name: pi_server.apps.shutdownd
 
 - include_role:
-    name: pi_server.apps.storage
+    name: pi_server.apps.main_storage

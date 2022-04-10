@@ -2,6 +2,7 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
     host_vars:
       - pi_server_storage_drive
       - pi_server_storage_data_partition

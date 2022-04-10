@@ -10,3 +10,5 @@
       - body_title
       - favicon_basename
       - fragments_notify
+    host_vars: []
+    export_vars: []

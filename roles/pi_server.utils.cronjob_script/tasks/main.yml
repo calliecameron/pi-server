@@ -8,3 +8,5 @@
       - dest_dir
       - user
       # may optionally set 'conflicts'
+    host_vars: []
+    export_vars: []

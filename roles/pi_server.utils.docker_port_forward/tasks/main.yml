@@ -6,3 +6,5 @@
       - compose_file
       - service
       - container_port
+    host_vars: []
+    export_vars: []

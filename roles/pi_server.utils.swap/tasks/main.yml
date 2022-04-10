@@ -2,5 +2,7 @@
   include_tasks: "{{ define_role }}"
   vars:
     run_once: True
+    args: []
     host_vars:
       - pi_server_utils_swap_size_mb
+    export_vars: []
