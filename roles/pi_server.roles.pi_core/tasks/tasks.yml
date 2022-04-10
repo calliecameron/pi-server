@@ -24,3 +24,6 @@
 
 - include_role:
     name: pi_server.apps.certs
+
+- include_role:
+    name: pi_server.apps.backup

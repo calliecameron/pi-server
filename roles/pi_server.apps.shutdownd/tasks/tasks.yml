@@ -23,7 +23,7 @@
   become: yes
   ansible.builtin.template:
     src: sudoers.j2
-    dest: "/etc/sudoers.d/pi-server-shutdownd"
+    dest: "/etc/sudoers.d/{{ pi_server_apps_shutdownd_user }}"
     owner: root
     group: root
     mode: ug=r,o=

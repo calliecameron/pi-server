@@ -6,7 +6,7 @@
 
 config_version	1.2
 
-snapshot_root	@@@@@1@@@@@/
+snapshot_root	{{ pi_server_apps_backup_main_dir }}/
 no_create_root	1
 
 cmd_cp				/bin/cp
@@ -30,5 +30,5 @@ link_dest	1
 use_lazy_deletes	1
 
 # Backup points
-backup	@@@@@2@@@@@/	@@@@@3@@@@@/
-backup	@@@@@4@@@@@/	@@@@@3@@@@@/
+backup	{{ pi_server_apps_main_data_main_dir }}/	{{ pi_server_hostname }}/
+backup	{{ pi_server_apps_main_data_config_dir }}/	{{ pi_server_hostname }}/

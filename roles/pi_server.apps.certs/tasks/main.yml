@@ -5,4 +5,8 @@
     args: []
     host_vars: []
     export_vars:
+      - pi_server_apps_certs_etc
+      - pi_server_apps_certs_https_key
       - pi_server_apps_certs_https_key_reader_group
+      - pi_server_apps_certs_deployment_key
+      - pi_server_apps_certs_deployment_key_reader_group

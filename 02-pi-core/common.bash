@@ -9,9 +9,6 @@ if [ -z "${SKIP_OS_CHECK}" ]; then
     fi
 fi
 
-export PI_SERVER_BACKUP_MAIN_DIR="${PI_SERVER_BACKUP_DIR}/main"
-export PI_SERVER_BACKUP_GIT_DIR="${PI_SERVER_BACKUP_DIR}/git"
-
 export PI_SERVER_LAN_NETWORK_FILE="${PI_SERVER_DIR}/lan-network-addr"
 # shellcheck disable=SC2155
 export PI_SERVER_LAN_NETWORK="$(get-pi-server-param "${PI_SERVER_LAN_NETWORK_FILE}")"
@@ -28,12 +25,3 @@ export PI_SERVER_OPENVPN_NIGHTLY_CONFIG="${PI_SERVER_DIR}/openvpn-nightly-config
 export PI_SERVER_OPENVPN_NIGHTLY_LOG="${PI_SERVER_DIR}/openvpn-nightly.log"
 export PI_SERVER_OPENVPN_NIGHTLY_SCRIPT="${PI_SERVER_DIR}/openvpn-nightly"
 export PI_SERVER_OPENVPN_LOGIN_EMAIL_SCRIPT="${PI_SERVER_DIR}/openvpn-email-on-login"
-
-export PI_SERVER_BACKUP_SCRIPT_DIR="${PI_SERVER_DIR}/backup"
-export PI_SERVER_BACKUP_LAST_RUN="${PI_SERVER_BACKUP_DIR}/last-run-date.txt"
-# shellcheck disable=SC2155
-export PI_SERVER_BACKUP_CONFIG_DIR="${PI_SERVER_DATA_MAIN_DIR}/$(hostname)-backup-config"
-export PI_SERVER_BACKUP_GIT_CONFIG="${PI_SERVER_BACKUP_CONFIG_DIR}/git-backup-configuration.txt"
-export PI_SERVER_BACKUP_GIT_SSH="${PI_SERVER_BACKUP_SCRIPT_DIR}/git-ssh"
-export PI_SERVER_DEPLOYMENT_KEY="${PI_SERVER_CERT_DIR}/deployment-key"
-export PI_SERVER_DEPLOYMENT_KEY_PUB="${PI_SERVER_CERT_DIR}/deployment-key.pub"

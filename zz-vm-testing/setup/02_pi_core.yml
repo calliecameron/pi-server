@@ -12,9 +12,3 @@
     stdin: |
       y
       y
-
-- name: 02-pi-core - 09-backup
-  command:
-    cmd: "{{ pi_core }}/09-backup"
-    stdin: |
-      y

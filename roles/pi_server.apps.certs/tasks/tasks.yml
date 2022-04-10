@@ -15,6 +15,11 @@
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_https_key_reader_group }}"
 
+- name: deployment key readers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_certs_deployment_key_reader_group }}"
+
 - name: check that ca cert exists
   include_role:
     name: pi_server.utils.require_file
@@ -42,6 +47,20 @@
   vars:
     path: "{{ pi_server_apps_certs_https_key }}"
     msg: "HTTPS key ({{ pi_server_apps_certs_https_key }}) doesn't exist"
+
+- name: check that deployment public key exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_deployment_key_pub }}"
+    msg: "deployment public key ({{ pi_server_apps_certs_deployment_key_pub }}) doesn't exist"
+
+- name: check that deployment key exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_deployment_key }}"
+    msg: "deployment key ({{ pi_server_apps_certs_deployment_key }}) doesn't exist"
 
 - name: ca cert
   become: yes
@@ -75,6 +94,22 @@
     group: "{{ pi_server_apps_certs_https_key_reader_group }}"
     mode: ug=r,o=
 
+- name: deployment public key
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_deployment_key_pub }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: deployment key
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_deployment_key }}"
+    owner: root
+    group: "{{ pi_server_apps_certs_deployment_key_reader_group }}"
+    mode: ug=r,o=
+
 - name: copy ca cert
   become: yes
   ansible.builtin.copy:
@@ -94,7 +129,7 @@
     dest: "{{ pi_server_apps_main_site_web_root }}"
     owner: root
     group: root
-    mode: a=r
+    mode: u=rw,go=r
 
 - include_role:
     name: pi_server.utils.main_site_fragment

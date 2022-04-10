@@ -1,0 +1,69 @@
+#!/bin/bash
+# Main backup.
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+LAST_RUN_FILE='{{ pi_server_apps_backup_last_run }}'
+DATA_DIR='{{ pi_server_apps_main_data_main_dir }}'
+BACKUP_PARTITION='{{ pi_server_apps_main_storage_backup_mount_dir }}'
+
+function cleanup() {
+    sync
+    if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
+        umount "${BACKUP_PARTITION}"
+    fi
+}
+
+function error() {
+    echo "ERROR:" "${@}"
+    cleanup
+    exit 1
+}
+
+if [ ! -d "${DATA_DIR}" ]; then
+    error 'data directory does not exist'
+fi
+
+if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
+    if ! mount "${BACKUP_PARTITION}" &>/dev/null; then
+        error 'cannot mount backup partition'
+    fi
+fi
+
+TODAY="$(date '+%Y-%m-%d')"
+DAY_OF_WEEK="$(date '+%u')"
+DAY_OF_MONTH="$(date '+%d')"
+
+if [ ! -f "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
+    echo "${TODAY}" >"${LAST_RUN_FILE}"
+
+    if rsnapshot daily; then
+        echo 'Daily backup succeeded'
+    else
+        error 'Daily backup failed'
+    fi
+
+    if [ "${DAY_OF_WEEK}" == '1' ]; then
+        if rsnapshot weekly; then
+            echo 'Weekly backup succeeded'
+        else
+            error 'weekly backup failed'
+        fi
+    fi
+
+    if [ "${DAY_OF_MONTH}" == '01' ]; then
+        if rsnapshot monthly; then
+            echo 'Monthly backup succeeded'
+        else
+            error 'monthly backup failed'
+        fi
+    fi
+
+    sync
+else
+    echo 'Already backed up today; nothing to do'
+fi
+
+cleanup
