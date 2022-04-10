@@ -228,41 +228,33 @@ class Test02PiCore:
             assert backup.filesystem == 'ext4'
             assert backup.device == '/dev/sdc2'
 
-    # @for_host_types('pi')
-    # def test_07_storage_directories(
-    #         self,
-    #         hostname: str,
-    #         hosts: Dict[str, Host]) -> None:
-    #     host = hosts[hostname]
+    @for_host_types('pi')
+    def test_main_data(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
 
-    #     assert host.file('/mnt/data/pi-server-data/config').exists
-    #     assert host.file('/mnt/data/pi-server-data/config').user == 'root'
-    #     assert host.file('/mnt/data/pi-server-data/config').group == 'root'
+        assert host.file('/mnt/data/pi-server-data/config').exists
+        assert host.file('/mnt/data/pi-server-data/config').user == 'root'
+        assert host.file('/mnt/data/pi-server-data/config').group == 'root'
 
-    #     assert host.file('/mnt/data/pi-server-data/data').exists
-    #     assert host.file('/mnt/data/pi-server-data/data').user == 'www-data'
-    #     assert host.file('/mnt/data/pi-server-data/data').group == 'www-data'
+        assert host.file('/mnt/data/pi-server-data/data').exists
+        assert host.file('/mnt/data/pi-server-data/data').user == 'pi-server-data'
+        assert host.file('/mnt/data/pi-server-data/data').group == 'pi-server-data'
 
-    #     assert host.file('/mnt/data/pi-server-data/data-no-backups').exists
-    #     assert host.file('/mnt/data/pi-server-data/data-no-backups').user == 'www-data'
-    #     assert host.file('/mnt/data/pi-server-data/data-no-backups').group == 'www-data'
+        assert host.file('/mnt/data/pi-server-data/data-no-backups').exists
+        assert host.file('/mnt/data/pi-server-data/data-no-backups').user == 'pi-server-data'
+        assert host.file('/mnt/data/pi-server-data/data-no-backups').group == 'pi-server-data'
 
-    #     assert host.file('/mnt/data/scratch').exists
-    #     assert host.file('/mnt/data/scratch').user == 'vagrant'
-    #     assert host.file('/mnt/data/scratch').group == 'vagrant'
+        assert host.file('/mnt/data/scratch').exists
+        assert host.file('/mnt/data/scratch').user == 'vagrant'
+        assert host.file('/mnt/data/scratch').group == 'vagrant'
 
-    #     with host.mount_backup_dir():
-    #         assert host.file('/mnt/backup/pi-server-backup/main').exists
-    #         assert host.file('/mnt/backup/pi-server-backup/main').user == 'root'
-    #         assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
-
-    #         assert host.file('/mnt/backup/pi-server-backup/git').exists
-    #         assert host.file('/mnt/backup/pi-server-backup/git').user == 'www-data'
-    #         assert host.file('/mnt/backup/pi-server-backup/git').group == 'www-data'
-
-    #         assert host.file('/mnt/backup/pi-server-backup/email').exists
-    #         assert host.file('/mnt/backup/pi-server-backup/email').user == 'root'
-    #         assert host.file('/mnt/backup/pi-server-backup/email').group == 'root'
+        with host.mount_backup_dir():
+            assert host.file('/mnt/backup/pi-server-backup').exists
+            assert host.file('/mnt/backup/pi-server-backup').user == 'root'
+            assert host.file('/mnt/backup/pi-server-backup').group == 'root'
 
     # @for_host_types('pi')
     # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
@@ -284,6 +276,18 @@ class Test02PiCore:
     #     backup_git_root = os.path.join(backup_root, 'git')
     #     data_root = '/mnt/data/pi-server-data/data'
     #     config_root = '/mnt/data/pi-server-data/config'
+        # with host.mount_backup_dir():
+        #     assert host.file('/mnt/backup/pi-server-backup/main').exists
+        #     assert host.file('/mnt/backup/pi-server-backup/main').user == 'root'
+        #     assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
+
+            # assert host.file('/mnt/backup/pi-server-backup/git').exists
+            # assert host.file('/mnt/backup/pi-server-backup/git').user == 'www-data'
+            # assert host.file('/mnt/backup/pi-server-backup/git').group == 'www-data'
+
+            # assert host.file('/mnt/backup/pi-server-backup/email').exists
+            # assert host.file('/mnt/backup/pi-server-backup/email').user == 'root'
+            # assert host.file('/mnt/backup/pi-server-backup/email').group == 'root'
 
     #     def main_backup_file(path: File, backup: str) -> File:
     #         return host.file(

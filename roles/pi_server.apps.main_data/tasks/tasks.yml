@@ -1,0 +1,116 @@
+- include_role:
+    name: pi_server.apps.main_storage
+
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_main_data_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+
+- name: readers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_main_data_reader_group }}"
+
+- name: data dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: config dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: backed-up data dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_main_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
+    mode: u=rwx,go=
+
+- name: backed-up data dir ACLs
+  become: yes
+  ansible.posix.acl:
+    path: "{{ pi_server_apps_main_data_main_dir }}"
+    default: yes
+    entity: "{{ pi_server_apps_main_data_reader_group }}"
+    etype: group
+    permissions: r
+    state: present
+
+- name: non-backed-up data dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
+    mode: u=rwx,go=
+
+- name: non-backed-up data dir ACLs
+  become: yes
+  ansible.posix.acl:
+    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
+    default: yes
+    entity: "{{ pi_server_apps_main_data_reader_group }}"
+    etype: group
+    permissions: r
+    state: present
+
+- name: get non-root user
+  become: no
+  ansible.builtin.command:
+      cmd: "id -nu"
+  register: scratch_user
+  changed_when: false
+
+- name: get non-root group
+  become: no
+  ansible.builtin.command:
+      cmd: "id -ng"
+  register: scratch_group
+  changed_when: false
+
+- name: scratch dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_scratch_dir }}"
+    state: directory
+    owner: "{{ scratch_user.stdout }}"
+    group: "{{ scratch_group.stdout }}"
+    mode: u=rwx,go=
+
+- name: mount backup partition
+  become: yes
+  ansible.builtin.command:
+    cmd: "mount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
+  changed_when: false
+
+- name: backup dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_main_data_backup_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: unmount backup partition
+  become: yes
+  ansible.builtin.command:
+    cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
+  changed_when: false

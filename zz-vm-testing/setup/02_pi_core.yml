@@ -21,10 +21,6 @@
   command:
     cmd: "{{ pi_core }}/04-nginx"
 
-- name: 02-pi-core - 07-storage-directories
-  command:
-    cmd: "{{ pi_core }}/07-storage-directories"
-
 - name: 02-pi-core - 08-openvpn-server
   command:
     cmd: "{{ pi_core }}/08-openvpn-server"

@@ -3,6 +3,16 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
 source "${DIR}/common.bash" &&
 
+#################
+sudo mkdir -p "${PI_SERVER_BACKUP_MAIN_DIR}" "${PI_SERVER_BACKUP_GIT_DIR}" "${PI_SERVER_BACKUP_EMAIL_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_MAIN_DIR}" &&
+
+sudo chown www-data:www-data "${PI_SERVER_BACKUP_GIT_DIR}" &&
+sudo chmod go-rwx "${PI_SERVER_BACKUP_GIT_DIR}" &&
+
+# TODO correct permissions on email backup dir
+#################
+
 
 sudo apt-get update &&
 sudo apt-get -y install rsnapshot || exit 1

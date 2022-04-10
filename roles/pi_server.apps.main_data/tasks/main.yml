@@ -1,0 +1,13 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    run_once: True
+    args: []
+    host_vars: []
+    export_vars:
+      - pi_server_apps_main_data_user
+      - pi_server_apps_main_data_reader_group
+      - pi_server_apps_main_data_config_dir
+      - pi_server_apps_main_data_main_dir
+      - pi_server_apps_main_data_no_backup_dir
+      - pi_server_apps_main_data_backup_dir

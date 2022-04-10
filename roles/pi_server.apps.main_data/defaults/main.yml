@@ -1,0 +1,10 @@
+pi_server_apps_main_data_user: "pi-server-data"
+pi_server_apps_main_data_reader_group: "pi-server-data-readers"
+
+pi_server_apps_main_data_dir: "{{ pi_server_apps_main_storage_data_mount_dir }}/pi-server-data"
+pi_server_apps_main_data_config_dir: "{{ pi_server_apps_main_data_dir }}/config"
+pi_server_apps_main_data_main_dir: "{{ pi_server_apps_main_data_dir }}/data"
+pi_server_apps_main_data_no_backup_dir: "{{ pi_server_apps_main_data_dir }}/data-no-backups"
+pi_server_apps_main_data_scratch_dir: "{{ pi_server_apps_main_storage_data_mount_dir }}/scratch"
+
+pi_server_apps_main_data_backup_dir: "{{ pi_server_apps_main_storage_backup_mount_dir }}/pi-server-backup"
