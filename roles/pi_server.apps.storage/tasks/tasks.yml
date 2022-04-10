@@ -1,0 +1,117 @@
+- include_role:
+    name: pi_server.base
+
+- name: fail if data and backup partitions are the same
+  ansible.builtin.fail:
+    msg: data and backup partitions are the same
+  when: pi_server_storage_data_partition == pi_server_storage_backup_partition
+
+- name: check that storage drive exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_storage_drive }}"
+    msg: "storage drive ({{ pi_server_storage_drive }}) doesn't exist"
+
+- name: check that data partition exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}"
+    msg: "data partition ({{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}) doesn't exist"
+
+- name: check that backup partition exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}"
+    msg: "backup partition ({{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}) doesn't exist"
+
+- name: get data partition filesystem
+  become: yes
+  ansible.builtin.shell:
+    cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}' -o export | grep '^TYPE' | sed 's/^TYPE=//g'"
+  register: data_fs
+  changed_when: false
+
+- name: check data partition filesystem
+  ansible.builtin.fail:
+    msg: "data partition ({{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}) is not ext4 (got '{{ data_fs.stdout }}')"
+  when: data_fs.stdout != "ext4"
+
+- name: get backup partition filesystem
+  become: yes
+  ansible.builtin.shell:
+    cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}' -o export | grep '^TYPE' | sed 's/^TYPE=//g'"
+  register: backup_fs
+  changed_when: false
+
+- name: check backup partition filesystem
+  ansible.builtin.fail:
+    msg: "backup partition ({{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}) is not ext4 (got '{{ backup_fs.stdout }}')"
+  when: backup_fs.stdout != "ext4"
+
+- name: data mount dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_storage_data_mount_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: backup mount dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_storage_backup_mount_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: get data partition uuid
+  become: yes
+  ansible.builtin.shell:
+    cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}' -o export | grep '^UUID' | sed 's/^UUID=//g'"
+  register: data_uuid
+  changed_when: false
+
+- name: get backup partition uuid
+  become: yes
+  ansible.builtin.shell:
+    cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}' -o export | grep '^UUID' | sed 's/^UUID=//g'"
+  register: backup_uuid
+  changed_when: false
+
+- name: data partition fstab
+  become: yes
+  ansible.posix.mount:
+    src: "UUID={{ data_uuid.stdout }}"
+    path: "{{ pi_server_apps_storage_data_mount_dir }}"
+    fstype: ext4
+    opts: defaults,noatime,nofail
+    state: mounted
+
+- name: backup partition fstab
+  become: yes
+  ansible.posix.mount:
+    src: "UUID={{ backup_uuid.stdout }}"
+    path: "{{ pi_server_apps_storage_backup_mount_dir }}"
+    fstype: ext4
+    opts: defaults,noatime,nofail,noauto
+    state: present
+
+- name: install hdparm
+  become: yes
+  ansible.builtin.package:
+    name: hdparm
+    state: present
+
+- name: hdparm config
+  become: yes
+  ansible.builtin.template:
+    src: hdparm.conf.j2
+    dest: /etc/hdparm.conf
+    owner: root
+    group: root
+    mode: a=r

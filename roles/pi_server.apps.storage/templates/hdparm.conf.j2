@@ -1,0 +1,7 @@
+quiet
+
+{% if pi_server_storage_spinning_drive == 'y' %}
+{{ pi_server_storage_drive }} {
+    spindown_time = 242
+}
+{% endif %}

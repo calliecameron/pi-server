@@ -13,31 +13,31 @@
 
     - name: pi - partition external storage
       command:
-        creates: "{{ storage_drive_dev }}{{ storage_data_partition }}"
-        cmd: /sbin/sfdisk "{{ storage_drive_dev }}"
+        creates: "{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}"
+        cmd: /sbin/sfdisk "{{ pi_server_storage_drive }}"
         stdin: |
           ,50MiB
           ,
 
     - name: pi - check data partition is formatted
-      shell: file -s "{{ storage_drive_dev }}{{ storage_data_partition }}" | grep ext4
+      shell: file -s "{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}" | grep ext4
       register: data_partition_formatted
       failed_when: False
       changed_when: False
 
     - name: pi - format data partition
       when: data_partition_formatted.rc != 0
-      command: mkfs.ext4 "{{ storage_drive_dev }}{{ storage_data_partition }}"
+      command: mkfs.ext4 "{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}"
 
     - name: pi - check backup partition is formatted
-      shell: file -s "{{ storage_drive_dev }}{{ storage_backup_partition }}" | grep ext4
+      shell: file -s "{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}" | grep ext4
       register: backup_partition_formatted
       failed_when: False
       changed_when: False
 
     - name: pi - format backup partition
       when: backup_partition_formatted.rc != 0
-      command: mkfs.ext4 "{{ storage_drive_dev }}{{ storage_backup_partition }}"
+      command: mkfs.ext4 "{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}"
 
     - name: zoneedit in /etc/hosts
       lineinfile:
@@ -51,6 +51,7 @@
 
     - name: install mockserver CA cert
       command: update-ca-certificates
+      changed_when: false
 
     - include_role:
         name: pi_server.role_helpers

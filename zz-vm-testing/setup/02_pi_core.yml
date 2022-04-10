@@ -5,9 +5,9 @@
     stdin: |
       {{ pi_lan_mask }}
       {{ pi_vpn_mask }}
-      {{ storage_drive_dev }}
-      {{ storage_data_partition }}
-      {{ storage_backup_partition }}
+      {{ pi_server_storage_drive }}
+      {{ pi_server_storage_data_partition }}
+      {{ pi_server_storage_backup_partition }}
       n
 
 - name: 02-pi-core - 04-nginx - add certs repo
@@ -20,18 +20,6 @@
 - name: 02-pi-core - 04-nginx
   command:
     cmd: "{{ pi_core }}/04-nginx"
-
-- name: 02-pi-core - 06-storage-drives
-  command:
-    cmd: "{{ pi_core }}/06-storage-drives"
-    stdin: |
-      y
-      y
-      y
-- name: 02-pi-core - 06-storage-drives - mount
-  become: yes
-  command:
-    cmd: "mount -a"
 
 - name: 02-pi-core - 07-storage-directories
   command:
