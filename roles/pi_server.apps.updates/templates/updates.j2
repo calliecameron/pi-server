@@ -14,11 +14,11 @@ function warning() {
     echo "WARNING:" "${@}"
 }
 
-if ! apt-get update; then
+if ! sudo apt-get update; then
     error 'apt-get update failed'
 fi
 
-APT_OUTPUT="$(GIT_AUTHOR_NAME='root' GIT_AUTHOR_EMAIL="root@$(hostname)" GIT_COMMITTER_NAME='root' GIT_COMMITTER_EMAIL="root@$(hostname)" DEBIAN_FRONTEND='noninteractive' apt-get -y upgrade)"
+APT_OUTPUT="$(GIT_AUTHOR_NAME='root' GIT_AUTHOR_EMAIL="root@$(hostname)" GIT_COMMITTER_NAME='root' GIT_COMMITTER_EMAIL="root@$(hostname)" DEBIAN_FRONTEND='noninteractive' sudo apt-get -y upgrade)"
 EXIT_CODE="${?}"
 
 echo "${APT_OUTPUT}"
