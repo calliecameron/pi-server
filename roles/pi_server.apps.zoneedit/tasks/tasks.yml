@@ -11,13 +11,10 @@
     mode: u=rwx,go=rx
 
 - name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_zoneedit_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_zoneedit_user }}"
 
 - name: username file
   become: yes

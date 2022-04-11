@@ -2,13 +2,10 @@
     name: pi_server.apps.main_storage
 
 - name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_main_data_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_main_data_user }}"
 
 - name: readers group
   become: yes

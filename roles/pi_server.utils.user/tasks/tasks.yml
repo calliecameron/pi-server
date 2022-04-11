@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.base
+
+- name: "user '{{ user }}'"
+  become: yes
+  ansible.builtin.user:
+    name: "{{ user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no

@@ -47,13 +47,10 @@
     mode: a=rx
 
 - name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_cron_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_cron_user }}"
 
 - name: monitoring writer
   include_role:
