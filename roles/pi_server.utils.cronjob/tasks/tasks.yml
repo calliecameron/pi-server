@@ -4,4 +4,8 @@
 - include_role:
     name: pi_server.utils.cronjob_script
   vars:
-    dest_dir: "{{ pi_server_apps_cron_scripts_dir }}"
+    script_job: "{{ job }}"
+    script_src: "{{ src }}"
+    script_dest_dir: "{{ pi_server_apps_cron_scripts_dir }}"
+    script_user: "{{ user }}"
+    script_conflicts: "{{ conflicts | default([]) }}"

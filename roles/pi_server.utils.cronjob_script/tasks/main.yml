@@ -3,10 +3,10 @@
   vars:
     run_once: False
     args:
-      - job
-      - src
-      - dest_dir
-      - user
-      # may optionally set 'conflicts'
+      - script_job
+      - script_src
+      - script_dest_dir
+      - script_user
+      # may optionally set 'script_conflicts'
     host_vars: []
     export_vars: []

@@ -41,10 +41,10 @@
   include_role:
     name: pi_server.utils.cronjob_script
   vars:
-    job: zoneedit
-    src: zoneedit.j2
-    dest_dir: "{{ pi_server_apps_zoneedit_etc }}"
-    user: "{{ pi_server_apps_zoneedit_user }}"
+    script_job: zoneedit
+    script_src: zoneedit.j2
+    script_dest_dir: "{{ pi_server_apps_zoneedit_etc }}"
+    script_user: "{{ pi_server_apps_zoneedit_user }}"
 
 - name: hourly cronjob
   become: yes
