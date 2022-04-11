@@ -505,7 +505,7 @@ echo bar
                 host.check_output('systemctl daemon-reload')
 
     @for_host_types('pi', 'ubuntu')
-    def test_automatic_updates(
+    def test_updates(
             self, hostname: str,
             hosts: Dict[str, Host],
             addrs: Dict[str, str]) -> None:
