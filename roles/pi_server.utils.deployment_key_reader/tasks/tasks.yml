@@ -6,5 +6,5 @@
   ansible.builtin.user:
     name: "{{ user }}"
     groups:
-      - "{{ pi_server_apps_certs_deployment_key_reader_group }}"
+      - "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     append: yes

@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.base
+
+- name: "systemd service '{{ service }}'"
+  become: yes
+  ansible.builtin.template:
+    src: "{{ src }}"
+    dest: "/etc/systemd/system/{{ service }}.service"
+    owner: root
+    group: root
+    mode: a=r
+  notify: "{{ service_notify }}"

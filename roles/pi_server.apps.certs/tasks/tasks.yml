@@ -13,12 +13,12 @@
 - name: https key readers group
   become: yes
   ansible.builtin.group:
-    name: "{{ pi_server_apps_certs_https_key_reader_group }}"
+    name: "{{ pi_server_apps_certs_https_key_readers_group }}"
 
 - name: deployment key readers group
   become: yes
   ansible.builtin.group:
-    name: "{{ pi_server_apps_certs_deployment_key_reader_group }}"
+    name: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
 
 - name: check that ca cert exists
   include_role:
@@ -91,7 +91,7 @@
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_https_key }}"
     owner: root
-    group: "{{ pi_server_apps_certs_https_key_reader_group }}"
+    group: "{{ pi_server_apps_certs_https_key_readers_group }}"
     mode: ug=r,o=
 
 - name: deployment public key
@@ -107,7 +107,7 @@
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_deployment_key }}"
     owner: root
-    group: "{{ pi_server_apps_certs_deployment_key_reader_group }}"
+    group: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     mode: ug=r,o=
 
 - name: copy ca cert

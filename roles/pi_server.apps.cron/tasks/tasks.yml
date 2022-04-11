@@ -55,15 +55,12 @@
     group: root
     mode: a=rx
 
-- name: cron runner systemd unit
-  become: yes
-  ansible.builtin.template:
+- include_role:
+    name: pi_server.utils.systemd_service
+  vars:
     src: pi-server-cron.service.j2
-    dest: /etc/systemd/system/pi-server-cron.service
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload cron runner
+    service: pi-server-cron
+    service_notify: "reload cron runner"
 
 - name: crontab
   become: yes

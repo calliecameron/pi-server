@@ -4,7 +4,7 @@
     path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
     state: directory
     owner: root
-    group: "{{ pi_server_apps_monitoring_writer_group }}"
+    group: "{{ pi_server_apps_monitoring_writers_group }}"
     mode: u=rwx,g=rwxt,o=rx
 
 - name: install acl

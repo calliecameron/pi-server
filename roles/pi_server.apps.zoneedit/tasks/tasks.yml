@@ -63,9 +63,3 @@
     owner: root
     group: root
     mode: a=rx
-
-- name: monitoring writer
-  include_role:
-    name: pi_server.utils.monitoring_writer
-  vars:
-    user: "{{ pi_server_apps_zoneedit_user }}"

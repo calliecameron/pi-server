@@ -6,5 +6,5 @@
   ansible.builtin.user:
     name: "{{ user }}"
     groups:
-      - "{{ pi_server_apps_monitoring_writer_group }}"
+      - "{{ pi_server_apps_monitoring_writers_group }}"
     append: yes

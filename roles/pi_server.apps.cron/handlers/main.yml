@@ -3,3 +3,4 @@
   ansible.builtin.systemd:
     name: pi-server-cron
     daemon_reload: yes
+  listen: "reload cron runner"

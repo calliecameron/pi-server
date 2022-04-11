@@ -3,28 +3,30 @@
 
 - name: "cronjob '{{ job }}' script"
   become: yes
-  vars:
-    cron_wrapper_line: "source '{{ pi_server_apps_cron_wrapper }}' -u '{{ user }}'{% for c in conflicts | default([]) %} -c '{{ c }}'{% endfor %}"
   ansible.builtin.template:
     src: "{{ src }}"
     dest: "{{ dest_dir }}/{{ job }}"
     owner: root
     group: root
     mode: a=rx
-
-- name: "conjob '{{ job }}' conflicts"
   vars:
-    service: "{{ item }}"
+    cron_wrapper_line: "source '{{ pi_server_apps_cron_wrapper }}' -u '{{ user }}'{% for c in conflicts | default([]) %} -c '{{ c }}'{% endfor %}"
+
+- name: "cronjob '{{ job }}' conflicts"
   include_role:
     name: pi_server.utils.pause_on_cron
+  vars:
+    service: "{{ item }}"
   loop: "{{ conflicts | default([]) }}"
 
+- name: "cronjob '{{ job }}' monitoring writer"
+  include_role:
+    name: pi_server.utils.monitoring_writer
+
 - name: "cronjob '{{ job }}' systemd unit"
-  become: yes
-  ansible.builtin.template:
+  include_role:
+    name: pi_server.utils.systemd_service
+  vars:
     src: service.j2
-    dest: "/etc/systemd/system/pi-server-cron-{{ job }}.service"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload cronjobs
+    service: "pi-server-cron-{{ job }}"
+    service_notify: "reload cronjobs"

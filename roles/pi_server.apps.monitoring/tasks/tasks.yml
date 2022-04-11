@@ -20,7 +20,7 @@
 - name: writers group
   become: yes
   ansible.builtin.group:
-    name: "{{ pi_server_apps_monitoring_writer_group }}"
+    name: "{{ pi_server_apps_monitoring_writers_group }}"
 
 - name: var dir
   become: yes

@@ -113,14 +113,11 @@
     group: root
     mode: a=rx
 
-- name: sudoers
-  become: yes
-  ansible.builtin.template:
+- include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
     src: sudoers.j2
-    dest: "/etc/sudoers.d/{{ pi_server_apps_backup_git_user }}"
-    owner: root
-    group: root
-    mode: ug=r,o=
+    user: "{{ pi_server_apps_backup_git_user }}"
 
 - name: main cronjob
   include_role:

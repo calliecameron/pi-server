@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.base
+
+- name: sudoers
+  become: yes
+  ansible.builtin.template:
+    src: "{{ src }}"
+    dest: "/etc/sudoers.d/{{ user }}"
+    owner: root
+    group: root
+    mode: ug=r,o=

@@ -19,14 +19,11 @@
     shell: /usr/sbin/nologin
     create_home: no
 
-- name: sudoers
-  become: yes
-  ansible.builtin.template:
+- include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
     src: sudoers.j2
-    dest: "/etc/sudoers.d/{{ pi_server_apps_shutdownd_user }}"
-    owner: root
-    group: root
-    mode: ug=r,o=
+    user: "{{ pi_server_apps_shutdownd_user }}"
 
 - name: main templates
   include_role:
@@ -46,15 +43,12 @@
     group: root
     mode: a=rx
 
-- name: systemd unit
-  become: yes
-  ansible.builtin.template:
+- include_role:
+    name: pi_server.utils.systemd_service
+  vars:
     src: service.j2
-    dest: "/etc/systemd/system/{{ pi_server_apps_shutdownd_service }}.service"
-    owner: root
-    group: root
-    mode: a=r
-  notify: reload shutdownd
+    service: "{{ pi_server_apps_shutdownd_service }}"
+    service_notify: "reload shutdownd"
 
 - name: pause on cron
   include_role:
@@ -68,7 +62,7 @@
   vars:
     port: "{{ pi_server_apps_shutdownd_port }}"
 
-- name: monitorng
+- name: monitoring
   include_role:
     name: pi_server.utils.monitor_systemd_service
   vars:

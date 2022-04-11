@@ -11,3 +11,4 @@
     daemon_reload: yes
     enabled: yes
     state: restarted
+  listen: "reload webhook"

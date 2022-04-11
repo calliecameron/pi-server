@@ -1,5 +1,5 @@
 pi_server_apps_main_data_user: "pi-server-data"
-pi_server_apps_main_data_reader_group: "pi-server-data-readers"
+pi_server_apps_main_data_readers_group: "pi-server-data-readers"
 
 pi_server_apps_main_data_dir: "{{ pi_server_apps_main_storage_data_mount_dir }}/pi-server-data"
 pi_server_apps_main_data_config_dir: "{{ pi_server_apps_main_data_dir }}/config"
