@@ -1,0 +1,3 @@
+{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl restart *
+{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl stop *
+{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl start --wait *

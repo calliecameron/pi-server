@@ -331,10 +331,14 @@ echo bar
                             r"FINISHED RUNNING service 'pi-server-cron-cron1'") == 1
                         assert runner_log.count(
                             r"FINISHED RUNNING service 'pi-server-cron-cron2'") == 1
-                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-success.prom').user == 'root'
+                        assert collect_dir.file(
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-success.prom').user == 'pi-server-cron'
                         check_state('cron-runner', success=True)
 
                         cron1_log = journal.entries('pi-server-cron-cron1')
@@ -406,10 +410,14 @@ echo bar
                             r"FINISHED RUNNING service 'pi-server-cron-cron1'") == 1
                         assert runner_log.count(
                             r".*service 'pi-server-cron-cron2' failed") == 1
-                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-success.prom').user == 'root'
+                        assert collect_dir.file(
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-success.prom').user == 'pi-server-cron'
                         check_state('cron-runner', success=True)
 
                         cron1_log = journal.entries('pi-server-cron-cron1')
@@ -469,9 +477,12 @@ echo bar
                         assert runner_log.count(r'.*KILLED.*') == 0
                         assert runner_log.count(r'.*SUCCESS.*') == 0
                         assert runner_log.count(r'ERROR: running is disabled') == 1
-                        assert collect_dir.file('cron-cron-runner-state.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-start.prom').user == 'root'
-                        assert collect_dir.file('cron-cron-runner-stop.prom').user == 'root'
+                        assert collect_dir.file(
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                        assert collect_dir.file(
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
                         assert not collect_dir.file('cron-cron-runner-success.prom').exists
                         check_state('cron-runner', failure=True)
 

@@ -3,7 +3,8 @@
   vars:
     run_once: True
     args: []
-    host_vars: []
+    host_vars:
+      - pi_server_hostname
     export_vars:
       - pi_server_apps_cron_scripts_dir
       - pi_server_apps_cron_pause_dir

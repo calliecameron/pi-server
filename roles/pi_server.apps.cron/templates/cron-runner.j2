@@ -3,7 +3,7 @@
 
 set -eu
 
-source '{{ pi_server_apps_cron_wrapper }}' -u root
+source '{{ pi_server_apps_cron_wrapper }}' -u '{{ pi_server_apps_cron_user }}'
 
 PAUSE_DIR='{{ pi_server_apps_cron_pause_dir }}'
 SCRIPTS_DIR='{{ pi_server_apps_cron_scripts_dir }}'
@@ -19,7 +19,7 @@ function error() {
 function start-services() {
     echo 'Starting services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
-        if systemctl restart "$(basename "${line}")"; then
+        if sudo systemctl restart "$(basename "${line}")"; then
             echo "Started service '$(basename "${line}")'"
         else
             warning "failed to start service '$(basename "${line}")'"
@@ -31,7 +31,7 @@ function start-services() {
 function stop-services() {
     echo 'Stopping services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
-        if systemctl stop "$(basename "${line}")"; then
+        if sudo systemctl stop "$(basename "${line}")"; then
             echo "Stopped service '$(basename "${line}")'"
         else
             error "couldn't stop service '$(basename "${line}")'"
@@ -78,7 +78,7 @@ while read -r script; do
     fi
     SERVICE="pi-server-cron-${BASENAME}"
     echo "RUNNING service '${SERVICE}'"
-    if systemctl start --wait "${SERVICE}"; then
+    if sudo systemctl start --wait "${SERVICE}"; then
         echo "FINISHED RUNNING service '${SERVICE}'"
     else
         warning "service '${SERVICE}' failed"

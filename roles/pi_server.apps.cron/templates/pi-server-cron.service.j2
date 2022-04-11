@@ -1,7 +1,7 @@
 [Service]
 ExecStart={{ pi_server_apps_cron_runner }}
-User=root
-Group=root
+User={{ pi_server_apps_cron_user }}
+Group={{ pi_server_apps_cron_user }}
 
 [Install]
 WantedBy=multi-user.target

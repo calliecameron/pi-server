@@ -46,6 +46,28 @@
     group: root
     mode: a=rx
 
+- name: user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_cron_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+
+- name: monitoring writer
+  include_role:
+    name: pi_server.utils.monitoring_writer
+  vars:
+    user: "{{ pi_server_apps_cron_user }}"
+
+- name: sudoers
+  include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
+    src: sudoers.j2
+    user: "{{ pi_server_apps_cron_user }}"
+
 - name: cron runner
   become: yes
   ansible.builtin.template:
@@ -55,7 +77,8 @@
     group: root
     mode: a=rx
 
-- include_role:
+- name: systemd unit
+  include_role:
     name: pi_server.utils.systemd_service
   vars:
     src: pi-server-cron.service.j2
@@ -71,12 +94,14 @@
     group: root
     mode: u=rw,go=
 
-- include_role:
+- name: dashboard
+  include_role:
     name: pi_server.utils.custom_dashboard
   vars:
     src: cron.json
 
-- include_role:
+- name: alerts
+  include_role:
     name: pi_server.utils.custom_alerts
   vars:
     src: cron-alerts-custom.yml

@@ -4,4 +4,5 @@ pi_server_apps_cron_wrapper_internal: "{{ pi_server_apps_cron_etc }}/cron-wrappe
 pi_server_apps_cron_pause_dir: "{{ pi_server_apps_cron_etc }}/pause.d"
 pi_server_apps_cron_scripts_dir: "{{ pi_server_apps_cron_etc }}/cron.d"
 pi_server_apps_cron_runner: "{{ pi_server_apps_cron_etc }}/cron-runner"
+pi_server_apps_cron_user: "pi-server-cron"
 pi_server_apps_cron_disabled: "{{ pi_server_apps_cron_etc }}/disabled"
