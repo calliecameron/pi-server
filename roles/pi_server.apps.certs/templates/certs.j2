@@ -1,0 +1,47 @@
+#!/bin/bash
+# Check certs for expiry.
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+CRL='{{ pi_server_apps_certs_crl }}'
+OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
+OUTPUT_FILE="${OUTPUT_DIR}/certs.prom"
+TMP_FILE="${OUTPUT_FILE}.tmp"
+
+function warning() {
+    echo 'WARNING:' "${@}"
+}
+
+function write-timestamp() {
+    local CERT="${1:-}"
+    local TIMESTAMP="${2:-}"
+    if [ -z "${CERT}" ] || [ -z "${TIMESTAMP}" ]; then
+        warning 'missing args to write-timestamp'
+        return 0
+    fi
+
+    if printf "cert_expiry_time{job=\"certs\", cert=\"%s\"} %s\n" "$(basename "${CERT}")" "${TIMESTAMP}" >>"${TMP_FILE}"; then
+        echo "Wrote to '${TMP_FILE}' for cert '${CERT}'"
+    else
+        warning "failed to write to '${TMP_FILE}' for cert '${CERT}'"
+    fi
+    return 0
+}
+
+if ! : >"${TMP_FILE}"; then
+    warning "failed to initialize '${TMP_FILE}'"
+fi
+
+find '{{ pi_server_apps_certs_etc }}' -name '*.crt' | while read -r line; do
+    write-timestamp "${line}" "$(date --date="$(openssl x509 -enddate -noout -in "${line}" | cut -d= -f 2)" +%s)"
+done
+
+write-timestamp "${CRL}" "$(date --date="$(openssl crl -nextupdate -noout -in "${CRL}" | cut -d= -f 2)" +%s)"
+
+if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
+    echo "wrote metrics to '${OUTPUT_FILE}'"
+else
+    warning "failed to write to '${OUTPUT_FILE}'"
+fi

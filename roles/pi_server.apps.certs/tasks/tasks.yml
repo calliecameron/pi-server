@@ -10,6 +10,12 @@
     group: root
     mode: u=rwx,go=rx
 
+- name: user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_certs_user }}"
+
 - name: https key readers group
   become: yes
   ansible.builtin.group:
@@ -136,3 +142,11 @@
   vars:
     src: fragment.html.j2
     dest: certs.html
+
+- name: cronjob
+  include_role:
+    name: pi_server.utils.cronjob
+  vars:
+    job: certs
+    src: certs.j2
+    user: "{{ pi_server_apps_certs_user }}"

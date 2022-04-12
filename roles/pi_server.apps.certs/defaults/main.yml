@@ -1,4 +1,5 @@
 pi_server_apps_certs_etc: "{{ pi_server_etc }}/certs"
+pi_server_apps_certs_user: "pi-server-certs"
 pi_server_apps_certs_ca: "{{ pi_server_apps_certs_etc }}/ca.crt"
 pi_server_apps_certs_crl: "{{ pi_server_apps_certs_etc }}/crl"
 pi_server_apps_certs_https_cert: "{{ pi_server_apps_certs_etc }}/nginx.crt"
