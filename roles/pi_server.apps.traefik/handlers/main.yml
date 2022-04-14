@@ -1,0 +1,11 @@
+- name: reload traefik config file
+  include_tasks: config_file.yml
+
+- name: reload traefik compose file
+  include_tasks: compose_file.yml
+
+- name: reload traefik
+  become: yes
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_traefik_etc }}"
+    restarted: yes

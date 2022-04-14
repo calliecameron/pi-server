@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.apps.traefik
+
+- name: publish port
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_traefik_ports_file }}"
+    line: "{{ args.host_port }}:{{ args.container_port }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload traefik compose file

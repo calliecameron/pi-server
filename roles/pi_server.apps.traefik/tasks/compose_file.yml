@@ -1,0 +1,18 @@
+- name: get ports
+  become: yes
+  ansible.builtin.command:
+    cmd: "cat '{{ pi_server_apps_traefik_ports_file }}'"
+  register: raw_ports
+  changed_when: False
+
+- name: compose file
+  become: yes
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_traefik_docker_compose }}"
+    owner: root
+    group: root
+    mode: a=r
+  vars:
+    ports: "{{ raw_ports.stdout_lines }}"
+  notify: reload traefik

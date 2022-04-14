@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.apps.traefik
+
+- name: entrypoint
+  become: yes
+  ansible.builtin.template:
+    src: "{{ args.src }}"
+    dest: "{{ pi_server_apps_traefik_entrypoints_dir }}/{{ args.dest }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload traefik config file

@@ -20,54 +20,48 @@
     create_home: no
   register: traefik_user
 
-- name: docker proxy user
+- name: entrypoints dir
   become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_traefik_docker_proxy_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: docker_proxy_user
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_traefik_entrypoints_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
 
-- name: give docker proxy access to the docker socket
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_traefik_docker_proxy_user }}"
-    groups:
-      - docker
-    append: yes
-
-- name: config file
-  become: yes
-  ansible.builtin.template:
-    src: traefik.yml.j2
-    dest: "{{ pi_server_apps_traefik_config }}"
+- name: ports file
+  include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_traefik_ports_file }}"
     owner: root
     group: root
     mode: a=r
 
-- name: docker compose file
-  become: yes
-  ansible.builtin.template:
-    src: docker-compose.yml.j2
-    dest: "{{ pi_server_apps_traefik_docker_compose }}"
-    owner: root
-    group: root
-    mode: a=r
+- include_tasks: config_file.yml
+
+- include_tasks: compose_file.yml
 
 - name: network
   become: yes
   community.docker.docker_network:
     name: "{{ pi_server_apps_traefik_network }}"
-    
+
 - name: docker compose
   become: yes
   community.docker.docker_compose:
     project_src: "{{ pi_server_apps_traefik_etc }}"
 
-# - name: monitoring
-#   include_role:
-#     name: pi_server.apps.monitoring.monitor_docker_compose
-#   vars:
-#     compose_file: "{{ pi_server_apps_traefik_docker_compose }}"
+- name: monitor containers
+  include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_traefik_docker_compose }}"
+
+- name: scrape job
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
+  vars:
+    job: traefik
+    host: traefik
+    port: "{{ pi_server_apps_traefik_metrics_port }}"

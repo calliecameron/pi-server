@@ -1,8 +1,9 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 services:
-  docker_proxy:
+  traefik_docker_proxy:
     image: tecnativa/docker-socket-proxy
     restart: always
-    user: "{{ docker_proxy_user.uid }}:{{ docker_proxy_user.group }}"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
@@ -16,13 +17,18 @@ services:
     user: "{{ traefik_user.uid }}:{{ traefik_user.group }}"
     volumes:
       - "{{ pi_server_apps_traefik_config }}:/etc/traefik/traefik.yml"
+{% if ports %}
     ports:
-      - "80:8081"
+{% for port in ports %}
+      - "{{ port }}"
+{% endfor %}
+{% endif %}
     networks:
       - "{{ pi_server_apps_traefik_network }}"
       - traefik_docker_proxy
     labels:
       - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.entrypoints={{ pi_server_apps_traefik_control_panel_entrypoint }}"
       - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
       - "traefik.http.routers.dashboard.service=api@internal"
 

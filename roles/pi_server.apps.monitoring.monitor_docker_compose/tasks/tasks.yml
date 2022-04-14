@@ -2,7 +2,7 @@
     name: pi_server.apps.docker
 
 - include_role:
-    name: pi_server.apps.monitoring_base
+    name: pi_server.apps.monitoring.base
 
 - name: get container IDs
   become: yes

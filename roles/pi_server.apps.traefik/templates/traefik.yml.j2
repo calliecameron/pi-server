@@ -1,15 +1,28 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 global:
-  sendanonymoususage: false
+  checkNewVersion: false
+  sendAnonymousUsage: false
 
 api:
   dashboard: true
 
+pilot:
+  dashboard: false
+
+metrics:
+  prometheus:
+    entryPoint: traefik_metrics
+
 providers:
   docker:
-    endpoint: "tcp://docker-socket-proxy:2375"
+    endpoint: "tcp://traefik_docker_proxy:2375"
     network: "{{ pi_server_apps_traefik_network }}"
     exposedByDefault: false
 
 entrypoints:
-  web:
-    address: ":8081"
+  traefik_metrics:
+    address: ":{{ pi_server_apps_traefik_metrics_port }}"
+{% for line in entrypoint_lines %}
+  {{ line }}
+{% endfor %}
