@@ -13,8 +13,8 @@
 - include_role:
     name: pi_server.base.os_hardening
 
-# - include_role:
-#     name: pi_server.apps.email
+- include_role:
+    name: pi_server.apps.email
 
 # - include_role:
 #     name: pi_server.apps.ssh

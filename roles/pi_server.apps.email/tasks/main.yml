@@ -1,13 +1,14 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: True
-    args: []
-    host_vars:
+    _private: False
+    _run_once: True
+    _args: []
+    _host_vars:
       - pi_server_email_target
       - pi_server_email_smtp_server
       - pi_server_email_smtp_port
       - pi_server_fqdn
       - pi_server_lan_iface
-    export_vars:
+    _export_vars:
       - pi_server_apps_email_script
