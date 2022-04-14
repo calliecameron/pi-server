@@ -1,0 +1,17 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Testbed pi boot script
+
+source '{{ pi_server_testbed_base_helper }}'
+
+LAN_IFACE='{{ pi_server_lan_iface }}'
+
+function setup() {
+    # Vagrant's default route is through NAT, delete it first
+    ip route del default
+    ip route add default via '{{ pi_server_testbed_router_ip }}' dev "${LAN_IFACE}"
+}
+
+with-lock setup
+
+exit 0

@@ -1,0 +1,7 @@
+- hosts: all
+  tasks:
+    - include_role:
+        name: pi_server.role_helpers
+
+    - include_role:
+        name: pi_server.testbed.roles.ubuntu

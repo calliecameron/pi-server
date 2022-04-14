@@ -1,0 +1,28 @@
+- name: install java
+  become: yes
+  ansible.builtin.package:
+    name: openjdk-17-jre
+    state: present
+
+- name: mockserver jar
+  become: no
+  ansible.builtin.get_url:
+    url: https://search.maven.org/remotecontent?filepath=org/mock-server/mockserver-netty/5.13.2/mockserver-netty-5.13.2-shaded.jar
+    dest: /home/vagrant/mockserver.jar
+
+- name: install mockserver systemd unit
+  become: yes
+  ansible.builtin.copy:
+    src: mockserver.service
+    dest: /etc/systemd/system/mockserver.service
+    owner: root
+    group: root
+    mode: a=r
+
+- name: enable mockserver
+  become: yes
+  ansible.builtin.systemd:
+    name: mockserver
+    daemon_reload: yes
+    enabled: yes
+    state: started

@@ -1,0 +1,11 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: True
+    _args:
+      - boot_script
+    _host_vars: []
+    _export_vars:
+      - pi_server_testbed
+      - pi_server_testbed_base_root

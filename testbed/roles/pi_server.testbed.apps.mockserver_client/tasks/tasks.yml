@@ -1,0 +1,11 @@
+- name: fetch mockserver CA cert
+  become: yes
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/mock-server/mockserver/master/mockserver-core/src/main/resources/org/mockserver/socket/CertificateAuthorityCertificate.pem
+    dest: /usr/local/share/ca-certificates/mockserver.crt
+
+- name: install mockserver CA cert
+  become: yes
+  ansible.builtin.command:
+    cmd: update-ca-certificates
+  changed_when: false

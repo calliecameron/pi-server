@@ -1,0 +1,19 @@
+- include_role:
+    name: pi_server.testbed.base
+  vars:
+    boot_script: internet-boot.j2
+
+- include_role:
+    name: pi_server.testbed.apps.fakesmtp
+
+- include_role:
+    name: pi_server.testbed.apps.aptly
+
+- include_role:
+    name: pi_server.testbed.apps.mockserver
+
+- include_role:
+    name: pi_server.testbed.apps.ca
+
+- include_role:
+    name: pi_server.testbed.apps.git_server

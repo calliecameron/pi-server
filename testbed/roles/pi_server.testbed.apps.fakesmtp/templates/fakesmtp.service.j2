@@ -1,0 +1,14 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Unit]
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+ExecStart=/usr/local/lib/npm/bin/fake-smtp-server --smtp-port={{ pi_server_email_smtp_port }}
+
+[Install]
+WantedBy=multi-user.target

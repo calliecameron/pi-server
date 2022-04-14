@@ -1,0 +1,13 @@
+- include_role:
+    name: pi_server.testbed.base
+  vars:
+    boot_script: pi-boot.j2
+
+- name: default route
+  become: yes
+  ansible.builtin.template:
+    src: fakepi-default-route.j2
+    dest: /fakepi-default-route
+    owner: root
+    group: root
+    mode: a=r

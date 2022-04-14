@@ -1,0 +1,5 @@
+- name: zoneedit in /etc/hosts
+  become: yes
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ pi_server_testbed_internet_ip }} dynamic.zoneedit.com"

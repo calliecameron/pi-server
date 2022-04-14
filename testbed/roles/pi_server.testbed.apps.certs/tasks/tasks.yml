@@ -1,0 +1,10 @@
+- name: add certs repo
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "deb [trusted=yes check-date=no date-max-future=86400] http://{{ pi_server_testbed_internet_ip }}:8080/ certs certs"
+
+- name: install certs
+  become: yes
+  ansible.builtin.package:
+    name: "{{ pi_server_hostname }}-server-certs"
+    state: present

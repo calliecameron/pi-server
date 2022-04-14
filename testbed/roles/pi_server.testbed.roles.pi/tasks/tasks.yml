@@ -1,0 +1,29 @@
+- include_role:
+    name: pi_server.testbed.roles.pi_base
+
+- include_role:
+    name: pi_server.testbed.apps.storage
+
+- include_role:
+    name: pi_server.testbed.apps.zoneedit
+
+- include_role:
+    name: pi_server.testbed.apps.mockserver_client
+
+- include_role:
+    name: pi_server.testbed.apps.certs
+
+# - include_role:
+#     name: pi_server.roles.base
+
+# - include_role:
+#     name: pi_server.roles.pi_core
+
+#  - import_tasks: 03_openvpn_clients.yml
+#    become: no
+#
+#  - import_tasks: 04_syncthing.yml
+#    become: no
+#
+#  - import_tasks: 05_media_server.yml
+#    become: no

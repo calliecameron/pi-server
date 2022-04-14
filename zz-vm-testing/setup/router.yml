@@ -1,9 +1,0 @@
----
-- hosts: all
-  become: yes
-  vars_files:
-  - testbed_vars.yml
-  tasks:
-  - import_tasks: testbed_helper.yml
-    vars:
-      boot_script: router-boot.j2

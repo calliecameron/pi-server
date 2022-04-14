@@ -1,0 +1,4 @@
+- include_role:
+    name: pi_server.testbed.base
+  vars:
+    boot_script: router-boot.j2

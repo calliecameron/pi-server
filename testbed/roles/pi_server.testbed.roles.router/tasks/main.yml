@@ -1,0 +1,16 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: True
+    _args: []
+    _host_vars:
+      - pi_server_testbed_vagrant_iface
+      - pi_server_testbed_internet_iface
+      - pi_server_testbed_lan_iface
+      - pi_server_testbed_internet_ip
+      - pi_server_testbed_pi_ip
+      - pi_server_testbed_pi_vpn_mask
+      - pi_server_testbed_other_lan_mask
+      - pi_server_testbed_other_vpn_mask
+    _export_vars: []

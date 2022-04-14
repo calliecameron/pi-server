@@ -1,0 +1,2 @@
+pi_server_testbed_apps_ca_out: "/home/vagrant/ca"
+pi_server_testbed_apps_ca_scripts: "{{ pi_server_testbed_base_root }}/00-ca"

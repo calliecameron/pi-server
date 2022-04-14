@@ -1,0 +1,15 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Unit]
+After=network.target
+StartLimitIntervalSec=0
+
+[Service]
+Type=simple
+Restart=always
+RestartSec=1
+User=root
+ExecStart=/usr/bin/java -jar /home/vagrant/mockserver.jar -serverPort 443
+
+[Install]
+WantedBy=multi-user.target
