@@ -1,12 +1,12 @@
 - include_role:
     name: pi_server.apps.firewall
 
-- name: customise firewall
-  include_role:
-    name: pi_server.utils.extra_firewall_rules
-  vars:
-    src: docker.rules.j2
-    dest: docker.rules
+# - name: customise firewall
+#   include_role:
+#     name: pi_server.apps.firewall.extra_rules
+#   vars:
+#     src: docker.rules.j2
+#     dest: docker.rules
 
 - name: install docker
   include_role:
@@ -18,9 +18,6 @@
     docker_install_compose: False
     docker_daemon_options:
       log-driver: journald
-      default-address-pools:
-        - base: "{{ pi_server_apps_docker_address_pool }}"
-          size: 24
       metrics-addr: "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}"
       experimental: true
 
@@ -42,15 +39,17 @@
     name: docker
     umask: "0022"
 
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape docker metrics
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: docker
     host: host.docker.internal
     port: "{{ pi_server_apps_docker_metrics_port }}"
 
-- include_role:
-    name: pi_server.utils.monitor_systemd_service
+- name: monitor docker
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: docker
 

@@ -1,8 +1,8 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: True
-    args: []
-    host_vars: []
-    export_vars:
-      - pi_server_apps_docker_metrics_port
+    _private: False
+    _run_once: True
+    _args: []
+    _host_vars: []
+    _export_vars: []
