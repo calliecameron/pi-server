@@ -1,22 +1,55 @@
 - name: validate args
   ansible.builtin.fail:
     msg: "Expected arg '{{ item }}' is not set"
-  loop: "{{ args }}"
+  loop: "{{ _args }}"
   when: lookup('vars', item, default='__undefined__') == '__undefined__'
 
 - name: validate host vars
   ansible.builtin.fail:
     msg: "Expected host var '{{ item }}' is not set; set it in your inventory"
-  loop: "{{ host_vars }}"
+  loop: "{{ _host_vars }}"
   when: lookup('vars', item, default='__undefined__') == '__undefined__'
+
+# All this - saving args to facts, pushing and popping stack frames - is a workaround for a bug
+# in ansible where variables from higher up in the role call stack aren't available further down
+# the stack - which means lazy evaluation fails. Setting facts forces strict evaluation, which we
+# use to build our own arg stack.
+
+- name: clear saved arg values
+  ansible.builtin.set_fact:
+    _pi_server_role_helpers_latest_arg_values: []
+
+- name: save arg values
+  ansible.builtin.set_fact:
+    _pi_server_role_helpers_latest_arg_values: "{{ _pi_server_role_helpers_latest_arg_values + [lookup('vars', item)] }}"
+  loop: "{{ _args }}"
+
+- name: save args
+  ansible.builtin.set_fact:
+    _pi_server_role_helpers_latest_args: "{{ dict(arg_pairs) }}"
+  vars:
+    arg_pairs: "{{ _args | zip(_pi_server_role_helpers_latest_arg_values) }}"
+
+- name: push stack frame
+  ansible.builtin.set_fact:
+    _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack | default([initial_frame]) + [frame] }}"
+  vars:
+    frame: "{{ {'name': role_name, 'args': _pi_server_role_helpers_latest_args} }}"
+    initial_frame: {'name': '', 'args': {}}
 
 - name: run tasks
   include_tasks: tasks.yml
+  vars:
+    args: "{{ _pi_server_role_helpers_call_stack[-1]['args'] }}"
+
+- name: pop stack frame
+  ansible.builtin.set_fact:
+    _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack[:-1] }}"
 
 - name: export vars
   ansible.builtin.set_fact:
     "{{ item }}": "{{ lookup('vars', item) }}"
-  loop: "{{ export_vars }}"
+  loop: "{{ _export_vars }}"
 
 - name: mark done
   ansible.builtin.set_fact:

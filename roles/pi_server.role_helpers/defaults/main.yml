@@ -1,2 +1,2 @@
 define_role: "{{ role_path }}/tasks/define_role.yml"
-_define_role_internal: "{{ role_path }}/tasks/define_role_internal.yml"
+_pi_server_role_helpers_define_role_internal: "{{ role_path }}/tasks/define_role_internal.yml"

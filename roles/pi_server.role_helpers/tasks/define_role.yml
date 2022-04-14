@@ -1,3 +1,3 @@
 - name: run if needed
-  when: not run_once|default(False) or not lookup('vars', '_' + role_name.replace('.', '_') + '_done', default=False)
-  include_tasks: "{{ _define_role_internal }}"
+  when: not _run_once|default(False) or not lookup('vars', '_' + role_name.replace('.', '_') + '_done', default=False)
+  include_tasks: "{{ _pi_server_role_helpers_define_role_internal }}"

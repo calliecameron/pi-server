@@ -1,9 +1,9 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: True
-    args: []
-    host_vars: []
-    export_vars:
+    _run_once: True
+    _args: []
+    _host_vars: []
+    _export_vars:
       - define_role
-      - _define_role_internal
+      - _pi_server_role_helpers_define_role_internal
