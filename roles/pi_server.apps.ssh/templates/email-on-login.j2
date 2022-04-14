@@ -1,4 +1,5 @@
 #!/bin/sh
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
 if [ "${PAM_TYPE}" != 'close_session' ]; then
     if ! grep -F -x "${PAM_USER}:${PAM_RHOST}" '{{ pi_server_apps_ssh_login_exceptions }}' >/dev/null 2>/dev/null; then

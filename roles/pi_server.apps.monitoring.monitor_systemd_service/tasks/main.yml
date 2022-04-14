@@ -2,7 +2,8 @@
   include_tasks: "{{ define_role }}"
   vars:
     _private: False
-    _run_once: True
-    _args: []
+    _run_once: False
+    _args:
+      - systemd_service
     _host_vars: []
     _export_vars: []

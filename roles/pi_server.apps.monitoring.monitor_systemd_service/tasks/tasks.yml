@@ -1,20 +1,20 @@
 - include_role:
-    name: pi_server.apps.monitoring_base
+    name: pi_server.apps.monitoring.base
 
-- name: "{{ systemd_service }} standard alerts"
+- name: "{{ args.systemd_service }} standard alerts"
   become: yes
   ansible.builtin.template:
     src: systemd-alerts-standard.yml.j2
-    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ systemd_service }}-alerts-standard.yml"
+    dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ args.systemd_service }}-alerts-standard.yml"
     owner: root
     group: root
     mode: a=r
 
-- name: "{{ systemd_service }} standard dashboard"
+- name: "{{ args.systemd_service }} standard dashboard"
   become: yes
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
-    line: "{{ systemd_service }}"
+    line: "{{ args.systemd_service }}"
     owner: root
     group: root
     mode: a=r

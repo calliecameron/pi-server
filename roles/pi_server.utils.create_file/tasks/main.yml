@@ -1,11 +1,12 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: False
-    args:
+    _private: False
+    _run_once: False
+    _args:
       - path
       - owner
       - group
       - mode
-    host_vars: []
-    export_vars: []
+    _host_vars: []
+    _export_vars: []

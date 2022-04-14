@@ -56,6 +56,6 @@
     ssh_allow_users: "{{ ansible_user }}"
 
 - include_role:
-    name: pi_server.utils.monitor_systemd_service
+    name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: ssh
