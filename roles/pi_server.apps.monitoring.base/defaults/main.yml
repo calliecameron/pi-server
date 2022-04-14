@@ -7,3 +7,4 @@ pi_server_apps_monitoring_grafana_dashboards: "{{ pi_server_apps_monitoring_graf
 pi_server_apps_monitoring_grafana_plugins: "{{ pi_server_apps_monitoring_grafana_etc }}/plugins"
 pi_server_apps_monitoring_monitored_systemd: "{{ pi_server_apps_monitoring_etc }}/monitored-systemd-services.txt"
 pi_server_apps_monitoring_monitored_docker: "{{ pi_server_apps_monitoring_etc }}/monitored-docker-containers.txt"
+pi_server_apps_monitoring_writers_group: "pi-server-monitoring-writers"

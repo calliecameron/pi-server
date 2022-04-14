@@ -17,11 +17,6 @@
     create_home: no
   register: monitoring_user
 
-- name: writers group
-  become: yes
-  ansible.builtin.group:
-    name: "{{ pi_server_apps_monitoring_writers_group }}"
-
 - name: var dir
   become: yes
   ansible.builtin.file:

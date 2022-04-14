@@ -15,3 +15,4 @@
       - pi_server_apps_monitoring_grafana_plugins
       - pi_server_apps_monitoring_monitored_systemd
       - pi_server_apps_monitoring_monitored_docker
+      - pi_server_apps_monitoring_writers_group

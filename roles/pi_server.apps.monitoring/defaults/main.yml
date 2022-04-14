@@ -1,6 +1,5 @@
 pi_server_apps_monitoring_var: "{{ pi_server_var }}/monitoring"
 pi_server_apps_monitoring_user: "pi-server-monitoring"
-pi_server_apps_monitoring_writers_group: "pi-server-monitoring-writers"
 pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/docker-compose.yml"
 
 pi_server_apps_monitoring_prometheus_port: "9090"

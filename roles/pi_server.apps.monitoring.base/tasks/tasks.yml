@@ -55,7 +55,13 @@
     group: root
     mode: u=rwx,go=rx
 
-- include_role:
+- name: writers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_monitoring_writers_group }}"
+
+- name: monitored systemd services
+  include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
@@ -63,7 +69,8 @@
     group: root
     mode: a=r
 
-- include_role:
+- name: monitored docker services
+  include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_monitoring_monitored_docker }}"
@@ -87,12 +94,12 @@
 
 - name: generate system dashboard
   become: yes
-  vars:
-    systemd_services: "{{ monitored_systemd.stdout_lines }}"
-    docker_containers: "{{ monitored_docker.stdout_lines }}"
   ansible.builtin.template:
     src: system.json.j2
     dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"
     owner: root
     group: root
     mode: a=r
+  vars:
+    systemd_services: "{{ monitored_systemd.stdout_lines }}"
+    docker_containers: "{{ monitored_docker.stdout_lines }}"

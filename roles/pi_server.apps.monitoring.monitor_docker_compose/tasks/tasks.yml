@@ -1,10 +1,13 @@
 - include_role:
+    name: pi_server.apps.docker
+
+- include_role:
     name: pi_server.apps.monitoring_base
 
 - name: get container IDs
   become: yes
   ansible.builtin.command:
-    cmd: "docker-compose -f {{ compose_file }} ps -q"
+    cmd: "docker-compose -f {{ args.compose_file }} ps -q"
   register: container_ids
   changed_when: false
 
@@ -15,19 +18,19 @@
   register: container_names
   changed_when: false
 
-- name: "docker standard alerts for {{ compose_file }}"
+- name: "docker standard alerts for {{ args.compose_file }}"
   become: yes
-  vars:
-    container: "{{ item }}"
   ansible.builtin.template:
     src: docker-alerts-standard.yml.j2
     dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ container }}-alerts-standard.yml"
     owner: root
     group: root
     mode: a=r
+  vars:
+    container: "{{ item }}"
   loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
 
-- name: "standard dashboard for {{ compose_file }}"
+- name: "standard dashboard for {{ args.compose_file }}"
   become: yes
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_monitoring_monitored_docker }}"
