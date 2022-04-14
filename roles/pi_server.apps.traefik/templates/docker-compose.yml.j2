@@ -1,0 +1,34 @@
+services:
+  docker_proxy:
+    image: tecnativa/docker-socket-proxy
+    restart: always
+    user: "{{ docker_proxy_user.uid }}:{{ docker_proxy_user.group }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - traefik_docker_proxy
+    environment:
+      CONTAINERS: 1
+
+  traefik:
+    image: "traefik:v2.6"
+    restart: always
+    user: "{{ traefik_user.uid }}:{{ traefik_user.group }}"
+    volumes:
+      - "{{ pi_server_apps_traefik_config }}:/etc/traefik/traefik.yml"
+    ports:
+      - "80:8081"
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+      - traefik_docker_proxy
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.dashboard.service=api@internal"
+
+networks:
+  traefik_docker_proxy:
+    driver: bridge
+    internal: true
+  traefik:
+    external: true

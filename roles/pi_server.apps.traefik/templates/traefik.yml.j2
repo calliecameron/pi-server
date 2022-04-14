@@ -1,0 +1,15 @@
+global:
+  sendanonymoususage: false
+
+api:
+  dashboard: true
+
+providers:
+  docker:
+    endpoint: "tcp://docker-socket-proxy:2375"
+    network: "{{ pi_server_apps_traefik_network }}"
+    exposedByDefault: false
+
+entrypoints:
+  web:
+    address: ":8081"
