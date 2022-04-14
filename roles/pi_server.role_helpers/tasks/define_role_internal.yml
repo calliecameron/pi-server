@@ -37,6 +37,15 @@
     frame: "{{ {'name': role_name, 'args': _pi_server_role_helpers_latest_args} }}"
     initial_frame: {'name': '', 'args': {}}
 
+- name: check if calling is allowed
+  ansible.builtin.fail:
+    msg: "Role is marked private, and may not be called here"
+  when: _private and caller_prefix != allowed_prefix and caller_name != allowed_prefix
+  vars:
+    allowed_prefix: "{{ role_name.split('.')[:-1] | join('.') }}"
+    caller_name: "{{ _pi_server_role_helpers_call_stack[-2]['name'] }}"
+    caller_prefix: "{{ caller_name.split('.')[:-1] | join('.') }}"
+
 - name: run tasks
   include_tasks: tasks.yml
   vars:
