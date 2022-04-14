@@ -10,8 +10,8 @@
 - include_role:
     name: pi_server.base.cleanup_users
 
-# - include_role:
-#     name: pi_server.base.os_hardening
+- include_role:
+    name: pi_server.base.os_hardening
 
 # - include_role:
 #     name: pi_server.apps.email
