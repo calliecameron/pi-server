@@ -1,8 +1,8 @@
 - include_role:
     name: pi_server.base.hostname
 
-# - include_role:
-#     name: pi_server.base.localisation
+- include_role:
+    name: pi_server.base.localisation
 
 # - include_role:
 #     name: pi_server.base.packages
