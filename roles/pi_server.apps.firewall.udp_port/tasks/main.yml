@@ -2,8 +2,8 @@
   include_tasks: "{{ define_role }}"
   vars:
     _private: False
-    _run_once: True
-    _args: []
+    _run_once: False
+    _args:
+      - port
     _host_vars: []
-    _export_vars:
-      - pi_server_apps_firewall_after_rules
+    _export_vars: []

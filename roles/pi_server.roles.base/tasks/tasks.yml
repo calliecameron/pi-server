@@ -19,8 +19,8 @@
 - include_role:
     name: pi_server.apps.ssh
 
-# - include_role:
-#     name: pi_server.apps.firewall
+- include_role:
+    name: pi_server.apps.firewall
 
 # - include_role:
 #     name: pi_server.apps.docker

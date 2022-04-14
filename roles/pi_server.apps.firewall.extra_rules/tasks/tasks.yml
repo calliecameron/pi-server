@@ -4,8 +4,8 @@
 - name: install rules
   become: yes
   ansible.builtin.template:
-    src: "{{ src }}"
-    dest: "{{ pi_server_apps_firewall_after_rules }}/{{ dest }}"
+    src: "{{ args.src }}"
+    dest: "{{ pi_server_apps_firewall_after_rules }}/{{ args.dest }}"
     owner: root
     group: root
     mode: u=rw,g=r,o=

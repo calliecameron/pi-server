@@ -1,10 +1,10 @@
 - include_role:
     name: pi_server.apps.firewall
 
-- name: "open udp {{ port }} at boot"
+- name: "open udp {{ args.port }} at boot"
   become: yes
   community.general.ufw:
-    port: "{{ port }}"
+    port: "{{ args.port }}"
     proto: udp
     rule: allow
   notify: reload firewall

@@ -1,7 +1,0 @@
-- name: define role
-  include_tasks: "{{ define_role }}"
-  vars:
-    run_once: True
-    args: []
-    host_vars: []
-    export_vars: []

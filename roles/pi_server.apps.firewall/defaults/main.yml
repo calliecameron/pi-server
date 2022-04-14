@@ -1,1 +1,1 @@
-pi_server_apps_firewall_after_rules: /etc/ufw/after.rules.d
+pi_server_apps_firewall_after_rules: "/etc/ufw/after.rules.d"
