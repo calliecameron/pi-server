@@ -35,6 +35,16 @@
     group: root
     mode: a=rx
 
+- name: ssmtp config
+  become: yes
+  ansible.builtin.copy:
+    src: /etc/ssmtp/ssmtp.conf
+    remote_src: yes
+    dest: "{{ pi_server_apps_monitoring_webhook_dir }}/ssmtp.conf"
+    owner: root
+    group: root
+    mode: ug=r,o=
+
 - name: webhook dockerfile
   become: yes
   ansible.builtin.template:

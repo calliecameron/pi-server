@@ -22,8 +22,8 @@
     src: ssmtp.conf.j2
     dest: /etc/ssmtp/ssmtp.conf
     owner: root
-    group: root
-    mode: a=r
+    group: mail
+    mode: ug=r,o=
 
 - name: email script
   become: yes

@@ -117,10 +117,7 @@ services:
       - "-port"
       - "{{ pi_server_apps_monitoring_webhook_port }}"
     volumes:
-      - "/etc/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf:ro"
       - "{{ pi_server_apps_email_script }}:/send-email:ro"
-      - "/etc/passwd:/etc/passwd:ro"
-      - "/etc/group:/etc/group:ro"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
     deploy:

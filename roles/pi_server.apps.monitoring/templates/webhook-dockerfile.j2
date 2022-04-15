@@ -14,9 +14,14 @@ RUN         curl -L --silent -o webhook.tar.gz https://github.com/adnanh/webhook
             rm -rf /go
 
 FROM        python:3-alpine
-RUN         apk add --no-cache bash ssmtp
 COPY        --from=build /usr/local/bin/webhook /usr/local/bin/webhook
+RUN         apk add --no-cache bash ssmtp
 COPY        webhook.conf /etc/webhook.conf
 COPY        webhook-alert /webhook-alert
+COPY        ssmtp.conf /etc/ssmtp/ssmtp.conf
+RUN         adduser -D -H -g '' -u '{{ webhook_user.uid }}' '{{ pi_server_apps_monitoring_webhook_user }}'
+RUN         chown '{{ pi_server_apps_monitoring_webhook_user }}:root' /etc/ssmtp/ssmtp.conf
+RUN         chmod 'ug=r,o=' /etc/ssmtp/ssmtp.conf
+USER        {{ pi_server_apps_monitoring_webhook_user }}
 EXPOSE      {{ pi_server_apps_monitoring_webhook_port }}
 ENTRYPOINT  ["/usr/local/bin/webhook"]
