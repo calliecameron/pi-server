@@ -4,8 +4,8 @@
 - name: sudoers
   become: yes
   ansible.builtin.template:
-    src: "{{ src }}"
-    dest: "/etc/sudoers.d/{{ user }}"
+    src: "{{ args.src }}"
+    dest: "/etc/sudoers.d/{{ args.name }}"
     owner: root
     group: root
     mode: ug=r,o=

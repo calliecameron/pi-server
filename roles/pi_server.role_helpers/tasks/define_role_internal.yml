@@ -30,6 +30,10 @@
   vars:
     arg_pairs: "{{ _args | zip(_pi_server_role_helpers_latest_arg_values) }}"
 
+- name: save args under role name
+  ansible.builtin.set_fact:
+    "{{ role_name.replace('.', '_') + '_args' }}": "{{ _pi_server_role_helpers_latest_args }}"
+
 - name: push stack frame
   ansible.builtin.set_fact:
     _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack | default([initial_frame]) + [frame] }}"
@@ -54,6 +58,10 @@
 - name: pop stack frame
   ansible.builtin.set_fact:
     _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack[:-1] }}"
+
+- name: clear args under role name
+  ansible.builtin.set_fact:
+    "{{ role_name.replace('.', '_') + '_args' }}": {}
 
 - name: export vars
   ansible.builtin.set_fact:
