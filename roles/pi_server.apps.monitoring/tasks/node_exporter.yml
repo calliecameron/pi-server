@@ -1,3 +1,13 @@
+- name: node exporter user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_monitoring_node_exporter_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  register: node_exporter_user
+
 - name: node exporter collect dir
   become: yes
   ansible.builtin.file:
@@ -18,20 +28,29 @@
   ansible.posix.acl:
     path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
     default: yes
-    entity: "{{ pi_server_apps_monitoring_user }}"
+    entity: "{{ pi_server_apps_monitoring_node_exporter_user }}"
     etype: user
     permissions: r
     state: present
 
-- include_role:
-    name: pi_server.utils.custom_alerts
+- name: node exporter custom alerts
+  include_role:
+    name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: node-alerts-custom.yml
     job: node
 
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape node exporter
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: node
     host: host.docker.internal
+    port: "{{ pi_server_apps_monitoring_node_exporter_port }}"
+    metrics_path: /metrics
+
+- name: expose node exporter port to containers
+  include_role:
+    name: pi_server.apps.traefik.open_host_port_to_containers
+  vars:
     port: "{{ pi_server_apps_monitoring_node_exporter_port }}"

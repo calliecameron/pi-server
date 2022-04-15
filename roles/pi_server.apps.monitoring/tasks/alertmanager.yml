@@ -8,9 +8,11 @@
     mode: a=r
   notify: reload monitoring
 
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape alertmanager
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: alertmanager
     host: alertmanager
     port: "{{ pi_server_apps_monitoring_alertmanager_port }}"
+    metrics_path: /alertmanager/metrics

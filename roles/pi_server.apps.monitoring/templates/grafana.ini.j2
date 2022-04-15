@@ -1,7 +1,11 @@
+; MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 instance_name = {{ pi_server_hostname }}
 
 [server]
-root_url = http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_grafana_port }}
+http_port = {{ pi_server_apps_monitoring_grafana_port }}
+root_url = http://{{ pi_server_lan_ip }}:{{ pi_server_monitoring_entrypoint_port }}/grafana
+serve_from_sub_path = true
 
 [analytics]
 reporting_enabled = false

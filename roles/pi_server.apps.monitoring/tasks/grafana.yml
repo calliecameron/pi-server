@@ -1,3 +1,13 @@
+- name: grafana user
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_monitoring_grafana_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  register: grafana_user
+
 - name: grafana config
   become: yes
   ansible.builtin.template:
@@ -28,9 +38,11 @@
     mode: a=r
   notify: reload monitoring
 
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape grafana
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: grafana
     host: grafana
     port: "{{ pi_server_apps_monitoring_grafana_port }}"
+    metrics_path: /grafana/metrics

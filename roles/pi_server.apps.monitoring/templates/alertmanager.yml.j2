@@ -1,3 +1,5 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 route:
   receiver: webhook
   group_by: [alertname, job, instance]
@@ -7,5 +9,5 @@ route:
 receivers:
   - name: webhook
     webhook_configs:
-      - url: "http://host.docker.internal:{{ pi_server_apps_monitoring_webhook_port }}/hooks/{{ pi_server_apps_monitoring_webhook_id }}"
+      - url: "http://webhook:{{ pi_server_apps_monitoring_webhook_port }}/hooks/{{ pi_server_apps_monitoring_webhook_id }}"
         send_resolved: false

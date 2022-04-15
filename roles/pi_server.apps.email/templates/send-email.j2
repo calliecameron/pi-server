@@ -2,16 +2,19 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 # Send a notification email to the default target address
 
+set -eu
+
 FROM='{{ pi_server_fqdn }}'
 TO='{{ pi_server_email_target }}'
+HOSTNAME='{{ pi_server_hostname }}'
 
 function usage() {
     echo "Usage: $(basename "${0}") subject body"
     exit 1
 }
 
-test -z "${1}" && usage
-test -z "${2}" && usage
+test -z "${1:-}" && usage
+test -z "${2:-}" && usage
 
 function no-values() {
     echo 'Default values are invalid'
@@ -20,20 +23,12 @@ function no-values() {
 
 test -z "${FROM}" && no-values
 test -z "${TO}" && no-values
+test -z "${HOSTNAME}" && no-values
 
-# Handle PATH weirdness: on Debian (but not Raspbian), non-root users
-# don't have ssmtp on their PATH, so try using an absolute path
-# instead. If it isn't there either then we'll just fail.
-if type ssmtp &>/dev/null; then
-    SSMTP=ssmtp
-else
-    SSMTP=/usr/sbin/ssmtp
-fi
-
-"${SSMTP}" "${TO}" <<EOF
-From: $(hostname) <notification@${FROM}>
+ssmtp "${TO}" <<EOF
+From: ${HOSTNAME} <notification@${FROM}>
 To: ${TO}
-Subject: [$(hostname)] ${1}
+Subject: [${HOSTNAME}] ${1}
 Content-Type: text/plain; charset="UTF-8"
 
 ${2}

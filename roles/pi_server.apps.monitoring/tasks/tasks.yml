@@ -5,17 +5,13 @@
     name: pi_server.apps.docker
 
 - include_role:
-    name: pi_server.apps.monitoring_base
+    name: pi_server.apps.traefik
 
-- name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_monitoring_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: monitoring_user
+- include_role:
+    name: pi_server.apps.control_panel.base
+
+- include_role:
+    name: pi_server.apps.monitoring.base
 
 - name: var dir
   become: yes
@@ -46,21 +42,22 @@
     owner: root
     group: root
     mode: a=r
+  notify: reload monitoring
 
 - name: docker compose
   become: yes
   community.docker.docker_compose:
     project_src: "{{ pi_server_apps_monitoring_etc }}"
 
-- include_tasks: firewall.yml
-
-- include_role:
-    name: pi_server.utils.monitor_docker_compose
+- name: monitor containers
+  include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
 
-- include_role:
-    name: pi_server.utils.main_site_fragment
+- name: control panel fragment
+  include_role:
+    name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
-    dest: monitoring.html
+    name: monitoring

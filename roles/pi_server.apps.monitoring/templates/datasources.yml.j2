@@ -1,8 +1,10 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 apiVersion: 1
 datasources:
   - name: prometheus
     type: prometheus
     access: proxy
-    url: "http://prometheus:{{ pi_server_apps_monitoring_prometheus_port }}"
+    url: "http://prometheus:{{ pi_server_apps_monitoring_prometheus_port }}/prometheus"
     isDefault: true
     editable: false

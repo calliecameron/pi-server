@@ -1,15 +1,15 @@
 services:
   prometheus:
     image: prom/prometheus
-    ports:
-      - "{{ pi_server_apps_monitoring_prometheus_port }}:{{ pi_server_apps_monitoring_prometheus_port }}"
     restart: always
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
       - "--web.console.libraries=/usr/share/prometheus/console_libraries"
       - "--web.console.templates=/usr/share/prometheus/consoles"
-      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_prometheus_port }}"
+      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_monitoring_entrypoint_port }}/prometheus"
+      - "--web.page-title=Prometheus | {{ pi_server_hostname }}"
+      - "--web.listen-address=0.0.0.0:{{ pi_server_apps_monitoring_prometheus_port }}"
     volumes:
       - "{{ pi_server_apps_monitoring_prometheus_config }}:/etc/prometheus/prometheus.yml:ro"
       - "{{ pi_server_apps_monitoring_prometheus_scrapes }}:/scrapes.d:ro"
@@ -18,71 +18,113 @@ services:
     extra_hosts:
       - host.docker.internal:host-gateway
     networks:
-      monitoring:
-        ipv4_address: 172.30.2.2
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.prometheus.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
 
   node_exporter:
     image: prom/node-exporter
     restart: always
-    user: "{{ monitoring_user.uid }}:{{ monitoring_user.group }}"
+    user: "{{ node_exporter_user.uid }}:{{ node_exporter_user.group }}"
     command:
-      - '--path.rootfs=/host'
-      - '--collector.textfile.directory=/collect'
+      - "--path.rootfs=/host"
+      - "--collector.textfile.directory=/collect"
+      - "--web.listen-address=:{{ pi_server_apps_monitoring_node_exporter_port }}"
     network_mode: host
     pid: host
     volumes:
-      - '/:/host:ro,rslave'
+      - "/:/host:ro,rslave"
       - "{{ pi_server_apps_monitoring_node_exporter_collect }}:/collect"
+    deploy:
+      replicas: 1
 
   grafana:
     image: grafana/grafana
-    ports:
-      - "{{ pi_server_apps_monitoring_grafana_port }}:{{ pi_server_apps_monitoring_grafana_port }}"
     restart: always
-    user: "{{ monitoring_user.uid }}:{{ monitoring_user.group }}"
+    user: "{{ grafana_user.uid }}:{{ grafana_user.group }}"
     volumes:
       - "{{ pi_server_apps_monitoring_grafana_config }}:/etc/grafana/grafana.ini:ro"
       - "{{ pi_server_apps_monitoring_grafana_etc }}:/etc/grafana/provisioning:ro"
       - grafana-data:/var/lib/grafana
     networks:
-      monitoring:
-        ipv4_address: 172.30.2.3
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.grafana.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
 
   alertmanager:
     image: prom/alertmanager
-    ports:
-      - "{{ pi_server_apps_monitoring_alertmanager_port }}:{{ pi_server_apps_monitoring_alertmanager_port }}"
     restart: always
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
-      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_apps_monitoring_alertmanager_port }}"
+      - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_monitoring_entrypoint_port }}/alertmanager"
+      - "--web.listen-address=:{{ pi_server_apps_monitoring_alertmanager_port }}"
     volumes:
       - "{{ pi_server_apps_monitoring_alertmanager_config }}:/etc/alertmanager/alertmanager.yml:ro"
       - alertmanager-data:/alertmanager
-    extra_hosts:
-      - host.docker.internal:host-gateway
     networks:
-      monitoring:
-        ipv4_address: 172.30.2.4
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.alertmanager.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.alertmanager.rule=PathPrefix(`/alertmanager`)"
 
   cadvisor:
     image: gcr.io/cadvisor/cadvisor
-    ports:
-      - "{{ pi_server_apps_monitoring_cadvisor_port }}:{{ pi_server_apps_monitoring_cadvisor_port }}"
     restart: always
+    command:
+      - "--port={{ pi_server_apps_monitoring_cadvisor_port }}"
+      - "--url_base_prefix=/cadvisor"
     privileged: true
     volumes:
-       - "/:/rootfs:ro"
-       - "/var/run:/var/run:ro"
-       - "/sys:/sys:ro"
-       - "/var/lib/docker/:/var/lib/docker:ro"
-       - "/dev/disk/:/dev/disk:ro"
+      - "/:/rootfs:ro"
+      - "/var/run:/var/run:ro"
+      - "/sys:/sys:ro"
+      - "/var/lib/docker/:/var/lib/docker:ro"
+      - "/dev/disk/:/dev/disk:ro"
     devices:
       - "/dev/kmsg:/dev/kmsg"
     networks:
-      monitoring:
-        ipv4_address: 172.30.2.5
+      - "{{ pi_server_apps_traefik_network }}"
+    environment:
+      CADVISOR_HEALTHCHECK_URL: "http://localhost:{{ pi_server_apps_monitoring_cadvisor_port }}/cadvisor/healthz"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.cadvisor.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.cadvisor.rule=PathPrefix(`/cadvisor`)"
+
+  webhook:
+    image: webhook
+    restart: always
+    user: "{{ webhook_user.uid }}:{{ webhook_user.group }}"
+    command:
+      - "-verbose"
+      - "-nopanic"
+      - "-hooks"
+      - "/etc/webhook.conf"
+      - "-port"
+      - "{{ pi_server_apps_monitoring_webhook_port }}"
+    volumes:
+      - "/etc/ssmtp/ssmtp.conf:/etc/ssmtp/ssmtp.conf:ro"
+      - "{{ pi_server_apps_email_script }}:/send-email:ro"
+      - "/etc/passwd:/etc/passwd:ro"
+      - "/etc/group:/etc/group:ro"
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
 
 volumes:
   prometheus-data:
@@ -90,9 +132,5 @@ volumes:
   alertmanager-data:
 
 networks:
-  monitoring:
-    driver: bridge
-    ipam:
-     config:
-       - subnet: 172.30.2.0/24
-         gateway: 172.30.2.1
+  "{{ pi_server_apps_traefik_network }}":
+    external: true

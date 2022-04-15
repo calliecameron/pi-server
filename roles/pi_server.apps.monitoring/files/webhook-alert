@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 """Send an email from an alertmanager alert."""
 
 import datetime
@@ -8,7 +9,7 @@ import subprocess
 import sys
 from typing import Any, Dict, List, NoReturn, Optional
 
-EMAIL_SCRIPT = '{{ pi_server_apps_email_script }}'
+EMAIL_SCRIPT = '/send-email'
 
 
 def _send(subject: str, body: str, retval: int) -> NoReturn:

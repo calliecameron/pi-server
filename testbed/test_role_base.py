@@ -87,6 +87,8 @@ class TestRoleBase:
         assert host.service('docker').is_running
         assert host.exists('docker-compose')
 
+    # Traefik is tested by being able to access dashboards later on.
+
     @for_host_types('pi', 'ubuntu')
     def test_monitoring(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]

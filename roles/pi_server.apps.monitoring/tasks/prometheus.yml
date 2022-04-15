@@ -1,4 +1,3 @@
-
 - name: prometheus config
   become: yes
   ansible.builtin.template:
@@ -9,15 +8,18 @@
     mode: a=r
   notify: reload monitoring
 
-- include_role:
-    name: pi_server.utils.custom_alerts
+- name: prometheus custom alerts
+  include_role:
+    name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: prometheus-alerts-custom.yml
     job: prometheus
 
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape prometheus
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: prometheus
     host: localhost
     port: "{{ pi_server_apps_monitoring_prometheus_port }}"
+    metrics_path: /prometheus/metrics

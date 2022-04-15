@@ -1,36 +1,55 @@
-- name: install webhook
+- name: webhook user
   become: yes
-  ansible.builtin.package:
-    name: webhook
-    state: present
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_monitoring_webhook_user }}"
+    password: !
+    password_lock: yes
+    shell: /usr/sbin/nologin
+    create_home: no
+  register: webhook_user
 
-- include_role:
-    name: pi_server.utils.systemd_service
-  vars:
-    src: webhook.service.j2
-    service: webhook
-    service_notify: "reload webhook"
+- name: webhook dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_webhook_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
 
-- name: configure webhook
+- name: webhook config
   become: yes
   ansible.builtin.template:
     src: webhook.conf.j2
-    dest: /etc/webhook.conf
+    dest: "{{ pi_server_apps_monitoring_webhook_dir }}/webhook.conf"
     owner: root
     group: root
     mode: a=r
-  notify: reload webhook
 
 - name: webhook alert script
   become: yes
-  ansible.builtin.template:
-    src: webhook_alert.j2
-    dest: "{{ pi_server_apps_monitoring_webhook_script }}"
+  ansible.builtin.copy:
+    src: webhook-alert
+    dest: "{{ pi_server_apps_monitoring_webhook_dir }}/webhook-alert"
     owner: root
     group: root
     mode: a=rx
 
-- include_role:
-    name: pi_server.utils.monitor_systemd_service
-  vars:
-    systemd_service: webhook
+- name: webhook dockerfile
+  become: yes
+  ansible.builtin.template:
+    src: webhook-dockerfile.j2
+    dest: "{{ pi_server_apps_monitoring_webhook_dir }}/Dockerfile"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: build webhook image
+  become: yes
+  community.docker.docker_image:
+    name: webhook
+    source: build
+    force_source: true
+    build:
+      path: "{{ pi_server_apps_monitoring_webhook_dir }}"
+  notify: reload monitoring

@@ -1,20 +1,22 @@
 pi_server_apps_monitoring_var: "{{ pi_server_var }}/monitoring"
-pi_server_apps_monitoring_user: "pi-server-monitoring"
 pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/docker-compose.yml"
 
 pi_server_apps_monitoring_prometheus_port: "9090"
 pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }}/prometheus.yml"
 
+pi_server_apps_monitoring_node_exporter_user: "pi-server-node-exporter"
 pi_server_apps_monitoring_node_exporter_port: "9100"
 pi_server_apps_monitoring_node_exporter_collect: "{{ pi_server_apps_monitoring_var }}/collect"
 
+pi_server_apps_monitoring_grafana_user: "pi-server-grafana"
 pi_server_apps_monitoring_grafana_port: "3000"
 pi_server_apps_monitoring_grafana_config: "{{ pi_server_apps_monitoring_etc }}/grafana.ini"
 
 pi_server_apps_monitoring_alertmanager_port: "9093"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"
 
-pi_server_apps_monitoring_webhook_script: "{{ pi_server_apps_monitoring_etc }}/webhook-alert"
+pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
+pi_server_apps_monitoring_webhook_dir: "{{ pi_server_apps_monitoring_etc }}/webhook"
 pi_server_apps_monitoring_webhook_port: "9000"
 pi_server_apps_monitoring_webhook_id: "alert"
 

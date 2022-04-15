@@ -1,6 +1,8 @@
-- include_role:
-    name: pi_server.utils.scrape_job
+- name: scrape cadvisor
+  include_role:
+    name: pi_server.apps.monitoring.scrape_job
   vars:
     job: cadvisor
     host: cadvisor
     port: "{{ pi_server_apps_monitoring_cadvisor_port }}"
+    metrics_path: /cadvisor/metrics

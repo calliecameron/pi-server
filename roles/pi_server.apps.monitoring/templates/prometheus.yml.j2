@@ -1,3 +1,5 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 rule_files:
   - /rules.d/*.yml
 
@@ -10,8 +12,11 @@ scrape_configs:
     relabel_configs:
       - target_label: instance
         replacement: "{{ pi_server_hostname }}"
+      - source_labels: [__meta_metrics_path]
+        target_label: __metrics_path__
 
 alerting:
   alertmanagers:
-    - static_configs:
+    - path_prefix: /alertmanager
+      static_configs:
         - targets: ['alertmanager:{{ pi_server_apps_monitoring_alertmanager_port }}']

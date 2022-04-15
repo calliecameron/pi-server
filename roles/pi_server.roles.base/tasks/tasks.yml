@@ -28,8 +28,8 @@
 - include_role:
     name: pi_server.apps.traefik
 
-# - include_role:
-#     name: pi_server.apps.monitoring
+- include_role:
+    name: pi_server.apps.monitoring
 
 # - include_role:
 #     name: pi_server.apps.cron

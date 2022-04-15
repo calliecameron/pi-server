@@ -10,5 +10,6 @@
       - pi_server_email_smtp_port
       - pi_server_fqdn
       - pi_server_lan_iface
+      - pi_server_hostname
     _export_vars:
       - pi_server_apps_email_script
