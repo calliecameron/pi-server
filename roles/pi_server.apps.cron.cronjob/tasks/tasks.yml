@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.apps.cron.base
+
+- include_role:
+    name: pi_server.apps.cron.cronjob_script
+  vars:
+    job: "{{ args.job }}"
+    src: "{{ args.src }}"
+    dest_dir: "{{ pi_server_apps_cron_scripts_dir }}"
+    user: "{{ args.user }}"
+    systemd_conflicts: "{{ args.systemd_conflicts }}"
+    docker_conflicts: "{{ args.docker_conflicts }}"

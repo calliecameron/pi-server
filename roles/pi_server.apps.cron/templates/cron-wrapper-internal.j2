@@ -1,4 +1,5 @@
 #!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 # Wrapper script for cronjobs.
 
 set -u
@@ -32,8 +33,10 @@ single-instance protection. 'command_args' are passed to 'command'.
 Options:
   -u user:    the user the script must execute as; must be specified exactly
               once. Will exit if not running as this user.
-  -c service: systemd service the script conflicts with. May be specified any
-              number of times. Will exit if any of these services are running.
+  -c service: service the script conflicts with; suffix with '.systemd' for
+              systemd service, or with '.docker' for docker container. May be
+              specified any number of times. Will exit if any of these services
+              are running.
 EOF
     exit 1
 }
@@ -42,7 +45,8 @@ TEMP=$(getopt -n "$(basename "${0}")" -o '+u:,c:' -- "${@}") || usage
 eval set -- "${TEMP}"
 unset TEMP
 
-declare -a OPT_CONFLICTS
+declare -a OPT_SYSTEMD_CONFLICTS
+declare -a OPT_DOCKER_CONFLICTS
 
 while true; do
     case "${1}" in
@@ -54,7 +58,13 @@ while true; do
         shift 2
         ;;
     '-c')
-        OPT_CONFLICTS+=("${2}")
+        if [[ "${2}" == *.systemd ]]; then
+            OPT_SYSTEMD_CONFLICTS+=("${2}")
+        elif [[ "${2}" == *.docker ]]; then
+            OPT_DOCKER_CONFLICTS+=("${2}")
+        else
+            usage
+        fi
         shift 2
         ;;
     '--')
@@ -188,9 +198,18 @@ function initialise() {
     fi
     msg 'running under systemd'
 
-    for service in "${OPT_CONFLICTS[@]}"; do
-        if systemctl --quiet is-active "${service}"; then
-            failure "conflicting service '${service}' is running"
+    local BASENAME
+    for service in "${OPT_SYSTEMD_CONFLICTS[@]}"; do
+        BASENAME="$(basename "${service}" '.systemd')"
+        if systemctl --quiet is-active "${BASENAME}"; then
+            failure "conflicting systemd service '${BASENAME}' is running"
+        fi
+    done
+
+    for service in "${OPT_DOCKER_CONFLICTS[@]}"; do
+        BASENAME="$(basename "${service}" '.docker')"
+        if sudo docker ps | grep "${BASENAME}" &>/dev/null; then
+            failure "conflicting docker service '${BASENAME}' is running"
         fi
     done
     msg 'no conflicting services are running'

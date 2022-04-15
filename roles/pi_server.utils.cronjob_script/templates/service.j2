@@ -1,7 +1,0 @@
-[Service]
-ExecStart={{ script_dest_dir }}/{{ script_job }}
-User={{ _pi_server_utils_cronjob_script_user }}
-Group={{ _pi_server_utils_cronjob_script_user }}
-
-[Install]
-WantedBy=multi-user.target

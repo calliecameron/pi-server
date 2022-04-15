@@ -1,3 +1,6 @@
-{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl restart *
-{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl stop *
-{{ pi_server_apps_cron_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl start --wait *
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+{{ pi_server_apps_cron_runner_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl restart *
+{{ pi_server_apps_cron_runner_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl stop *
+{{ pi_server_apps_cron_runner_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl start --wait *
+{{ pi_server_apps_cron_runner_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/docker restart *
+{{ pi_server_apps_cron_runner_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/docker stop *

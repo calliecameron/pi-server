@@ -1,0 +1,13 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: False
+    _args:
+      - job
+      - src
+      - user
+      - systemd_conflicts
+      - docker_conflicts
+    _host_vars: []
+    _export_vars: []

@@ -1,9 +1,10 @@
 #!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 # Run other cronjobs.
 
 set -eu
 
-source '{{ pi_server_apps_cron_wrapper }}' -u '{{ pi_server_apps_cron_user }}'
+{{ cron_wrapper_line }}
 
 PAUSE_DIR='{{ pi_server_apps_cron_pause_dir }}'
 SCRIPTS_DIR='{{ pi_server_apps_cron_scripts_dir }}'
@@ -17,25 +18,56 @@ function error() {
 }
 
 function start-services() {
+    local BASENAME
+    local SERVICE
     echo 'Starting services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
-        if sudo systemctl restart "$(basename "${line}")"; then
-            echo "Started service '$(basename "${line}")'"
+        BASENAME="$(basename "${line}")"
+        if [[ "${BASENAME}" == *.systemd ]]; then
+            SERVICE="$(basename "${BASENAME}" '.systemd')"
+            if sudo systemctl restart "${SERVICE}"; then
+                echo "Started systemd service '${SERVICE}'"
+            else
+                warning "failed to start systemd service '${SERVICE}'"
+            fi
+        elif [[ "${BASENAME}" == *.docker ]]; then
+            SERVICE="$(basename "${BASENAME}" '.docker')"
+            if sudo docker restart "${SERVICE}" >/dev/null; then
+                echo "Started docker service '${SERVICE}'"
+            else
+                warning "failed to start docker service '${SERVICE}'"
+            fi
         else
-            warning "failed to start service '$(basename "${line}")'"
+            warning "unknown service type for '${BASENAME}'"
         fi
     done
     echo 'Finished starting services'
 }
 
 function stop-services() {
+    local BASENAME
+    local SERVICE
     echo 'Stopping services...'
     find "${PAUSE_DIR}" -type f | LC_ALL=C sort | while read -r line; do
-        if sudo systemctl stop "$(basename "${line}")"; then
-            echo "Stopped service '$(basename "${line}")'"
+        BASENAME="$(basename "${line}")"
+        if [[ "${BASENAME}" == *.systemd ]]; then
+            SERVICE="$(basename "${BASENAME}" '.systemd')"
+            if sudo systemctl stop "${SERVICE}" >/dev/null; then
+                echo "Stopped systemd service '${SERVICE}'"
+            else
+                error "couldn't stop systemd service '${SERVICE}'"
+                exit 1
+            fi
+        elif [[ "${BASENAME}" == *.docker ]]; then
+            SERVICE="$(basename "${BASENAME}" '.docker')"
+            if sudo docker stop "${SERVICE}"; then
+                echo "Stopped docker service '${SERVICE}'"
+            else
+                error "couldn't stop docker service '${SERVICE}'"
+                exit 1
+            fi
         else
-            error "couldn't stop service '$(basename "${line}")'"
-            exit 1
+            warning "unknown service type for '${BASENAME}'"
         fi
     done
     echo 'Finished stopping services'

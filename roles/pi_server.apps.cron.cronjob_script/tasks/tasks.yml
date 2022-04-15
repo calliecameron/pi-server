@@ -1,0 +1,48 @@
+- include_role:
+    name: pi_server.apps.cron.base
+
+- name: "cronjob '{{ args.job }}' script"
+  become: yes
+  ansible.builtin.template:
+    src: "{{ args.src }}"
+    dest: "{{ args.dest_dir }}/{{ args.job }}"
+    owner: root
+    group: root
+    mode: a=rx
+  vars:
+    cron_wrapper_line: "source '{{ pi_server_apps_cron_wrapper }}' -u '{{ args.user }}'{% for c in args.systemd_conflicts | default([]) %} -c '{{ c }}.systemd'{% endfor %}{% for c in args.docker_conflicts | default([]) %} -c '{{ c }}.docker'{% endfor %}"
+
+- name: "cronjob '{{ args.job }}' systemd conflicts"
+  include_role:
+    name: pi_server.apps.cron.pause_systemd_on_cron
+  vars:
+    service: "{{ item }}"
+  loop: "{{ args.systemd_conflicts | default([]) }}"
+
+- name: "cronjob '{{ args.job }}' docker conflicts"
+  include_role:
+    name: pi_server.apps.cron.pause_docker_on_cron
+  vars:
+    service: "{{ item }}"
+  loop: "{{ args.docker_conflicts | default([]) }}"
+
+- name: "allow cronjob '{{ args.job }}' to check for running docker containers"
+  include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
+    src: sudoers.j2
+    name: "cron_docker_{{ args.job }}"
+
+- name: "cronjob '{{ args.job }}' monitoring writer"
+  include_role:
+    name: pi_server.apps.monitoring.writer
+  vars:
+    user: "{{ args.user }}"
+
+- name: "cronjob '{{ args.job }}' systemd unit"
+  include_role:
+    name: pi_server.utils.systemd_service
+  vars:
+    src: service.j2
+    service: "pi-server-cron-{{ args.job }}"
+    service_notify: "reload cronjobs"

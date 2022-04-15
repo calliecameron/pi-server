@@ -1,32 +1,8 @@
 - include_role:
     name: pi_server.apps.monitoring
 
-- name: etc dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_cron_etc }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: pause dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_cron_pause_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: scripts dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_cron_scripts_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
+- include_role:
+    name: pi_server.apps.cron.base
 
 - name: cron wrapper
   become: yes
@@ -46,41 +22,29 @@
     group: root
     mode: a=rx
 
-- name: user
+- name: cron runner user
   include_role:
     name: pi_server.utils.user
   vars:
-    user: "{{ pi_server_apps_cron_user }}"
-
-- name: monitoring writer
-  include_role:
-    name: pi_server.utils.monitoring_writer
-  vars:
-    user: "{{ pi_server_apps_cron_user }}"
+    user: "{{ pi_server_apps_cron_runner_user }}"
 
 - name: sudoers
   include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
-    user: "{{ pi_server_apps_cron_user }}"
+    name: "{{ pi_server_apps_cron_runner_user }}"
 
 - name: cron runner
-  become: yes
-  ansible.builtin.template:
-    src: cron-runner.j2
-    dest: "{{ pi_server_apps_cron_runner }}"
-    owner: root
-    group: root
-    mode: a=rx
-
-- name: systemd unit
   include_role:
-    name: pi_server.utils.systemd_service
+    name: pi_server.apps.cron.cronjob_script
   vars:
-    src: pi-server-cron.service.j2
-    service: pi-server-cron
-    service_notify: "reload cron runner"
+    job: cron-runner
+    src: cron-runner.j2
+    dest_dir: "{{ pi_server_apps_cron_etc }}"
+    user: "{{ pi_server_apps_cron_runner_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
 
 - name: crontab
   become: yes
@@ -93,13 +57,13 @@
 
 - name: dashboard
   include_role:
-    name: pi_server.utils.custom_dashboard
+    name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: cron.json
 
 - name: alerts
   include_role:
-    name: pi_server.utils.custom_alerts
+    name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: cron-alerts-custom.yml
     job: cron

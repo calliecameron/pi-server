@@ -1,0 +1,11 @@
+- include_role:
+    name: pi_server.apps.cron.base
+
+- name: "pause systemd '{{ service }}' on cron"
+  include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_cron_pause_dir }}/{{ service }}.systemd"
+    owner: root
+    group: root
+    mode: a=r

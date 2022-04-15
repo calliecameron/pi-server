@@ -31,8 +31,8 @@
 - include_role:
     name: pi_server.apps.monitoring
 
-# - include_role:
-#     name: pi_server.apps.cron
+- include_role:
+    name: pi_server.apps.cron
 
 # - include_role:
 #     name: pi_server.apps.updates

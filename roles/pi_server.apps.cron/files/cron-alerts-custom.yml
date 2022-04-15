@@ -1,3 +1,5 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 groups:
   - name: cron alerts custom
     rules:

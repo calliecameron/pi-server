@@ -2,8 +2,14 @@
   include_tasks: "{{ define_role }}"
   vars:
     _private: False
-    _run_once: True
-    _args: []
+    _run_once: False
+    _args:
+      - job
+      - src
+      - dest_dir
+      - user
+      - systemd_conflicts
+      - docker_conflicts
     _host_vars:
       - pi_server_hostname
     _export_vars: []

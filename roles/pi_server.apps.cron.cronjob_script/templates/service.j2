@@ -1,0 +1,9 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Service]
+ExecStart={{ pi_server_apps_cron_cronjob_script_args.dest_dir }}/{{ pi_server_apps_cron_cronjob_script_args.job }}
+User={{ pi_server_apps_cron_cronjob_script_args.user }}
+Group={{ pi_server_apps_cron_cronjob_script_args.user }}
+
+[Install]
+WantedBy=multi-user.target
