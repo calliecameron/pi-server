@@ -4,7 +4,7 @@
 - name: etc dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_site_etc }}"
+    path: "{{ pi_server_apps_control_panel_etc }}"
     state: directory
     owner: root
     group: root
@@ -13,7 +13,7 @@
 - name: fragments dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_site_fragments_dir }}"
+    path: "{{ pi_server_apps_control_panel_fragments_dir }}"
     state: directory
     owner: root
     group: root
@@ -22,7 +22,7 @@
 - name: var dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_site_var }}"
+    path: "{{ pi_server_apps_control_panel_var }}"
     state: directory
     owner: root
     group: root
@@ -31,7 +31,7 @@
 - name: web root dir
   become: yes
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_site_web_root }}"
+    path: "{{ pi_server_apps_control_panel_web_root }}"
     state: directory
     owner: root
     group: root

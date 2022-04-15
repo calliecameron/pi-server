@@ -4,8 +4,8 @@
 - name: entrypoint
   become: yes
   ansible.builtin.template:
-    src: "{{ args.src }}"
-    dest: "{{ pi_server_apps_traefik_entrypoints_dir }}/{{ args.dest }}"
+    src: entrypoint.yml.j2
+    dest: "{{ pi_server_apps_traefik_entrypoints_dir }}/{{ args.name }}.yml"
     owner: root
     group: root
     mode: a=r

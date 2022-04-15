@@ -10,6 +10,8 @@ services:
       - traefik_docker_proxy
     environment:
       CONTAINERS: 1
+    deploy:
+      replicas: 1
 
   traefik:
     image: "traefik:v2.6"
@@ -26,9 +28,11 @@ services:
     networks:
       - "{{ pi_server_apps_traefik_network }}"
       - traefik_docker_proxy
+    deploy:
+      replicas: 1
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.entrypoints={{ pi_server_apps_traefik_control_panel_entrypoint }}"
+      - "traefik.http.routers.dashboard.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
       - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
       - "traefik.http.routers.dashboard.service=api@internal"
 
@@ -36,5 +40,5 @@ networks:
   traefik_docker_proxy:
     driver: bridge
     internal: true
-  traefik:
+  {{ pi_server_apps_traefik_network}}:
     external: true

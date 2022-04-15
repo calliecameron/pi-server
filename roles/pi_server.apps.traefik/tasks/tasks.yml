@@ -1,6 +1,9 @@
 - include_role:
     name: pi_server.apps.docker
 
+- include_role:
+    name: pi_server.apps.control_panel.base
+
 - name: etc dir
   become: yes
   ansible.builtin.file:
@@ -65,3 +68,10 @@
     job: traefik
     host: traefik
     port: "{{ pi_server_apps_traefik_metrics_port }}"
+
+- name: control panel fragment
+  include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: traefik

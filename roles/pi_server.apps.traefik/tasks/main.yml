@@ -10,4 +10,3 @@
       - pi_server_apps_traefik_metrics_port
       - pi_server_apps_traefik_entrypoints_dir
       - pi_server_apps_traefik_ports_file
-      - pi_server_apps_traefik_control_panel_entrypoint

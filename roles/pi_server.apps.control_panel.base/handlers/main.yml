@@ -1,0 +1,9 @@
+- name: assemble control panel
+  become: yes
+  ansible.builtin.assemble:
+    src: "{{ pi_server_apps_control_panel_fragments_dir }}"
+    dest: "{{ pi_server_apps_control_panel_web_root }}/index.html"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  listen: "assemble control panel"

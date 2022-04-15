@@ -1,0 +1,5 @@
+pi_server_apps_control_panel_etc: "{{ pi_server_etc }}/control-panel"
+pi_server_apps_control_panel_fragments_dir: "{{ pi_server_apps_control_panel_etc }}/fragments.d"
+pi_server_apps_control_panel_var: "{{ pi_server_var }}/control-panel"
+pi_server_apps_control_panel_web_root: "{{ pi_server_apps_control_panel_var }}/web-root"
+pi_server_apps_control_panel_entrypoint: "control_panel"
