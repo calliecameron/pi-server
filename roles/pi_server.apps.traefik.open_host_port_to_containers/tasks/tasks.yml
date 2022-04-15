@@ -1,0 +1,14 @@
+- include_role:
+    name: pi_server.apps.firewall
+
+- include_role:
+    name: pi_server.apps.traefik.base
+
+- name: "allow containers on the traefik network to access host port {{ args.port }}"
+  become: yes
+  community.general.ufw:
+    interface_in: "{{ pi_server_apps_traefik_network }}"
+    to_port: "{{ args.port }}"
+    proto: tcp
+    rule: allow
+  notify: reload firewall

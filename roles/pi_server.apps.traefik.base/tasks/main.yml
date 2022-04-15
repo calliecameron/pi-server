@@ -1,0 +1,13 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: True
+    _run_once: True
+    _args: []
+    _host_vars: []
+    _export_vars:
+      - pi_server_apps_traefik_etc
+      - pi_server_apps_traefik_ports_file
+      - pi_server_apps_traefik_entrypoints_dir
+      - pi_server_apps_traefik_user
+      - pi_server_apps_traefik_network

@@ -40,5 +40,5 @@ networks:
   traefik_docker_proxy:
     driver: bridge
     internal: true
-  {{ pi_server_apps_traefik_network}}:
+  "{{ pi_server_apps_traefik_network}}":
     external: true

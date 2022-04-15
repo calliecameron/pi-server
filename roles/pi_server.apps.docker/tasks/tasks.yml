@@ -1,13 +1,6 @@
 - include_role:
     name: pi_server.apps.firewall
 
-# - name: customise firewall
-#   include_role:
-#     name: pi_server.apps.firewall.extra_rules
-#   vars:
-#     src: docker.rules.j2
-#     dest: docker.rules
-
 - name: install docker
   include_role:
     name: geerlingguy.docker
@@ -46,12 +39,19 @@
     job: docker
     host: host.docker.internal
     port: "{{ pi_server_apps_docker_metrics_port }}"
+    metrics_path: /metrics
 
 - name: monitor docker
   include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: docker
+
+- name: expose docker metrics to traefik network
+  include_role:
+    name: pi_server.apps.traefik.open_host_port_to_containers
+  vars:
+    port: "{{ pi_server_apps_docker_metrics_port }}"
 
 - name: refresh facts
   become: yes

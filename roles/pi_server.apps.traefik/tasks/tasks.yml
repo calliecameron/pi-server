@@ -4,51 +4,12 @@
 - include_role:
     name: pi_server.apps.control_panel.base
 
-- name: etc dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_traefik_etc }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_traefik_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: traefik_user
-
-- name: entrypoints dir
-  become: yes
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_traefik_entrypoints_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: ports file
-  include_role:
-    name: pi_server.utils.create_file
-  vars:
-    path: "{{ pi_server_apps_traefik_ports_file }}"
-    owner: root
-    group: root
-    mode: a=r
+- include_role:
+    name: pi_server.apps.traefik.base
 
 - include_tasks: config_file.yml
 
 - include_tasks: compose_file.yml
-
-- name: network
-  become: yes
-  community.docker.docker_network:
-    name: "{{ pi_server_apps_traefik_network }}"
 
 - name: docker compose
   become: yes
@@ -68,6 +29,7 @@
     job: traefik
     host: traefik
     port: "{{ pi_server_apps_traefik_metrics_port }}"
+    metrics_path: /metrics
 
 - name: control panel fragment
   include_role:
