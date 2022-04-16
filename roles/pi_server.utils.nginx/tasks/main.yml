@@ -1,13 +1,14 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: False
-    args:
+    _private: False
+    _run_once: False
+    _args:
+      - name
+      - entrypoint
       - compose_dir
-      - network_number
       - uid
       - gid
       - web_root
-      - host_port
-    host_vars: []
-    export_vars: []
+    _host_vars: []
+    _export_vars: []

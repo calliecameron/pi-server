@@ -1,0 +1,70 @@
+- include_role:
+    name: pi_server.apps.control_panel.base
+
+- name: temp dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_control_panel_temp_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_control_panel_user }}"
+    register: control_panel_user
+
+- name: base files
+  include_role:
+    name: pi_server.utils.bootstrap_site
+  vars:
+    fragments_dir: "{{ pi_server_apps_control_panel_fragments_dir }}"
+    web_root: "{{ pi_server_apps_control_panel_web_root }}"
+    temp_dir: "{{ pi_server_apps_control_panel_temp_dir }}"
+    head_title: "Home | {{ pi_server_hostname }}"
+    body_title: "{{ pi_server_hostname }}"
+    favicon_basename: "favicon"
+    fragments_notify: "assemble control panel"
+
+- name: header
+  include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: main-header.html.j2
+    name: 00-00-main-header
+
+- name: footer
+  include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: main-footer.html.j2
+    name: zz-zz-main-footer
+
+- name: nginx
+  include_role:
+    name: pi_server.utils.nginx
+  vars:
+    name: "{{ pi_server_apps_control_panel_entrypoint }}"
+    entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
+    compose_dir: "{{ pi_server_apps_control_panel_etc }}"
+    uid: "{{ control_panel_user.uid }}"
+    gid: "{{ control_panel_user.group }}"
+    web_root: "{{ pi_server_apps_control_panel_web_root }}"
+
+- name: entrypoint
+  include_role:
+    name: pi_server.apps.traefik.http_entrypoint
+  vars:
+    name: "{{ pi_server_apps_control_panel_entrypoint }}"
+    port: "{{ pi_server_apps_control_panel_traefik_port }}"
+
+- name: open port
+  include_role:
+    name: pi_server.apps.traefik.publish_port
+  vars:
+    container_port: "{{ pi_server_apps_control_panel_traefik_port }}"
+    host_port: "{{ pi_server_control_panel_port }}"
+  when: pi_server_control_panel_port

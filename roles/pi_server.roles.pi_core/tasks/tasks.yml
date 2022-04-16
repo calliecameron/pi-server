@@ -7,9 +7,9 @@
 - include_role:
     name: pi_server.apps.zoneedit
 
-# READY
-# - include_role:
-#     name: pi_server.apps.control_panel
+- include_role:
+    name: pi_server.apps.control_panel
+
 
 # - include_role:
 #     name: pi_server.apps.shutdownd

@@ -1,20 +1,21 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 services:
   nginx:
     image: "nginxinc/nginx-unprivileged:stable-alpine"
-    ports:
-      - "{{ host_port }}:{{ pi_server_utils_nginx_container_port }}"
     restart: always
-    user: "{{ uid }}:{{ gid }}"
+    user: "{{ args.uid }}:{{ args.gid }}"
     volumes:
-      - "{{ web_root }}:/usr/share/nginx/html:ro"
+      - "{{ args.web_root }}:/usr/share/nginx/html:ro"
     networks:
-      nginx:
-        ipv4_address: "172.30.{{ network_number }}.2"
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.nginx_{{ args.name }}.entrypoints={{ args.entrypoint }}"
+      - "traefik.http.routers.nginx_{{ args.name }}.rule=PathPrefix(`/`)"
 
 networks:
-  nginx:
-    driver: bridge
-    ipam:
-      config:
-        - subnet: "172.30.{{ network_number }}.0/24"
-          gateway: "172.30.{{ network_number }}.1"
+  "{{ pi_server_apps_traefik_network }}":
+    external: true

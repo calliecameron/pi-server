@@ -1,8 +1,9 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    run_once: False
-    args:
+    _private: False
+    _run_once: False
+    _args:
       - fragments_dir
       - web_root
       - temp_dir
@@ -10,5 +11,5 @@
       - body_title
       - favicon_basename
       - fragments_notify
-    host_vars: []
-    export_vars: []
+    _host_vars: []
+    _export_vars: []

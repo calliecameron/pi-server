@@ -144,17 +144,23 @@ class Test02PiCore:
             assert log.count(r'.*ZoneEdit update failed') == 1
 
     @for_host_types('pi')
-    def test_main_site(
+    def test_control_panel(
             self,
             hostname: str,
             addrs: Dict[str, str]) -> None:
 
         def test(this_addr: str, other_addr: str) -> None:
+            # Test that the main page links to the other address
             with WebDriver() as driver:
                 driver.get('http://' + this_addr)
                 driver.validate_html()
                 other_links = driver.validate_links()
                 assert len(other_links) == 1 and list(other_links)[0].hostname == other_addr
+
+            # Test that traefik is routing properly by loading some other path
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr + '/prometheus')
+                driver.validate_html()
 
         addr = addrs[hostname]
         local = hostname + '.local'

@@ -1,0 +1,3 @@
+pi_server_apps_control_panel_temp_dir: "{{ pi_server_apps_control_panel_var }}/temp"
+pi_server_apps_control_panel_user: "pi-server-control-panel"
+pi_server_apps_control_panel_traefik_port: "8081"

@@ -777,6 +777,7 @@ Host.journal = _host_journal  # type: ignore
 
 class WebDriver(Firefox):
     def validate_html(self) -> None:
+        assert '404' not in self.page_source
         errors = tidy_document(self.page_source, options={'show-warnings': 0})[1]
         assert not errors
 

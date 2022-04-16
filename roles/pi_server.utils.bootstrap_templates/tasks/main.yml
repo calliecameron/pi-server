@@ -1,0 +1,13 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: False
+    _args:
+      - dest_dir
+      - head_title
+      - body_title
+      - fragments_notify
+    _host_vars: []
+    _export_vars:
+      - pi_server_utils_bootstrap_templates_bootstrap_version

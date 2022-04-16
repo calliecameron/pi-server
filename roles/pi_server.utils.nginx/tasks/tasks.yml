@@ -1,8 +1,14 @@
+- include_role:
+    name: pi_server.apps.docker
+
+- include_role:
+    name: pi_server.apps.traefik
+
 - name: docker compose file
   become: yes
   ansible.builtin.template:
     src: docker-compose.yml.j2
-    dest: "{{ compose_dir }}/docker-compose.yml"
+    dest: "{{ args.compose_dir }}/docker-compose.yml"
     owner: root
     group: root
     mode: a=r
@@ -10,17 +16,10 @@
 - name: docker compose
   become: yes
   community.docker.docker_compose:
-    project_src: "{{ compose_dir }}"
+    project_src: "{{ args.compose_dir }}"
 
-- name: forward nginx port
+- name: monitoring
   include_role:
-    name: pi_server.utils.docker_port_forward
+    name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
-    compose_file: "{{ compose_dir }}/docker-compose.yml"
-    service: nginx
-    container_port: "{{ pi_server_utils_nginx_container_port }}"
-
-- include_role:
-    name: pi_server.utils.monitor_docker_compose
-  vars:
-    compose_file: "{{ compose_dir }}/docker-compose.yml"
+    compose_file: "{{ args.compose_dir }}/docker-compose.yml"
