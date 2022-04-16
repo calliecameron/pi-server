@@ -60,7 +60,7 @@ function stop-services() {
             fi
         elif [[ "${BASENAME}" == *.docker ]]; then
             SERVICE="$(basename "${BASENAME}" '.docker')"
-            if sudo docker stop "${SERVICE}"; then
+            if sudo docker stop "${SERVICE}" >/dev/null; then
                 echo "Stopped docker service '${SERVICE}'"
             else
                 error "couldn't stop docker service '${SERVICE}'"

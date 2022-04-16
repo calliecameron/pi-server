@@ -31,7 +31,7 @@
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
-    name: "cron_docker_{{ args.job }}"
+    name: "cron-docker-check-{{ args.job }}"
 
 - name: "cronjob '{{ args.job }}' monitoring writer"
   include_role:

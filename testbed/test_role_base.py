@@ -228,7 +228,8 @@ WantedBy=multi-user.target
 """
         cron_template = """#!/bin/bash
 echo foo
-source '/etc/pi-server/cron/cron-wrapper.bash' -u {} -c fake1 -c fake2
+source '/etc/pi-server/cron/cron-wrapper.bash' -u {} \\
+    -c fake1.systemd -c fake2.systemd -c pi_test.docker
 echo bar
 
 {}
@@ -251,6 +252,9 @@ echo bar
                     f'state="FAILURE"\\}} {int(failure)}')
 
         try:
+            with host.sudo():
+                host.check_output('docker run -d --name=pi_test --stop-timeout=1 debian sleep 1h')
+
             with host.group_membership('vagrant', 'pi-server-monitoring-writers'), \
                     host.shadow_file('/etc/systemd/system/fake1.service') as fake1_unit, \
                     host.shadow_file('/etc/systemd/system/fake2.service') as fake2_unit, \
@@ -273,18 +277,22 @@ echo bar
 
                     fake1_service = host.service('fake1.service')
                     fake2_service = host.service('fake2.service')
-                    runner = host.service('pi-server-cron.service')
+                    docker_service = host.docker('pi_test')
+                    runner = host.service('pi-server-cron-cron-runner.service')
                     cron1_service = host.service('pi-server-cron-cron1.service')
                     cron2_service = host.service('pi-server-cron-cron2.service')
                     assert fake1_service.is_running
                     assert fake2_service.is_running
+                    with host.sudo():
+                        assert docker_service.is_running
                     assert not runner.is_running
                     assert not cron1_service.is_running
                     assert not cron2_service.is_running
 
                     with host.sudo():
-                        pause_dir.file('fake1').write('')
-                        pause_dir.file('fake2').write('')
+                        pause_dir.file('fake1.systemd').write('')
+                        pause_dir.file('fake2.systemd').write('')
+                        pause_dir.file('pi_test.docker').write('')
 
                     cron1 = cron_dir.file('cron1')
                     cron2 = cron_dir.file('cron2')
@@ -293,6 +301,59 @@ echo bar
                         cron2.write('')
                         host.check_output(f"chmod u=rwx,go=rx '{cron1.path}'")
                         host.check_output(f"chmod u=rwx,go=rx '{cron2.path}'")
+
+                    # Run conditions
+                    with host.shadow_dir('/var/pi-server/monitoring/collect'):
+                        with host.sudo():
+                            cron1.write(cron_template.format('root', 'echo cron1'))
+
+                        # Won't start because wrong user
+                        host.run_expect([1], cron1.path)
+
+                        # Won't start because not under systemd
+                        with host.sudo():
+                            host.run_expect([1], cron1.path)
+
+                        # Won't start because systemd conflicts are running
+                        with host.sudo():
+                            host.run_expect(
+                                [1], 'systemctl start --wait pi-server-cron-cron1.service')
+
+                        try:
+                            with host.sudo():
+                                host.check_output('systemctl stop fake1.service')
+                                host.check_output('systemctl stop fake2.service')
+
+                            # Won't start because docker conflicts are running
+                            with host.sudo():
+                                host.run_expect(
+                                    [1], 'systemctl start --wait pi-server-cron-cron1.service')
+
+                            try:
+                                with host.sudo():
+                                    host.check_output('docker stop pi_test')
+
+                                # Should start successfully
+                                with host.sudo():
+                                    host.check_output(
+                                        'systemctl start --wait pi-server-cron-cron1.service')
+
+                            finally:
+                                with host.sudo():
+                                    host.check_output('docker restart pi_test')
+
+                        finally:
+                            with host.sudo():
+                                host.check_output('systemctl restart fake1.service')
+                                host.check_output('systemctl restart fake2.service')
+
+                        assert fake1_service.is_running
+                        assert fake2_service.is_running
+                        with host.sudo():
+                            assert docker_service.is_running
+                        assert not runner.is_running
+                        assert not cron1_service.is_running
+                        assert not cron2_service.is_running
 
                     # Successful run
                     with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
@@ -305,27 +366,33 @@ echo bar
                                 'vagrant', f"sleep 5\necho 'cron2 {run_stamp}'"))
 
                         with host.run_crons():
-                            time.sleep(2)
+                            time.sleep(5)
                             assert not fake1_service.is_running
                             assert not fake2_service.is_running
+                            with host.sudo():
+                                assert not docker_service.is_running
                             check_state('cron-runner', running=True)
 
                         assert fake1_service.is_running
                         assert fake2_service.is_running
+                        with host.sudo():
+                            assert docker_service.is_running
                         assert not runner.is_running
                         assert not cron1_service.is_running
                         assert not cron2_service.is_running
 
-                        runner_log = journal.entries('pi-server-cron')
+                        runner_log = journal.entries('pi-server-cron-cron-runner')
                         assert runner_log.count(r'.*ERROR.*') == 0
                         assert runner_log.count(r'.*WARNING.*') == 0
                         assert runner_log.count(r'.*FAILURE.*') == 0
                         assert runner_log.count(r'.*KILLED.*') == 0
                         assert runner_log.count(r'.*SUCCESS.*') == 1
-                        assert runner_log.count(r"Stopped service 'fake1'") == 1
-                        assert runner_log.count(r"Stopped service 'fake2'") == 1
-                        assert runner_log.count(r"Started service 'fake1'") == 1
-                        assert runner_log.count(r"Started service 'fake2'") == 1
+                        assert runner_log.count(r"Stopped systemd service 'fake1'") == 1
+                        assert runner_log.count(r"Stopped systemd service 'fake2'") == 1
+                        assert runner_log.count(r"Stopped docker service 'pi_test'") == 1
+                        assert runner_log.count(r"Started systemd service 'fake1'") == 1
+                        assert runner_log.count(r"Started systemd service 'fake2'") == 1
+                        assert runner_log.count(r"Started docker service 'pi_test'") == 1
                         assert runner_log.count(r'Running 2 script\(s\)') == 1
                         assert runner_log.count(r"RUNNING service 'pi-server-cron-cron1'") == 1
                         assert runner_log.count(r"RUNNING service 'pi-server-cron-cron2'") == 1
@@ -334,13 +401,13 @@ echo bar
                         assert runner_log.count(
                             r"FINISHED RUNNING service 'pi-server-cron-cron2'") == 1
                         assert collect_dir.file(
-                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-success.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-success.prom').user == 'pi-server-cron-runner'
                         check_state('cron-runner', success=True)
 
                         cron1_log = journal.entries('pi-server-cron-cron1')
@@ -384,27 +451,33 @@ echo bar
                                 'vagrant', f"sleep 5\necho 'cron2 {run_stamp}'\nfalse"))
 
                         with host.run_crons():
-                            time.sleep(2)
+                            time.sleep(5)
                             assert not fake1_service.is_running
                             assert not fake2_service.is_running
+                            with host.sudo():
+                                assert not docker_service.is_running
                             check_state('cron-runner', running=True)
 
                         assert fake1_service.is_running
                         assert fake2_service.is_running
+                        with host.sudo():
+                            assert docker_service.is_running
                         assert not runner.is_running
                         assert not cron1_service.is_running
                         assert not cron2_service.is_running
 
-                        runner_log = journal.entries('pi-server-cron')
+                        runner_log = journal.entries('pi-server-cron-cron-runner')
                         assert runner_log.count(r'.*ERROR.*') == 0
                         assert runner_log.count(r'.*WARNING.*') == 1
                         assert runner_log.count(r'.*FAILURE.*') == 0
                         assert runner_log.count(r'.*KILLED.*') == 0
                         assert runner_log.count(r'.*SUCCESS.*') == 1
-                        assert runner_log.count(r"Stopped service 'fake1'") == 1
-                        assert runner_log.count(r"Stopped service 'fake2'") == 1
-                        assert runner_log.count(r"Started service 'fake1'") == 1
-                        assert runner_log.count(r"Started service 'fake2'") == 1
+                        assert runner_log.count(r"Stopped systemd service 'fake1'") == 1
+                        assert runner_log.count(r"Stopped systemd service 'fake2'") == 1
+                        assert runner_log.count(r"Stopped docker service 'pi_test'") == 1
+                        assert runner_log.count(r"Started systemd service 'fake1'") == 1
+                        assert runner_log.count(r"Started systemd service 'fake2'") == 1
+                        assert runner_log.count(r"Started docker service 'pi_test'") == 1
                         assert runner_log.count(r'Running 2 script\(s\)') == 1
                         assert runner_log.count(r"RUNNING service 'pi-server-cron-cron1'") == 1
                         assert runner_log.count(r"RUNNING service 'pi-server-cron-cron2'") == 1
@@ -413,13 +486,13 @@ echo bar
                         assert runner_log.count(
                             r".*service 'pi-server-cron-cron2' failed") == 1
                         assert collect_dir.file(
-                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-success.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-success.prom').user == 'pi-server-cron-runner'
                         check_state('cron-runner', success=True)
 
                         cron1_log = journal.entries('pi-server-cron-cron1')
@@ -468,11 +541,13 @@ echo bar
 
                         assert fake1_service.is_running
                         assert fake2_service.is_running
+                        with host.sudo():
+                            assert docker_service.is_running
                         assert not runner.is_running
                         assert not cron1_service.is_running
                         assert not cron2_service.is_running
 
-                        runner_log = journal.entries('pi-server-cron')
+                        runner_log = journal.entries('pi-server-cron-cron-runner')
                         assert runner_log.count(r'.*ERROR.*') == 1
                         assert runner_log.count(r'.*WARNING.*') == 0
                         assert runner_log.count(r'.*FAILURE.*') == 2
@@ -480,11 +555,11 @@ echo bar
                         assert runner_log.count(r'.*SUCCESS.*') == 0
                         assert runner_log.count(r'ERROR: running is disabled') == 1
                         assert collect_dir.file(
-                            'cron-cron-runner-state.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-state.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-start.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-start.prom').user == 'pi-server-cron-runner'
                         assert collect_dir.file(
-                            'cron-cron-runner-stop.prom').user == 'pi-server-cron'
+                            'cron-cron-runner-stop.prom').user == 'pi-server-cron-runner'
                         assert not collect_dir.file('cron-cron-runner-success.prom').exists
                         check_state('cron-runner', failure=True)
 
@@ -515,6 +590,7 @@ echo bar
                     assert not cron2_service.is_running
         finally:
             with host.sudo():
+                host.check_output('docker rm -f pi_test')
                 host.check_output('systemctl daemon-reload')
 
     @for_host_types('pi', 'ubuntu')
