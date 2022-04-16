@@ -13,7 +13,7 @@
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
-    user: "{{ pi_server_apps_updates_user }}"
+    name: "{{ pi_server_apps_updates_user }}"
 
 - name: listchanges.conf
   become: yes
@@ -26,21 +26,23 @@
 
 - name: cronjob
   include_role:
-    name: pi_server.utils.cronjob
+    name: pi_server.apps.cron.cronjob
   vars:
-    job: updates
+    job: apt-updates
     src: updates.j2
     user: "{{ pi_server_apps_updates_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
 
 - name: dashboard
   include_role:
-    name: pi_server.utils.custom_dashboard
+    name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: updates.json
 
 - name: alerts
   include_role:
-    name: pi_server.utils.custom_alerts
+    name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: updates-alerts-custom.yml
     job: updates

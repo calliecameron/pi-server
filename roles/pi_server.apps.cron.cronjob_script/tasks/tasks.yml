@@ -1,4 +1,7 @@
 - include_role:
+    name: pi_server.apps.monitoring
+
+- include_role:
     name: pi_server.apps.cron.base
 
 - name: "cronjob '{{ args.job }}' script"
