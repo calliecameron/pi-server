@@ -19,6 +19,9 @@
 - include_role:
     name: pi_server.roles.pi_core
 
+- include_role:
+    name: pi_server.roles.pi_full
+
 #  - import_tasks: 03_openvpn_clients.yml
 #    become: no
 #

@@ -12,18 +12,3 @@
 
 - include_role:
     name: pi_server.apps.shutdownd
-
-# - include_role:
-#     name: pi_server.utils.enable_forwarding
-
-# - include_role:
-#     name: pi_server.apps.main_storage
-
-# - include_role:
-#     name: pi_server.apps.main_data
-
-# - include_role:
-#     name: pi_server.apps.certs
-
-# - include_role:
-#     name: pi_server.apps.backup
