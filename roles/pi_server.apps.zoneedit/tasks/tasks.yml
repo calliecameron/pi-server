@@ -15,6 +15,7 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_zoneedit_user }}"
+    register:
 
 - name: username file
   become: yes

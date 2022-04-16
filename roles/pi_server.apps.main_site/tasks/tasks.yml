@@ -11,14 +11,11 @@
     mode: u=rwx,go=rx
 
 - name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_main_site_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: main_site_user
+  include_role:
+    pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_main_site_user }}"
+    register: main_site_user
 
 - name: base files
   include_role:

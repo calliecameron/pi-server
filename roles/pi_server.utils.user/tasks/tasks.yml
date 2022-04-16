@@ -9,3 +9,9 @@
     password_lock: yes
     shell: /usr/sbin/nologin
     create_home: no
+  register: temp_user
+
+- name: save user details
+  ansible.builtin.set_fact:
+    "{{ args.register }}": "{{ temp_user }}"
+  when: args.register

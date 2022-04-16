@@ -15,6 +15,7 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_certs_user }}"
+    register:
 
 - name: https key readers group
   become: yes

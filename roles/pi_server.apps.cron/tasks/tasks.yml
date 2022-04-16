@@ -27,6 +27,7 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_cron_runner_user }}"
+    register:
 
 - name: sudoers
   include_role:

@@ -45,6 +45,7 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
+    register:
 
 - include_role:
     name: pi_server.utils.main_data_reader

@@ -11,14 +11,11 @@
     mode: u=rwx,go=rx
 
 - name: user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_traefik_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: traefik_user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_traefik_user }}"
+    register: traefik_user
 
 - name: entrypoints dir
   become: yes

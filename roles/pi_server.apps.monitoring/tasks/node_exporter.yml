@@ -1,12 +1,9 @@
 - name: node exporter user
-  become: yes
-  ansible.builtin.user:
-    name: "{{ pi_server_apps_monitoring_node_exporter_user }}"
-    password: !
-    password_lock: yes
-    shell: /usr/sbin/nologin
-    create_home: no
-  register: node_exporter_user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_monitoring_node_exporter_user }}"
+    register: node_exporter_user
 
 - name: node exporter collect dir
   become: yes

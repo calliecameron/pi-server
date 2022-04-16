@@ -6,6 +6,7 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
+    register:
 
 - name: readers group
   become: yes
