@@ -1,0 +1,13 @@
+- include_role:
+    name: pi_server.apps.docker
+
+- name: build image
+  become: yes
+  community.docker.docker_image:
+    name: "{{ args.name }}"
+    source: build
+    force_source: true
+    build:
+      path: "{{ args.dir }}"
+      pull: yes
+  notify: "{{ args.notify }}"

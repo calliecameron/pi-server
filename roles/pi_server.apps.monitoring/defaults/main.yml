@@ -19,5 +19,6 @@ pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
 pi_server_apps_monitoring_webhook_dir: "{{ pi_server_apps_monitoring_etc }}/webhook"
 pi_server_apps_monitoring_webhook_port: "9000"
 pi_server_apps_monitoring_webhook_id: "alert"
+pi_server_apps_monitoring_webhook_image: "pi_server_webhook"
 
 pi_server_apps_monitoring_cadvisor_port: "8080"

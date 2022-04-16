@@ -42,11 +42,9 @@
     mode: a=r
 
 - name: build webhook image
-  become: yes
-  community.docker.docker_image:
-    name: webhook
-    source: build
-    force_source: true
-    build:
-      path: "{{ pi_server_apps_monitoring_webhook_dir }}"
-  notify: reload monitoring
+  include_role:
+    name: pi_server.apps.docker.build
+  vars:
+    name: "{{ pi_server_apps_monitoring_webhook_image }}"
+    dir: "{{ pi_server_apps_monitoring_webhook_dir }}"
+    notify: "reload monitoring"

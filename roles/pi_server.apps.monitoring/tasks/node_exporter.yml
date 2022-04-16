@@ -14,12 +14,6 @@
     group: "{{ pi_server_apps_monitoring_writers_group }}"
     mode: u=rwx,g=rwxt,o=rx
 
-- name: install acl
-  become: yes
-  ansible.builtin.package:
-    name: acl
-    state: present
-
 - name: collect dir ACLs
   become: yes
   ansible.posix.acl:

@@ -106,7 +106,7 @@ services:
       - "traefik.http.routers.cadvisor.rule=PathPrefix(`/cadvisor`)"
 
   webhook:
-    image: webhook
+    image: "{{ pi_server_apps_monitoring_webhook_image }}"
     restart: always
     user: "{{ webhook_user.uid }}:{{ webhook_user.group }}"
     volumes:

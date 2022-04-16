@@ -27,6 +27,7 @@
   become: yes
   ansible.builtin.apt:
     name:
+      - acl
       - apt-listchanges
       - curl
       - dialog
