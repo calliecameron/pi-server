@@ -37,12 +37,14 @@
 
 - name: script
   include_role:
-    name: pi_server.utils.cronjob_script
+    name: pi_server.apps.cron.cronjob_script
   vars:
-    script_job: zoneedit
-    script_src: zoneedit.j2
-    script_dest_dir: "{{ pi_server_apps_zoneedit_etc }}"
-    script_user: "{{ pi_server_apps_zoneedit_user }}"
+    job: zoneedit
+    src: zoneedit.j2
+    dest_dir: "{{ pi_server_apps_zoneedit_etc }}"
+    user: "{{ pi_server_apps_zoneedit_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
 
 - name: hourly cronjob
   become: yes
