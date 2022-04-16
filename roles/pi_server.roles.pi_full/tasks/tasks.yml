@@ -1,11 +1,8 @@
 - include_role:
     name: pi_server.roles.pi_core
 
-# - include_role:
-#     name: pi_server.utils.enable_forwarding
-
-# - include_role:
-#     name: pi_server.apps.main_storage
+- include_role:
+    name: pi_server.apps.main_storage
 
 # - include_role:
 #     name: pi_server.apps.main_data
@@ -15,3 +12,6 @@
 
 # - include_role:
 #     name: pi_server.apps.backup
+
+# - include_role:
+#     name: pi_server.utils.enable_forwarding
