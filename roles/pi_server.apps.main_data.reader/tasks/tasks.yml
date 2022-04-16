@@ -1,10 +1,10 @@
 - include_role:
     name: pi_server.apps.main_data
 
-- name: "add {{ user }} to main data readers"
+- name: "add {{ args.user }} to main data readers"
   become: yes
   ansible.builtin.user:
-    name: "{{ user }}"
+    name: "{{ args.user }}"
     groups:
       - "{{ pi_server_apps_main_data_readers_group }}"
     append: yes
