@@ -1,10 +1,12 @@
 #!/bin/bash
 
+set -eu
+
 function usage() {
     echo "Usage: $(basename "${0}") cert"
     exit 1
 }
 
-test -z "${1}" && usage
+test -z "${1:-}" && usage
 
 openssl x509 -in "${1}" -noout -text

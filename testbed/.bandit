@@ -1,2 +1,2 @@
 [bandit]
-skips = B101,B108
+skips = B101,B105,B108

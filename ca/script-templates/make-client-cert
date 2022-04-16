@@ -1,0 +1,54 @@
+#!/bin/bash
+
+set -eu
+
+CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
+export CA_DIR # openssl.conf uses this
+
+read -r -p "Enter the certificate's name (arbitrary, but should be unique and descriptive, i.e. the client's hostname): " CERT_NAME
+
+if [ -z "${CERT_NAME}" ]; then
+    echo "Certificate name must not be empty"
+    exit 1
+fi
+
+read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
+read -r -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo
+read -r -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo
+
+if [ "${PKCS_PASSWD}" != "${PKCS_PASSWD2}" ]; then
+    echo "The passwords do not match"
+    exit 1
+fi
+
+# Create directory structure
+CERT_DIR="${CA_DIR}/certs/client/${CERT_NAME}__$(date '+%Y_%m_%d_%H_%M_%S')"
+mkdir -p "${CERT_DIR}"
+chmod u=rwx,go= "${CERT_DIR}"
+
+# Certificate request
+openssl req -config "${CA_DIR}/openssl.conf" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${CERT_NAME}" -newkey rsa -keyout "${CERT_DIR}/${CERT_NAME}.key" -out "${CERT_DIR}/${CERT_NAME}.csr" -outform PEM -nodes
+
+# Sign
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl ca -config "${CA_DIR}/openssl.conf" -in "${CERT_DIR}/${CERT_NAME}.csr" -out "${CERT_DIR}/${CERT_NAME}.crt" -outdir "${CA_DIR}/data" -batch -passin fd:3
+
+# Make PKCS#12 file
+exec 3<<EOF
+${PKCS_PASSWD}
+EOF
+
+openssl pkcs12 -export -out "${CERT_DIR}/${CERT_NAME}.p12" -in "${CERT_DIR}/${CERT_NAME}.crt" -inkey "${CERT_DIR}/${CERT_NAME}.key" -name "${CERT_NAME}" -passin pass: -passout fd:3
+
+# Cleanup
+rm "${CERT_DIR}/${CERT_NAME}.csr"
+chmod u=r,go= "${CERT_DIR}/${CERT_NAME}.key"
+chmod a=r "${CERT_DIR}/${CERT_NAME}.crt"
+chmod u=r,go= "${CERT_DIR}/${CERT_NAME}.p12"
+
+cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}"
+cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
+cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}"

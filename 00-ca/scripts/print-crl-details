@@ -1,5 +1,0 @@
-#!/bin/bash
-
-# shellcheck disable=SC2155
-export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
-openssl crl -in "${CA_DIR}/ca/crl" -noout -text

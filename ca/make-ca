@@ -1,0 +1,81 @@
+#!/bin/bash
+
+set -eu
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+function usage() {
+    cat <<EOF
+Usage: $(basename "${0}") new_ca_dir your_name
+    new_ca_dir must not already exist, and should probably be somewhere encrypted.
+    your_name will be used as the 'organisation' field in the created certificates
+EOF
+    exit 1
+}
+
+CA_DIR="${1:-}"
+YOUR_NAME="${2:-}"
+
+test -z "${CA_DIR}" && usage
+test -e "${CA_DIR}" && usage
+test -z "${YOUR_NAME}" && usage
+
+function get-new-password() {
+    local PASSWD_1
+    local PASSWD_2
+
+    read -r -s -p "Enter the new password for the root CA key: " PASSWD_1
+    echo 1>&2
+    if [ -z "${PASSWD_1}" ]; then
+        echo 'Error: password must not be empty' 1>&2
+        exit 1
+    fi
+
+    read -r -s -p 'Enter the new password again: ' PASSWD_2
+    echo 1>&2
+    if [ "${PASSWD_1}" != "${PASSWD_2}" ]; then
+        echo 'Error: the passwords do not match' 1>&2
+        exit 1
+    fi
+
+    echo "${PASSWD_1}"
+}
+
+PASSWD="$(get-new-password)"
+
+# Create the directory structure
+mkdir -p "${CA_DIR}"
+mkdir -p "${CA_DIR}/ca"
+mkdir -p "${CA_DIR}/data"
+mkdir -p "${CA_DIR}/certs/server"
+mkdir -p "${CA_DIR}/certs/client"
+cp -a "${DIR}/scripts" "${CA_DIR}/scripts"
+sed "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${DIR}/openssl-conf-template" >"${CA_DIR}/openssl.conf"
+sed "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${DIR}/script-templates/make-client-cert" >"${CA_DIR}/scripts/make-client-cert"
+sed "s|@@@@@1@@@@@|${YOUR_NAME}|g" "${DIR}/script-templates/make-pi-server-certs" >"${CA_DIR}/scripts/make-pi-server-certs"
+touch "${CA_DIR}/data/index.txt"
+echo 00 >"${CA_DIR}/data/serial.txt"
+chmod -R u=rwx,go= "${CA_DIR}"
+
+export CA_DIR # openssl.conf uses this
+
+# Create the root CA certificate; valid for 10 years
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -days 3650 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3
+chmod ugo=r "${CA_DIR}/ca/ca.crt"
+chmod u=r,go= "${CA_DIR}/ca/ca.key"
+
+# Create the CRL
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3
+chmod u=rw,go=r "${CA_DIR}/ca/crl"
+
+# Create the OpenVPN pre-shared key (extra layer on top of TLS)
+openvpn --genkey --secret "${CA_DIR}/ca/openvpn-tls-auth.key"
+chmod u=r,go= "${CA_DIR}/ca/openvpn-tls-auth.key"

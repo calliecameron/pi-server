@@ -1,0 +1,28 @@
+#!/bin/bash
+
+set -eu
+
+CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
+export CA_DIR # openssl.conf uses this
+
+if tty -s; then
+    read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
+else
+    read -r PASSWD
+fi
+
+exec 3<<EOF
+${PASSWD}
+EOF
+
+openssl ca -config "${CA_DIR}/openssl.conf" -gencrl -out "${CA_DIR}/ca/crl" -passin fd:3
+
+chmod u=rw,go=r "${CA_DIR}/ca/crl"
+
+find "${CA_DIR}/certs/server" -type d | while read -r line; do
+    cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/server/$(basename "${line}")"
+done
+
+find "${CA_DIR}/certs/client" -type d | while read -r line; do
+    cp "${CA_DIR}/ca/crl" "${CA_DIR}/certs/client/$(basename "${line}")"
+done

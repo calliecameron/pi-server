@@ -6,7 +6,7 @@ from cryptography.x509.oid import ExtensionOID
 from testinfra.host import Host
 
 
-class Test00CA:
+class TestCA:
     def test_00_ca(self, hosts: Dict[str, Host]) -> None:
         host = hosts['internet']
         test_root_dir = '/home/vagrant/ca-test'
@@ -27,13 +27,13 @@ class Test00CA:
             for d in dirs:
                 if d.startswith(prefix):
                     return d
-            raise ValueError("Can't find dir matching '%s' in %s" % (prefix, dirs))
+            raise ValueError(f"Can't find dir matching '{prefix}' in {dirs}")
 
         try:
             # Setup
-            host.check_output('mkdir %s' % test_root_dir)
+            host.check_output(f'mkdir {test_root_dir}')
             check_with_stdin(
-                '%s /vagrant/00-ca/00-make-ca %s pi-server' % (openvpn_path, root_dir),
+                f'{openvpn_path} /vagrant/ca/make-ca {root_dir} pi-server',
                 [password, password, '', '', 'Test CA'])
 
             check_with_stdin(
@@ -55,7 +55,7 @@ class Test00CA:
             server_dir = os.path.join(
                 servers_dir, matching_dir(host.file(servers_dir).listdir(), '192.168.0.1'))
             server_openvpn_cert = os.path.join(server_dir, 'openvpn.crt')
-            server_nginx_cert = os.path.join(server_dir, 'nginx.crt')
+            server_https_cert = os.path.join(server_dir, 'https.crt')
 
             # Verify
             ca = load_pem_x509_certificate(host.file(ca_cert).content)
@@ -91,18 +91,19 @@ class Test00CA:
             assert openvpn.not_valid_before.date() == today
             assert openvpn.not_valid_after.date() == ten_years
 
-            nginx = load_pem_x509_certificate(host.file(server_nginx_cert).content)
-            assert nginx.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
-            assert (nginx.subject.rfc4514_string() ==
+            https = load_pem_x509_certificate(host.file(server_https_cert).content)
+            assert https.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
+            assert (https.subject.rfc4514_string() ==
                     'CN=192.168.0.1,O=pi-server,C=GB')
-            assert not nginx.extensions.get_extension_for_oid(
+            assert not https.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value.ca
-            assert nginx.not_valid_before.date() == today
-            assert nginx.not_valid_after.date() == ten_years
+            assert https.not_valid_before.date() == today
+            assert https.not_valid_after.date() == ten_years
 
             # Revoke
+            path = os.path.join(scripts_dir, 'revoke-cert')
             check_with_stdin(
-                '%s %s' % (os.path.join(scripts_dir, 'revoke-cert'), c2_cert),
+                f'{path} {c2_cert}',
                 [password, password])
 
             crl = load_pem_x509_crl(host.file(crl_file).content)
@@ -110,4 +111,4 @@ class Test00CA:
             assert crl.get_revoked_certificate_by_serial_number(1)
 
         finally:
-            host.check_output('rm -r %s' % test_root_dir)
+            host.check_output(f'rm -r {test_root_dir}')

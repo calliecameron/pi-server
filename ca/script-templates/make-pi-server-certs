@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -eu
+
+CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
+export CA_DIR # openssl.conf uses this
+
+read -r -p "Enter the server's LAN IP address (MUST be correct, or nothing will work!): " SERVER_ADDR
+read -r -p "Enter the server's hostname (MUST be correct, or nothing will work!): " SERVER_HOSTNAME
+
+if [ -z "${SERVER_ADDR}" ]; then
+    echo "Server address must not be empty"
+    exit 1
+fi
+
+if [ -z "${SERVER_HOSTNAME}" ]; then
+    echo "Server hostname must not be empty"
+    exit 1
+fi
+
+read -r -s -p "Enter the password for the root CA key: " PASSWD && echo
+
+# Create directory structure
+CERT_DIR="${CA_DIR}/certs/server/${SERVER_ADDR}__$(date '+%Y_%m_%d_%H_%M_%S')"
+LOCAL_CONF="${CERT_DIR}/openssl.conf"
+mkdir -p "${CERT_DIR}"
+chmod u=rwx,go= "${CERT_DIR}"
+cp "${CA_DIR}/openssl.conf" "${LOCAL_CONF}"
+chmod u=rw,go= "${LOCAL_CONF}"
+echo "DNS.1 = ${SERVER_HOSTNAME}.local" >>"${LOCAL_CONF}"
+echo "IP.1 = ${SERVER_ADDR}" >>"${LOCAL_CONF}"
+
+function do-cert() {
+    # Certificate request
+    openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes
+
+    # Sign
+    exec 3<<EOF
+${PASSWD}
+EOF
+    openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3
+
+    # Cleanup
+    rm "${CERT_DIR}/${1}.csr"
+    chmod u=r,go= "${CERT_DIR}/${1}.key"
+    chmod a=r "${CERT_DIR}/${1}.crt"
+}
+
+do-cert 'https' "${SERVER_ADDR}"
+do-cert 'openvpn' "${SERVER_ADDR} OpenVPN"
+
+# Diffie-Helman parameters for OpenVPN
+openssl dhparam -outform PEM -out "${CERT_DIR}/openvpn-dh2048.pem" 2048
+chmod a=r "${CERT_DIR}/openvpn-dh2048.pem"
+
+cp "${CA_DIR}/ca/ca.crt" "${CERT_DIR}"
+cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
+cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}"
+
+# The deployment key needs no password, since it will only give read-only access
+ssh-keygen -t rsa -N '' -f "${CERT_DIR}/deployment-key"

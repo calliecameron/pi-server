@@ -1,26 +1,26 @@
 #!/bin/bash
 
+set -eu
+
 function usage() {
     echo "Usage: $(basename "${0}") cert"
     exit 1
 }
 
-test -z "${1}" && usage
+test -z "${1:-}" && usage
 test ! -e "${1}" && usage
 
-# shellcheck disable=SC2155
-export CA_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )/.." &&
+CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
+export CA_DIR # openssl.conf uses this
 
-read -r -s -p "Enter the password to unlock the root CA key:" PASSWD && echo &&
-
+read -r -s -p "Enter the password to unlock the root CA key:" PASSWD && echo
 
 # Revoke the certificate
 exec 3<<EOF
 ${PASSWD}
 EOF
 
-openssl ca -config "${CA_DIR}/openssl.conf" -revoke "${1}" -passin fd:3 &&
-
+openssl ca -config "${CA_DIR}/openssl.conf" -revoke "${1}" -passin fd:3
 
 # Update the CRL
 exec 3<<EOF
@@ -29,7 +29,6 @@ EOF
 
 "${CA_DIR}/scripts/generate-crl" <&3
 
-
-echo &&
-echo &&
+echo
+echo
 echo "The CRL has been updated; please install it on all servers."

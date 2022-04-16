@@ -7,7 +7,7 @@
 - name: generate CA
   become: no
   ansible.builtin.shell:
-    cmd: "PATH=\"/usr/sbin:${PATH}\" {{ pi_server_testbed_apps_ca_scripts }}/00-make-ca {{ pi_server_testbed_apps_ca_out }} pi-server"
+    cmd: "PATH=\"/usr/sbin:${PATH}\" {{ pi_server_testbed_apps_ca_scripts }}/make-ca {{ pi_server_testbed_apps_ca_out }} pi-server"
     stdin: |
       foobar
       foobar
