@@ -109,15 +109,10 @@ services:
     image: webhook
     restart: always
     user: "{{ webhook_user.uid }}:{{ webhook_user.group }}"
-    command:
-      - "-verbose"
-      - "-nopanic"
-      - "-hooks"
-      - "/etc/webhook.conf"
-      - "-port"
-      - "{{ pi_server_apps_monitoring_webhook_port }}"
     volumes:
+      - "/etc/ssmtp:/etc/ssmtp:ro"
       - "{{ pi_server_apps_email_script }}:/send-email:ro"
+      - "/etc/passwd:/etc/passwd:ro"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
     deploy:

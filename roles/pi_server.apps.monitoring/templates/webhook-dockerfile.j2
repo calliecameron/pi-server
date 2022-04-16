@@ -1,27 +1,8 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
-# Based on https://github.com/almir/docker-webhook - but that image doesn't
-# get built for arm64, so we have to build our own.
-FROM        golang:alpine3.11 AS build
-WORKDIR     /go/src/github.com/adnanh/webhook
-ENV         WEBHOOK_VERSION 2.8.0
-RUN         apk add --update -t build-deps curl libc-dev gcc libgcc
-RUN         curl -L --silent -o webhook.tar.gz https://github.com/adnanh/webhook/archive/${WEBHOOK_VERSION}.tar.gz && \
-            tar -xzf webhook.tar.gz --strip 1 &&  \
-            go get -d && \
-            go build -o /usr/local/bin/webhook && \
-            apk del --purge build-deps && \
-            rm -rf /var/cache/apk/* && \
-            rm -rf /go
-
-FROM        python:3-alpine
-COPY        --from=build /usr/local/bin/webhook /usr/local/bin/webhook
-RUN         apk add --no-cache bash ssmtp
-COPY        webhook.conf /etc/webhook.conf
-COPY        webhook-alert /webhook-alert
-COPY        ssmtp.conf /etc/ssmtp/ssmtp.conf
-RUN         adduser -D -H -g '' -u '{{ webhook_user.uid }}' '{{ pi_server_apps_monitoring_webhook_user }}'
-RUN         chown '{{ pi_server_apps_monitoring_webhook_user }}:root' /etc/ssmtp/ssmtp.conf
-RUN         chmod 'ug=r,o=' /etc/ssmtp/ssmtp.conf
-USER        {{ pi_server_apps_monitoring_webhook_user }}
-EXPOSE      {{ pi_server_apps_monitoring_webhook_port }}
-ENTRYPOINT  ["/usr/local/bin/webhook"]
+FROM python:3.10-bullseye
+RUN apt-get update && apt-get install -y ssmtp webhook && rm -rf /var/lib/apt/lists/*
+COPY webhook.conf /etc/webhook.conf
+COPY webhook-alert /webhook-alert
+EXPOSE {{ pi_server_apps_monitoring_webhook_port }}
+ENTRYPOINT ["/usr/bin/webhook"]
+CMD ["-verbose", "-nopanic", "-hooks", "/etc/webhook.conf", "-port", "{{ pi_server_apps_monitoring_webhook_port }}"]
