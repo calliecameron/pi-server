@@ -1,5 +1,5 @@
 - include_role:
-    name: pi_server.apps.main_site
+    name: pi_server.apps.control_panel
 
 - name: etc dir
   become: yes
@@ -17,20 +17,21 @@
     user: "{{ pi_server_apps_shutdownd_user }}"
     register:
 
-- include_role:
+- name: sudoers
+  include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
-    user: "{{ pi_server_apps_shutdownd_user }}"
+    name: "{{ pi_server_apps_shutdownd_user }}"
 
-- name: main templates
+- name: bootstrap templates
   include_role:
-    name: pi_server.utils.page_templates
+    name: pi_server.utils.bootstrap_templates
   vars:
     dest_dir: "{{ pi_server_apps_shutdownd_etc }}"
     head_title: "#####1##### | {{ pi_server_hostname }}"
     body_title: "{{ pi_server_hostname }}"
-    fragments_notify:
+    fragments_notify: "shutdownd noop"
 
 - name: script
   become: yes
@@ -41,7 +42,8 @@
     group: root
     mode: a=rx
 
-- include_role:
+- name: systemd service
+  include_role:
     name: pi_server.utils.systemd_service
   vars:
     src: service.j2
@@ -50,25 +52,34 @@
 
 - name: pause on cron
   include_role:
-    name: pi_server.utils.pause_on_cron
+    name: pi_server.apps.cron.pause_systemd_on_cron
   vars:
     service: "{{ pi_server_apps_shutdownd_service }}"
 
-- name: firewall
-  include_role:
-    name: pi_server.utils.tcp_port
-  vars:
-    port: "{{ pi_server_apps_shutdownd_port }}"
-
 - name: monitoring
   include_role:
-    name: pi_server.utils.monitor_systemd_service
+    name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_shutdownd_service }}"
 
-- name: dashboard links
+- name: expose to traefik network
   include_role:
-    name: pi_server.utils.main_site_fragment
+    name: pi_server.apps.traefik.open_host_port_to_containers
+  vars:
+    port: "{{ pi_server_apps_shutdownd_port }}"
+
+- name: add to traefik
+  include_role:
+    name: pi_server.apps.traefik.http_host_service
+  vars:
+    name: shutdownd
+    entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
+    path_prefix: "shutdownd"
+    port: "{{ pi_server_apps_shutdownd_port }}"
+
+- name: control panel links
+  include_role:
+    name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
-    dest: zz-shutdownd.html
+    name: zz-shutdownd

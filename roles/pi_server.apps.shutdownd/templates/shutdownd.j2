@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
 import http.server
 import subprocess
@@ -10,8 +11,8 @@ WEBPAGE_FOOTER = '{{ pi_server_apps_shutdownd_etc }}/zz-footer.html'
 # Though this is really an int, we keep it as a string here so the linter
 # doesn't complain about the templating
 PORT = '{{ pi_server_apps_shutdownd_port }}'
-SHUTDOWN_URL = '/shutdown'
-RESTART_URL = '/restart'
+SHUTDOWN_URL = '/shutdownd/shutdown'
+RESTART_URL = '/shutdownd/restart'
 
 MAIN_PAGE_BODY = """
 <h1>%s</h1>
@@ -21,12 +22,8 @@ MAIN_PAGE_BODY = """
     <button class="btn btn-outline-primary"
       style="margin-top: 10px; margin-bottom: 10px;"
       type="submit" name="btn" value="btn">%s</button>
-    <script type="text/javascript">
-      document.write(
-        '<a class="btn btn-outline-primary" style="margin-top: 10px; ' +
-        'margin-bottom: 10px;" href="http://' +
-        window.location.hostname +
-        '/">Cancel</a>');
+    <a class="btn btn-outline-primary" style="margin-top: 10px;
+      margin-bottom: 10px;" href="/">Cancel</a>
     </script>
   </div>
 </form>

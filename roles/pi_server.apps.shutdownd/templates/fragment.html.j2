@@ -1,13 +1,9 @@
 <h3>Power</h3>
 <ul>
-    <li>
-        <script type="text/javascript">
-            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_shutdownd_port }}/restart">Restart</a>');
-        </script>
-    </li>
-    <li>
-        <script type="text/javascript">
-            document.write('<a href="http://' + window.location.hostname + ':{{ pi_server_apps_shutdownd_port }}/shutdown">Shut down</a>');
-        </script>
-    </li>
+  <li>
+    <a href="/shutdownd/restart">Restart</a>
+  </li>
+  <li>
+    <a href="/shutdownd/shutdown">Shut down</a>
+  </li>
 </ul>
