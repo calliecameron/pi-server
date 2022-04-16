@@ -90,6 +90,27 @@ class TestRolePiFull:
                 metrics = Lines(collect_dir.file('certs.prom').content_string)
             assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 4
 
+    @for_host_types('pi')
+    def test_syncthing(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str]) -> None:
+        # For now we just do some basic checks
+        host = hosts[hostname]
+        assert host.service('pi-server-syncthing').is_enabled
+        assert host.service('pi-server-syncthing').is_running
+        assert host.process.filter(user='pi-server-data', comm='syncthing')
+
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element_by_link_text('Control panel')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+
+        test(addrs[hostname])
+        test(hostname + '.local')
+
     # @for_host_types('pi')
     # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
     #     """This just installs the openvpn service, not any configs."""
@@ -115,13 +136,13 @@ class TestRolePiFull:
         #     assert host.file('/mnt/backup/pi-server-backup/main').user == 'root'
         #     assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
 
-            # assert host.file('/mnt/backup/pi-server-backup/git').exists
-            # assert host.file('/mnt/backup/pi-server-backup/git').user == 'www-data'
-            # assert host.file('/mnt/backup/pi-server-backup/git').group == 'www-data'
+        # assert host.file('/mnt/backup/pi-server-backup/git').exists
+        # assert host.file('/mnt/backup/pi-server-backup/git').user == 'www-data'
+        # assert host.file('/mnt/backup/pi-server-backup/git').group == 'www-data'
 
-            # assert host.file('/mnt/backup/pi-server-backup/email').exists
-            # assert host.file('/mnt/backup/pi-server-backup/email').user == 'root'
-            # assert host.file('/mnt/backup/pi-server-backup/email').group == 'root'
+        # assert host.file('/mnt/backup/pi-server-backup/email').exists
+        # assert host.file('/mnt/backup/pi-server-backup/email').user == 'root'
+        # assert host.file('/mnt/backup/pi-server-backup/email').group == 'root'
 
     #     def main_backup_file(path: File, backup: str) -> File:
     #         return host.file(

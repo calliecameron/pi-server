@@ -1,0 +1,1 @@
+pi_server_apps_syncthing_system_config_dir: "{{ pi_server_apps_main_data_config_dir }}/syncthing"

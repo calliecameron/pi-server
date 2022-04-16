@@ -1,5 +1,0 @@
-<li>
-  <script language="JavaScript">
-    document.write('<a href="https://' + window.location.hostname + ':8080/">Syncthing control panel</a>');
-  </script>
-</li>

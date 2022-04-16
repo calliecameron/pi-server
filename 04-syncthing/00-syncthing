@@ -1,9 +1,0 @@
-#!/bin/bash
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
-source "${DIR}/common.bash" &&
-
-
-"${DIR}/setup-syncthing.sh" 'www-data' \
-                            "${PI_SERVER_SYNCTHING_CONFIG}" \
-                            "${PI_SERVER_DATA_MAIN_DIR}"

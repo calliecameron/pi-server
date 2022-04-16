@@ -1,0 +1,14 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Unit]
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/syncthing "-gui-address=0.0.0.0:{{ pi_server_apps_syncthing_web_port }}" "-home={{ pi_server_apps_syncthing_base_args.config_dir }}" -no-browser
+Restart=always
+User={{ pi_server_apps_syncthing_base_args.user }}
+Group={{ pi_server_apps_syncthing_base_args.user }}
+Environment="HOME={{ pi_server_apps_syncthing_base_args.home_dir }}"
+
+[Install]
+WantedBy=multi-user.target

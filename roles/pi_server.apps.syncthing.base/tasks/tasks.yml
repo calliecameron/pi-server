@@ -1,0 +1,158 @@
+- include_role:
+    name: pi_server.apps.certs
+
+- name: give access to https key
+  include_role:
+    name: pi_server.apps.certs.https_key_reader
+  vars:
+    user: "{{ args.user }}"
+
+- name: apt key
+  become: yes
+  ansible.builtin.apt_key:
+    url: "https://syncthing.net/release-key.gpg"
+
+- name: apt repo
+  become: yes
+  ansible.builtin.apt_repository:
+    repo: "deb https://apt.syncthing.net/ syncthing stable"
+
+- name: install
+  become: yes
+  ansible.builtin.package:
+    name: syncthing
+    state: present
+
+- name: config dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ args.config_dir }}"
+    state: directory
+    owner: "{{ args.user }}"
+    group: "{{ args.user }}"
+    mode: u=rwx,go=
+
+- name: https cert symlink
+  become: yes
+  ansible.builtin.file:
+    path: "{{ args.config_dir }}/https-cert.pem"
+    src: "{{ pi_server_apps_certs_https_cert }}"
+    state: link
+
+- name: https key symlink
+  become: yes
+  ansible.builtin.file:
+    path: "{{ args.config_dir }}/https-key.pem"
+    src: "{{ pi_server_apps_certs_https_key }}"
+    state: link
+
+- name: generate initial config
+  become: yes
+  become_user: "{{ args.user }}"
+  ansible.builtin.command:
+    cmd: "syncthing '-generate={{ args.config_dir }}'"
+    creates: "{{ args.config_dir }}/config.xml"
+
+- name: disable global discovery
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/globalAnnounceEnabled"
+    value: "false"
+
+- name: disable start browser
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/startBrowser"
+    value: "false"
+
+- name: disable relaying
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/relaysEnabled"
+    value: "false"
+
+- name: disable NAT
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/natEnabled"
+    value: "false"
+
+- name: disable usage reporting
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/urAccepted"
+    value: "-1"
+
+- name: disable crash reporting
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/options/crashReportingEnabled"
+    value: "false"
+
+- name: systemd service
+  include_role:
+    name: pi_server.utils.systemd_service
+  vars:
+    src: service.j2
+    service: "{{ pi_server_apps_syncthing_service }}"
+    service_notify: "reload syncthing"
+
+- name: monitoring
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
+  vars:
+    systemd_service: "{{ pi_server_apps_syncthing_service }}"
+
+- name: pause on cron
+  include_role:
+    name: pi_server.apps.cron.pause_systemd_on_cron
+  vars:
+    service: "{{ pi_server_apps_syncthing_service }}"
+
+# Currently doesn't work with traefik
+
+# - name: expose to traefik network
+#   include_role:
+#     name: pi_server.apps.traefik.open_host_port_to_containers
+#   vars:
+#     port: "{{ pi_server_apps_syncthing_web_port }}"
+
+# - name: add to traefik
+#   include_role:
+#     name: pi_server.apps.traefik.http_host_service
+#   vars:
+#     name: syncthing-web
+#     entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
+#     path_prefix: "syncthing"
+#     port: "{{ pi_server_apps_syncthing_web_port }}"
+
+- name: control panel fragment
+  include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: syncthing
+
+- name: web port
+  include_role:
+    name: pi_server.apps.firewall.tcp_port
+  vars:
+    port: "{{ pi_server_apps_syncthing_web_port }}"
+
+- name: tcp port
+  include_role:
+    name: pi_server.apps.firewall.tcp_port
+  vars:
+    port: "{{ pi_server_apps_syncthing_tcp_port }}"
+
+- name: udp port
+  include_role:
+    name: pi_server.apps.firewall.udp_port
+  vars:
+    port: "{{ pi_server_apps_syncthing_udp_port }}"

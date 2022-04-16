@@ -1,0 +1,4 @@
+pi_server_apps_syncthing_web_port: "8384"
+pi_server_apps_syncthing_tcp_port: "22000"
+pi_server_apps_syncthing_udp_port: "21027"
+pi_server_apps_syncthing_service: "pi-server-syncthing"

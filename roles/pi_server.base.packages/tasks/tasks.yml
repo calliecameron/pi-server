@@ -34,6 +34,7 @@
       - etckeeper
       - git
       - htop
+      - python3-lxml
       - rsync
       - tmux
       - unzip

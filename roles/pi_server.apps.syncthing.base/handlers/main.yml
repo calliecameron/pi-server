@@ -1,0 +1,8 @@
+- name: reload syncthing
+  become: yes
+  ansible.builtin.systemd:
+    name: "{{ pi_server_apps_syncthing_service }}"
+    daemon_reload: yes
+    enabled: yes
+    state: restarted
+  listen: "reload syncthing"
