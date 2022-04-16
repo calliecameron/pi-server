@@ -48,14 +48,16 @@
     path: /etc/pam.d/sshd
     line: "session    optional pam_exec.so seteuid {{ pi_server_apps_ssh_login_email_script }}"
 
-- include_role:
+- name: hardening
+  include_role:
     name: devsec.hardening.ssh_hardening
     apply:
       become: yes
   vars:
     ssh_allow_users: "{{ ansible_user }}"
 
-- include_role:
+- name: monitor ssh service
+  include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: ssh

@@ -56,6 +56,12 @@
     group: root
     mode: u=rw,go=
 
+- name: monitor cron service
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
+  vars:
+    systemd_service: cron
+
 - name: dashboard
   include_role:
     name: pi_server.apps.monitoring.custom_dashboard
