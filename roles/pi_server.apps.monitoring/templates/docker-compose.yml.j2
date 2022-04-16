@@ -38,7 +38,7 @@ services:
     pid: host
     volumes:
       - "/:/host:ro,rslave"
-      - "{{ pi_server_apps_monitoring_node_exporter_collect }}:/collect"
+      - "{{ pi_server_apps_monitoring_node_exporter_collect }}:/collect:ro"
     deploy:
       replicas: 1
 
