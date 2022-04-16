@@ -18,13 +18,16 @@ services:
     restart: always
     user: "{{ traefik_user.uid }}:{{ traefik_user.group }}"
     volumes:
-      - "{{ pi_server_apps_traefik_config }}:/etc/traefik/traefik.yml"
+      - "{{ pi_server_apps_traefik_config }}:/etc/traefik/traefik.yml:ro"
+      - "{{ pi_server_apps_traefik_discovery_dir }}:/etc/traefik/discovery.d:ro"
 {% if ports %}
     ports:
 {% for port in ports %}
       - "{{ port }}"
 {% endfor %}
 {% endif %}
+    extra_hosts:
+      - host.docker.internal:host-gateway
     networks:
       - "{{ pi_server_apps_traefik_network }}"
       - traefik_docker_proxy

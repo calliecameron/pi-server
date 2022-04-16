@@ -35,6 +35,15 @@
     group: root
     mode: a=r
 
+- name: discovery dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_traefik_discovery_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
 - name: network
   become: yes
   community.docker.docker_network:

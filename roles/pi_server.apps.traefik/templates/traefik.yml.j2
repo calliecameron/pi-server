@@ -19,6 +19,9 @@ providers:
     endpoint: "tcp://traefik_docker_proxy:2375"
     network: "{{ pi_server_apps_traefik_network }}"
     exposedByDefault: false
+  file:
+    directory: "/etc/traefik/discovery.d"
+    watch: true
 
 entrypoints:
   traefik_metrics:

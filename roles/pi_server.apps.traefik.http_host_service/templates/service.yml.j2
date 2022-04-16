@@ -1,0 +1,15 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+http:
+  routers:
+    "{{ args.name }}":
+      entryPoints:
+        - "{{ args.entrypoint }}"
+      service: "{{ args.name }}"
+      rule: "PathPrefix(`/{{ args.path_prefix }}`)"
+
+  services:
+    "{{ args.name }}":
+      loadBalancer:
+        servers:
+          - url: "http://host.docker.internal:{{ args.port }}"

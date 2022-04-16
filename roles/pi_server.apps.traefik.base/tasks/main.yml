@@ -9,5 +9,6 @@
       - pi_server_apps_traefik_etc
       - pi_server_apps_traefik_ports_file
       - pi_server_apps_traefik_entrypoints_dir
+      - pi_server_apps_traefik_discovery_dir
       - pi_server_apps_traefik_user
       - pi_server_apps_traefik_network
