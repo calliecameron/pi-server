@@ -18,6 +18,12 @@
 
 - name: firewall
   include_role:
-    name: pi_server.utils.udp_port
+    name: pi_server.apps.firewall.udp_port
   vars:
     port: "{{ pi_server_apps_avahi_port }}"
+
+- name: monitoring
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
+  vars:
+    systemd_service: avahi-daemon

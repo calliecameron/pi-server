@@ -1,20 +1,20 @@
 - include_role:
     name: pi_server.roles.base
 
-# - include_role:
-#     name: pi_server.utils.enable_forwarding
-
-# - include_role:
-#     name: pi_server.apps.avahi
+- include_role:
+    name: pi_server.apps.avahi
 
 # - include_role:
 #     name: pi_server.apps.zoneedit
 
 # - include_role:
-#     name: pi_server.apps.main_site
+#     name: pi_server.apps.control_panel
 
 # - include_role:
 #     name: pi_server.apps.shutdownd
+
+# - include_role:
+#     name: pi_server.utils.enable_forwarding
 
 # - include_role:
 #     name: pi_server.apps.main_storage

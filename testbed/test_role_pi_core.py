@@ -19,11 +19,12 @@ class Test02PiCore:
     def test_avahi(
             self,
             hostname: str,
-            hosts: Dict[str, Host],
-            addrs: Dict[str, str]) -> None:
+            hosts: Dict[str, Host]) -> None:
         host = hosts[hostname]
-        assert (host.check_output('getent ahostsv4 %s.local | head -n 1' % hostname) ==
-                '%s       STREAM %s.local' % (addrs[hostname], hostname))
+        addrs = host.check_output(
+            'ip a | grep "inet " | cut "-d " -f 6 | sed "s|/.*||g"').strip().split('\n')
+        addr = host.check_output(f'getent ahostsv4 "{hostname}.local" | head -n 1 | cut "-d " -f 1')
+        assert addr in addrs
 
     @for_host_types('pi')
     def test_zoneedit(
