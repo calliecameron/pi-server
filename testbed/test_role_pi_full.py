@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 import requests
 from testinfra.host import Host
 from testinfra.modules.file import File
-from conftest import for_host_types, host_number, Email, MockServer, WebDriver, Vagrant
+from conftest import for_host_types, host_number, Email, Lines, MockServer, WebDriver, Vagrant
 
 
 class TestRolePiFull:
@@ -63,6 +63,32 @@ class TestRolePiFull:
             assert host.file('/mnt/backup/pi-server-backup').exists
             assert host.file('/mnt/backup/pi-server-backup').user == 'root'
             assert host.file('/mnt/backup/pi-server-backup').group == 'root'
+
+    @for_host_types('pi')
+    def test_certs(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        service = host.service('pi-server-cron-certs')
+        journal = host.journal()
+
+        with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
+            journal.clear()
+            with host.run_crons():
+                pass
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-certs')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Wrote to '.*' for cert '.*'") == 4
+            with host.sudo():
+                metrics = Lines(collect_dir.file('certs.prom').content_string)
+            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 4
 
     # @for_host_types('pi')
     # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:

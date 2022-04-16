@@ -1,10 +1,10 @@
 - include_role:
     name: pi_server.apps.certs
 
-- name: "add {{ user }} to deployment key readers"
+- name: "add {{ args.user }} to deployment key readers"
   become: yes
   ansible.builtin.user:
-    name: "{{ user }}"
+    name: "{{ args.user }}"
     groups:
       - "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     append: yes

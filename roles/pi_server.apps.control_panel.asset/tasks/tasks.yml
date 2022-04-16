@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.apps.control_panel.base
+
+- name: asset
+  become: yes
+  ansible.builtin.copy:
+    src: "{{ args.src }}"
+    remote_src: "{{ args.remote_src }}"
+    dest: "{{ pi_server_apps_control_panel_web_root }}/{{ args.dest }}"
+    owner: root
+    group: root
+    mode: a=r

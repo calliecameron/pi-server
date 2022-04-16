@@ -1,5 +1,8 @@
 - include_role:
-    name: pi_server.apps.main_site
+    name: pi_server.apps.cron
+
+- include_role:
+    name: pi_server.apps.monitoring
 
 - name: etc dir
   become: yes
@@ -128,26 +131,40 @@
     mode: a=r
   notify: reload ca cert
 
-- name: ca crt in main site
-  become: yes
-  ansible.builtin.copy:
-    remote_src: yes
+- name: ca cert in control panel
+  include_role:
+    name: pi_server.apps.control_panel.asset
+  vars:
     src: "{{ pi_server_apps_certs_ca }}"
-    dest: "{{ pi_server_apps_main_site_web_root }}"
-    owner: root
-    group: root
-    mode: u=rw,go=r
+    remote_src: yes
+    dest: ca.crt
 
-- include_role:
-    name: pi_server.utils.main_site_fragment
+- name: control panel fragment
+  include_role:
+    name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
-    dest: certs.html
+    name: certs
 
 - name: cronjob
   include_role:
-    name: pi_server.utils.cronjob
+    name: pi_server.apps.cron.cronjob
   vars:
     job: certs
     src: certs.j2
     user: "{{ pi_server_apps_certs_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
+
+- name: dashboard
+  include_role:
+    name: pi_server.apps.monitoring.custom_dashboard
+  vars:
+    src: certs.json
+
+- name: alerts
+  include_role:
+    name: pi_server.apps.monitoring.custom_alerts
+  vars:
+    src: certs-alerts-custom.yml
+    job: certs

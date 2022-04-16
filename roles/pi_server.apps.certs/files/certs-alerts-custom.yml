@@ -1,0 +1,14 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+groups:
+  - name: certs alerts custom
+    rules:
+      - alert: CertificateExpiresSoon
+        expr: (avg by (cert) (cert_expiry_time{job="certs"} - time())) < (60 * 60 * 24 * 365)
+        annotations:
+          summary: Certificate {{ $labels.cert }} expires in less than a year.
+
+      - alert: CertificateExpired
+        expr: (avg by (cert) (cert_expiry_time{job="certs"} - time())) < 0
+        annotations:
+          summary: Certificate {{ $labels.cert }} has expired.

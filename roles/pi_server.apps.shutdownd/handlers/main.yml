@@ -6,7 +6,3 @@
     enabled: yes
     state: restarted
   listen: "reload shutdownd"
-
-- name: shutdownd noop
-  ansible.builtin.meta: flush_handlers
-  listen: "shutdownd noop"

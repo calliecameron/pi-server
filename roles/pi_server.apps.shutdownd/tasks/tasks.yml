@@ -31,7 +31,7 @@
     dest_dir: "{{ pi_server_apps_shutdownd_etc }}"
     head_title: "#####1##### | {{ pi_server_hostname }}"
     body_title: "{{ pi_server_hostname }}"
-    fragments_notify: "shutdownd noop"
+    fragments_notify: "reload shutdownd"
 
 - name: script
   become: yes

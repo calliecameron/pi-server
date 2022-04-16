@@ -7,8 +7,8 @@
 - include_role:
     name: pi_server.apps.main_data
 
-# - include_role:
-#     name: pi_server.apps.certs
+- include_role:
+    name: pi_server.apps.certs
 
 # - include_role:
 #     name: pi_server.apps.backup
