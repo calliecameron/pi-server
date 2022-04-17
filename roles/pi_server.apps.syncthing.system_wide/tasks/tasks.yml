@@ -6,5 +6,5 @@
     name: pi_server.apps.syncthing.base
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
-    config_dir: "{{ pi_server_apps_syncthing_system_config_dir }}"
+    config_dir: "{{ pi_server_apps_syncthing_system_wide_config_dir }}"
     home_dir: "{{ pi_server_apps_main_data_main_dir }}"

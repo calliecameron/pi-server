@@ -11,7 +11,7 @@
     name: pi_server.apps.certs
 
 - include_role:
-    name: pi_server.apps.syncthing.system
+    name: pi_server.apps.syncthing.system_wide
 
 # - include_role:
 #     name: pi_server.apps.backup
