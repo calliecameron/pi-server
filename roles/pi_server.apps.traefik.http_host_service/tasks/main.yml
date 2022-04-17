@@ -9,5 +9,6 @@
       - path_prefix
       - strip_prefix
       - port
+      - https
     _host_vars: []
     _export_vars: []

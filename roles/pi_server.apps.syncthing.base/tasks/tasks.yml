@@ -95,6 +95,14 @@
     xpath: "/configuration/options/crashReportingEnabled"
     value: "false"
 
+- name: https for the gui
+  become: yes
+  community.general.xml:
+    path: "{{ args.config_dir }}/config.xml"
+    xpath: "/configuration/gui"
+    attribute: "tls"
+    value: "true"
+
 - name: systemd service
   include_role:
     name: pi_server.utils.systemd_service
@@ -130,6 +138,7 @@
     path_prefix: "syncthing"
     strip_prefix: True
     port: "{{ pi_server_apps_syncthing_web_port }}"
+    https: True
 
 - name: control panel fragment
   include_role:

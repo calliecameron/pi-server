@@ -25,4 +25,11 @@ http:
     "{{ args.name }}":
       loadBalancer:
         servers:
-          - url: "http://host.docker.internal:{{ args.port }}"
+          - url: "http{% if args.https %}s{% endif %}://host.docker.internal:{{ args.port }}"
+{% if args.https %}
+        serversTransport: "{{ args.name }}"
+
+  serversTransports:
+    "{{ args.name }}":
+      insecureSkipVerify: true
+{% endif %}
