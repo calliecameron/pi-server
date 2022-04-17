@@ -3,10 +3,6 @@
   vars:
     _private: True
     _run_once: True
-    _args:
-      - user
-      - config_dir
-      - home_dir
+    _args: []
     _host_vars: []
-    _export_vars:
-      - pi_server_apps_syncthing_service
+    _export_vars: []

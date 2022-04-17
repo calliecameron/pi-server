@@ -44,10 +44,19 @@
   become: yes
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_main_dir }}"
+    entity: "{{ pi_server_apps_main_data_readers_group }}"
+    etype: group
+    permissions: rx
+    state: present
+
+- name: backed-up data dir default ACLs
+  become: yes
+  ansible.posix.acl:
+    path: "{{ pi_server_apps_main_data_main_dir }}"
     default: yes
     entity: "{{ pi_server_apps_main_data_readers_group }}"
     etype: group
-    permissions: r
+    permissions: rX
     state: present
 
 - name: non-backed-up data dir
@@ -63,10 +72,19 @@
   become: yes
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
+    entity: "{{ pi_server_apps_main_data_readers_group }}"
+    etype: group
+    permissions: rx
+    state: present
+
+- name: non-backed-up data dir default ACLs
+  become: yes
+  ansible.posix.acl:
+    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
     default: yes
     entity: "{{ pi_server_apps_main_data_readers_group }}"
     etype: group
-    permissions: r
+    permissions: rX
     state: present
 
 - name: get non-root user

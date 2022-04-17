@@ -97,20 +97,59 @@ class TestRolePiFull:
             hostname: str,
             hosts: Dict[str, Host],
             addrs: Dict[str, str]) -> None:
-        # For now we just do some basic checks
         host = hosts[hostname]
         assert host.service('pi-server-syncthing').is_enabled
         assert host.service('pi-server-syncthing').is_running
         assert host.process.filter(user='pi-server-data', comm='syncthing')
 
-        def test(this_addr: str) -> None:
-            with WebDriver() as driver:
-                driver.get('http://' + this_addr)
-                link = driver.find_element(by=By.LINK_TEXT, value='Control panel')
-                assert urlparse(link.get_attribute('href')).hostname == this_addr
+        service = host.service('pi-server-cron-syncthing-conflict-finder')
+        journal = host.journal()
 
-        test(addrs[hostname])
-        test(hostname + '.local')
+        # No conflicts
+        with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
+            journal.clear()
+            with host.run_crons():
+                pass
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-syncthing-conflict-finder')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Found conflicting file.*") == 0
+            assert log.count(r"Found 0 conflicting file\(s\)") == 1
+            with host.sudo():
+                metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
+            assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 0') == 1
+
+        # Conflicts
+        with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir, \
+                host.shadow_file('/mnt/data/pi-server-data/data/foo.txt') as f1, \
+                host.shadow_file('/mnt/data/pi-server-data/data/bar.sync-conflict.txt') as f2, \
+                host.shadow_file(
+                    '/mnt/data/pi-server-data/data-no-backups/baz.sync-conflict.txt') as f3:
+            with host.sudo():
+                f1.write('')
+                f2.write('')
+                f3.write('')
+            journal.clear()
+            with host.run_crons():
+                pass
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-syncthing-conflict-finder')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Found conflicting file.*") == 2
+            assert log.count(r"Found 2 conflicting file\(s\)") == 1
+            with host.sudo():
+                metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
+            assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 2') == 1
 
     # @for_host_types('pi')
     # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:

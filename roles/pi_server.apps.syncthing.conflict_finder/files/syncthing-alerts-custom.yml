@@ -1,0 +1,9 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+groups:
+  - name: syncthing alerts custom
+    rules:
+      - alert: SyncthingFileConflicts
+        expr: (avg by () (syncthing_conflicts{job="syncthing-conflicts"})) > 0
+        annotations:
+          summary: Conflicting files found in syncthing.

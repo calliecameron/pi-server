@@ -1,0 +1,38 @@
+- include_role:
+    name: pi_server.apps.cron
+
+- name: user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
+    register:
+
+- name: read main data
+  include_role:
+    name: pi_server.apps.main_data.reader
+  vars:
+    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
+
+- name: cronjob
+  include_role:
+    name: pi_server.apps.cron.cronjob
+  vars:
+    job: syncthing-conflict-finder
+    src: conflict-finder.j2
+    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
+
+- name: dashboard
+  include_role:
+    name: pi_server.apps.monitoring.custom_dashboard
+  vars:
+    src: syncthing.json
+
+- name: alerts
+  include_role:
+    name: pi_server.apps.monitoring.custom_alerts
+  vars:
+    src: syncthing-alerts-custom.yml
+    job: syncthing
