@@ -24,7 +24,6 @@
     "editable": true,
     "fiscalYearStartMonth": 0,
     "graphTooltip": 0,
-    "id": 4,
     "links": [],
     "liveNow": false,
     "panels": [
@@ -129,13 +128,13 @@
         "list": []
     },
     "time": {
-        "from": "now-6h",
+        "from": "now-7d",
         "to": "now"
     },
     "timepicker": {},
     "timezone": "",
     "title": "Certificates",
     "uid": "12WZJrU7k",
-    "version": 3,
+    "version": 1,
     "weekStart": ""
 }
