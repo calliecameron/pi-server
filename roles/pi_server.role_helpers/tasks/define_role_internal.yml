@@ -1,14 +1,18 @@
 - name: validate args
   ansible.builtin.fail:
-    msg: "Expected arg '{{ item }}' is not set"
+    msg: "Expected arg '{{ _role_helpers_item }}' is not set"
   loop: "{{ _args }}"
-  when: lookup('vars', item, default='__undefined__') == '__undefined__'
+  loop_control:
+    loop_var: _role_helpers_item
+  when: lookup('vars', _role_helpers_item, default='__undefined__') == '__undefined__'
 
 - name: validate host vars
   ansible.builtin.fail:
-    msg: "Expected host var '{{ item }}' is not set; set it in your inventory"
+    msg: "Expected host var '{{ _role_helpers_item }}' is not set; set it in your inventory"
   loop: "{{ _host_vars }}"
-  when: lookup('vars', item, default='__undefined__') == '__undefined__'
+  loop_control:
+    loop_var: _role_helpers_item
+  when: lookup('vars', _role_helpers_item, default='__undefined__') == '__undefined__'
 
 # All this - saving args to facts, pushing and popping stack frames - is a workaround for a bug
 # in ansible where variables from higher up in the role call stack aren't available further down
@@ -21,8 +25,10 @@
 
 - name: save arg values
   ansible.builtin.set_fact:
-    _pi_server_role_helpers_latest_arg_values: "{{ _pi_server_role_helpers_latest_arg_values + [lookup('vars', item)] }}"
+    _pi_server_role_helpers_latest_arg_values: "{{ _pi_server_role_helpers_latest_arg_values + [lookup('vars', _role_helpers_item)] }}"
   loop: "{{ _args }}"
+  loop_control:
+    loop_var: _role_helpers_item
 
 - name: save args
   ansible.builtin.set_fact:
@@ -65,8 +71,10 @@
 
 - name: export vars
   ansible.builtin.set_fact:
-    "{{ item }}": "{{ lookup('vars', item) }}"
+    "{{ _role_helpers_item }}": "{{ lookup('vars', _role_helpers_item) }}"
   loop: "{{ _export_vars }}"
+  loop_control:
+    loop_var: _role_helpers_item
 
 - name: mark done
   ansible.builtin.set_fact:
