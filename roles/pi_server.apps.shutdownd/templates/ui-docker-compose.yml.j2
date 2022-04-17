@@ -2,6 +2,9 @@ services:
   ui:
     image: "{{ pi_server_apps_shutdownd_ui_image }}"
     restart: always
+    user: "{{ ui_user.uid }}:{{ ui_user.group }}"
+    group_add:
+      - "{{ writers_group.gid }}"
     volumes:
       - "{{ pi_server_apps_shutdownd_ui_templates_dir }}:/etc/shutdownd:ro"
       - "{{ pi_server_apps_shutdownd_var }}:/var/shutdownd"
