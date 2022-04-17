@@ -3,6 +3,7 @@ from typing import Dict
 from urllib.parse import urlparse
 import requests
 from testinfra.host import Host
+from selenium.webdriver.common.by import By
 from conftest import for_host_types, MockServer, WebDriver, Vagrant
 
 
@@ -176,7 +177,7 @@ class TestRolePiCore:
                 host.file(path).write('')
                 with WebDriver() as driver:
                     driver.get('http://' + this_addr)
-                    link = driver.find_element_by_link_text(text)
+                    link = driver.find_element(by=By.LINK_TEXT, value=text)
 
                     assert urlparse(link.get_attribute('href')).hostname == this_addr
 
@@ -184,7 +185,7 @@ class TestRolePiCore:
                     driver.validate_html()
                     other_links = driver.validate_links()
                     assert not other_links
-                    button = driver.find_element_by_name('btn')
+                    button = driver.find_element(by=By.NAME, value='btn')
 
                     button.click()
                     driver.validate_html()

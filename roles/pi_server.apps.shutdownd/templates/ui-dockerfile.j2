@@ -1,0 +1,10 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+FROM python:3.10-bullseye
+RUN adduser --shell /usr/sbin/nologin --no-create-home --uid '{{ ui_user.uid }}' --disabled-password --disabled-login --gecos '' '{{ pi_server_apps_shutdownd_ui_user }}'
+RUN addgroup --gid '{{ writers_group.gid }}' '{{ pi_server_apps_shutdownd_writers_group }}'
+RUN adduser '{{ pi_server_apps_shutdownd_ui_user }}' '{{ pi_server_apps_shutdownd_writers_group }}'
+COPY shutdownd-ui /shutdownd-ui
+ENV PYTHONUNBUFFERED=t
+EXPOSE {{ pi_server_apps_shutdownd_ui_port }}
+USER {{ pi_server_apps_shutdownd_ui_user }}
+ENTRYPOINT ["/shutdownd-ui"]

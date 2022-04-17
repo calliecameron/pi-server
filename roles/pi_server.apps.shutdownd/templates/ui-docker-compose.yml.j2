@@ -1,0 +1,19 @@
+services:
+  ui:
+    image: "{{ pi_server_apps_shutdownd_ui_image }}"
+    restart: always
+    volumes:
+      - "{{ pi_server_apps_shutdownd_ui_templates_dir }}:/etc/shutdownd:ro"
+      - "{{ pi_server_apps_shutdownd_var }}:/var/shutdownd"
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.shutdownd.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.shutdownd.rule=PathPrefix(`/shutdownd`)"
+
+networks:
+  "{{ pi_server_apps_traefik_network }}":
+    external: true

@@ -1,6 +1,9 @@
 - include_role:
     name: pi_server.apps.control_panel
 
+- include_role:
+    name: pi_server.apps.traefik
+
 - name: etc dir
   become: yes
   ansible.builtin.file:
@@ -10,7 +13,34 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: user
+- name: ui dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_shutdownd_ui_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: ui templates dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_shutdownd_ui_templates_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: var dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_shutdownd_var }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: main user
   include_role:
     name: pi_server.utils.user
   vars:
@@ -24,16 +54,43 @@
     src: sudoers.j2
     name: "{{ pi_server_apps_shutdownd_user }}"
 
-- name: bootstrap templates
-  include_role:
-    name: pi_server.utils.bootstrap_templates
-  vars:
-    dest_dir: "{{ pi_server_apps_shutdownd_etc }}"
-    head_title: "#####1##### | {{ pi_server_hostname }}"
-    body_title: "{{ pi_server_hostname }}"
-    fragments_notify: "reload shutdownd"
+- name: writers group
+  become: yes
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_shutdownd_writers_group }}"
+  register: writers_group
 
-- name: script
+- name: ui user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_shutdownd_ui_user }}"
+    register: ui_user
+
+- name: ui user in writers group
+  become: yes
+  ansible.builtin.user:
+    name: "{{ pi_server_apps_shutdownd_ui_user }}"
+    groups:
+      - "{{ pi_server_apps_shutdownd_writers_group }}"
+    append: yes
+
+- name: command file
+  include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_shutdownd_command_file }}"
+    owner: "{{ pi_server_apps_shutdownd_user }}"
+    group: "{{ pi_server_apps_shutdownd_writers_group }}"
+    mode: ug=rw,o=r
+
+- name: inotify
+  become: yes
+  ansible.builtin.package:
+    name: inotify-tools
+    state: present
+
+- name: main script
   become: yes
   ansible.builtin.template:
     src: shutdownd.j2
@@ -41,6 +98,7 @@
     owner: root
     group: root
     mode: a=rx
+  notify: reload shutdownd
 
 - name: systemd service
   include_role:
@@ -50,32 +108,75 @@
     service: "{{ pi_server_apps_shutdownd_service }}"
     service_notify: "reload shutdownd"
 
-- name: pause on cron
-  include_role:
-    name: pi_server.apps.cron.pause_systemd_on_cron
-  vars:
-    service: "{{ pi_server_apps_shutdownd_service }}"
-
-- name: monitoring
+- name: monitor main service
   include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_shutdownd_service }}"
 
-- name: expose to traefik network
+- name: ui script
+  become: yes
+  ansible.builtin.template:
+    src: shutdownd-ui.j2
+    dest: "{{ pi_server_apps_shutdownd_ui_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+  notify: reload shutdownd ui
+  
+- name: bootstrap templates
   include_role:
-    name: pi_server.apps.traefik.open_host_port_to_containers
+    name: pi_server.utils.bootstrap_templates
   vars:
-    port: "{{ pi_server_apps_shutdownd_port }}"
+    dest_dir: "{{ pi_server_apps_shutdownd_ui_templates_dir }}"
+    head_title: "#####1##### | {{ pi_server_hostname }}"
+    body_title: "{{ pi_server_hostname }}"
+    fragments_notify: "reload shutdownd ui"
 
-- name: add to traefik
+- name: ui dockerfile
+  become: yes
+  ansible.builtin.template:
+    src: ui-dockerfile.j2
+    dest: "{{ pi_server_apps_shutdownd_ui_dir }}/Dockerfile"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: ui docker compose file
+  become: yes
+  ansible.builtin.template:
+    src: ui-docker-compose.yml.j2
+    dest: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload shutdownd ui
+
+- name: build ui image
   include_role:
-    name: pi_server.apps.traefik.http_host_service
+    name: pi_server.apps.docker.build
   vars:
-    name: shutdownd
-    entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
-    path_prefix: "shutdownd"
-    port: "{{ pi_server_apps_shutdownd_port }}"
+    name: "{{ pi_server_apps_shutdownd_ui_image }}"
+    dir: "{{ pi_server_apps_shutdownd_ui_dir }}"
+    notify: "reload shutdownd ui"
+
+- name: docker compose
+  become: yes
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_shutdownd_etc }}"
+
+- name: monitor containers
+  include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
+
+- name: pause ui on cron
+  include_role:
+    name: pi_server.apps.cron.pause_docker_on_cron
+  vars:
+    compose_file: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
+    service: ui
 
 - name: control panel links
   include_role:

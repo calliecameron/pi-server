@@ -1,11 +1,25 @@
 - include_role:
     name: pi_server.apps.cron.base
 
-- name: "pause docker '{{ service }}' on cron"
+- name: get container ID
+  become: yes
+  ansible.builtin.command:
+    cmd: "docker-compose -f '{{ args.compose_file }}' ps -q '{{ args.service }}'"
+  register: container_id
+  changed_when: false
+
+- name: get container name
+  become: yes
+  ansible.builtin.command:
+    cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_id.stdout }}"
+  register: container_name
+  changed_when: false
+
+- name: pause on cron
   include_role:
     name: pi_server.utils.create_file
   vars:
-    path: "{{ pi_server_apps_cron_pause_dir }}/{{ service }}.docker"
+    path: "{{ pi_server_apps_cron_pause_dir }}/{{ container_name.stdout | trim('/') }}.docker"
     owner: root
     group: root
     mode: a=r

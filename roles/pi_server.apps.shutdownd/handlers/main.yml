@@ -6,3 +6,10 @@
     enabled: yes
     state: restarted
   listen: "reload shutdownd"
+
+- name: reload shutdownd ui
+  become: yes
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_shutdownd_etc }}"
+    restarted: yes
+  listen: "reload shutdownd ui"

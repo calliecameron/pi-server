@@ -1,111 +1,23 @@
-#!/usr/bin/env python3
+#!/bin/bash
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
-import http.server
-import subprocess
-import sys
-import time
+set -eu
 
-WEBPAGE_HEADER = '{{ pi_server_apps_shutdownd_etc }}/00-header.html'
-WEBPAGE_FOOTER = '{{ pi_server_apps_shutdownd_etc }}/zz-footer.html'
-# Though this is really an int, we keep it as a string here so the linter
-# doesn't complain about the templating
-PORT = '{{ pi_server_apps_shutdownd_port }}'
-SHUTDOWN_URL = '/shutdownd/shutdown'
-RESTART_URL = '/shutdownd/restart'
+COMMAND_FILE='{{ pi_server_apps_shutdownd_command_file }}'
 
-MAIN_PAGE_BODY = """
-<h1>%s</h1>
-<p>%s the Raspberry Pi?</p>
-<form action="%s" method="post">
-  <div class="d-grid gap-2">
-    <button class="btn btn-outline-primary"
-      style="margin-top: 10px; margin-bottom: 10px;"
-      type="submit" name="btn" value="btn">%s</button>
-    <a class="btn btn-outline-primary" style="margin-top: 10px;
-      margin-bottom: 10px;" href="/">Cancel</a>
-    </script>
-  </div>
-</form>
-"""
+echo "waiting" >"${COMMAND_FILE}"
 
-SHUTTING_DOWN_BODY = """
-<h1>Shut down</h1>
-<p>The Raspberry Pi is now shutting down.</p>
-<p>Once all the lights except the red one are off, then it is safe to
-disconnect the power.</p>
-<p>Reconnect the power to start the Pi up again.</p>
-"""
-
-RESTARTING_BODY = """
-<h1>Restart</h1>
-<p>The Raspberry Pi is now restarting.</p>
-<p>This will take a few minutes.</p>
-"""
-
-
-class Responder(http.server.BaseHTTPRequestHandler):
-    def construct_response(self, title, body):
-        page = ''
-        try:
-            with open(WEBPAGE_HEADER, encoding='utf-8') as f:
-                page += f.read()
-            page = page.replace('#####1#####', title)
-        except IOError:
-            page += ('<html><head><meta charset="utf-8">' +
-                     f'<title>{title}</title></head><body>')
-
-        page += ('<div class="container first-container"><div class="row"><div class="col">' +
-                 body + '</div></div></div>')
-
-        try:
-            with open(WEBPAGE_FOOTER, encoding='utf-8') as f:
-                page += f.read()
-        except IOError:
-            page += '</body></html>'
-
-        return page.encode('utf-8')
-
-    def respond(self, title, body):
-        self.send_response(200)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(self.construct_response(title, body))
-
-    def fail(self):
-        self.send_response(404)
-        self.send_header('Content-type', 'text/html')
-        self.end_headers()
-        self.wfile.write(self.construct_response(
-            'Error',
-            '<h1>Error!</h1><p>The requested page could not be found</p>'))
-
-    def main_page(self, title, url):
-        self.respond(title, MAIN_PAGE_BODY % (title, title, url, title))
-
-    def do_GET(self):
-        if self.path == SHUTDOWN_URL:
-            self.main_page('Shut down', SHUTDOWN_URL)
-        elif self.path == RESTART_URL:
-            self.main_page('Restart', RESTART_URL)
-        else:
-            self.fail()
-
-    def do_POST(self):
-        if self.path == SHUTDOWN_URL:
-            self.respond('Shut down', SHUTTING_DOWN_BODY)
-            time.sleep(1)
-            subprocess.call(['sudo', 'shutdown', '-h', 'now'])
-            sys.exit(0)
-        elif self.path == RESTART_URL:
-            self.respond('Restart', RESTARTING_BODY)
-            time.sleep(1)
-            subprocess.call(['sudo', 'reboot'])
-            sys.exit(0)
-        else:
-            self.fail()
-
-
-server_address = ('', int(PORT))
-httpd = http.server.HTTPServer(server_address, Responder)
-httpd.serve_forever()
+while inotifywait -q -e close_write "${COMMAND_FILE}"; do
+    COMMAND="$(cat "${COMMAND_FILE}")"
+    if [ "${COMMAND}" = 'reboot' ]; then
+        echo 'Rebooting'
+        sudo reboot
+        exit 0
+    elif [ "${COMMAND}" = 'shutdown' ]; then
+        echo 'Shutting down'
+        sudo shutdown -h now
+        exit 0
+    else
+        echo 'Got unknown command'
+    fi
+done

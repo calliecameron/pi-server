@@ -4,6 +4,7 @@
     _private: False
     _run_once: False
     _args:
+      - compose_file
       - service
     _host_vars: []
     _export_vars: []

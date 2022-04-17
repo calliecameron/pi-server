@@ -5,6 +5,7 @@ from urllib.parse import urlparse
 import requests
 from testinfra.host import Host
 from testinfra.modules.file import File
+from selenium.webdriver.common.by import By
 from conftest import for_host_types, host_number, Email, Lines, MockServer, WebDriver, Vagrant
 
 
@@ -105,7 +106,7 @@ class TestRolePiFull:
         def test(this_addr: str) -> None:
             with WebDriver() as driver:
                 driver.get('http://' + this_addr)
-                link = driver.find_element_by_link_text('Control panel')
+                link = driver.find_element(by=By.LINK_TEXT, value='Control panel')
                 assert urlparse(link.get_attribute('href')).hostname == this_addr
 
         test(addrs[hostname])

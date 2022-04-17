@@ -8,7 +8,6 @@ ExecStart={{ pi_server_apps_shutdownd_script }}
 Restart=always
 User={{ pi_server_apps_shutdownd_user }}
 Group={{ pi_server_apps_shutdownd_user }}
-Environment=PYTHONUNBUFFERED=t
 
 [Install]
 WantedBy=multi-user.target
