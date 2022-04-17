@@ -1,6 +1,0 @@
----
-- name: 05-media-server - 00-media-server
-  command:
-    cmd: "{{ media_server }}/00-media-server"
-    stdin: |
-      y

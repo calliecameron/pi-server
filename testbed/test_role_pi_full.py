@@ -384,6 +384,14 @@ class TestRolePiFull:
             assert log.count(r'.*cloning.*failed') == 0
             assert log.count(r'.*fetching.*failed') == 0
 
+    @for_host_types('pi')
+    def test_minidlna(
+            self, hostname: str, hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        assert host.service('minidlna').is_enabled
+        assert host.service('minidlna').is_running
+        assert host.process.filter(user='minidlna', comm='minidlnad')
+
     # @for_host_types('pi')
     # def test_02_firewall(self, hostname: str, hosts: Dict[str, Host]) -> None:
     #     host = hosts[hostname]

@@ -8,6 +8,7 @@
     _export_vars:
       - pi_server_apps_main_data_user
       - pi_server_apps_main_data_readers_group
+      - pi_server_apps_main_data_dir
       - pi_server_apps_main_data_config_dir
       - pi_server_apps_main_data_main_dir
       - pi_server_apps_main_data_no_backup_dir

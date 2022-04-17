@@ -1,3 +1,5 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
 # Path to the directory you want scanned for media files.
 #
 # This option can be specified more than once if you want multiple directories
@@ -14,14 +16,14 @@
 #          run minidlna with the '-R' option, or delete the 'files.db' file
 #          from the db_dir directory (see below).
 #          On Debian, you can run, as root, 'service minidlna force-reload' instead.
-media_dir=@@@@@1@@@@@
+media_dir={{ pi_server_apps_minidlna_media_dir }}
 
-db_dir=@@@@@2@@@@@
+db_dir={{ pi_server_apps_minidlna_db_dir }}
 log_dir=/var/log
 log_level=warn
 root_container=B
-network_interface=@@@@@3@@@@@
-port=8200
+network_interface={{ pi_server_lan_iface }}
+port={{ pi_server_apps_minidlna_http_port }}
 
 friendly_name=Raspberry Pi
 serial=12345678

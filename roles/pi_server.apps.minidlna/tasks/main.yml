@@ -1,0 +1,9 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: True
+    _args: []
+    _host_vars:
+      - pi_server_lan_iface
+    _export_vars: []

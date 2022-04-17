@@ -1,0 +1,93 @@
+- include_role:
+    name: pi_server.apps.traefik
+
+- name: install minidlna
+  become: yes
+  ansible.builtin.package:
+    name: minidlna
+    state: present
+
+- name: allow data access
+  include_role:
+    name: pi_server.apps.main_data.reader
+  vars:
+    user: "{{ pi_server_apps_minidlna_user }}"
+
+- name: media dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minidlna_media_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_minidlna_user }}"
+    group: "{{ pi_server_apps_minidlna_user }}"
+    mode: u=rwx,go=
+
+- name: config dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minidlna_config_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_minidlna_user }}"
+    group: "{{ pi_server_apps_minidlna_user }}"
+    mode: u=rwx,go=
+
+- name: db dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minidlna_db_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_minidlna_user }}"
+    group: "{{ pi_server_apps_minidlna_user }}"
+    mode: u=rwx,go=
+
+- name: config
+  become: yes
+  ansible.builtin.template:
+    src: minidlna.conf.j2
+    dest: /etc/minidlna.conf
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload minidlna
+
+- name: monitoring
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
+  vars:
+    systemd_service: "{{ pi_server_apps_minidlna_service }}"
+
+- name: pause on cron
+  include_role:
+    name: pi_server.apps.cron.pause_systemd_on_cron
+  vars:
+    service: "{{ pi_server_apps_minidlna_service }}"
+
+- name: expose to traefik network
+  include_role:
+    name: pi_server.apps.traefik.open_host_port_to_containers
+  vars:
+    port: "{{ pi_server_apps_minidlna_http_port }}"
+
+- name: add to traefik
+  include_role:
+    name: pi_server.apps.traefik.http_host_service
+  vars:
+    name: minidlna-web
+    entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
+    path_prefix: "minidlna"
+    strip_prefix: True
+    port: "{{ pi_server_apps_minidlna_http_port }}"
+    https: False
+
+- name: control panel fragment
+  include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: minidlna
+
+- name: dlna port
+  include_role:
+    name: pi_server.apps.firewall.udp_port
+  vars:
+    port: "{{ pi_server_apps_minidlna_port }}"
