@@ -5,8 +5,21 @@ http:
     "{{ args.name }}":
       entryPoints:
         - "{{ args.entrypoint }}"
+{% if args.strip_prefix %}
+      middlewares:
+        - "{{ args.name }}"
+{% endif %}
       service: "{{ args.name }}"
       rule: "PathPrefix(`/{{ args.path_prefix }}`)"
+
+{% if args.strip_prefix %}
+  middlewares:
+    "{{ args.name }}":
+      stripPrefix:
+        prefixes:
+          - "/{{ args.path_prefix }}"
+        forceSlash: false
+{% endif %}
 
   services:
     "{{ args.name }}":

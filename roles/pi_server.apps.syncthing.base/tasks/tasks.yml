@@ -115,22 +115,21 @@
   vars:
     service: "{{ pi_server_apps_syncthing_service }}"
 
-# Currently doesn't work with traefik
+- name: expose to traefik network
+  include_role:
+    name: pi_server.apps.traefik.open_host_port_to_containers
+  vars:
+    port: "{{ pi_server_apps_syncthing_web_port }}"
 
-# - name: expose to traefik network
-#   include_role:
-#     name: pi_server.apps.traefik.open_host_port_to_containers
-#   vars:
-#     port: "{{ pi_server_apps_syncthing_web_port }}"
-
-# - name: add to traefik
-#   include_role:
-#     name: pi_server.apps.traefik.http_host_service
-#   vars:
-#     name: syncthing-web
-#     entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
-#     path_prefix: "syncthing"
-#     port: "{{ pi_server_apps_syncthing_web_port }}"
+- name: add to traefik
+  include_role:
+    name: pi_server.apps.traefik.http_host_service
+  vars:
+    name: syncthing-web
+    entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
+    path_prefix: "syncthing"
+    strip_prefix: True
+    port: "{{ pi_server_apps_syncthing_web_port }}"
 
 - name: control panel fragment
   include_role:
@@ -138,12 +137,6 @@
   vars:
     src: fragment.html.j2
     name: syncthing
-
-- name: web port
-  include_role:
-    name: pi_server.apps.firewall.tcp_port
-  vars:
-    port: "{{ pi_server_apps_syncthing_web_port }}"
 
 - name: tcp port
   include_role:

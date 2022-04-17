@@ -7,6 +7,7 @@
       - name
       - entrypoint
       - path_prefix
+      - strip_prefix
       - port
     _host_vars: []
     _export_vars: []
