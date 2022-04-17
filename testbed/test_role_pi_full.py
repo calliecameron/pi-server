@@ -1,20 +1,11 @@
 import os.path
-import time
 from typing import Dict, List, Set
-from urllib.parse import urlparse
-import requests
 from testinfra.host import Host
 from testinfra.modules.file import File
-from selenium.webdriver.common.by import By
-from conftest import for_host_types, host_number, Email, Lines, MockServer, WebDriver, Vagrant
+from conftest import for_host_types, Lines
 
 
 class TestRolePiFull:
-
-    # @for_host_types('pi')
-    # def test_02_firewall(self, hostname: str, hosts: Dict[str, Host]) -> None:
-    #     host = hosts[hostname]
-    #     assert host.file('/etc/pi-server/firewall/allow-forwarding').exists
 
     @for_host_types('pi')
     def test_main_storage(
@@ -150,21 +141,14 @@ class TestRolePiFull:
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 2') == 1
 
-    # @for_host_types('pi')
-    # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
-    #     """This just installs the openvpn service, not any configs."""
-    #     host = hosts[hostname]
-    #     assert host.service('openvpn').is_enabled
-    #     assert host.service('openvpn').is_running
-
     @for_host_types('pi')
     def test_backup(
             self,
             hostname: str,
             hosts: Dict[str, Host],
-            addrs: Dict[str, str],
-            email: Email) -> None:
+            addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
+        journal = host.journal()
         backup_root = '/mnt/backup/pi-server-backup'
         backup_main_root = os.path.join(backup_root, 'main')
         backup_git_root = os.path.join(backup_root, 'git')
@@ -193,10 +177,10 @@ class TestRolePiFull:
         with host.disable_login_emails(), \
             host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
             host.shadow_file(os.path.join(config_root, 'foo.txt')) as config_file, \
-            host.shadow_file(
-            os.path.join(
-                data_root, f'{hostname}-backup-config',
-                'git-backup-configuration.txt')) as git_config_file:
+            host.shadow_dir(
+                os.path.join(
+                    data_root, f'{hostname}-backup-config')) as git_config_dir:
+            git_config_file = git_config_dir.file('git-backup-configuration.txt')
             clear_backups()
 
             # Part 1 - data backups
@@ -293,60 +277,121 @@ class TestRolePiFull:
             check_main('weekly.2', '2021-05-30 5 2')
             check_main('monthly.0', '2021-05-30 5 3')
 
-            # # Part 2 - git backups
+            # Part 2 - git backups
 
-            # def write_git_config(repos: List[str]) -> None:
-            #     with host.sudo():
-            #         git_config_file.write(
-            #             '\n'.join(['vagrant@%s:git/%s' % (addrs['internet'], r) for r in repos]))
+            def write_git_config(repos: List[str]) -> None:
+                with host.sudo():
+                    git_config_file.write(
+                        '\n'.join([f'vagrant@{addrs["internet"]}:git/{r}' for r in repos]))
+                    host.check_output(
+                        f"chown pi-server-data:pi-server-data '{git_config_file.path}'")
+                    host.check_output(
+                        f"chmod u=rw,g=r,o= '{git_config_file.path}'")
 
-            # def run_git() -> None:
-            #     email.clear()
-            #     with host.run_crons():
-            #         pass
+            def run_git() -> None:
+                journal.clear()
+                with host.run_crons():
+                    pass
 
-            # def check_git_repos(repos: Set[str]) -> None:
-            #     with host.mount_backup_dir():
-            #         with host.sudo():
-            #             assert set(host.file(backup_git_root).listdir()) == repos
+            def check_git_repos(repos: Set[str]) -> None:
+                with host.mount_backup_dir():
+                    with host.sudo():
+                        assert set(host.file(backup_git_root).listdir()) == repos
 
-            # # Empty config - do nothing
-            # run_git()
-            # check_git_repos(set())
-            # email.assert_emails([], only_from=hostname)
+            # Empty config - do nothing
+            run_git()
+            check_git_repos(set())
+            log = journal.entries('pi-server-cron-backup-git')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 1
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Checking .* repo\(s\)') == 0
+            assert log.count(r'.*config file does not exist') == 1
+            assert log.count(r'Updated.*') == 0
+            assert log.count(r'Cloned.*') == 0
+            assert log.count(r'.*cloning.*failed') == 0
+            assert log.count(r'.*fetching.*failed') == 0
 
-            # # Invalid repo - fail to clone
-            # write_git_config(['baz'])
-            # run_git()
-            # check_git_repos(set())
-            # email.assert_emails([{
-            #     'from': 'notification@%s.testbed' % hostname,
-            #     'to': 'fake@fake.testbed',
-            #     'subject': '[%s] Cron failed' % hostname,
-            #     'body_re': r'Cloning a repository failed\.\n(.*\n)*',
-            # }], only_from=hostname)
+            # Invalid repo - fail to clone
+            write_git_config(['baz'])
+            run_git()
+            check_git_repos(set())
+            log = journal.entries('pi-server-cron-backup-git')
+            assert log.count(r'.*ERROR.*') == 1
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 2
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 0
+            assert log.count(r'Checking 1 repo\(s\)') == 1
+            assert log.count(r'.*config file does not exist') == 0
+            assert log.count(r'Updated.*') == 0
+            assert log.count(r'Cloned.*') == 0
+            assert log.count(r'.*cloning.*failed') == 1
+            assert log.count(r'.*fetching.*failed') == 0
 
-            # # Valid repos - clone both
-            # write_git_config(['foo', 'bar'])
-            # run_git()
-            # check_git_repos({'foo', 'bar'})
-            # email.assert_emails([], only_from=hostname)
+            # Valid repos - clone both
+            write_git_config(['foo', 'bar'])
+            run_git()
+            check_git_repos({'foo', 'bar'})
+            log = journal.entries('pi-server-cron-backup-git')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Checking 2 repo\(s\)') == 1
+            assert log.count(r'.*config file does not exist') == 0
+            assert log.count(r'Updated.*') == 0
+            assert log.count(r'Cloned.*') == 2
+            assert log.count(r'.*cloning.*failed') == 0
+            assert log.count(r'.*fetching.*failed') == 0
 
-            # # Fail to fetch
-            # try:
-            #     hosts['internet'].check_output('mv git/bar git/baz')
-            #     run_git()
-            #     check_git_repos({'foo', 'bar'})
-            #     email.assert_emails([{
-            #         'from': 'notification@%s.testbed' % hostname,
-            #         'to': 'fake@fake.testbed',
-            #         'subject': '[%s] Cron failed' % hostname,
-            #         'body_re': r'Fetching a repository failed\.\n(.*\n)*',
-            #     }], only_from=hostname)
-            # finally:
-            #     hosts['internet'].check_output('mv git/baz git/bar')
+            # Fail to fetch
+            try:
+                hosts['internet'].check_output('mv git/bar git/baz')
+                run_git()
+                check_git_repos({'foo', 'bar'})
+                log = journal.entries('pi-server-cron-backup-git')
+                assert log.count(r'.*ERROR.*') == 1
+                assert log.count(r'.*WARNING.*') == 0
+                assert log.count(r'.*FAILURE.*') == 2
+                assert log.count(r'.*KILLED.*') == 0
+                assert log.count(r'.*SUCCESS.*') == 0
+                assert log.count(r'Checking 2 repo\(s\)') == 1
+                assert log.count(r'.*config file does not exist') == 0
+                assert log.count(r'Updated.*') == 1
+                assert log.count(r'Cloned.*') == 0
+                assert log.count(r'.*cloning.*failed') == 0
+                assert log.count(r'.*fetching.*failed') == 1
+            finally:
+                hosts['internet'].check_output('mv git/baz git/bar')
 
-            # # Valid repos - fetch both
-            # run_git()
-            # check_git_repos({'foo', 'bar'})
-            # email.assert_emails([], only_from=hostname)
+            # Valid repos - fetch both
+            run_git()
+            check_git_repos({'foo', 'bar'})
+            log = journal.entries('pi-server-cron-backup-git')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Checking 2 repo\(s\)') == 1
+            assert log.count(r'.*config file does not exist') == 0
+            assert log.count(r'Updated.*') == 2
+            assert log.count(r'Cloned.*') == 0
+            assert log.count(r'.*cloning.*failed') == 0
+            assert log.count(r'.*fetching.*failed') == 0
+
+    # @for_host_types('pi')
+    # def test_02_firewall(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    #     host = hosts[hostname]
+    #     assert host.file('/etc/pi-server/firewall/allow-forwarding').exists
+
+    # @for_host_types('pi')
+    # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    #     """This just installs the openvpn service, not any configs."""
+    #     host = hosts[hostname]
+    #     assert host.service('openvpn').is_enabled
+    #     assert host.service('openvpn').is_running

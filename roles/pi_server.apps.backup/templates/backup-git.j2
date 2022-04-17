@@ -18,6 +18,10 @@ function cleanup() {
     fi
 }
 
+function warning() {
+    echo "WARNING:" "${@}"
+}
+
 function error() {
     echo "ERROR:" "${@}"
     cleanup
@@ -33,6 +37,7 @@ fi
 export GIT_SSH="${GIT_SSH_SCRIPT}"
 
 if [ -f "${GIT_BACKUP_CONFIG}" ]; then
+    echo "Checking $(wc -l < "${GIT_BACKUP_CONFIG}") repo(s)"
     while read -r line; do
         if [ -n "${line}" ]; then
             REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
@@ -55,6 +60,8 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
             fi
         fi
     done <"${GIT_BACKUP_CONFIG}"
+else
+    warning 'config file does not exist'
 fi
 
 cleanup

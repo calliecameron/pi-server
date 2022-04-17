@@ -23,7 +23,7 @@
     state: directory
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,go=
+    mode: u=rwx,g=rx,o=
 
 - name: instructions
   become: yes
@@ -32,7 +32,7 @@
     dest: "{{ pi_server_apps_backup_config_dir }}/instructions.txt"
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=r,go=
+    mode: ug=r,o=
 
 - name: git configuration file
   include_role:
@@ -41,7 +41,7 @@
     path: "{{ pi_server_apps_backup_git_config }}"
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rw,go=
+    mode: u=rw,g=r,o=
 
 - name: main user
   include_role:
