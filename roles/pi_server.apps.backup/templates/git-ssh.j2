@@ -1,4 +1,5 @@
 #!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
 # shellcheck disable=SC2029
 ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no -i '{{ pi_server_apps_certs_deployment_key }}' "${@}"

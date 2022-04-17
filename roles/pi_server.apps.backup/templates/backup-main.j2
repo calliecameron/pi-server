@@ -1,4 +1,5 @@
 #!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 # Main backup.
 
 set -eu
@@ -12,7 +13,7 @@ BACKUP_PARTITION='{{ pi_server_apps_main_storage_backup_mount_dir }}'
 function cleanup() {
     sync
     if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-        umount "${BACKUP_PARTITION}"
+        sudo umount "${BACKUP_PARTITION}"
     fi
 }
 
@@ -27,7 +28,7 @@ if [ ! -d "${DATA_DIR}" ]; then
 fi
 
 if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-    if ! mount "${BACKUP_PARTITION}" &>/dev/null; then
+    if ! sudo mount "${BACKUP_PARTITION}" &>/dev/null; then
         error 'cannot mount backup partition'
     fi
 fi
@@ -39,14 +40,14 @@ DAY_OF_MONTH="$(date '+%d')"
 if [ ! -f "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
     echo "${TODAY}" >"${LAST_RUN_FILE}"
 
-    if rsnapshot daily; then
+    if sudo rsnapshot daily; then
         echo 'Daily backup succeeded'
     else
         error 'Daily backup failed'
     fi
 
     if [ "${DAY_OF_WEEK}" == '1' ]; then
-        if rsnapshot weekly; then
+        if sudo rsnapshot weekly; then
             echo 'Weekly backup succeeded'
         else
             error 'weekly backup failed'
@@ -54,7 +55,7 @@ if [ ! -f "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ];
     fi
 
     if [ "${DAY_OF_MONTH}" == '01' ]; then
-        if rsnapshot monthly; then
+        if sudo rsnapshot monthly; then
             echo 'Monthly backup succeeded'
         else
             error 'monthly backup failed'

@@ -4,6 +4,9 @@
 - include_role:
     name: pi_server.apps.certs
 
+- include_role:
+    name: pi_server.apps.syncthing.system_wide
+
 - name: etc dir
   become: yes
   ansible.builtin.file:
@@ -40,6 +43,13 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rw,go=
 
+- name: main user
+  include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_backup_main_user }}"
+    register:
+
 - name: git user
   include_role:
     name: pi_server.utils.user
@@ -47,13 +57,15 @@
     user: "{{ pi_server_apps_backup_git_user }}"
     register:
 
-- include_role:
-    name: pi_server.utils.main_data_reader
+- name: git user can read data
+  include_role:
+    name: pi_server.apps.main_data.reader
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
 
-- include_role:
-    name: pi_server.utils.deployment_key_reader
+- name: git user can read deployment key
+  include_role:
+    name: pi_server.apps.certs.deployment_key_reader
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
 
@@ -80,6 +92,15 @@
     owner: "{{ pi_server_apps_backup_git_user }}"
     group: "{{ pi_server_apps_backup_git_user }}"
     mode: u=rwx,go=
+
+- name: last run date file
+  include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_backup_last_run }}"
+    owner: "{{ pi_server_apps_backup_main_user }}"
+    group: "{{ pi_server_apps_backup_main_user }}"
+    mode: u=rw,go=r
 
 - name: unmount backup partition
   become: yes
@@ -111,24 +132,37 @@
     group: root
     mode: a=rx
 
-- include_role:
+- name: main user sudoers
+  include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
-    src: sudoers.j2
-    user: "{{ pi_server_apps_backup_git_user }}"
+    src: main-sudoers.j2
+    name: "{{ pi_server_apps_backup_main_user }}"
+
+- name: git user sudoers
+  include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
+    src: git-sudoers.j2
+    name: "{{ pi_server_apps_backup_git_user }}"
 
 - name: main cronjob
   include_role:
-    name: pi_server.utils.cronjob
+    name: pi_server.apps.cron.cronjob
   vars:
     job: backup-main
     src: backup-main.j2
-    user: root
+    user: "{{ pi_server_apps_backup_main_user }}"
+    systemd_conflicts:
+      - "{{ pi_server_apps_syncthing_service }}"
+    docker_conflicts: []
 
 - name: git cronjob
   include_role:
-    name: pi_server.utils.cronjob
+    name: pi_server.apps.cron.cronjob
   vars:
     job: backup-git
     src: backup-git.j2
     user: "{{ pi_server_apps_backup_git_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []

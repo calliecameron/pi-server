@@ -13,8 +13,8 @@
 - include_role:
     name: pi_server.apps.syncthing.system_wide
 
-# - include_role:
-#     name: pi_server.apps.backup
+- include_role:
+    name: pi_server.apps.backup
 
 # - include_role:
 #     name: pi_server.utils.enable_forwarding

@@ -1,0 +1,7 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+{{ pi_server_apps_backup_main_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/mount {{ pi_server_apps_main_storage_backup_mount_dir }}
+{{ pi_server_apps_backup_main_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/umount {{ pi_server_apps_main_storage_backup_mount_dir }}
+{{ pi_server_apps_backup_main_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/rsnapshot daily
+{{ pi_server_apps_backup_main_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/rsnapshot weekly
+{{ pi_server_apps_backup_main_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/rsnapshot monthly

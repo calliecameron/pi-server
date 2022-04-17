@@ -1,6 +1,7 @@
 pi_server_apps_backup_etc: "{{ pi_server_etc }}/backup"
 pi_server_apps_backup_config_dir: "{{ pi_server_apps_main_data_main_dir }}/{{ pi_server_hostname }}-backup-config"
 pi_server_apps_backup_main_dir: "{{ pi_server_apps_main_data_backup_dir }}/main"
+pi_server_apps_backup_main_user: "pi-server-backup-main"
 pi_server_apps_backup_last_run: "{{ pi_server_apps_main_data_backup_dir }}/last-run-date.txt"
 pi_server_apps_backup_git_dir: "{{ pi_server_apps_main_data_backup_dir }}/git"
 pi_server_apps_backup_git_user: "pi-server-backup-git"
