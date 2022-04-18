@@ -11,7 +11,7 @@
     name: pi_server.testbed.apps.mockserver_client
 
 - include_role:
-    name: pi_server.testbed.apps.certs
+    name: pi_server.testbed.apps.certs.server
 
 - include_role:
     name: pi_server.roles.base
@@ -22,5 +22,10 @@
 - include_role:
     name: pi_server.roles.pi_full
 
-#  - import_tasks: 03_openvpn_clients.yml
-#    become: no
+- include_role:
+    name: pi_server.testbed.apps.openvpn.server_to_server_client
+  when: pi_server_testbed_openvpn_role == 'client'
+
+- include_role:
+    name: pi_server.testbed.apps.openvpn.server_to_server_server
+  when: pi_server_testbed_openvpn_role == 'server'

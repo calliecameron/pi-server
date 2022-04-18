@@ -1,0 +1,11 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: False
+    _args:
+      - client_lan_network
+      - client_vpn_network
+      - client_cert_common_name
+    _host_vars: []
+    _export_vars: []

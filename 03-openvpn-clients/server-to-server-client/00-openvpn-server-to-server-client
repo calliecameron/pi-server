@@ -1,49 +1,49 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
-source "${DIR}/../../02-pi-core/common.bash" &&
+# DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )" &&
+# source "${DIR}/../../02-pi-core/common.bash" &&
 
 
-read -r -p "Enter the address of the server to connect to (the externally-visible address; can be a domain name or an IP): " VPN_SERVER &&
+# read -r -p "Enter the address of the server to connect to (the externally-visible address; can be a domain name or an IP): " VPN_SERVER &&
 
-if [ -z "${VPN_SERVER}" ]; then
-    echo 'Empty VPN server address; not going any further'
-    exit 1
-fi
-
-
-# Make sure the certs are in place, and have the correct permissions
-CERT_NAME='openvpn-server-to-server-client'
-check-pi-server-cert "OpenVPN server-to-server client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AUTH}" &&
+# if [ -z "${VPN_SERVER}" ]; then
+#     echo 'Empty VPN server address; not going any further'
+#     exit 1
+# fi
 
 
-# Config file
-CONFIG='/etc/openvpn/openvpn-server-to-server-client.conf' &&
-sed-install "${DIR}/openvpn-server-to-server-template" "${CONFIG}" \
-            "${PI_SERVER_CA_CERT}" \
-            "$(pi-server-cert "${CERT_NAME}")" \
-            "$(pi-server-key "${CERT_NAME}")" \
-            "${PI_SERVER_CRL}" \
-            "${PI_SERVER_OPENVPN_TLS_AUTH}" \
-            "${VPN_SERVER}" &&
-sudo chmod u=r "${CONFIG}" &&
-sudo chmod go-rwx "${CONFIG}"
+# # Make sure the certs are in place, and have the correct permissions
+# CERT_NAME='openvpn-server-to-server-client'
+# check-pi-server-cert "OpenVPN server-to-server client" "${CERT_NAME}" "${PI_SERVER_OPENVPN_TLS_AUTH}" &&
+
+
+# # Config file
+# CONFIG='/etc/openvpn/openvpn-server-to-server-client.conf' &&
+# sed-install "${DIR}/openvpn-server-to-server-template" "${CONFIG}" \
+#             "${PI_SERVER_CA_CERT}" \
+#             "$(pi-server-cert "${CERT_NAME}")" \
+#             "$(pi-server-key "${CERT_NAME}")" \
+#             "${PI_SERVER_CRL}" \
+#             "${PI_SERVER_OPENVPN_TLS_AUTH}" \
+#             "${VPN_SERVER}" &&
+# sudo chmod u=r "${CONFIG}" &&
+# sudo chmod go-rwx "${CONFIG}"
 
 
 less <<EOF
-On the remote server, create a file '${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}/<common name of this client's certificate>' containing the following lines:
+# On the remote server, create a file '${PI_SERVER_OPENVPN_CLIENT_CONFIG_DIR}/<common name of this client's certificate>' containing the following lines:
 
-iroute ${PI_SERVER_LAN_NETWORK} 255.255.255.0
-iroute ${PI_SERVER_VPN_NETWORK} 255.255.255.0
+# iroute ${PI_SERVER_LAN_NETWORK} 255.255.255.0
+# iroute ${PI_SERVER_VPN_NETWORK} 255.255.255.0
 
 
 
-On the remote server, add the following lines to '${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}':
+# On the remote server, add the following lines to '${PI_SERVER_OPENVPN_SERVER_TO_SERVER_CONFIG}':
 
-route ${PI_SERVER_LAN_NETWORK} 255.255.255.0
-route ${PI_SERVER_VPN_NETWORK} 255.255.255.0
-push "route ${PI_SERVER_LAN_NETWORK} 255.255.255.0"
-push "route ${PI_SERVER_VPN_NETWORK} 255.255.255.0"
+# route ${PI_SERVER_LAN_NETWORK} 255.255.255.0
+# route ${PI_SERVER_VPN_NETWORK} 255.255.255.0
+# push "route ${PI_SERVER_LAN_NETWORK} 255.255.255.0"
+# push "route ${PI_SERVER_VPN_NETWORK} 255.255.255.0"
 
 
 
@@ -61,6 +61,6 @@ route to <remote server's VPN subnet via <remote server's LAN IP>
 EOF
 
 
-echo "Reboot to start the connection, and see ${PI_SERVER_OPENVPN_NIGHTLY_CONFIG} if you don't want the connection to be active all the time." &&
-enter-to-continue &&
-sudo systemctl restart openvpn.service
+# echo "Reboot to start the connection, and see ${PI_SERVER_OPENVPN_NIGHTLY_CONFIG} if you don't want the connection to be active all the time." &&
+# enter-to-continue &&
+# sudo systemctl restart openvpn.service

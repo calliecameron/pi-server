@@ -1,7 +1,8 @@
 # Testbed
 
-A collection of VMs for development and integration testing. The testbed
-simulates two LANs separated by the internet. Each LAN has a router and a pi.
+A collection of VMs for development and integration testing. Simulates two LANs
+separated by the internet. Each LAN has a router and a pi. There is also an
+external client not on either LAN.
 
 ## Setup
 
@@ -16,4 +17,4 @@ simulates two LANs separated by the internet. Each LAN has a router and a pi.
 
 ## Integration tests
 
-Run `pytest`. Note that this can take several hours.
+Run `pytest`. This can take several hours.

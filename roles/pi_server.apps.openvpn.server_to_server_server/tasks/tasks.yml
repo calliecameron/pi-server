@@ -1,0 +1,35 @@
+- include_role:
+    name: pi_server.apps.openvpn.server
+
+- name: lan network route
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
+    line: "route {{ args.client_lan_network }} 255.255.255.0"
+
+- name: vpn network route
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
+    line: "route {{ args.client_vpn_network }} 255.255.255.0"
+
+- name: lan network push route
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
+    line: "push \"route {{ args.client_lan_network }} 255.255.255.0\""
+
+- name: vpn network push route
+  become: yes
+  ansible.builtin.lineinfile:
+    path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
+    line: "push \"route {{ args.client_vpn_network }} 255.255.255.0\""
+
+- name: client config
+  become: yes
+  ansible.builtin.template:
+    src: client-config.j2
+    dest: "{{ pi_server_apps_openvpn_server_client_config_dir }}/{{ args.client_cert_common_name }}"
+    owner: root
+    group: root
+    mode: a=r

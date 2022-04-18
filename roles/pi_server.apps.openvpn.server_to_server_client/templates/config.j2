@@ -1,0 +1,27 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+client
+proto tcp
+dev tun
+
+ca {{ pi_server_apps_certs_ca }}
+cert {{ pi_server_apps_openvpn_server_to_server_client_cert }}
+key {{ pi_server_apps_openvpn_server_to_server_client_key }}
+crl-verify {{ pi_server_apps_certs_crl }}
+tls-auth {{ pi_server_apps_openvpn_tls_auth }}
+
+# Host port
+remote {{ args.addr }} {{ pi_server_apps_openvpn_port }}
+float
+
+resolv-retry infinite
+nobind
+user nobody
+group nogroup
+persist-key
+persist-tun
+ns-cert-type server
+cipher AES-256-CBC
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA
+comp-lzo
+verb 3

@@ -2,8 +2,9 @@
   include_tasks: "{{ define_role }}"
   vars:
     _private: False
-    _run_once: True
-    _args: []
-    _host_vars:
-      - pi_server_testbed_openvpn_role
+    _run_once: False
+    _args:
+      - name
+      - addr
+    _host_vars: []
     _export_vars: []

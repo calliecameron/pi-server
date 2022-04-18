@@ -5,5 +5,5 @@
     _run_once: True
     _args: []
     _host_vars:
-      - pi_server_testbed_openvpn_role
+      - pi_server_hostname
     _export_vars: []

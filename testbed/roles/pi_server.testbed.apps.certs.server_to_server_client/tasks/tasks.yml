@@ -1,0 +1,8 @@
+- include_role:
+    name: pi_server.testbed.apps.certs.server
+
+- name: install certs
+  become: yes
+  ansible.builtin.package:
+    name: "{{ pi_server_hostname }}-client-certs"
+    state: present
