@@ -1,5 +1,11 @@
 from conftest import BASE_REACHABILITY, Net, vms_down
 
+PORT_RANGES_TO_SCAN = [
+    (1, 2000),
+    (8000, 9000),
+    (20000, 24000),
+]
+
 
 class TestBase:
     def test_reachability_base(self, net: Net) -> None:
@@ -174,36 +180,45 @@ class TestBase:
     def test_firewall(self, net: Net) -> None:
         net.assert_ports_open({
             'internet': {
-                'router1_wan': {'tcp': {
-                    1194,  # OpenVPN port forwarding
-                }, 'udp': set()},
-                'router2_wan': {'tcp': {
-                    1194,  # OpenVPN port forwarding
-                }, 'udp': set()},
-                'ubuntu': {'tcp': {
-                    22,  # SSH
-                }, 'udp': set()},
+                'router1_wan': {
+                    'tcp': {
+                        1194,  # OpenVPN port forwarding
+                    },
+                    'udp': set()
+                },
+                'router2_wan': {
+                    'tcp': {
+                        1194,  # OpenVPN port forwarding
+                    },
+                    'udp': set()
+                },
+                'ubuntu': {
+                    'tcp': {
+                        22,  # SSH
+                    },
+                    'udp': set()
+                },
             },
             'router1': {
-                'pi1': {'tcp': {
-                    22,  # SSH
-                    80,  # Nginx
-                    # 1194, # OpenVPN
-                    # 8080, # Syncthing GUI
-                    # 8200, # Minidlna status
-                    # 22000, # Syncthing
-                    # 23145, # Shutdownd
-                }, 'udp': set()},
+                'pi1': {
+                    'tcp': {
+                        22,  # SSH
+                        80,  # Control panel
+                        1194,  # OpenVPN
+                        22000,  # Syncthing
+                    },
+                    'udp': set()
+                },
             },
             'router2': {
-                'pi2': {'tcp': {
-                    22,  # SSH
-                    80,  # Nginx
-                    # 1194, # OpenVPN
-                    # 8080, # Syncthing GUI
-                    # 8200, # Minidlna status
-                    # 22000, # Syncthing
-                    # 23145, # Shutdownd
-                }, 'udp': set()},
+                'pi2': {
+                    'tcp': {
+                        22,  # SSH
+                        80,  # Control panel
+                        1194,  # OpenVPN
+                        22000,  # Syncthing
+                    },
+                    'udp': set()
+                },
             },
-        })
+        }, PORT_RANGES_TO_SCAN)

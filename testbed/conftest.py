@@ -235,10 +235,16 @@ class Net:
         return out
 
     @timer
-    def nmap(self, t: Timer, host: str, addr: str) -> Dict[str, Set[int]]:
+    def nmap(
+            self,
+            t: Timer,
+            host: str,
+            addr: str,
+            ranges: List[Tuple[int, int]]) -> Dict[str, Set[int]]:
         """Gets the open ports on addr as seen from host."""
+        ports = ','.join([f'{a}-{b}' for (a, b) in ranges])
         result = self._hosts[host].check_output(
-            'sudo nmap -p-2000,8000-9000,20000-24000 --open -Pn -oN - -T4 -sU -sS ' +
+            f'sudo nmap -p{ports} --open -Pn -oN - -T4 -sU -sS ' +
             self._addrs[addr])
         udp = set()
         tcp = set()
@@ -336,7 +342,10 @@ class Net:
             self._host_addr_pairs(sorted(routes)))
 
     @timer
-    def assert_ports_open(self, ports: Dict[str, Dict[str, Dict[str, Set[int]]]]) -> None:
+    def assert_ports_open(
+            self,
+            ports: Dict[str, Dict[str, Dict[str, Set[int]]]],
+            ranges: List[Tuple[int, int]]) -> None:
         """Check that only the given ports are open for the given host/addr pairs."""
         host_addr_pairs = []
         for host in ports:
@@ -344,7 +353,7 @@ class Net:
                 host_addr_pairs.append((host, addr))
         self._assert_result(
             lambda host, addr: ports[host][addr],
-            self.nmap,
+            lambda host, addr: self.nmap(host, addr, ranges),
             host_addr_pairs)
 
 
