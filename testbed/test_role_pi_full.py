@@ -391,14 +391,9 @@ class TestRolePiFull:
         assert host.service('minidlna').is_running
         assert host.process.filter(user='minidlna', comm='minidlnad')
 
-    # @for_host_types('pi')
-    # def test_02_firewall(self, hostname: str, hosts: Dict[str, Host]) -> None:
-    #     host = hosts[hostname]
-    #     assert host.file('/etc/pi-server/firewall/allow-forwarding').exists
-
-    # @for_host_types('pi')
-    # def test_08_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
-    #     """This just installs the openvpn service, not any configs."""
-    #     host = hosts[hostname]
-    #     assert host.service('openvpn').is_enabled
-    #     assert host.service('openvpn').is_running
+    @for_host_types('pi')
+    def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
+        """This just installs the openvpn service, not any configs."""
+        host = hosts[hostname]
+        assert host.service('openvpn').is_enabled
+        assert host.service('openvpn').is_running

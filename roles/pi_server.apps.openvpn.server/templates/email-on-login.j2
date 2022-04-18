@@ -1,0 +1,7 @@
+#!/bin/sh
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+set -eu
+
+'{{ pi_server_apps_email_script }}' "OpenVPN connection: ${common_name:-} from ${trusted_ip:-}" "Connected at ${time_ascii:-}" &
+exit 0

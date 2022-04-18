@@ -1,0 +1,32 @@
+proto tcp
+port {{ pi_server_apps_openvpn_server_port }}
+dev tun
+
+ca {{ pi_server_apps_certs_ca }}
+cert {{ pi_server_apps_openvpn_server_cert }}
+key {{ pi_server_apps_openvpn_server_key }}
+dh {{ pi_server_apps_openvpn_server_dh_params }}
+crl-verify {{ pi_server_apps_certs_crl }}
+tls-auth {{ pi_server_apps_openvpn_server_tls_auth }}
+client-config-dir {{ pi_server_apps_openvpn_server_client_config_dir }}
+
+server {{ pi_server_vpn_network }} 255.255.255.0
+ifconfig-pool-persist /etc/openvpn/ipp.txt
+client-to-client
+push "route {{ pi_server_lan_network }} 255.255.255.0"
+
+keepalive 10 120
+cipher AES-256-CBC
+tls-cipher TLS-DHE-RSA-WITH-AES-256-CBC-SHA
+comp-lzo
+user nobody
+group nogroup
+persist-key
+persist-tun
+status /etc/openvpn/openvpn-status.log
+verb 3
+
+script-security 2
+client-connect {{ pi_server_apps_openvpn_server_login_email_script }}
+
+config {{ pi_server_apps_openvpn_server_to_server_config }}

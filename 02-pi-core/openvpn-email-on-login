@@ -1,5 +1,0 @@
-#!/bin/sh
-
-# shellcheck disable=SC2154
-'@@@@@1@@@@@' "OpenVPN connection: ${common_name} from ${trusted_ip}" "Connected at ${time_ascii}" &
-exit 0

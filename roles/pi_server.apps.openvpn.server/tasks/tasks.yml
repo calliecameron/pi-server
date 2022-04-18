@@ -1,0 +1,138 @@
+- include_role:
+    name: pi_server.apps.email
+
+- include_role:
+    name: pi_server.apps.certs
+
+- name: install openvpn
+  become: yes
+  ansible.builtin.package:
+    name: openvpn
+    state: present
+
+- name: check that openvpn cert exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_server_cert }}"
+    msg: "openvpn cert ({{ pi_server_apps_openvpn_server_cert }}) doesn't exist"
+
+- name: check that openvpn key exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_server_key }}"
+    msg: "openvpn key ({{ pi_server_apps_openvpn_server_key }}) doesn't exist"
+
+- name: check that dh params exist
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_server_dh_params }}"
+    msg: "openvpn dh params ({{ pi_server_apps_openvpn_server_dh_params }}) doesn't exist"
+
+- name: check that tls auth exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_server_tls_auth }}"
+    msg: "openvpn tls auth ({{ pi_server_apps_openvpn_server_tls_auth }}) doesn't exist"
+
+- name: openvpn cert
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_cert }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: openvpn key
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_key }}"
+    owner: root
+    group: root
+    mode: u=r,go=
+
+- name: openvpn dh params
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_dh_params }}"
+    owner: root
+    group: root
+    mode: u=r,go=
+
+- name: openvpn tls auth
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_tls_auth }}"
+    owner: root
+    group: root
+    mode: u=r,go=
+
+- name: etc dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: client config dir
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_server_client_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: check if server-to-server client config exists
+  become: yes
+  ansible.builtin.command:
+    cmd: "ls {{ pi_server_apps_openvpn_server_to_server_config }}"
+  register: exists
+  failed_when: False
+  changed_when: False
+
+- name: server-to-server client config
+  become: yes
+  ansible.builtin.copy:
+    src: server-to-server-clients
+    dest: "{{ pi_server_apps_openvpn_server_to_server_config }}"
+    owner: root
+    group: root
+    mode: a=r
+  when: exists.rc != 0
+
+- name: login email script
+  become: yes
+  ansible.builtin.template:
+    src: email-on-login.j2
+    dest: "{{ pi_server_apps_openvpn_server_login_email_script }}"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: openvpn config
+  become: yes
+  ansible.builtin.template:
+    src: openvpn-server.conf.j2
+    dest: /etc/openvpn/openvpn-server.conf
+    owner: root
+    group: root
+    mode: u=r,go=
+  notify: reload openvpn
+
+- name: monitoring
+  include_role:
+    name: pi_server.apps.monitoring.monitor_systemd_service
+  vars:
+    systemd_service: "{{ pi_server_apps_openvpn_server_service }}"
+
+- name: open port
+  include_role:
+    name: pi_server.apps.firewall.tcp_port
+  vars:
+    port: "{{ pi_server_apps_openvpn_server_port }}"
