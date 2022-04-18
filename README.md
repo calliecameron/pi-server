@@ -1,3 +1,56 @@
+# pi-server
+
+Configuration framework for amd64 and arm64 servers (including Raspberry Pi 4)
+running Ubuntu 20.04 LTS.
+
+## Roles
+
+## Preparation
+
+Create a non-root user that you can SSH into using an SSH key.
+
+TODO from old notes:
+
+```text
+Make sure the external storage is attached and correctly formatted: should have two ext4 partitions, one for primary data storage, and one for backups. (Additional partitions for other things are OK.) The /dev nodes for these partitions should have been set already in ./01-vars.
+
+When formatting the drives, you may want to use 'mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0' to save the Pi from having to initialise everything.
+```
+
+## Installation
+
+## Certificates
+
+## VPN
+
+TODO old notes:
+
+From 08-openvpn-server:
+
+```shell
+Log in to your router, and setup a static route to ${PI_SERVER_VPN_NETWORK}/24 via ${PI_SERVER_IP}
+```
+
+From 00-openvpn-server-to-server-client:
+
+```shell
+On your local router, add the following route:
+
+route to <remote server's LAN subnet> via ${PI_SERVER_IP}
+route to <remote server's VPN subnet> via ${PI_SERVER_IP}
+route to ${PI_SERVER_VPN_NETWORK} via ${PI_SERVER_IP}
+
+On the remote server's router, add the following route:
+
+route to ${PI_SERVER_LAN_NETWORK} via <remote server's LAN IP>
+route to ${PI_SERVER_VPN_NETWORK} via <remote server's LAN IP>
+route to <remote server's VPN subnet via <remote server's LAN IP>
+```
+
+## Testing
+
+See [testbed/README.md](testbed/README.md).
+
 Pi Server
 =========
 
@@ -21,7 +74,6 @@ each other, so that clients on either LAN have full access to both
 networks. The intended usage for this is so that the two side's
 Syncthing instances can talk without having to be exposed to the
 internet.
-
 
 Installation
 ------------
@@ -49,7 +101,6 @@ In each of the numbered folders starting with `01-generic-core` in
 order, run each of the numbered scripts in order, and follow the
 instructions they give.
 
-
 Other servers
 -------------
 
@@ -60,7 +111,6 @@ just a Pi. All the other folders are Pi-specific, though.
 The scripts should be run as a non-root user with sudo access, so you
 may need to create one manually first.
 
-
 Updates
 -------
 
@@ -69,7 +119,6 @@ changed script or the scripts that use changed files. Or, if it is a
 big update, it is probably easier to re-run everything, in order; all
 the scripts are idempotent, so anything that hasn't changed will just
 do nothing.
-
 
 Upgrading from Jessie to Stretch
 --------------------------------
