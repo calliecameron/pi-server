@@ -10,3 +10,9 @@
   vars:
     name: "{{ pi_server_testbed_openvpn_target_name }}"
     addr: "{{ pi_server_testbed_openvpn_target_ip }}"
+
+- name: nightly connection
+  include_role:
+    name: pi_server.apps.openvpn.nightly_connection
+  vars:
+    name: "{{ pi_server_testbed_openvpn_target_name }}"

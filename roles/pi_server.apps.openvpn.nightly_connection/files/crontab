@@ -1,0 +1,7 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+SHELL=/bin/sh
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+
+# m h dom mon dow user  command
+0 23  *   *   *   root  systemctl start pi-server-cron-openvpn-nightly
+#

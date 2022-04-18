@@ -1,0 +1,29 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Run an openvpn connection
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+TIMEOUT_DURATION='7h'
+SERVICE='openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}'
+
+function error() {
+    echo "ERROR:" "${@}"
+    exit 1
+}
+
+if ! sudo systemctl start "${SERVICE}"; then
+    error 'failed to start openvpn'
+else
+    echo 'Started openvpn'
+fi
+
+sleep "${TIMEOUT_DURATION}"
+
+if ! sudo systemctl stop "${SERVICE}"; then
+    error 'failed to stop openvpn'
+else
+    echo 'Stopped openvpn'
+fi
