@@ -1,10 +1,8 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    _private: False
+    _private: True
     _run_once: True
     _args: []
-    _host_vars:
-      - pi_server_hostname
-      - pi_server_testbed_internet_ip
+    _host_vars: []
     _export_vars: []

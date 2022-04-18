@@ -1,0 +1,12 @@
+- include_role:
+    name: pi_server.testbed.apps.openvpn.base
+
+- include_role:
+    name: pi_server.testbed.apps.certs.host_to_server_client
+
+- name: client config
+  include_role:
+    name: pi_server.apps.openvpn.host_to_server_client
+  vars:
+    name: "{{ pi_server_testbed_openvpn_target_name }}"
+    addr: "{{ pi_server_testbed_openvpn_target_ip }}"

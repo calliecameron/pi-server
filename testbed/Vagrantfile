@@ -72,7 +72,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask, other_lan_mask, oth
 end
 
 
-def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_client_vpn_mask, openvpn_role)
+def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_target_name, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_client_vpn_mask, openvpn_role)
   config.vm.define name do |box|
     box.vm.box = "ubuntu/focal64"
     box.vm.hostname = name
@@ -104,11 +104,12 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_vpn_network: pi_vpn_mask,
         pi_server_testbed_router_ip: router_lan_ip,
         pi_server_testbed_internet_ip: $addrs["internet"],
-        openvpn_target_ip: openvpn_target_ip,
-        openvpn_client_name: openvpn_client_name,
-        openvpn_client_lan_mask: openvpn_client_lan_mask,
-        openvpn_client_vpn_mask: openvpn_client_vpn_mask,
-        openvpn_role: openvpn_role
+        pi_server_testbed_openvpn_target_name: openvpn_target_name,
+        pi_server_testbed_openvpn_target_ip: openvpn_target_ip,
+        pi_server_testbed_openvpn_client_name: openvpn_client_name,
+        pi_server_testbed_openvpn_client_lan_network: openvpn_client_lan_mask,
+        pi_server_testbed_openvpn_client_vpn_network: openvpn_client_vpn_mask,
+        pi_server_testbed_openvpn_role: openvpn_role
       }
     end
     box.vm.provision :reload
@@ -138,8 +139,8 @@ def ubuntu(config)
         pi_server_monitoring_entrypoint_port: "80",
         pi_server_testbed_router_ip: $addrs["internet"],
         pi_server_testbed_internet_ip: $addrs["internet"],
-        openvpn_target_ip: $addrs["router2_wan"],
-        openvpn_role: "external_client"
+        pi_server_testbed_openvpn_target_name: "pi2",
+        pi_server_testbed_openvpn_target_ip: $addrs["router2_wan"]
       }
     end
     ubuntu.vm.provision :reload
@@ -153,8 +154,8 @@ Vagrant.configure("2") do |config|
   router config, "router1", $addrs["router1_wan"], $addrs["router1_lan"], $addrs["pi1"], $masks["pi1_vpn"], $masks["lan2"], $masks["pi2_vpn"]
   router config, "router2", $addrs["router2_wan"], $addrs["router2_lan"], $addrs["pi2"], $masks["pi2_vpn"], $masks["lan1"], $masks["pi1_vpn"]
 
-  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"], $masks["lan1"], $masks["pi1_vpn"], $addrs["router2_wan"], "pi2", $masks["lan2"], $masks["pi2_vpn"], "client"
-  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"], $masks["lan2"], $masks["pi2_vpn"], $addrs["router1_wan"], "pi1", $masks["lan1"], $masks["pi1_vpn"], "server"
+  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"], $masks["lan1"], $masks["pi1_vpn"], "pi2", $addrs["router2_wan"], "pi2", $masks["lan2"], $masks["pi2_vpn"], "client"
+  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"], $masks["lan2"], $masks["pi2_vpn"], "pi1", $addrs["router1_wan"], "pi1", $masks["lan1"], $masks["pi1_vpn"], "server"
 
   ubuntu config
 end

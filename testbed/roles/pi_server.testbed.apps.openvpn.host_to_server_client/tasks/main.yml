@@ -1,0 +1,10 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: False
+    _run_once: True
+    _args: []
+    _host_vars:
+      - pi_server_testbed_openvpn_target_name
+      - pi_server_testbed_openvpn_target_ip
+    _export_vars: []

@@ -73,11 +73,8 @@ Priority: optional
 Standards-Version: 3.9.2
 Package: ${HOST}-single-machine-client-certs
 Version: 1
-Files: ca.crt /etc/pi-server/certs/
- crl /etc/pi-server/certs/
- openvpn-client.crt /etc/pi-server/certs/
+Files: openvpn-client.crt /etc/pi-server/certs/
  openvpn-client.key /etc/pi-server/certs/
- openvpn-tls-auth.key /etc/pi-server/certs/
 EOF
 
     equivs-build "${HOST}-single-machine-client-certs"

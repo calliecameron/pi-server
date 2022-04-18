@@ -1,0 +1,54 @@
+- include_role:
+    name: pi_server.apps.openvpn.base
+
+- name: save client cert name
+  ansible.builtin.set_fact:
+    pi_server_apps_openvpn_host_to_server_client_cert: "{{ pi_server_apps_certs_etc }}/openvpn-client.crt"
+    pi_server_apps_openvpn_host_to_server_client_key: "{{ pi_server_apps_certs_etc }}/openvpn-client.key"
+
+- name: check that client cert exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_host_to_server_client_cert }}"
+    msg: "client cert ({{ pi_server_apps_openvpn_host_to_server_client_cert }}) doesn't exist"
+
+- name: check that client key exists
+  include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_openvpn_host_to_server_client_key }}"
+    msg: "client key ({{ pi_server_apps_openvpn_host_to_server_client_key }}) doesn't exist"
+
+- name: client cert
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_host_to_server_client_cert }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: client key
+  become: yes
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_openvpn_host_to_server_client_key }}"
+    owner: root
+    group: root
+    mode: u=r,go=
+
+- name: config file
+  become: yes
+  ansible.builtin.template:
+    src: config.j2
+    dest: "{{ pi_server_apps_openvpn_config_dir }}/{{ args.name }}-client.conf"
+    owner: root
+    group: root
+    mode: u=r,go=
+
+- name: systemd service
+  include_role:
+    name: pi_server.utils.systemd_service
+  vars:
+    src: service.j2
+    service: "openvpn-client-{{ args.name }}"
+    service_notify: "reload openvpn"

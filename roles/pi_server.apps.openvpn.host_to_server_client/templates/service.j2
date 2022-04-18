@@ -1,0 +1,9 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Service]
+ExecStart=/usr/sbin/openvpn --config '{{ pi_server_apps_openvpn_config_dir }}/{{ pi_server_apps_openvpn_host_to_server_client_args.name }}-client.conf'
+User=root
+Group=root
+
+[Install]
+WantedBy=multi-user.target
