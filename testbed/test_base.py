@@ -1,13 +1,13 @@
 from conftest import BASE_REACHABILITY, Net, vms_down
 
 
-class TestReachability:
-    def test_base(self, net: Net) -> None:
+class TestBase:
+    def test_reachability_base(self, net: Net) -> None:
         # Base reachability when all VMs are up
         net.assert_reachability(BASE_REACHABILITY)
 
     @vms_down('internet')
-    def test_no_internet(self, net: Net) -> None:
+    def test_reachability_no_internet(self, net: Net) -> None:
         # If internet is down, nothing can reach the outside world
         net.assert_reachability({
             'router1': ['router1_lan', 'router1_wan', 'router2_wan', 'pi1', 'pi1_vpn', 'ubuntu'],
@@ -17,7 +17,7 @@ class TestReachability:
             'ubuntu': ['router1_wan', 'router2_wan', 'ubuntu']})
 
     @vms_down('router1')
-    def test_no_router(self, net: Net) -> None:
+    def test_reachability_no_router(self, net: Net) -> None:
         # If a router is down, that LAN can't access any other network
         net.assert_reachability({
             'internet': ['external', 'internet', 'router2_wan', 'ubuntu'],
@@ -28,9 +28,7 @@ class TestReachability:
                     'ubuntu'],
             'ubuntu': ['external', 'internet', 'router2_wan', 'ubuntu']})
 
-
-class TestRouting:
-    def test_base(self, net: Net) -> None:
+    def test_routing_base(self, net: Net) -> None:
         # Base routing when all VMs are up
         net.assert_routes({
             'internet': {
@@ -90,7 +88,7 @@ class TestRouting:
         })
 
     @vms_down('internet')
-    def test_no_internet(self, net: Net) -> None:
+    def test_routing_no_internet(self, net: Net) -> None:
         # If internet is down, nothing can reach the outside world
         net.assert_routes({
             'router1': {
@@ -134,7 +132,7 @@ class TestRouting:
         })
 
     @vms_down('router1')
-    def test_no_router(self, net: Net) -> None:
+    def test_routing_no_router(self, net: Net) -> None:
         # If a router is down, that LAN can't access any other network
         net.assert_routes({
             'internet': {
@@ -173,8 +171,6 @@ class TestRouting:
             },
         })
 
-
-class TestFirewall:
     def test_firewall(self, net: Net) -> None:
         net.assert_ports_open({
             'internet': {
