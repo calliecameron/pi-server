@@ -1,6 +1,6 @@
 from typing import Dict
 from testinfra.host import Host
-from conftest import BASE_REACHABILITY, AddrInNet, Email, Net, OpenVPN, Vagrant
+from conftest import AddrInNet, Email, Net, OpenVPN, Vagrant
 
 
 SERVER_TO_SERVER_REACHABILITY = {
@@ -16,8 +16,8 @@ SERVER_TO_SERVER_REACHABILITY = {
     'ubuntu': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu']}
 
 
-class TestServerToServerClient:
-    def test_reachability(
+class TestOpenVPNClients:
+    def test_server_to_server_reachability(
             self,
             hosts: Dict[str, Host],
             addrs: Dict[str, str],
@@ -26,17 +26,16 @@ class TestServerToServerClient:
             openvpn: OpenVPN) -> None:
         with hosts['pi2'].disable_login_emails():
             email.clear()
-            with openvpn.connect('pi1', 'openvpn-server-to-server-client.conf', 'pi2'):
+            with openvpn.connect('pi1', 'openvpn-server-to-server-client-pi2', 'pi2'):
                 net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
                 email.assert_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
-                                addrs['router1_wan']),
+                    'subject': f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}',
                     'body_re': r'Connected at .*\n(.*\n)*',
                 }], only_from='pi2')
 
-    def test_routing(
+    def test_server_to_server_routing(
             self,
             hosts: Dict[str, Host],
             addrs: Dict[str, str],
@@ -46,7 +45,7 @@ class TestServerToServerClient:
             openvpn: OpenVPN) -> None:
         with hosts['pi2'].disable_login_emails():
             email.clear()
-            with openvpn.connect('pi1', 'openvpn-server-to-server-client.conf', 'pi2'):
+            with openvpn.connect('pi1', 'openvpn-server-to-server-client-pi2', 'pi2'):
                 net.assert_routes({
                     'internet': {
                         'external': [],
@@ -118,14 +117,11 @@ class TestServerToServerClient:
                 email.assert_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
-                                addrs['router1_wan']),
+                    'subject': f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}',
                     'body_re': r'Connected at .*\n(.*\n)*',
                 }], only_from='pi2')
 
-
-class TestSingleMachineClient:
-    def test_reachability(
+    def test_host_to_server_reachability(
             self,
             hosts: Dict[str, Host],
             addrs: Dict[str, str],
@@ -134,7 +130,7 @@ class TestSingleMachineClient:
             openvpn: OpenVPN) -> None:
         with hosts['pi2'].disable_login_emails():
             email.clear()
-            with openvpn.connect('ubuntu', '%s-client.conf' % addrs['router2_wan'], 'pi2'):
+            with openvpn.connect('ubuntu', 'openvpn-client-pi2', 'pi2'):
                 net.assert_reachability({
                     'internet': ['external', 'internet', 'router1_wan', 'router2_wan', 'ubuntu'],
                     'router1': ['external', 'internet', 'router1_lan', 'router1_wan', 'router2_wan',
@@ -150,11 +146,11 @@ class TestSingleMachineClient:
                 email.assert_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': '[pi2] OpenVPN connection: ubuntu-client from %s' % addrs['ubuntu'],
+                    'subject': f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}',
                     'body_re': r'Connected at .*\n(.*\n)*',
                 }], only_from='pi2')
 
-    def test_routing(
+    def test_host_to_server_routing(
             self,
             hosts: Dict[str, Host],
             addrs: Dict[str, str],
@@ -163,7 +159,7 @@ class TestSingleMachineClient:
             openvpn: OpenVPN) -> None:
         with hosts['pi2'].disable_login_emails():
             email.clear()
-            with openvpn.connect('ubuntu', '%s-client.conf' % addrs['router2_wan'], 'pi2'):
+            with openvpn.connect('ubuntu', 'openvpn-client-pi2', 'pi2'):
                 net.assert_routes({
                     'internet': {
                         'external': [],
@@ -227,13 +223,11 @@ class TestSingleMachineClient:
                 email.assert_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': '[pi2] OpenVPN connection: ubuntu-client from %s' % addrs['ubuntu'],
+                    'subject': f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}',
                     'body_re': r'Connected at .*\n(.*\n)*',
                 }], only_from='pi2')
 
-
-class TestCron:
-    def test_cron(
+    def test_nightly_connection(
             self,
             hosts: Dict[str, Host],
             addrs: Dict[str, str],
@@ -245,29 +239,17 @@ class TestCron:
 
         try:
             with pi2.disable_login_emails():
-                # No nightly config; nothing happens
                 email.clear()
                 with pi1.run_crons(
                         time='22:59:50',
-                        cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
-                    net.assert_reachability(BASE_REACHABILITY)
-                    email.assert_emails([], only_from='pi2')
-
-                # Nightly config enabled
-                email.clear()
-                with pi1.shadow_file('/etc/pi-server/openvpn-nightly-config') as f:
-                    with pi1.sudo():
-                        f.write('openvpn-server-to-server-client.conf')
-                    with pi1.run_crons(
-                            time='22:59:50',
-                            cmd_to_watch='/bin/bash /etc/pi-server/openvpn-nightly'):
-                        net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
-                        email.assert_emails([{
-                            'from': 'notification@pi2.testbed',
-                            'to': 'fake@fake.testbed',
-                            'subject': ('[pi2] OpenVPN connection: pi1-client from %s' %
-                                        addrs['router1_wan']),
-                            'body_re': r'Connected at .*\n(.*\n)*',
-                        }], only_from='pi2')
+                        cmd_to_watch='/bin/bash /etc/pi-server/openvpn/openvpn-nightly'):
+                    net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
+                    email.assert_emails([{
+                        'from': 'notification@pi2.testbed',
+                        'to': 'fake@fake.testbed',
+                        'subject': (
+                            f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
+                        'body_re': r'Connected at .*\n(.*\n)*',
+                    }], only_from='pi2')
         finally:
             vagrant.reboot('pi1', 'pi2')

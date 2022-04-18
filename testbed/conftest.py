@@ -823,10 +823,11 @@ class OpenVPN:
         self._vagrant = vagrant
 
     @contextmanager
-    def connect(self, hostname: str, config: str, other_host: str) -> Iterator[None]:
+    def connect(self, hostname: str, service: str, other_host: str) -> Iterator[None]:
+        host = self._hosts[hostname]
         try:
-            self._hosts[hostname].check_output(
-                f'tmux new-session -s s1 -d sudo openvpn --config /etc/openvpn/{config}')
+            with host.sudo():
+                host.check_output(f"systemctl start '{service}'")
             time.sleep(20)
             yield
         finally:
