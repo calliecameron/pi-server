@@ -1,0 +1,14 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: True
+    _run_once: True
+    _args: []
+    _host_vars: []
+    _export_vars:
+      - pi_server_apps_openvpn_etc
+      - pi_server_apps_openvpn_tls_auth
+      - pi_server_apps_openvpn_config_dir
+      - pi_server_apps_openvpn_autostart_file
+      - pi_server_apps_openvpn_service
+      - pi_server_apps_openvpn_port

@@ -1,7 +1,7 @@
 - name: reload openvpn
   become: yes
   ansible.builtin.systemd:
-    name: "{{ pi_server_apps_openvpn_server_service }}"
+    name: "{{ pi_server_apps_openvpn_service }}"
     daemon_reload: yes
     enabled: yes
     state: restarted
