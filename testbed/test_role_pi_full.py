@@ -174,8 +174,7 @@ class TestRolePiFull:
                     host.check_output(f'rm -rf {backup_git_root}/*')
                     host.check_output(f'echo > {backup_root}/last-run-date.txt')
 
-        with host.disable_login_emails(), \
-            host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
+        with host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
             host.shadow_file(os.path.join(config_root, 'foo.txt')) as config_file, \
             host.shadow_dir(
                 os.path.join(
