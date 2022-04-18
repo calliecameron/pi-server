@@ -4,5 +4,6 @@
     _private: False
     _run_once: True
     _args: []
-    _host_vars: []
+    _host_vars:
+      - pi_server_firewall_forwarding
     _export_vars: []

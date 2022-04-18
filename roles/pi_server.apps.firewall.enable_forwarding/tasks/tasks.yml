@@ -1,9 +1,0 @@
-- include_role:
-    name: pi_server.apps.firewall
-
-- name: enable forwarding in the firewall
-  become: yes
-  community.general.ufw:
-    default: allow
-    direction: routed
-  notify: reload firewall

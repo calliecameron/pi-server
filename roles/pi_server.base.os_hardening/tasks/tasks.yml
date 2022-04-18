@@ -6,6 +6,7 @@
     apply:
       become: yes
   vars:
+    ufw_default_forward_policy: "{% if pi_server_firewall_forwarding == 'yes' %}ACCEPT{% else %}DROP{% endif %}"
     hidepid_option: 0
     os_auth_pw_max_age: -1
     sysctl_overwrite:
