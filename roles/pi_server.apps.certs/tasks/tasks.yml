@@ -1,8 +1,5 @@
 - include_role:
-    name: pi_server.apps.cron
-
-- include_role:
-    name: pi_server.apps.monitoring
+    name: pi_server.base
 
 - name: etc dir
   become: yes
