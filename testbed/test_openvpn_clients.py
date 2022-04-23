@@ -28,7 +28,7 @@ class TestOpenVPNClients:
             email.clear()
             with openvpn.connect('pi1', 'openvpn-server-to-server-client-pi2', 'pi2'):
                 net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
-                email.assert_emails([{
+                email.assert_has_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
                     'subject': f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}',
@@ -114,7 +114,7 @@ class TestOpenVPNClients:
                         'ubuntu': [],
                     },
                 })
-                email.assert_emails([{
+                email.assert_has_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
                     'subject': f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}',
@@ -143,7 +143,7 @@ class TestOpenVPNClients:
                             'pi2', 'pi2_vpn', 'ubuntu'],
                     'ubuntu': ['external', 'internet', 'router1_wan', 'router2_lan', 'router2_wan',
                                'pi2', 'pi2_vpn', 'ubuntu']})
-                email.assert_emails([{
+                email.assert_has_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
                     'subject': f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}',
@@ -220,7 +220,7 @@ class TestOpenVPNClients:
                         'ubuntu': [],
                     },
                 })
-                email.assert_emails([{
+                email.assert_has_emails([{
                     'from': 'notification@pi2.testbed',
                     'to': 'fake@fake.testbed',
                     'subject': f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}',
@@ -244,7 +244,7 @@ class TestOpenVPNClients:
                         time='22:59:50',
                         cmd_to_watch='/bin/bash /etc/pi-server/openvpn/openvpn-nightly'):
                     net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
-                    email.assert_emails([{
+                    email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
                         'subject': (

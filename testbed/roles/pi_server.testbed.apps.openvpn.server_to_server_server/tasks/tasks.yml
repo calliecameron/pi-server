@@ -7,4 +7,4 @@
   vars:
     client_lan_network: "{{ pi_server_testbed_openvpn_client_lan_network }}"
     client_vpn_network: "{{ pi_server_testbed_openvpn_client_vpn_network }}"
-    client_cert_common_name: "{{ pi_server_testbed_openvpn_client_name }}"
+    client_cert_common_name: "{{ pi_server_testbed_openvpn_client_name }}-client"
