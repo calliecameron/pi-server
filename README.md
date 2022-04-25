@@ -19,6 +19,8 @@ When formatting the drives, you may want to use 'mkfs.ext4 -E lazy_itable_init=0
 
 ## Installation
 
+install graphviz
+
 ## Certificates
 
 ## VPN

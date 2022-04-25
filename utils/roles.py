@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from typing import cast, Dict, FrozenSet, List
+from typing import cast, Dict, FrozenSet, List, Set, Tuple
 from pathlib import Path
 import sys
 import yaml
@@ -18,6 +18,7 @@ class Role:
         self._tasks_dir = self._path / 'tasks'
         self._name = self._path.name
         self._tidy_name = self._name.replace('.', '_')
+        self._prefix = '.'.join(self._name.split('.')[:-1])
         try:
             self._parse_main()
             self._parse_includes()
@@ -35,6 +36,10 @@ class Role:
     @property
     def tidy_name(self) -> str:
         return self._tidy_name
+
+    @property
+    def prefix(self) -> str:
+        return self._prefix
 
     @property
     def private(self) -> bool:
@@ -169,12 +174,62 @@ def load_roles(roots: List[str]) -> Dict[str, Role]:
     return out
 
 
+def dependency_graph(roles: Dict[str, Role]) -> None:
+    prefix_groups = {}  # type: Dict[str, Set[str]]
+    processed = set()
+    for r in roles.values():
+        if r.prefix in roles:
+            if r.prefix not in prefix_groups:
+                prefix_groups[r.prefix] = set()
+            prefix_groups[r.prefix].add(r.name)
+            processed.add(r.name)
+    for r in roles.values():
+        if r.name not in processed and r.name in prefix_groups:
+            prefix_groups[r.name].add(r.name)
+            processed.add(r.name)
+    for r in roles.values():
+        if r.name not in processed:
+            if r.prefix not in prefix_groups:
+                prefix_groups[r.prefix] = set()
+            prefix_groups[r.prefix].add(r.name)
+            processed.add(r.name)
+
+    clusters = {}  # type: Dict[str, Tuple[Set[str], Set[Tuple[str, str]]]]
+    other_edges = set()
+    for name, group in prefix_groups.items():
+        edges = set()
+        for r_name in group:
+            for i in roles[r_name].includes:
+                if i in group:
+                    edges.add((r_name, i))
+                else:
+                    other_edges.add((r_name, i))
+        clusters[name] = (group, edges)
+
+    out = ['digraph Deps {', '  newrank=true', '  splines=false']
+    for cluster, items in sorted(clusters.items()):
+        nodes, edges = items
+        out.append(f'  subgraph "cluster_{cluster}" {{')
+        for node in sorted(nodes):
+            out.append(f'    "{node}"')
+        for edge in sorted(edges):
+            out.append(f'    "{edge[0]}" -> "{edge[1]}" [minlen=2]')
+        out.append('  }')
+
+    for edge in sorted(other_edges):
+        out.append(f'  "{edge[0]}" -> "{edge[1]}" [minlen=2]')
+
+    out.append('}')
+
+    print('\n'.join(out))
+
+
 def main() -> None:
     if len(sys.argv) < 3:
         raise ValueError('Usage: ./roles.py command roots...')
 
     command = sys.argv[1]
-    if command not in {'lint'}:
+    if command not in {'lint', 'deps'}:
         raise ValueError(f'Unknown command {command}')
 
     roles = load_roles(sys.argv[2:])
@@ -184,6 +239,8 @@ def main() -> None:
     if command == 'lint':
         # Loading and validating is all we have to do here
         pass
+    elif command == 'deps':
+        dependency_graph(roles)
 
 
 if __name__ == "__main__":
