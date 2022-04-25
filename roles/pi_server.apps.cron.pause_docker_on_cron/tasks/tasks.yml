@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
 - name: get container ID
@@ -16,7 +16,7 @@
   changed_when: false
 
 - name: pause on cron
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_cron_pause_dir }}/{{ container_name.stdout | trim('/') }}.docker"

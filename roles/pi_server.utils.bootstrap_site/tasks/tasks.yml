@@ -1,8 +1,8 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: templates
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_templates
   vars:
     dest_dir: "{{ args.fragments_dir }}"

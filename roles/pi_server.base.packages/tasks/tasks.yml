@@ -1,7 +1,7 @@
 # When updating this file, you can use 'aptitude' to check for any other packages that should be removed;
 # once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages.
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: remove packages

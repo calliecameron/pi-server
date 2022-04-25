@@ -1,15 +1,15 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.email
 
 - name: check for user keys
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "/home/{{ ansible_user }}/.ssh/id_rsa"
     msg: "User's SSH key doesn't exist"
 
 - name: check for authorised keys
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "/home/{{ ansible_user }}/.ssh/authorized_keys"
@@ -25,7 +25,7 @@
     mode: u=rwx,go=rx
 
 - name: login email exceptions
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_ssh_login_exceptions }}"
@@ -49,7 +49,7 @@
     line: "session    optional pam_exec.so seteuid {{ pi_server_apps_ssh_login_email_script }}"
 
 - name: hardening
-  include_role:
+  ansible.builtin.include_role:
     name: devsec.hardening.ssh_hardening
     apply:
       become: yes
@@ -57,7 +57,7 @@
     ssh_allow_users: "{{ ansible_user }}"
 
 - name: monitor ssh service
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: ssh

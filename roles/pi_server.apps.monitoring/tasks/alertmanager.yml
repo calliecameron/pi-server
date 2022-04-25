@@ -9,7 +9,7 @@
   notify: reload monitoring
 
 - name: scrape alertmanager
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
     job: alertmanager

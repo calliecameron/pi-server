@@ -1,8 +1,8 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: setup swap
-  include_role:
+  ansible.builtin.include_role:
     name: geerlingguy.swap
     apply:
       become: yes

@@ -1,18 +1,18 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.server_to_server_client
 
 - name: client config
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.openvpn.server_to_server_client
   vars:
     name: "{{ pi_server_testbed_openvpn_target_name }}"
     addr: "{{ pi_server_testbed_openvpn_target_ip }}"
 
 - name: nightly connection
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.openvpn.nightly_connection
   vars:
     name: "{{ pi_server_testbed_openvpn_target_name }}"

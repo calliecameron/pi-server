@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.control_panel
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
 - name: etc dir
@@ -41,14 +41,14 @@
     mode: u=rwx,go=rx
 
 - name: main user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_shutdownd_user }}"
     register:
 
 - name: sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
@@ -61,7 +61,7 @@
   register: writers_group
 
 - name: ui user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_shutdownd_ui_user }}"
@@ -76,7 +76,7 @@
     append: yes
 
 - name: command file
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_shutdownd_command_file }}"
@@ -101,7 +101,7 @@
   notify: reload shutdownd
 
 - name: systemd service
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.systemd_service
   vars:
     src: service.j2
@@ -109,7 +109,7 @@
     service_notify: "reload shutdownd"
 
 - name: monitor main service
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_shutdownd_service }}"
@@ -125,7 +125,7 @@
   notify: reload shutdownd ui
 
 - name: bootstrap templates
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_templates
   vars:
     dest_dir: "{{ pi_server_apps_shutdownd_ui_templates_dir }}"
@@ -153,7 +153,7 @@
   notify: reload shutdownd ui
 
 - name: build ui image
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.docker.build
   vars:
     name: "{{ pi_server_apps_shutdownd_ui_image }}"
@@ -165,20 +165,20 @@
     restart: no
 
 - name: monitor containers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
 
 - name: pause ui on cron
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.pause_docker_on_cron
   vars:
     compose_file: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
     service: ui
 
 - name: control panel links
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2

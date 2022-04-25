@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
 - name: docker compose file
@@ -23,7 +23,7 @@
     restarted: no
 
 - name: monitoring
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ args.compose_dir }}/docker-compose.yml"

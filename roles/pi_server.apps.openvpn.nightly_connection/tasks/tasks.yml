@@ -1,22 +1,22 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.openvpn.base
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_openvpn_nightly_connection_user }}"
     register:
 
 - name: sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
     name: "{{ pi_server_apps_openvpn_nightly_connection_user }}"
 
 - name: script
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
     job: openvpn-nightly

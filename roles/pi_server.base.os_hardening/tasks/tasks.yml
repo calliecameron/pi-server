@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: devsec.hardening.os_hardening
     apply:
       become: yes

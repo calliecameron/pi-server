@@ -1,5 +1,5 @@
 - name: webhook user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_monitoring_webhook_user }}"
@@ -42,7 +42,7 @@
     mode: a=r
 
 - name: build webhook image
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.docker.build
   vars:
     name: "{{ pi_server_apps_monitoring_webhook_image }}"

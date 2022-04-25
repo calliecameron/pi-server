@@ -27,7 +27,7 @@
     state: present
 
 - name: configure aptly
-  include_role:
+  ansible.builtin.include_role:
     name: manala.aptly
     apply:
       become: yes

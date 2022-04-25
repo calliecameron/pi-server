@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: etc dir
@@ -61,7 +61,7 @@
     name: "{{ pi_server_apps_monitoring_writers_group }}"
 
 - name: monitored systemd services
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
@@ -70,7 +70,7 @@
     mode: a=r
 
 - name: monitored docker services
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_monitoring_monitored_docker }}"

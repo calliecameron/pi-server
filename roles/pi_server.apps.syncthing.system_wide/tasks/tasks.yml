@@ -1,8 +1,8 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
 - name: syncthing
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.syncthing.base
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
@@ -10,5 +10,5 @@
     home_dir: "{{ pi_server_apps_main_data_main_dir }}"
 
 - name: conflict finder
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.syncthing.conflict_finder

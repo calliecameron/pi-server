@@ -1,15 +1,15 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_updates_user }}"
     register:
 
 - name: sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
@@ -25,7 +25,7 @@
     mode: a=r
 
 - name: cronjob
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
     job: apt-updates
@@ -35,13 +35,13 @@
     docker_conflicts: []
 
 - name: dashboard
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: updates.json
 
 - name: alerts
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: updates-alerts-custom.yml

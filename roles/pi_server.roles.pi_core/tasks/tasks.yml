@@ -1,14 +1,14 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.avahi
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.zoneedit
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.control_panel
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.shutdownd

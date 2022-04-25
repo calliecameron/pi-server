@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.firewall
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.traefik.base
 
 - name: "allow containers on the traefik network to access host port {{ args.port }}"

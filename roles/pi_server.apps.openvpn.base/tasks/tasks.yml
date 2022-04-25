@@ -1,8 +1,8 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.certs
 
 - name: check that tls auth exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_tls_auth }}"

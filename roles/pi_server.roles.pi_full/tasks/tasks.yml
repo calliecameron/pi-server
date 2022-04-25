@@ -1,23 +1,23 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.pi_core
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.main_storage
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.syncthing.system_wide
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.backup
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.minidlna
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.openvpn.server

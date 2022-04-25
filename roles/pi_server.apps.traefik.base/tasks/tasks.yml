@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: etc dir
@@ -11,7 +11,7 @@
     mode: u=rwx,go=rx
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_traefik_user }}"
@@ -27,7 +27,7 @@
     mode: u=rwx,go=rx
 
 - name: ports file
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_traefik_ports_file }}"

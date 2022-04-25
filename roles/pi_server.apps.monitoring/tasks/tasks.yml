@@ -1,16 +1,16 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.email
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.control_panel.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
 - name: var dir
@@ -49,13 +49,13 @@
     restart: no
 
 - name: monitor containers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
 
 - name: control panel fragment
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2

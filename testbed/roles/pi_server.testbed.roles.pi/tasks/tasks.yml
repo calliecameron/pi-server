@@ -1,31 +1,31 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.roles.pi_base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.storage
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.zoneedit
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.mockserver_client
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.server
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.pi_core
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.pi_full
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.server_to_server_client
   when: pi_server_testbed_openvpn_role == 'client'
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.server_to_server_server
   when: pi_server_testbed_openvpn_role == 'server'

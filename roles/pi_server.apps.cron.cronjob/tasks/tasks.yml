@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
     job: "{{ args.job }}"

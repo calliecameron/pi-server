@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
 - name: install minidlna
@@ -8,7 +8,7 @@
     state: present
 
 - name: allow data access
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.main_data.reader
   vars:
     user: "{{ pi_server_apps_minidlna_user }}"
@@ -51,25 +51,25 @@
   notify: reload minidlna
 
 - name: monitoring
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_minidlna_service }}"
 
 - name: pause on cron
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.pause_systemd_on_cron
   vars:
     service: "{{ pi_server_apps_minidlna_service }}"
 
 - name: expose to traefik network
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.traefik.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_minidlna_http_port }}"
 
 - name: add to traefik
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.traefik.http_host_service
   vars:
     name: minidlna-web
@@ -80,14 +80,14 @@
     https: False
 
 - name: control panel fragment
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
     name: minidlna
 
 - name: dlna port
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.firewall.udp_port
   vars:
     port: "{{ pi_server_apps_minidlna_port }}"

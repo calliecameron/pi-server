@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: fail if data and backup partitions are the same
@@ -7,21 +7,21 @@
   when: pi_server_storage_data_partition == pi_server_storage_backup_partition
 
 - name: check that storage drive exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_storage_drive }}"
     msg: "storage drive ({{ pi_server_storage_drive }}) doesn't exist"
 
 - name: check that data partition exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}"
     msg: "data partition ({{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}) doesn't exist"
 
 - name: check that backup partition exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}"

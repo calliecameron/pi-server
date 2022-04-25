@@ -1,5 +1,5 @@
 - name: grafana user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_monitoring_grafana_user }}"
@@ -36,7 +36,7 @@
   notify: reload monitoring
 
 - name: scrape grafana
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
     job: grafana

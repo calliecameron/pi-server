@@ -1,7 +1,7 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.monitoring
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
 - name: cron wrapper
@@ -23,21 +23,21 @@
     mode: a=rx
 
 - name: cron runner user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_cron_runner_user }}"
     register:
 
 - name: sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
     name: "{{ pi_server_apps_cron_runner_user }}"
 
 - name: cron runner
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
     job: cron-runner
@@ -57,19 +57,19 @@
     mode: u=rw,go=
 
 - name: monitor cron service
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: cron
 
 - name: dashboard
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: cron.json
 
 - name: alerts
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: cron-alerts-custom.yml

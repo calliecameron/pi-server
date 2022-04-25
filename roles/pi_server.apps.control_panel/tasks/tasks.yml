@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.control_panel.base
 
 - name: temp dir
@@ -11,14 +11,14 @@
     mode: u=rwx,go=rx
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_control_panel_user }}"
     register: control_panel_user
 
 - name: base files
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_site
   vars:
     fragments_dir: "{{ pi_server_apps_control_panel_fragments_dir }}"
@@ -30,21 +30,21 @@
     fragments_notify: "assemble control panel"
 
 - name: header
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: main-header.html.j2
     name: 00-00-main-header
 
 - name: footer
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: main-footer.html.j2
     name: zz-zz-main-footer
 
 - name: nginx
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.nginx
   vars:
     name: "{{ pi_server_apps_control_panel_entrypoint }}"
@@ -55,14 +55,14 @@
     web_root: "{{ pi_server_apps_control_panel_web_root }}"
 
 - name: entrypoint
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.traefik.http_entrypoint
   vars:
     name: "{{ pi_server_apps_control_panel_entrypoint }}"
     port: "{{ pi_server_apps_control_panel_traefik_port }}"
 
 - name: open port
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.traefik.publish_port
   vars:
     container_port: "{{ pi_server_apps_control_panel_traefik_port }}"

@@ -9,14 +9,14 @@
   notify: reload monitoring
 
 - name: prometheus custom alerts
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: prometheus-alerts-custom.yml
     job: prometheus
 
 - name: scrape prometheus
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
     job: prometheus

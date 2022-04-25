@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.openvpn.base
 
 - name: save client cert name
@@ -7,14 +7,14 @@
     pi_server_apps_openvpn_host_to_server_client_key: "{{ pi_server_apps_certs_etc }}/openvpn-client.key"
 
 - name: check that client cert exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_host_to_server_client_cert }}"
     msg: "client cert ({{ pi_server_apps_openvpn_host_to_server_client_cert }}) doesn't exist"
 
 - name: check that client key exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_host_to_server_client_key }}"
@@ -46,7 +46,7 @@
     mode: u=r,go=
 
 - name: systemd service
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.systemd_service
   vars:
     src: service.j2

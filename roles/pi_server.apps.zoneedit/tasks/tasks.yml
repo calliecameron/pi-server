@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: etc dir
@@ -11,7 +11,7 @@
     mode: u=rwx,go=rx
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_zoneedit_user }}"
@@ -36,7 +36,7 @@
     mode: u=r,o=
 
 - name: script
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
     job: zoneedit

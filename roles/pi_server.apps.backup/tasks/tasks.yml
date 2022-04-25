@@ -1,10 +1,10 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.apps.syncthing.system_wide
 
 - name: etc dir
@@ -35,7 +35,7 @@
     mode: ug=r,o=
 
 - name: git configuration file
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_backup_git_config }}"
@@ -44,27 +44,27 @@
     mode: u=rw,g=r,o=
 
 - name: main user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_backup_main_user }}"
     register:
 
 - name: git user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
     register:
 
 - name: git user can read data
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.main_data.reader
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
 
 - name: git user can read deployment key
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.certs.deployment_key_reader
   vars:
     user: "{{ pi_server_apps_backup_git_user }}"
@@ -94,7 +94,7 @@
     mode: u=rwx,go=
 
 - name: last run date file
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
     path: "{{ pi_server_apps_backup_last_run }}"
@@ -133,21 +133,21 @@
     mode: a=rx
 
 - name: main user sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: main-sudoers.j2
     name: "{{ pi_server_apps_backup_main_user }}"
 
 - name: git user sudoers
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: git-sudoers.j2
     name: "{{ pi_server_apps_backup_git_user }}"
 
 - name: main cronjob
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
     job: backup-main
@@ -158,7 +158,7 @@
     docker_conflicts: []
 
 - name: git cronjob
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
     job: backup-git

@@ -1,8 +1,8 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.roles.pi_base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.roles.base
 
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.host_to_server_client

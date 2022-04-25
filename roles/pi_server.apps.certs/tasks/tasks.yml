@@ -1,4 +1,4 @@
-- include_role:
+- ansible.builtin.include_role:
     name: pi_server.base
 
 - name: etc dir
@@ -11,7 +11,7 @@
     mode: u=rwx,go=rx
 
 - name: user
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_certs_user }}"
@@ -28,42 +28,42 @@
     name: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
 
 - name: check that ca cert exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_ca }}"
     msg: "CA cert ({{ pi_server_apps_certs_ca }}) doesn't exist"
 
 - name: check that crl exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_crl }}"
     msg: "CRL ({{ pi_server_apps_certs_crl }}) doesn't exist"
 
 - name: check that https cert exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_https_cert }}"
     msg: "HTTPS cert ({{ pi_server_apps_certs_https_cert }}) doesn't exist"
 
 - name: check that https key exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_https_key }}"
     msg: "HTTPS key ({{ pi_server_apps_certs_https_key }}) doesn't exist"
 
 - name: check that deployment public key exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_deployment_key_pub }}"
     msg: "deployment public key ({{ pi_server_apps_certs_deployment_key_pub }}) doesn't exist"
 
 - name: check that deployment key exists
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_deployment_key }}"
@@ -129,7 +129,7 @@
   notify: reload ca cert
 
 - name: ca cert in control panel
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.asset
   vars:
     src: "{{ pi_server_apps_certs_ca }}"
@@ -137,14 +137,14 @@
     dest: ca.crt
 
 - name: control panel fragment
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
     name: certs
 
 - name: cronjob
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
     job: certs
@@ -154,13 +154,13 @@
     docker_conflicts: []
 
 - name: dashboard
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: certs.json
 
 - name: alerts
-  include_role:
+  ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: certs-alerts-custom.yml
