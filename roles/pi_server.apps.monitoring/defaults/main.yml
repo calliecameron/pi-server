@@ -3,22 +3,28 @@ pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/d
 
 pi_server_apps_monitoring_prometheus_port: "9090"
 pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }}/prometheus.yml"
+pi_server_apps_monitoring_prometheus_version: "v2.35.0"
 
 pi_server_apps_monitoring_node_exporter_user: "pi-server-node-exporter"
 pi_server_apps_monitoring_node_exporter_port: "9100"
 pi_server_apps_monitoring_node_exporter_collect: "{{ pi_server_apps_monitoring_var }}/collect"
+pi_server_apps_monitoring_node_exporter_version: "v1.3.1"
 
 pi_server_apps_monitoring_grafana_user: "pi-server-grafana"
 pi_server_apps_monitoring_grafana_port: "3000"
 pi_server_apps_monitoring_grafana_config: "{{ pi_server_apps_monitoring_etc }}/grafana.ini"
+pi_server_apps_monitoring_grafana_version: "8.5.0"
 
 pi_server_apps_monitoring_alertmanager_port: "9093"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"
+pi_server_apps_monitoring_alertmanager_version: "v0.24.0"
+
+pi_server_apps_monitoring_cadvisor_port: "8080"
+pi_server_apps_monitoring_cadvisor_version: "v0.39.3"
 
 pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
 pi_server_apps_monitoring_webhook_dir: "{{ pi_server_apps_monitoring_etc }}/webhook"
 pi_server_apps_monitoring_webhook_port: "9000"
 pi_server_apps_monitoring_webhook_id: "alert"
 pi_server_apps_monitoring_webhook_image: "pi_server_webhook"
-
-pi_server_apps_monitoring_cadvisor_port: "8080"
+pi_server_apps_monitoring_webhook_python_version: "3.10.4-bullseye"

@@ -2,7 +2,7 @@
 
 services:
   traefik_docker_proxy:
-    image: tecnativa/docker-socket-proxy
+    image: "tecnativa/docker-socket-proxy:{{ pi_server_apps_traefik_docker_proxy_version }}"
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
@@ -14,7 +14,7 @@ services:
       replicas: 1
 
   traefik:
-    image: "traefik:v2.6"
+    image: "traefik:{{ pi_server_apps_traefik_version }}"
     restart: always
     user: "{{ traefik_user.uid }}:{{ traefik_user.group }}"
     volumes:

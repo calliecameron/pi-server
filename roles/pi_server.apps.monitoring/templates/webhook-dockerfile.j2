@@ -1,5 +1,5 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
-FROM python:3.10-bullseye
+FROM python:{{ pi_server_apps_monitoring_webhook_python_version }}
 RUN apt-get update && apt-get install -y ssmtp webhook && rm -rf /var/lib/apt/lists/*
 COPY webhook.conf /etc/webhook.conf
 COPY webhook-alert /webhook-alert

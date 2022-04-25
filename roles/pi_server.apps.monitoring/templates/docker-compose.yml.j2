@@ -1,6 +1,6 @@
 services:
   prometheus:
-    image: prom/prometheus
+    image: "prom/prometheus:{{ pi_server_apps_monitoring_prometheus_version }}"
     restart: always
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
@@ -27,7 +27,7 @@ services:
       - "traefik.http.routers.prometheus.rule=PathPrefix(`/prometheus`)"
 
   node_exporter:
-    image: prom/node-exporter
+    image: "prom/node-exporter:{{ pi_server_apps_monitoring_node_exporter_version }}"
     restart: always
     user: "{{ node_exporter_user.uid }}:{{ node_exporter_user.group }}"
     command:
@@ -43,7 +43,7 @@ services:
       replicas: 1
 
   grafana:
-    image: grafana/grafana
+    image: "grafana/grafana:{{ pi_server_apps_monitoring_grafana_version }}"
     restart: always
     user: "{{ grafana_user.uid }}:{{ grafana_user.group }}"
     volumes:
@@ -60,7 +60,7 @@ services:
       - "traefik.http.routers.grafana.rule=PathPrefix(`/grafana`)"
 
   alertmanager:
-    image: prom/alertmanager
+    image: "prom/alertmanager:{{ pi_server_apps_monitoring_alertmanager_version }}"
     restart: always
     command:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
@@ -80,7 +80,7 @@ services:
       - "traefik.http.routers.alertmanager.rule=PathPrefix(`/alertmanager`)"
 
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor
+    image: "gcr.io/cadvisor/cadvisor:{{ pi_server_apps_monitoring_cadvisor_version }}"
     restart: always
     command:
       - "--port={{ pi_server_apps_monitoring_cadvisor_port }}"

@@ -25,12 +25,14 @@
   ansible.builtin.pip:
     name: docker-compose
     umask: "0022"
+    version: "{{ pi_server_apps_docker_compose_version }}"
 
 - name: install python SDK
   become: yes
   ansible.builtin.pip:
     name: docker
     umask: "0022"
+    version: "{{ pi_server_apps_docker_python_sdk_version }}"
 
 - name: scrape docker metrics
   include_role:
