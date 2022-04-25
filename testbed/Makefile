@@ -1,3 +1,6 @@
+.PHONY: all
+all: lint typecheck
+
 .PHONY: lint
 lint:
 	pylint *.py

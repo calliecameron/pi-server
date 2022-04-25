@@ -353,7 +353,8 @@ class Net:
                 host_addr_pairs.append((host, addr))
         self._assert_result(
             lambda host, addr: ports[host][addr],
-            lambda host, addr: self.nmap(host, addr, ranges),
+            lambda host, addr: self.nmap(  # pylint: disable=no-value-for-parameter
+                host, addr, ranges),
             host_addr_pairs)
 
 

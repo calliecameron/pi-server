@@ -1,7 +1,8 @@
-from typing import Dict, List
+from typing import cast, Dict, List
 import datetime
 import os.path
 from cryptography.x509 import load_pem_x509_certificate, load_pem_x509_crl
+from cryptography.x509.extensions import BasicConstraints
 from cryptography.x509.oid import ExtensionOID
 from testinfra.host import Host
 
@@ -61,7 +62,8 @@ class TestCA:
             ca = load_pem_x509_certificate(host.file(ca_cert).content)
             assert ca.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
             assert ca.subject.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
-            assert ca.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value.ca
+            assert cast(BasicConstraints, ca.extensions.get_extension_for_oid(
+                ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert ca.not_valid_before.date() == today
             assert ca.not_valid_after.date() == ten_years
 
@@ -71,14 +73,16 @@ class TestCA:
             c1 = load_pem_x509_certificate(host.file(c1_cert).content)
             assert c1.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
             assert c1.subject.rfc4514_string() == 'CN=C1,O=pi-server,C=GB'
-            assert not c1.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value.ca
+            assert not cast(BasicConstraints, c1.extensions.get_extension_for_oid(
+                ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert c1.not_valid_before.date() == today
             assert c1.not_valid_after.date() == ten_years
 
             c2 = load_pem_x509_certificate(host.file(c2_cert).content)
             assert c2.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
             assert c2.subject.rfc4514_string() == 'CN=C2,O=pi-server,C=GB'
-            assert not c2.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value.ca
+            assert not cast(BasicConstraints, c2.extensions.get_extension_for_oid(
+                ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert c2.not_valid_before.date() == today
             assert c2.not_valid_after.date() == ten_years
 
@@ -86,8 +90,8 @@ class TestCA:
             assert openvpn.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
             assert (openvpn.subject.rfc4514_string() ==
                     'CN=192.168.0.1 OpenVPN,O=pi-server,C=GB')
-            assert not openvpn.extensions.get_extension_for_oid(
-                ExtensionOID.BASIC_CONSTRAINTS).value.ca
+            assert not cast(BasicConstraints, openvpn.extensions.get_extension_for_oid(
+                ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert openvpn.not_valid_before.date() == today
             assert openvpn.not_valid_after.date() == ten_years
 
@@ -95,8 +99,8 @@ class TestCA:
             assert https.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
             assert (https.subject.rfc4514_string() ==
                     'CN=192.168.0.1,O=pi-server,C=GB')
-            assert not https.extensions.get_extension_for_oid(
-                ExtensionOID.BASIC_CONSTRAINTS).value.ca
+            assert not cast(BasicConstraints, https.extensions.get_extension_for_oid(
+                ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert https.not_valid_before.date() == today
             assert https.not_valid_after.date() == ten_years
 
