@@ -1,10 +1,13 @@
-- ansible.builtin.include_role:
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- ansible.builtin.include_role:
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- ansible.builtin.include_role:
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.apps.syncthing.system_wide
 
 - name: etc dir

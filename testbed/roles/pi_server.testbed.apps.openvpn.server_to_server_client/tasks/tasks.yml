@@ -1,7 +1,9 @@
-- ansible.builtin.include_role:
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.base
 
-- ansible.builtin.include_role:
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.server_to_server_client
 
 - name: client config
