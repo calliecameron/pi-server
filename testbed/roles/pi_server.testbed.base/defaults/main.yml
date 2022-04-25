@@ -1,8 +1,4 @@
 pi_server_testbed: True
 pi_server_testbed_base_helper: "/testbed-helper.bash"
 pi_server_testbed_base_root: "/vagrant"
-# - pi_server_testbed_base_testbed_root: "{{ pi_server_testbed_base_root }}/testbed"
-# - pi_server_testbed_base_testbed_roles: "{{ pi_server_testbed_base_testbed_root }}/roles"
-# - pi_core: "{{ pi_server_root }}/02-pi-core"
-# - openvpn_clients: "{{ pi_server_root }}/03-openvpn-clients"
 # - ansible_python_interpreter: auto_silent
