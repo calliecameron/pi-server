@@ -6,13 +6,13 @@
   ansible.builtin.include_role:
     name: geerlingguy.swap
     apply:
-      become: yes
+      become: true
   vars:
     swap_file_size_mb: "{{ pi_server_swap_size_mb }}"
     swap_swappiness: 10
 
 - name: set vfs_cache_pressure
-  become: yes
+  become: true
   ansible.posix.sysctl:
     name: vm.vfs_cache_pressure
     value: 50

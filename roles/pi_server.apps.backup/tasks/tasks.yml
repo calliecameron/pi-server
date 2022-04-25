@@ -11,7 +11,7 @@
     name: pi_server.apps.syncthing.system_wide
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_etc }}"
     state: directory
@@ -20,7 +20,7 @@
     mode: u=rwx,go=rx
 
 - name: config dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_config_dir }}"
     state: directory
@@ -29,7 +29,7 @@
     mode: u=rwx,g=rx,o=
 
 - name: instructions
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: instructions.txt
     dest: "{{ pi_server_apps_backup_config_dir }}/instructions.txt"
@@ -73,13 +73,13 @@
     user: "{{ pi_server_apps_backup_git_user }}"
 
 - name: mount backup partition
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "mount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
   changed_when: false
 
 - name: main backup dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_main_dir }}"
     state: directory
@@ -88,7 +88,7 @@
     mode: u=rwx,go=
 
 - name: git backup dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_git_dir }}"
     state: directory
@@ -106,19 +106,19 @@
     mode: u=rw,go=r
 
 - name: unmount backup partition
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
   changed_when: false
 
 - name: install rsnapshot
-  become: yes
+  become: true
   ansible.builtin.package:
     name: rsnapshot
     state: present
 
 - name: rsnapshot.conf
-  become: yes
+  become: true
   ansible.builtin.template:
     src: rsnapshot.conf.j2
     dest: /etc/rsnapshot.conf
@@ -127,7 +127,7 @@
     mode: a=r
 
 - name: git ssh
-  become: yes
+  become: true
   ansible.builtin.template:
     src: git-ssh.j2
     dest: "{{ pi_server_apps_backup_git_ssh }}"

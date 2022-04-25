@@ -3,7 +3,7 @@
     name: pi_server.apps.monitoring.base
 
 - name: "custom alerts for {{ args.job }}"
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: "{{ args.src }}"
     dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ args.job }}-alerts-custom.yml"

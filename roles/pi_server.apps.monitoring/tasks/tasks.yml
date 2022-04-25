@@ -19,7 +19,7 @@
     name: pi_server.apps.monitoring.base
 
 - name: var dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_var }}"
     state: directory
@@ -40,7 +40,7 @@
 - include_tasks: webhook.yml
 
 - name: docker compose file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: "{{ pi_server_apps_monitoring_docker_compose }}"
@@ -51,7 +51,7 @@
 
 - include_tasks: compose.yml
   vars:
-    restart: no
+    restart: false
 
 - name: monitor containers
   ansible.builtin.include_role:

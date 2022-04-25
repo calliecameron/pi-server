@@ -7,21 +7,21 @@
     name: pi_server.apps.monitoring.base
 
 - name: get container IDs
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "docker-compose -f {{ args.compose_file }} ps -q"
   register: container_ids
   changed_when: false
 
 - name: get container names
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_ids.stdout }}"
   register: container_names
   changed_when: false
 
 - name: "docker standard alerts for {{ args.compose_file }}"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: docker-alerts-standard.yml.j2
     dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ container }}-alerts-standard.yml"
@@ -33,7 +33,7 @@
   loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
 
 - name: "standard dashboard for {{ args.compose_file }}"
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_monitoring_monitored_docker }}"
     line: "{{ item }}"

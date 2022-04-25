@@ -1,8 +1,8 @@
 - name: reload minidlna
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: "{{ pi_server_apps_minidlna_service }}"
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: restarted
   listen: "reload minidlna"

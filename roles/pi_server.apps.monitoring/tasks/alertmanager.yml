@@ -1,5 +1,5 @@
 - name: alertmanager config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: alertmanager.yml.j2
     dest: "{{ pi_server_apps_monitoring_alertmanager_config }}"

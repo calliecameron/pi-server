@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: sudoers
-  become: yes
+  become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
     dest: "/etc/sudoers.d/{{ args.name }}"

@@ -1,29 +1,29 @@
 - name: apt-get upgrade
-  become: yes
+  become: true
   ansible.builtin.apt:
-    update_cache: yes
+    update_cache: true
     upgrade: dist
 
 - name: install nmap
-  become: yes
+  become: true
   ansible.builtin.package:
     name: nmap
     state: present
 
 - name: install netcat
-  become: yes
+  become: true
   ansible.builtin.package:
     name: netcat-openbsd
     state: present
 
 - name: install traceroute
-  become: yes
+  become: true
   ansible.builtin.package:
     name: traceroute
     state: present
 
 - name: testbed-helper.bash
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: testbed-helper.bash
     dest: "{{ pi_server_testbed_base_helper }}"
@@ -32,7 +32,7 @@
     mode: a=r
 
 - name: sysctl conf
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: testbed.conf
     dest: /etc/sysctl.d/testbed.conf
@@ -41,7 +41,7 @@
     mode: a=r
 
 - name: boot script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: "{{ args.boot_script }}"
     dest: /etc/networkd-dispatcher/routable.d/testbed-boot
@@ -50,7 +50,7 @@
     mode: a=rx
 
 - name: ssh-keygen
-  become: no
+  become: false
   ansible.builtin.command:
     cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
     creates: /home/vagrant/.ssh/id_rsa

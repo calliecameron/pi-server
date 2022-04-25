@@ -3,14 +3,14 @@
     name: pi_server.apps.cron.base
 
 - name: get container ID
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "docker-compose -f '{{ args.compose_file }}' ps -q '{{ args.service }}'"
   register: container_id
   changed_when: false
 
 - name: get container name
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_id.stdout }}"
   register: container_name

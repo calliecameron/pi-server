@@ -7,7 +7,7 @@
     name: pi_server.apps.cron.base
 
 - name: "cronjob '{{ args.job }}' script"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
     dest: "{{ args.dest_dir }}/{{ args.job }}"

@@ -5,7 +5,7 @@
     boot_script: pi-boot.j2
 
 - name: default route
-  become: yes
+  become: true
   ansible.builtin.template:
     src: fakepi-default-route.j2
     dest: /fakepi-default-route

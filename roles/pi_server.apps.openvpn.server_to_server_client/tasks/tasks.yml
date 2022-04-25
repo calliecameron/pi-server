@@ -22,7 +22,7 @@
     msg: "client key ({{ pi_server_apps_openvpn_server_to_server_client_key }}) doesn't exist"
 
 - name: client cert
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_cert }}"
     owner: root
@@ -30,7 +30,7 @@
     mode: a=r
 
 - name: client key
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_key }}"
     owner: root
@@ -38,7 +38,7 @@
     mode: u=r,go=
 
 - name: config file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: config.j2
     dest: "{{ pi_server_apps_openvpn_config_dir }}/{{ args.name }}-server-to-server-client.conf"

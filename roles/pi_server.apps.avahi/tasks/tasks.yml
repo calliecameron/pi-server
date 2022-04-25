@@ -3,13 +3,13 @@
     name: pi_server.base
 
 - name: install avahi
-  become: yes
+  become: true
   ansible.builtin.package:
     name: avahi-daemon
     state: present
 
 - name: config
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: avahi.conf
     dest: /etc/avahi/avahi-daemon.conf

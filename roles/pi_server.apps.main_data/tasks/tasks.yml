@@ -10,12 +10,12 @@
     register:
 
 - name: readers group
-  become: yes
+  become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_main_data_readers_group }}"
 
 - name: data dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_dir }}"
     state: directory
@@ -24,7 +24,7 @@
     mode: u=rwx,go=rx
 
 - name: config dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_config_dir }}"
     state: directory
@@ -33,7 +33,7 @@
     mode: u=rwx,go=rx
 
 - name: backed-up data dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_main_dir }}"
     state: directory
@@ -42,7 +42,7 @@
     mode: u=rwx,o=
 
 - name: backed-up data dir group ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_main_dir }}"
     entity: "{{ pi_server_apps_main_data_user }}"
@@ -50,7 +50,7 @@
     state: absent
 
 - name: backed-up data dir reader group ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_main_dir }}"
     entity: "{{ pi_server_apps_main_data_readers_group }}"
@@ -59,26 +59,26 @@
     state: present
 
 - name: backed-up data dir default ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_main_dir }}"
-    default: yes
+    default: true
     entity: "{{ pi_server_apps_main_data_readers_group }}"
     etype: group
     permissions: rX
     state: present
 
 - name: backed-up data dir default mask
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_main_dir }}"
-    default: yes
+    default: true
     etype: mask
     permissions: rX
     state: present
 
 - name: non-backed-up data dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
     state: directory
@@ -87,7 +87,7 @@
     mode: u=rwx,o=
 
 - name: non-backed-up data dir group ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
     entity: "{{ pi_server_apps_main_data_user }}"
@@ -95,7 +95,7 @@
     state: absent
 
 - name: non-backed-up data dir reader group ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
     entity: "{{ pi_server_apps_main_data_readers_group }}"
@@ -104,40 +104,40 @@
     state: present
 
 - name: non-backed-up data dir default ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    default: yes
+    default: true
     entity: "{{ pi_server_apps_main_data_readers_group }}"
     etype: group
     permissions: rX
     state: present
 
 - name: non-backed-up data dir default mask
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    default: yes
+    default: true
     etype: mask
     permissions: rX
     state: present
 
 - name: get non-root user
-  become: no
+  become: false
   ansible.builtin.command:
       cmd: "id -nu"
   register: scratch_user
   changed_when: false
 
 - name: get non-root group
-  become: no
+  become: false
   ansible.builtin.command:
       cmd: "id -ng"
   register: scratch_group
   changed_when: false
 
 - name: scratch dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_scratch_dir }}"
     state: directory
@@ -146,13 +146,13 @@
     mode: u=rwx,go=
 
 - name: mount backup partition
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "mount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
   changed_when: false
 
 - name: backup dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_backup_dir }}"
     state: directory
@@ -161,7 +161,7 @@
     mode: u=rwx,go=rx
 
 - name: unmount backup partition
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
   changed_when: false

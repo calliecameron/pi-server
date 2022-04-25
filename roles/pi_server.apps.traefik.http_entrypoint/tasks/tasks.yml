@@ -3,7 +3,7 @@
     name: pi_server.apps.traefik
 
 - name: entrypoint
-  become: yes
+  become: true
   ansible.builtin.template:
     src: entrypoint.yml.j2
     dest: "{{ pi_server_apps_traefik_entrypoints_dir }}/{{ args.name }}.yml"

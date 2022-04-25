@@ -2,13 +2,13 @@
   ansible.builtin.include_role:
     name: geerlingguy.nodejs
     apply:
-      become: yes
+      become: true
   vars:
     nodejs_npm_global_packages:
       - name: fake-smtp-server
 
 - name: install fakesmtp systemd unit
-  become: yes
+  become: true
   ansible.builtin.template:
     src: fakesmtp.service.j2
     dest: /etc/systemd/system/fakesmtp.service
@@ -17,9 +17,9 @@
     mode: a=r
 
 - name: enable fakesmtp
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: fakesmtp
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: started

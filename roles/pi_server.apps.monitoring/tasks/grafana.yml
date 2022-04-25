@@ -6,7 +6,7 @@
     register: grafana_user
 
 - name: grafana config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: grafana.ini.j2
     dest: "{{ pi_server_apps_monitoring_grafana_config }}"
@@ -16,7 +16,7 @@
   notify: reload monitoring
 
 - name: grafana datasources
-  become: yes
+  become: true
   ansible.builtin.template:
     src: datasources.yml.j2
     dest: "{{ pi_server_apps_monitoring_grafana_datasources }}/datasources.yml"
@@ -26,7 +26,7 @@
   notify: reload monitoring
 
 - name: grafana dashboards
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: dashboards.yml
     dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/dashboards.yml"

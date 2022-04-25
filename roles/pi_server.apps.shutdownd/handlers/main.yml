@@ -1,14 +1,14 @@
 - name: reload shutdownd
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: "{{ pi_server_apps_shutdownd_service }}"
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: restarted
   listen: "reload shutdownd"
 
 - name: reload shutdownd ui
   include_tasks: compose.yml
   vars:
-    restart: yes
+    restart: true
   listen: "reload shutdownd ui"

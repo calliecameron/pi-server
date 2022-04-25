@@ -9,5 +9,5 @@
 - name: reload traefik
   include_tasks: compose.yml
   vars:
-    restart: yes
+    restart: true
   listen: "reload traefik"

@@ -3,7 +3,7 @@
     name: pi_server.apps.monitoring.base
 
 - name: "scrape {{ args.job }}"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: scrape.yml.j2
     dest: "{{ pi_server_apps_monitoring_prometheus_scrapes }}/{{ args.job }}.yml"

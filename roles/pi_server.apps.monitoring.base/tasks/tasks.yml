@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_etc }}"
     state: directory
@@ -12,7 +12,7 @@
     mode: u=rwx,go=rx
 
 - name: prometheus scrape dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_prometheus_scrapes }}"
     state: directory
@@ -21,7 +21,7 @@
     mode: u=rwx,go=rx
 
 - name: prometheus rules dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_prometheus_rules }}"
     state: directory
@@ -30,7 +30,7 @@
     mode: u=rwx,go=rx
 
 - name: grafana datasources dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_grafana_datasources }}"
     state: directory
@@ -39,7 +39,7 @@
     mode: u=rwx,go=rx
 
 - name: grafana dashboards dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_grafana_dashboards }}"
     state: directory
@@ -48,7 +48,7 @@
     mode: u=rwx,go=rx
 
 - name: grafana plugins dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_grafana_plugins }}"
     state: directory
@@ -57,7 +57,7 @@
     mode: u=rwx,go=rx
 
 - name: writers group
-  become: yes
+  become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_monitoring_writers_group }}"
 
@@ -80,21 +80,21 @@
     mode: a=r
 
 - name: get monitored systemd services
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "cat {{ pi_server_apps_monitoring_monitored_systemd }}"
   register: monitored_systemd
   changed_when: false
 
 - name: get monitored docker containers
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "cat {{ pi_server_apps_monitoring_monitored_docker }}"
   register: monitored_docker
   changed_when: false
 
 - name: generate system dashboard
-  become: yes
+  become: true
   ansible.builtin.template:
     src: system.json.j2
     dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"

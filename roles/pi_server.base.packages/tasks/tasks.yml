@@ -6,7 +6,7 @@
     name: pi_server.base
 
 - name: remove packages
-  become: yes
+  become: true
   ansible.builtin.apt:
     name:
       - apport
@@ -21,11 +21,11 @@
       - unattended-upgrades
       - wpasupplicant
     state: absent
-    autoremove: yes
-    purge: yes
+    autoremove: true
+    purge: true
 
 - name: install packages
-  become: yes
+  become: true
   ansible.builtin.apt:
     name:
       - acl
@@ -40,4 +40,4 @@
       - tmux
       - unzip
       - wget
-    update_cache: yes
+    update_cache: true

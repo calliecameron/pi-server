@@ -6,7 +6,7 @@
     register: webhook_user
 
 - name: webhook dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_webhook_dir }}"
     state: directory
@@ -15,7 +15,7 @@
     mode: u=rwx,go=rx
 
 - name: webhook config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: webhook.conf.j2
     dest: "{{ pi_server_apps_monitoring_webhook_dir }}/webhook.conf"
@@ -24,7 +24,7 @@
     mode: a=r
 
 - name: webhook alert script
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: webhook-alert
     dest: "{{ pi_server_apps_monitoring_webhook_dir }}/webhook-alert"
@@ -33,7 +33,7 @@
     mode: a=rx
 
 - name: webhook dockerfile
-  become: yes
+  become: true
   ansible.builtin.template:
     src: webhook-dockerfile.j2
     dest: "{{ pi_server_apps_monitoring_webhook_dir }}/Dockerfile"

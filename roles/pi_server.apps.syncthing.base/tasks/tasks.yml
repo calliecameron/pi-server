@@ -9,23 +9,23 @@
     user: "{{ args.user }}"
 
 - name: apt key
-  become: yes
+  become: true
   ansible.builtin.apt_key:
     url: "https://syncthing.net/release-key.gpg"
 
 - name: apt repo
-  become: yes
+  become: true
   ansible.builtin.apt_repository:
     repo: "deb https://apt.syncthing.net/ syncthing stable"
 
 - name: install
-  become: yes
+  become: true
   ansible.builtin.package:
     name: syncthing
     state: present
 
 - name: config dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ args.config_dir }}"
     state: directory
@@ -34,70 +34,70 @@
     mode: u=rwx,go=
 
 - name: https cert symlink
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ args.config_dir }}/https-cert.pem"
     src: "{{ pi_server_apps_certs_https_cert }}"
     state: link
 
 - name: https key symlink
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ args.config_dir }}/https-key.pem"
     src: "{{ pi_server_apps_certs_https_key }}"
     state: link
 
 - name: generate initial config
-  become: yes
+  become: true
   become_user: "{{ args.user }}"
   ansible.builtin.command:
     cmd: "syncthing '-generate={{ args.config_dir }}'"
     creates: "{{ args.config_dir }}/config.xml"
 
 - name: disable global discovery
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/globalAnnounceEnabled"
     value: "false"
 
 - name: disable start browser
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/startBrowser"
     value: "false"
 
 - name: disable relaying
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/relaysEnabled"
     value: "false"
 
 - name: disable NAT
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/natEnabled"
     value: "false"
 
 - name: disable usage reporting
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/urAccepted"
     value: "-1"
 
 - name: disable crash reporting
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/crashReportingEnabled"
     value: "false"
 
 - name: https for the gui
-  become: yes
+  become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/gui"

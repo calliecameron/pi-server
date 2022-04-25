@@ -3,6 +3,6 @@
     name: pi_server.base
 
 - name: set hostname
-  become: yes
+  become: true
   ansible.builtin.hostname:
     name: "{{ pi_server_hostname }}"

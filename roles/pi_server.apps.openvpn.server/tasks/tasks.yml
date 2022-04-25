@@ -28,7 +28,7 @@
     msg: "openvpn dh params ({{ pi_server_apps_openvpn_server_dh_params }}) doesn't exist"
 
 - name: openvpn cert
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_cert }}"
     owner: root
@@ -36,7 +36,7 @@
     mode: a=r
 
 - name: openvpn key
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_key }}"
     owner: root
@@ -44,7 +44,7 @@
     mode: u=r,go=
 
 - name: openvpn dh params
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_dh_params }}"
     owner: root
@@ -52,7 +52,7 @@
     mode: u=r,go=
 
 - name: client config dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_client_config_dir }}"
     state: directory
@@ -61,7 +61,7 @@
     mode: u=rwx,go=rx
 
 - name: check if server-to-server client config exists
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "ls {{ pi_server_apps_openvpn_server_to_server_config }}"
   register: exists
@@ -69,7 +69,7 @@
   changed_when: False
 
 - name: server-to-server client config
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: server-to-server-clients
     dest: "{{ pi_server_apps_openvpn_server_to_server_config }}"
@@ -79,7 +79,7 @@
   when: exists.rc != 0
 
 - name: login email script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: email-on-login.j2
     dest: "{{ pi_server_apps_openvpn_server_login_email_script }}"
@@ -88,7 +88,7 @@
     mode: a=rx
 
 - name: openvpn config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: openvpn-server.conf.j2
     dest: "{{ pi_server_apps_openvpn_config_dir }}/openvpn-server.conf"
@@ -98,7 +98,7 @@
   notify: reload openvpn
 
 - name: autostart server
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_autostart_file }}"
     line: "AUTOSTART=\"openvpn-server\""

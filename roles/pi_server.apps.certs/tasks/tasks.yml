@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_etc }}"
     state: directory
@@ -19,12 +19,12 @@
     register:
 
 - name: https key readers group
-  become: yes
+  become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_https_key_readers_group }}"
 
 - name: deployment key readers group
-  become: yes
+  become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
 
@@ -71,7 +71,7 @@
     msg: "deployment key ({{ pi_server_apps_certs_deployment_key }}) doesn't exist"
 
 - name: ca cert
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_ca }}"
     owner: root
@@ -79,7 +79,7 @@
     mode: a=r
 
 - name: crl
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_crl }}"
     owner: root
@@ -87,7 +87,7 @@
     mode: a=r
 
 - name: https cert
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_https_cert }}"
     owner: root
@@ -95,7 +95,7 @@
     mode: a=r
 
 - name: https key
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_https_key }}"
     owner: root
@@ -103,7 +103,7 @@
     mode: ug=r,o=
 
 - name: deployment public key
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_deployment_key_pub }}"
     owner: root
@@ -111,7 +111,7 @@
     mode: a=r
 
 - name: deployment key
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_deployment_key }}"
     owner: root
@@ -119,9 +119,9 @@
     mode: ug=r,o=
 
 - name: copy ca cert
-  become: yes
+  become: true
   ansible.builtin.copy:
-    remote_src: yes
+    remote_src: true
     src: "{{ pi_server_apps_certs_ca }}"
     dest: /usr/local/share/ca-certificates/ca.crt
     owner: root
@@ -134,7 +134,7 @@
     name: pi_server.apps.control_panel.asset
   vars:
     src: "{{ pi_server_apps_certs_ca }}"
-    remote_src: yes
+    remote_src: true
     dest: ca.crt
 
 - name: control panel fragment

@@ -16,7 +16,7 @@
 
 - include_tasks: compose.yml
   vars:
-    restart: no
+    restart: false
 
 - name: monitor containers
   ansible.builtin.include_role:

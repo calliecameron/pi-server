@@ -3,7 +3,7 @@
     name: pi_server.apps.firewall
 
 - name: "open tcp {{ args.port }} at boot"
-  become: yes
+  become: true
   community.general.ufw:
     port: "{{ args.port }}"
     proto: tcp

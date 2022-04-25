@@ -7,7 +7,7 @@
     name: pi_server.apps.traefik
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_shutdownd_etc }}"
     state: directory
@@ -16,7 +16,7 @@
     mode: u=rwx,go=rx
 
 - name: ui dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_shutdownd_ui_dir }}"
     state: directory
@@ -25,7 +25,7 @@
     mode: u=rwx,go=rx
 
 - name: ui templates dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_shutdownd_ui_templates_dir }}"
     state: directory
@@ -34,7 +34,7 @@
     mode: u=rwx,go=rx
 
 - name: var dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_shutdownd_var }}"
     state: directory
@@ -57,7 +57,7 @@
     name: "{{ pi_server_apps_shutdownd_user }}"
 
 - name: writers group
-  become: yes
+  become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_shutdownd_writers_group }}"
   register: writers_group
@@ -70,12 +70,12 @@
     register: ui_user
 
 - name: ui user in writers group
-  become: yes
+  become: true
   ansible.builtin.user:
     name: "{{ pi_server_apps_shutdownd_ui_user }}"
     groups:
       - "{{ pi_server_apps_shutdownd_writers_group }}"
-    append: yes
+    append: true
 
 - name: command file
   ansible.builtin.include_role:
@@ -87,13 +87,13 @@
     mode: ug=rw,o=r
 
 - name: inotify
-  become: yes
+  become: true
   ansible.builtin.package:
     name: inotify-tools
     state: present
 
 - name: main script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: shutdownd.j2
     dest: "{{ pi_server_apps_shutdownd_script }}"
@@ -117,7 +117,7 @@
     systemd_service: "{{ pi_server_apps_shutdownd_service }}"
 
 - name: ui script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: shutdownd-ui.j2
     dest: "{{ pi_server_apps_shutdownd_ui_script }}"
@@ -136,7 +136,7 @@
     fragments_notify: "reload shutdownd ui"
 
 - name: ui dockerfile
-  become: yes
+  become: true
   ansible.builtin.template:
     src: ui-dockerfile.j2
     dest: "{{ pi_server_apps_shutdownd_ui_dir }}/Dockerfile"
@@ -145,7 +145,7 @@
     mode: a=r
 
 - name: ui docker compose file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: ui-docker-compose.yml.j2
     dest: "{{ pi_server_apps_shutdownd_ui_docker_compose }}"
@@ -164,7 +164,7 @@
 
 - include_tasks: compose.yml
   vars:
-    restart: no
+    restart: false
 
 - name: monitor containers
   ansible.builtin.include_role:

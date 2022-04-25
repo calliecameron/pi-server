@@ -3,7 +3,7 @@
     name: pi_server.apps.traefik
 
 - name: install minidlna
-  become: yes
+  become: true
   ansible.builtin.package:
     name: minidlna
     state: present
@@ -15,7 +15,7 @@
     user: "{{ pi_server_apps_minidlna_user }}"
 
 - name: media dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_media_dir }}"
     state: directory
@@ -24,7 +24,7 @@
     mode: u=rwx,go=
 
 - name: config dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_config_dir }}"
     state: directory
@@ -33,7 +33,7 @@
     mode: u=rwx,go=
 
 - name: db dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_db_dir }}"
     state: directory
@@ -42,7 +42,7 @@
     mode: u=rwx,go=
 
 - name: config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: minidlna.conf.j2
     dest: /etc/minidlna.conf

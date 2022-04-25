@@ -3,7 +3,7 @@
     name: pi_server.apps.traefik.base
 
 - name: service config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: service.yml.j2
     dest: "{{ pi_server_apps_traefik_discovery_dir }}/{{ args.name }}.yml"

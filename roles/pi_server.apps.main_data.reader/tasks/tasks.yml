@@ -3,9 +3,9 @@
     name: pi_server.apps.main_data
 
 - name: "add {{ args.user }} to main data readers"
-  become: yes
+  become: true
   ansible.builtin.user:
     name: "{{ args.user }}"
     groups:
       - "{{ pi_server_apps_main_data_readers_group }}"
-    append: yes
+    append: true

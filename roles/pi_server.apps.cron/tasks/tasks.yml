@@ -7,7 +7,7 @@
     name: pi_server.apps.cron.base
 
 - name: cron wrapper
-  become: yes
+  become: true
   ansible.builtin.template:
     src: cron-wrapper.bash.j2
     dest: "{{ pi_server_apps_cron_wrapper }}"
@@ -16,7 +16,7 @@
     mode: a=r
 
 - name: cron wrapper internal
-  become: yes
+  become: true
   ansible.builtin.template:
     src: cron-wrapper-internal.j2
     dest: "{{ pi_server_apps_cron_wrapper_internal }}"
@@ -50,7 +50,7 @@
     docker_conflicts: []
 
 - name: crontab
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: crontab
     dest: /etc/cron.d/pi-server-cron

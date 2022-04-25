@@ -29,7 +29,7 @@
     msg: "backup partition ({{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}) doesn't exist"
 
 - name: get data partition filesystem
-  become: yes
+  become: true
   ansible.builtin.shell:
     cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}' -o export | grep '^TYPE' | sed 's/^TYPE=//g'"
   register: data_fs
@@ -41,7 +41,7 @@
   when: data_fs.stdout != "ext4"
 
 - name: get backup partition filesystem
-  become: yes
+  become: true
   ansible.builtin.shell:
     cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}' -o export | grep '^TYPE' | sed 's/^TYPE=//g'"
   register: backup_fs
@@ -53,7 +53,7 @@
   when: backup_fs.stdout != "ext4"
 
 - name: data mount dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_storage_data_mount_dir }}"
     state: directory
@@ -62,7 +62,7 @@
     mode: u=rwx,go=rx
 
 - name: backup mount dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_storage_backup_mount_dir }}"
     state: directory
@@ -71,21 +71,21 @@
     mode: u=rwx,go=rx
 
 - name: get data partition uuid
-  become: yes
+  become: true
   ansible.builtin.shell:
     cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}' -o export | grep '^UUID' | sed 's/^UUID=//g'"
   register: data_uuid
   changed_when: false
 
 - name: get backup partition uuid
-  become: yes
+  become: true
   ansible.builtin.shell:
     cmd: "blkid '{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}' -o export | grep '^UUID' | sed 's/^UUID=//g'"
   register: backup_uuid
   changed_when: false
 
 - name: data partition fstab
-  become: yes
+  become: true
   ansible.posix.mount:
     src: "UUID={{ data_uuid.stdout }}"
     path: "{{ pi_server_apps_main_storage_data_mount_dir }}"
@@ -94,7 +94,7 @@
     state: mounted
 
 - name: backup partition fstab
-  become: yes
+  become: true
   ansible.posix.mount:
     src: "UUID={{ backup_uuid.stdout }}"
     path: "{{ pi_server_apps_main_storage_backup_mount_dir }}"
@@ -103,13 +103,13 @@
     state: present
 
 - name: install hdparm
-  become: yes
+  become: true
   ansible.builtin.package:
     name: hdparm
     state: present
 
 - name: hdparm config
-  become: yes
+  become: true
   ansible.builtin.template:
     src: hdparm.conf.j2
     dest: /etc/hdparm.conf

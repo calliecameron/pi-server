@@ -1,4 +1,4 @@
 - name: reload ca cert
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: update-ca-certificates

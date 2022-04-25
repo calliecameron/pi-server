@@ -3,12 +3,12 @@
     name: pi_server.apps.docker
 
 - name: build image
-  become: yes
+  become: true
   community.docker.docker_image:
     name: "{{ args.name }}"
     source: build
     force_source: true
     build:
       path: "{{ args.dir }}"
-      pull: yes
+      pull: true
   notify: "{{ args.notify }}"

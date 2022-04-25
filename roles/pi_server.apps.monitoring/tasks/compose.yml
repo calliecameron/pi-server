@@ -1,8 +1,8 @@
 - name: docker compose
-  become: yes
+  become: true
   community.docker.docker_compose:
     project_src: "{{ pi_server_apps_monitoring_etc }}"
     # TODO set this to yes once pull_policy is supported
-    pull: no
-    remove_orphans: yes
+    pull: false
+    remove_orphans: true
     restarted: "{{ restart }}"

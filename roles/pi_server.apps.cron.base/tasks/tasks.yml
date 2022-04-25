@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_cron_etc }}"
     state: directory
@@ -12,7 +12,7 @@
     mode: u=rwx,go=rx
 
 - name: pause dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_cron_pause_dir }}"
     state: directory
@@ -21,7 +21,7 @@
     mode: u=rwx,go=rx
 
 - name: scripts dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_cron_scripts_dir }}"
     state: directory

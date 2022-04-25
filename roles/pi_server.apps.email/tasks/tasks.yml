@@ -3,13 +3,13 @@
     name: pi_server.base
 
 - name: install ssmtp
-  become: yes
+  become: true
   ansible.builtin.package:
     name: ssmtp
     state: present
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_email_etc }}"
     state: directory
@@ -18,7 +18,7 @@
     mode: u=rwx,go=rx
 
 - name: ssmtp.conf
-  become: yes
+  become: true
   ansible.builtin.template:
     src: ssmtp.conf.j2
     dest: /etc/ssmtp/ssmtp.conf
@@ -27,7 +27,7 @@
     mode: ug=r,o=
 
 - name: email script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: send-email.j2
     dest: "{{ pi_server_apps_email_script }}"
@@ -36,7 +36,7 @@
     mode: a=rx
 
 - name: send email on net up
-  become: yes
+  become: true
   ansible.builtin.template:
     src: net-up-email.j2
     dest: "{{ pi_server_net_up }}/net-up-email"

@@ -6,7 +6,7 @@
   ansible.builtin.include_role:
     name: geerlingguy.docker
     apply:
-      become: yes
+      become: true
   vars:
     docker_apt_arch: "{{ pi_server_apps_docker_arch_map[ansible_facts['architecture']] }}"
     docker_install_compose: False
@@ -16,20 +16,20 @@
       experimental: true
 
 - name: install pip
-  become: yes
+  become: true
   ansible.builtin.package:
     name: python3-pip
     state: present
 
 - name: install compose
-  become: yes
+  become: true
   ansible.builtin.pip:
     name: docker-compose
     umask: "0022"
     version: "{{ pi_server_apps_docker_compose_version }}"
 
 - name: install python SDK
-  become: yes
+  become: true
   ansible.builtin.pip:
     name: docker
     umask: "0022"
@@ -57,5 +57,5 @@
     port: "{{ pi_server_apps_docker_metrics_port }}"
 
 - name: refresh facts
-  become: yes
+  become: true
   ansible.builtin.setup:

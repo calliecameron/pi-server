@@ -7,7 +7,7 @@
     name: pi_server.apps.traefik
 
 - name: docker compose file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
     dest: "{{ args.compose_dir }}/docker-compose.yml"
@@ -16,13 +16,13 @@
     mode: a=r
 
 - name: docker compose
-  become: yes
+  become: true
   community.docker.docker_compose:
     project_src: "{{ args.compose_dir }}"
     # TODO set this to yes once pull_policy is supported
-    pull: no
-    remove_orphans: yes
-    restarted: no
+    pull: false
+    remove_orphans: true
+    restarted: false
 
 - name: monitoring
   ansible.builtin.include_role:

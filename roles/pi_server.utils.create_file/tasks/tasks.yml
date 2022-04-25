@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: "check if {{ args.path }} exists"
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "ls {{ args.path }}"
   register: exists
@@ -11,7 +11,7 @@
   changed_when: False
 
 - name: "create {{ args.path }} if it doesn't exist"
-  become: yes
+  become: true
   ansible.builtin.copy:
     content: ""
     dest: "{{ args.path }}"

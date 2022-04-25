@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: "systemd service '{{ args.service }}'"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
     dest: "/etc/systemd/system/{{ args.service }}.service"

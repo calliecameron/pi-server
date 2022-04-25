@@ -3,7 +3,7 @@
     name: pi_server.apps.traefik
 
 - name: publish port
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_traefik_ports_file }}"
     line: "{{ args.host_port }}:{{ args.container_port }}"

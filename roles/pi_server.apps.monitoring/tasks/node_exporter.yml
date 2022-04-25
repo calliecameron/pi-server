@@ -6,7 +6,7 @@
     register: node_exporter_user
 
 - name: node exporter collect dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
     state: directory
@@ -15,10 +15,10 @@
     mode: u=rwx,g=rwxt,o=rx
 
 - name: collect dir ACLs
-  become: yes
+  become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
-    default: yes
+    default: true
     entity: "{{ pi_server_apps_monitoring_node_exporter_user }}"
     etype: user
     permissions: r

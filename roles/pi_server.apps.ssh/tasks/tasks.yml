@@ -17,7 +17,7 @@
     msg: "No authorised keys exist"
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_ssh_etc }}"
     state: directory
@@ -35,7 +35,7 @@
     mode: u=rw,go=r
 
 - name: email on login script
-  become: yes
+  become: true
   ansible.builtin.template:
     src: email-on-login.j2
     dest: "{{ pi_server_apps_ssh_login_email_script }}"
@@ -44,7 +44,7 @@
     mode: a=rx
 
 - name: send email on login
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: /etc/pam.d/sshd
     line: "session    optional pam_exec.so seteuid {{ pi_server_apps_ssh_login_email_script }}"
@@ -53,7 +53,7 @@
   ansible.builtin.include_role:
     name: devsec.hardening.ssh_hardening
     apply:
-      become: yes
+      become: true
   vars:
     ssh_allow_users: "{{ ansible_user }}"
 

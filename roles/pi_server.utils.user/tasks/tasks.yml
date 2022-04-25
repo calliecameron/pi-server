@@ -3,13 +3,13 @@
     name: pi_server.base
 
 - name: "user '{{ args.user }}'"
-  become: yes
+  become: true
   ansible.builtin.user:
     name: "{{ args.user }}"
     password: !
-    password_lock: yes
+    password_lock: true
     shell: /usr/sbin/nologin
-    create_home: no
+    create_home: false
   register: temp_user
 
 - name: save user details

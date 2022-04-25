@@ -3,7 +3,7 @@
     name: pi_server.apps.monitoring.base
 
 - name: custom dashboard
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: "{{ args.src }}"
     dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/{{ args.src }}"

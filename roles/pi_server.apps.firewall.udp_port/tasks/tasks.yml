@@ -3,7 +3,7 @@
     name: pi_server.apps.firewall
 
 - name: "open udp {{ args.port }} at boot"
-  become: yes
+  become: true
   community.general.ufw:
     port: "{{ args.port }}"
     proto: udp

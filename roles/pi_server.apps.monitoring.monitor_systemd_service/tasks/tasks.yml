@@ -3,7 +3,7 @@
     name: pi_server.apps.monitoring.base
 
 - name: "{{ args.systemd_service }} standard alerts"
-  become: yes
+  become: true
   ansible.builtin.template:
     src: systemd-alerts-standard.yml.j2
     dest: "{{ pi_server_apps_monitoring_prometheus_rules }}/{{ args.systemd_service }}-alerts-standard.yml"
@@ -12,7 +12,7 @@
     mode: a=r
 
 - name: "{{ args.systemd_service }} standard dashboard"
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_monitoring_monitored_systemd }}"
     line: "{{ args.systemd_service }}"

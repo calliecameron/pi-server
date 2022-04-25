@@ -1,27 +1,27 @@
 - name: install rng-tools
-  become: yes
+  become: true
   ansible.builtin.package:
     name: rng-tools
     state: present
 
 - name: generate gpg key
-  become: no
+  become: false
   ansible.builtin.shell:
     cmd: timeout -s 9 5 sudo /usr/sbin/rngd -f -r /dev/urandom & gpg --yes --pinentry-mode loopback --passphrase '' --quick-generate-key vagrant; wait; true
     creates: .gnupg
 
 - name: add aptly key
-  become: yes
+  become: true
   ansible.builtin.apt_key:
     url: https://www.aptly.info/pubkey.txt
 
 - name: add aptly repo
-  become: yes
+  become: true
   ansible.builtin.apt_repository:
     repo: deb http://repo.aptly.info/ squeeze main
 
 - name: install aptly
-  become: yes
+  become: true
   ansible.builtin.package:
     name: aptly
     state: present
@@ -30,7 +30,7 @@
   ansible.builtin.include_role:
     name: manala.aptly
     apply:
-      become: yes
+      become: true
   vars:
     manala_aptly_user: vagrant
     manala_aptly_config:
@@ -51,7 +51,7 @@
         label: test
 
 - name: install aptly systemd unit
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: aptly.service
     dest: /etc/systemd/system/aptly.service
@@ -60,48 +60,48 @@
     mode: a=r
 
 - name: enable aptly
-  become: yes
+  become: true
   ansible.builtin.systemd:
     name: aptly
-    daemon_reload: yes
-    enabled: yes
+    daemon_reload: true
+    enabled: true
     state: started
 
 - name: install equivs
-  become: yes
+  become: true
   ansible.builtin.package:
     name: equivs
     state: present
 
 - name: copy package configs
-  become: no
+  become: false
   ansible.builtin.copy:
     src: aptly
     dest: .
 
 - name: build fake package 1
-  become: no
+  become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1
     chdir: aptly
     creates: pi-server-test_1_all.deb
 
 - name: build fake package 1.1
-  become: no
+  become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1.1
     chdir: aptly
     creates: pi-server-test_1.1_all.deb
 
 - name: build fake package 1.2
-  become: no
+  become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1.2
     chdir: aptly
     creates: pi-server-test_1.2_all.deb
 
 - name: build fake package 2
-  become: no
+  become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test2
     chdir: aptly

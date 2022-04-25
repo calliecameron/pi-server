@@ -1,5 +1,5 @@
 - name: reload monitoring
   include_tasks: compose.yml
   vars:
-    restart: yes
+    restart: true
   listen: "reload monitoring"

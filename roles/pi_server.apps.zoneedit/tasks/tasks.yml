@@ -3,7 +3,7 @@
     name: pi_server.base
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_zoneedit_etc }}"
     state: directory
@@ -19,7 +19,7 @@
     register:
 
 - name: username file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: username.txt.j2
     dest: "{{ pi_server_apps_zoneedit_username_file }}"
@@ -28,7 +28,7 @@
     mode: u=r,o=
 
 - name: password file
-  become: yes
+  become: true
   ansible.builtin.template:
     src: password.txt.j2
     dest: "{{ pi_server_apps_zoneedit_password_file }}"
@@ -48,7 +48,7 @@
     docker_conflicts: []
 
 - name: hourly cronjob
-  become: yes
+  become: true
   ansible.builtin.template:
     src: hourly.j2
     dest: "/etc/cron.hourly/pi-server-zoneedit"
@@ -57,7 +57,7 @@
     mode: a=rx
 
 - name: run at net up
-  become: yes
+  become: true
   ansible.builtin.template:
     src: net-up.j2
     dest: "{{ pi_server_net_up }}/pi-server-zoneedit"

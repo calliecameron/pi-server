@@ -3,7 +3,7 @@
     name: pi_server.apps.firewall
 
 - name: install rules
-  become: yes
+  become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
     dest: "{{ pi_server_apps_firewall_after_rules }}/{{ args.dest }}"
@@ -13,7 +13,7 @@
   notify: reload firewall
 
 - name: assemble after.rules
-  become: yes
+  become: true
   ansible.builtin.assemble:
     src: "{{ pi_server_apps_firewall_after_rules }}"
     dest: /etc/ufw/after.rules

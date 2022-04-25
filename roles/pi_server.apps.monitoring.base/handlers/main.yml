@@ -1,5 +1,5 @@
 - name: get monitored systemd services
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "cat {{ pi_server_apps_monitoring_monitored_systemd }}"
   register: monitored_systemd
@@ -7,7 +7,7 @@
   listen: "reload system dashboard"
 
 - name: get monitored docker containers
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "cat {{ pi_server_apps_monitoring_monitored_docker }}"
   register: monitored_docker
@@ -15,7 +15,7 @@
   listen: "reload system dashboard"
 
 - name: generate system dashboard
-  become: yes
+  become: true
   vars:
     systemd_services: "{{ monitored_systemd.stdout_lines }}"
     docker_containers: "{{ monitored_docker.stdout_lines }}"

@@ -3,7 +3,7 @@
     name: pi_server.apps.control_panel.base
 
 - name: temp dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_control_panel_temp_dir }}"
     state: directory

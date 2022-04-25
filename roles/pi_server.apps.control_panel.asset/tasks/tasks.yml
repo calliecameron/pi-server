@@ -3,7 +3,7 @@
     name: pi_server.apps.control_panel.base
 
 - name: asset
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: "{{ args.src }}"
     remote_src: "{{ args.remote_src }}"

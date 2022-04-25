@@ -3,7 +3,7 @@
     name: pi_server.testbed.apps.certs.base
 
 - name: install certs
-  become: yes
+  become: true
   ansible.builtin.package:
     name: "{{ pi_server_hostname }}-server-certs"
     state: present

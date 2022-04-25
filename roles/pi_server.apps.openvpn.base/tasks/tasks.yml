@@ -10,7 +10,7 @@
     msg: "openvpn tls auth ({{ pi_server_apps_openvpn_tls_auth }}) doesn't exist"
 
 - name: openvpn tls auth
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_tls_auth }}"
     owner: root
@@ -18,7 +18,7 @@
     mode: u=r,go=
 
 - name: etc dir
-  become: yes
+  become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_etc }}"
     state: directory
@@ -27,13 +27,13 @@
     mode: u=rwx,go=rx
 
 - name: install openvpn
-  become: yes
+  become: true
   ansible.builtin.package:
     name: openvpn
     state: present
 
 - name: check whether autostart is set
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "grep '^AUTOSTART' '{{ pi_server_apps_openvpn_autostart_file }}'"
   changed_when: False
@@ -41,7 +41,7 @@
   register: autostart
 
 - name: don't autostart connections
-  become: yes
+  become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_autostart_file }}"
     line: "AUTOSTART=\"none\""

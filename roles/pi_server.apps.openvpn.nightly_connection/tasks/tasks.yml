@@ -29,7 +29,7 @@
     docker_conflicts: []
 
 - name: crontab
-  become: yes
+  become: true
   ansible.builtin.copy:
     src: crontab
     dest: /etc/cron.d/pi-server-openvpn-nightly
