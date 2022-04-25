@@ -5,7 +5,7 @@
   become: yes
   ansible.builtin.template:
     src: service.yml.j2
-    dest: "{{ pi_server_apps_traefik_discovery_dir}}/{{ args.name }}.yml"
+    dest: "{{ pi_server_apps_traefik_discovery_dir }}/{{ args.name }}.yml"
     owner: root
     group: root
     mode: a=r

@@ -37,18 +37,18 @@
       - architectures:
           - amd64
     manala_aptly_repositories:
-      - name:         main
-        comment:      main
-        component:    main
+      - name: main
+        comment: main
+        component: main
         distribution: main
-        origin:       test
-        label:        test
-      - name:         certs
-        comment:      certs
-        component:    certs
+        origin: test
+        label: test
+      - name: certs
+        comment: certs
+        component: certs
         distribution: certs
-        origin:       test
-        label:        test
+        origin: test
+        label: test
 
 - name: install aptly systemd unit
   become: yes
