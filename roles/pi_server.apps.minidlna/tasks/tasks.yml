@@ -76,9 +76,9 @@
     name: minidlna-web
     entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
     path_prefix: "minidlna"
-    strip_prefix: True
+    strip_prefix: true
     port: "{{ pi_server_apps_minidlna_http_port }}"
-    https: False
+    https: false
 
 - name: control panel fragment
   ansible.builtin.include_role:

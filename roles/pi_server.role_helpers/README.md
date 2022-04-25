@@ -19,8 +19,8 @@ Adds features to `include_role`.
     - name: define role
       include_tasks: "{{ define_role }}"
       vars:
-        _private: False
-        _run_once: False
+        _private: false
+        _run_once: false
         _args: []
         _host_vars: []
         _export_vars: []

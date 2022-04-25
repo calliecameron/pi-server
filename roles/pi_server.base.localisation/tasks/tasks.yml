@@ -16,7 +16,7 @@
   ansible.builtin.command:
     cmd: localectl status
   register: locale_status
-  changed_when: False
+  changed_when: false
 
 - name: set system locale
   become: true

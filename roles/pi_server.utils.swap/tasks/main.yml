@@ -1,8 +1,8 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    _private: False
-    _run_once: True
+    _private: false
+    _run_once: true
     _args: []
     _host_vars:
       - pi_server_swap_size_mb

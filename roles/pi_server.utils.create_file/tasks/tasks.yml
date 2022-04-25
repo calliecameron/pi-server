@@ -7,8 +7,8 @@
   ansible.builtin.command:
     cmd: "ls {{ args.path }}"
   register: exists
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
 
 - name: "create {{ args.path }} if it doesn't exist"
   become: true

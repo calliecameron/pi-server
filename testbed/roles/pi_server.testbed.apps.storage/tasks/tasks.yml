@@ -12,8 +12,8 @@
   ansible.builtin.shell:
     cmd: "file -s '{{ pi_server_storage_drive }}{{ pi_server_storage_data_partition }}' | grep ext4"
   register: data_partition_formatted
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
 
 - name: format data partition
   become: true
@@ -26,8 +26,8 @@
   ansible.builtin.shell:
     cmd: "file -s '{{ pi_server_storage_drive }}{{ pi_server_storage_backup_partition }}' | grep ext4"
   register: backup_partition_formatted
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
 
 - name: format backup partition
   become: true

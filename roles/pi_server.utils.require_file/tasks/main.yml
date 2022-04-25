@@ -1,8 +1,8 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    _private: False
-    _run_once: False
+    _private: false
+    _run_once: false
     _args:
       - path
       - msg

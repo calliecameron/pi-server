@@ -1,4 +1,4 @@
-pi_server_testbed: True
+pi_server_testbed: true
 pi_server_testbed_base_helper: "/testbed-helper.bash"
 pi_server_testbed_base_root: "/vagrant"
 # - ansible_python_interpreter: auto_silent

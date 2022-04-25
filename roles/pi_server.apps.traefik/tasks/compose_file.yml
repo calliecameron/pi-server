@@ -3,7 +3,7 @@
   ansible.builtin.command:
     cmd: "cat '{{ pi_server_apps_traefik_ports_file }}'"
   register: raw_ports
-  changed_when: False
+  changed_when: false
 
 - name: compose file
   become: true

@@ -9,7 +9,7 @@
       become: true
   vars:
     docker_apt_arch: "{{ pi_server_apps_docker_arch_map[ansible_facts['architecture']] }}"
-    docker_install_compose: False
+    docker_install_compose: false
     docker_daemon_options:
       log-driver: journald
       metrics-addr: "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}"

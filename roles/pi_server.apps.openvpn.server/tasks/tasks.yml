@@ -65,8 +65,8 @@
   ansible.builtin.command:
     cmd: "ls {{ pi_server_apps_openvpn_server_to_server_config }}"
   register: exists
-  failed_when: False
-  changed_when: False
+  failed_when: false
+  changed_when: false
 
 - name: server-to-server client config
   become: true

@@ -137,9 +137,9 @@
     name: syncthing-web
     entrypoint: "{{ pi_server_apps_control_panel_entrypoint }}"
     path_prefix: "syncthing"
-    strip_prefix: True
+    strip_prefix: true
     port: "{{ pi_server_apps_syncthing_web_port }}"
-    https: True
+    https: true
 
 - name: control panel fragment
   ansible.builtin.include_role:
