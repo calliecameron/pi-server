@@ -3,6 +3,7 @@
   ansible.builtin.get_url:
     url: https://raw.githubusercontent.com/mock-server/mockserver/master/mockserver-core/src/main/resources/org/mockserver/socket/CertificateAuthorityCertificate.pem
     dest: /usr/local/share/ca-certificates/mockserver.crt
+    mode: a=r
 
 - name: install mockserver CA cert
   become: true

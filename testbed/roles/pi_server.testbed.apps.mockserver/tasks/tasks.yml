@@ -9,6 +9,7 @@
   ansible.builtin.get_url:
     url: https://search.maven.org/remotecontent?filepath=org/mock-server/mockserver-netty/5.13.2/mockserver-netty-5.13.2-shaded.jar
     dest: /home/vagrant/mockserver.jar
+    mode: a=r
 
 - name: install mockserver systemd unit
   become: true

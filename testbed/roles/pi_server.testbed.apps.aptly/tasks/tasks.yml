@@ -78,6 +78,7 @@
   ansible.builtin.copy:
     src: aptly
     dest: .
+    mode: a=rx
 
 - name: build fake package 1
   become: false

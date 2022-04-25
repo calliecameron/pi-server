@@ -1,2 +1,4 @@
 skip_list:
+  - command-instead-of-module
+  - line-length
   - role-name
