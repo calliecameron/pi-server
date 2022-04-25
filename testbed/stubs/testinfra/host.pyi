@@ -2,6 +2,7 @@ from typing import Any, ContextManager, List, Optional
 from conftest import CronRunner, Journal, ShadowDir, ShadowFile
 from testinfra.backend.base import CommandResult
 from testinfra.modules.addr import Addr
+from testinfra.modules.docker import Docker
 from testinfra.modules.file import File
 from testinfra.modules.package import Package
 from testinfra.modules.user import User
@@ -34,4 +35,5 @@ class Host:
     def group_membership(self, user: str, group: str) -> ContextManager[None]: ...
     def exists(self, command: str) -> bool: ...
     def journal(self) -> Journal: ...
+    def docker(self, container: str) -> Docker: ...
     process: Process
