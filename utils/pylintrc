@@ -4,7 +4,9 @@ ignore-patterns=.*_pb2\.py,flycheck_.*
 [MESSAGES CONTROL]
 disable=invalid-name,
         missing-docstring,
-        too-many-instance-attributes
+        too-many-instance-attributes,
+        too-many-locals,
+        too-many-branches
 
 enable=unused-argument
 
