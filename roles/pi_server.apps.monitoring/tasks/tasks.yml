@@ -44,10 +44,9 @@
     mode: a=r
   notify: reload monitoring
 
-- name: docker compose
-  become: yes
-  community.docker.docker_compose:
-    project_src: "{{ pi_server_apps_monitoring_etc }}"
+- include_tasks: compose.yml
+  vars:
+    restart: no
 
 - name: monitor containers
   include_role:

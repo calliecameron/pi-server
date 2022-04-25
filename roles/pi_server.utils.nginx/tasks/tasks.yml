@@ -17,6 +17,10 @@
   become: yes
   community.docker.docker_compose:
     project_src: "{{ args.compose_dir }}"
+    # TODO set this to yes once pull_policy is supported
+    pull: no
+    remove_orphans: yes
+    restarted: no
 
 - name: monitoring
   include_role:

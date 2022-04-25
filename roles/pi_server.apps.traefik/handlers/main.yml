@@ -1,11 +1,13 @@
 - name: reload traefik config file
   include_tasks: config_file.yml
+  listen: "reload traefik config file"
 
 - name: reload traefik compose file
   include_tasks: compose_file.yml
+  listen: "reload traefik compose file"
 
 - name: reload traefik
-  become: yes
-  community.docker.docker_compose:
-    project_src: "{{ pi_server_apps_traefik_etc }}"
-    restarted: yes
+  include_tasks: compose.yml
+  vars:
+    restart: yes
+  listen: "reload traefik"

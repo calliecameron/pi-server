@@ -123,7 +123,7 @@
     group: root
     mode: a=rx
   notify: reload shutdownd ui
-  
+
 - name: bootstrap templates
   include_role:
     name: pi_server.utils.bootstrap_templates
@@ -160,10 +160,9 @@
     dir: "{{ pi_server_apps_shutdownd_ui_dir }}"
     notify: "reload shutdownd ui"
 
-- name: docker compose
-  become: yes
-  community.docker.docker_compose:
-    project_src: "{{ pi_server_apps_shutdownd_etc }}"
+- include_tasks: compose.yml
+  vars:
+    restart: no
 
 - name: monitor containers
   include_role:
