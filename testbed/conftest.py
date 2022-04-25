@@ -823,7 +823,7 @@ class OpenVPN:
         self._vagrant = vagrant
 
     @contextmanager
-    def connect(self, hostname: str, service: str, other_host: str) -> Iterator[None]:
+    def connect(self, hostname: str, service: str) -> Iterator[None]:
         host = self._hosts[hostname]
         try:
             with host.sudo():
@@ -831,8 +831,8 @@ class OpenVPN:
             time.sleep(20)
             yield
         finally:
-            # OpenVPN doesn't clean up after itself properly, so just reboot
-            self._vagrant.reboot(hostname, other_host)
+            with host.sudo():
+                host.check_output(f"systemctl stop '{service}'")
 
 
 def _hostnames() -> List[str]:

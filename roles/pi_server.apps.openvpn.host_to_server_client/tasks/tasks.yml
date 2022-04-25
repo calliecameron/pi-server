@@ -50,5 +50,5 @@
     name: pi_server.utils.systemd_service
   vars:
     src: service.j2
-    service: "openvpn-client-{{ args.name }}"
+    service: "pi-server-openvpn-client-{{ args.name }}"
     service_notify: "reload openvpn"

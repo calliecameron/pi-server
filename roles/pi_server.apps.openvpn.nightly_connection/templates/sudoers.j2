@@ -1,4 +1,4 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
-{{ pi_server_apps_openvpn_nightly_connection_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl start openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}
-{{ pi_server_apps_openvpn_nightly_connection_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl stop openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}
+{{ pi_server_apps_openvpn_nightly_connection_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl start pi-server-openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}
+{{ pi_server_apps_openvpn_nightly_connection_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/systemctl stop pi-server-openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}

@@ -24,7 +24,7 @@
     dest_dir: "{{ pi_server_apps_openvpn_etc }}"
     user: "{{ pi_server_apps_openvpn_nightly_connection_user }}"
     systemd_conflicts:
-      - "openvpn-server-to-server-client-{{ args.name }}"
+      - "pi-server-openvpn-server-to-server-client-{{ args.name }}"
     docker_conflicts: []
 
 - name: crontab

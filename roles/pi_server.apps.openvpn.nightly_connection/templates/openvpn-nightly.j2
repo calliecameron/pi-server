@@ -7,11 +7,20 @@ set -eu
 {{ cron_wrapper_line }}
 
 TIMEOUT_DURATION='7h'
-SERVICE='openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}'
+SERVICE='pi-server-openvpn-server-to-server-client-{{ pi_server_apps_openvpn_nightly_connection_args.name }}'
 
 function error() {
     echo "ERROR:" "${@}"
     exit 1
+}
+
+function cleanup() {
+    if ! sudo systemctl stop "${SERVICE}"; then
+        error 'failed to stop openvpn'
+    else
+        echo 'Stopped openvpn'
+        exit 0
+    fi
 }
 
 if ! sudo systemctl start "${SERVICE}"; then
@@ -20,10 +29,8 @@ else
     echo 'Started openvpn'
 fi
 
+trap cleanup SIGINT SIGTERM
+
 sleep "${TIMEOUT_DURATION}"
 
-if ! sudo systemctl stop "${SERVICE}"; then
-    error 'failed to stop openvpn'
-else
-    echo 'Stopped openvpn'
-fi
+cleaup
