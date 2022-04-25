@@ -15,6 +15,7 @@ disable=invalid-name,
         too-many-arguments,
         too-many-statements,
         too-many-branches,
+        too-many-instance-attributes,
         redefined-outer-name
 
 enable=unused-argument

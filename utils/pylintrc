@@ -1,0 +1,15 @@
+[MASTER]
+ignore-patterns=.*_pb2\.py,flycheck_.*
+
+[MESSAGES CONTROL]
+disable=invalid-name,
+        missing-docstring,
+        too-many-instance-attributes
+
+enable=unused-argument
+
+[VARIABLES]
+dummy-variables-rgx=_.*
+
+[REPORTS]
+output-format=parseable
