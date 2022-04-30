@@ -84,7 +84,28 @@ class TestRolePiCore:
             mockserver.clear()
             mockserver.expect(zoneedit_req)
             with host.sudo():
-                host.check_output('sudo systemctl start --wait pi-server-cron-zoneedit')
+                host.check_output('systemctl start --wait pi-server-cron-zoneedit')
+            mockserver.assert_called()
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-zoneedit')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r'Updated ZoneEdit') == 1
+            assert log.count(r'Not running.*') == 0
+            assert log.count(r'.*ZoneEdit update failed') == 0
+
+            # Correct username/password at net up
+            journal.clear()
+            mockserver.clear()
+            mockserver.expect(zoneedit_req)
+            with host.sudo():
+                host.check_output('ip link set enp0s8 down')
+                host.check_output('ip link set enp0s8 up')
+            time.sleep(65)
             mockserver.assert_called()
 
             assert not service.is_running
