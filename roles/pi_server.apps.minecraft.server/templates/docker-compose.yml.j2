@@ -18,8 +18,8 @@ services:
       VERSION: "{{ pi_server_apps_minecraft_server_version }}"
       MEMORY: "{{ pi_server_minecraft_server_java_heap_mb }}m"
       ENABLE_ROLLING_LOGS: "true"
-      STOP_DURATION: "1800"
-    stop_grace_period: "30m"
+      STOP_DURATION: "{{ pi_server_minecraft_server_stop_time_seconds }}"
+    stop_grace_period: "{{ pi_server_minecraft_server_stop_time_seconds }}s"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
     deploy:

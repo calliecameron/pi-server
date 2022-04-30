@@ -20,7 +20,7 @@
     state: directory
     owner: "{{ pi_server_apps_minecraft_server_user }}"
     group: "{{ pi_server_apps_minecraft_server_user }}"
-    mode: u=rwx,go=rx
+    mode: "ug=rwx,o=rx"  # the image sets g+w on the dir, so we respect it here
 
 - name: compose dir
   become: true
@@ -84,7 +84,7 @@
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
-    compose_file: "{{ pi_server_apps_minecraft_server_docker_compose }}"
+    compose_file: "{{ pi_server_apps_minecraft_server_compose_file }}"
 
 - name: pause on cron
   ansible.builtin.include_role:

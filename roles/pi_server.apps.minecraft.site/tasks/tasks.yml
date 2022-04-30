@@ -80,10 +80,10 @@
   become: true
   ansible.builtin.copy:
     src: redstone
-    dest: "{{ pi_server_apps_minecraft_site_web_root }}/redstone"
+    dest: "{{ pi_server_apps_minecraft_site_web_root }}"
     owner: root
     group: root
-    mode: a=r
+    mode: u=rw,go=r
     directory_mode: u=rwx,go=rx
 
 - name: nginx
