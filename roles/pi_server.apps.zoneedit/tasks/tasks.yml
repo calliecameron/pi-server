@@ -57,10 +57,8 @@
     mode: a=rx
 
 - name: run at net up
-  become: true
-  ansible.builtin.template:
+  ansible.builtin.include_role:
+    name: pi_server.utils.net_up_script
+  vars:
     src: net-up.j2
-    dest: "{{ pi_server_net_up }}/pi-server-zoneedit"
-    owner: root
-    group: root
-    mode: a=rx
+    name: zoneedit

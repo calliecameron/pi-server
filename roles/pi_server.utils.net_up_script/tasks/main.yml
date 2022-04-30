@@ -1,0 +1,10 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: false
+    _run_once: false
+    _args:
+      - src
+      - name
+    _host_vars: []
+    _export_vars: []

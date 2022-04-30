@@ -1,5 +1,3 @@
 pi_server_etc: "/etc/pi-server"
 pi_server_opt: "/opt/pi-server"
 pi_server_var: "/var/pi-server"
-pi_server_net_pre_up: "/etc/networkd-dispatcher/routable.d"
-pi_server_net_up: "/etc/networkd-dispatcher/routable.d"

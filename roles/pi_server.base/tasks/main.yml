@@ -9,5 +9,3 @@
       - pi_server_etc
       - pi_server_opt
       - pi_server_var
-      - pi_server_net_pre_up
-      - pi_server_net_up

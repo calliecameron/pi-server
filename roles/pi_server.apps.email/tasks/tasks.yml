@@ -36,10 +36,8 @@
     mode: a=rx
 
 - name: send email on net up
-  become: true
-  ansible.builtin.template:
+  ansible.builtin.include_role:
+    name: pi_server.utils.net_up_script
+  vars:
     src: net-up-email.j2
-    dest: "{{ pi_server_net_up }}/net-up-email"
-    owner: root
-    group: root
-    mode: a=rx
+    name: net-up-email

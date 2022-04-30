@@ -1,0 +1,12 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.base
+
+- name: run at net up
+  become: true
+  ansible.builtin.template:
+    src: "{{ args.src }}"
+    dest: "{{ pi_server_utils_net_up_script_dir }}/pi-server-{{ args.name }}"
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
