@@ -198,29 +198,28 @@ class TestRolePiCore:
                 host.file(path).write('')
                 with WebDriver() as driver:
                     driver.get('http://' + this_addr)
+
                     link = driver.find_element(by=By.LINK_TEXT, value=text)
-
                     assert urlparse(link.get_attribute('href')).hostname == this_addr
-
-                    link.click()
+                    driver.click(link)
                     driver.validate_html()
                     other_links = driver.validate_links()
                     assert not other_links
-                    button = driver.find_element(by=By.NAME, value='btn')
 
-                    button.click()
+                    button = driver.find_element(by=By.NAME, value='btn')
+                    driver.click(button)
                     driver.validate_html()
                     other_links = driver.validate_links()
                     assert not other_links
 
             navigate_and_click('Restart')
-            time.sleep(20)
+            time.sleep(40)
             vagrant.rescan_state()
             assert vagrant.state()[hostname]
             assert not host.file(path).exists
 
             navigate_and_click('Shut down')
-            time.sleep(20)
+            time.sleep(40)
             vagrant.rescan_state()
             assert not vagrant.state()[hostname]
             vagrant.reboot(hostname)
