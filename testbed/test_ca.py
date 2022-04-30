@@ -8,7 +8,7 @@ from testinfra.host import Host
 
 
 class TestCA:
-    def test_00_ca(self, hosts: Dict[str, Host]) -> None:
+    def test_ca(self, hosts: Dict[str, Host]) -> None:
         host = hosts['internet']
         test_root_dir = '/home/vagrant/ca-test'
         root_dir = os.path.join(test_root_dir, 'ca')
