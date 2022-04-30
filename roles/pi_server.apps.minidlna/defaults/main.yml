@@ -1,7 +1,6 @@
 pi_server_apps_minidlna_media_dir: "{{ pi_server_apps_main_data_dir }}/media-server"
 pi_server_apps_minidlna_config_dir: "{{ pi_server_apps_main_data_config_dir }}/minidlna"
 pi_server_apps_minidlna_db_dir: "{{ pi_server_apps_minidlna_config_dir }}/db"
-pi_server_apps_minidlna_user: "minidlna"
 pi_server_apps_minidlna_service: "minidlna"
 pi_server_apps_minidlna_port: "1900"
 pi_server_apps_minidlna_http_port: "8200"

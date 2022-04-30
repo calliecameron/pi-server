@@ -53,24 +53,11 @@
     user: "{{ pi_server_apps_backup_main_user }}"
     register:
 
-- name: git user
-  ansible.builtin.include_role:
-    name: pi_server.utils.user
-  vars:
-    user: "{{ pi_server_apps_backup_git_user }}"
-    register:
-
-- name: git user can read data
-  ansible.builtin.include_role:
-    name: pi_server.apps.main_data.reader
-  vars:
-    user: "{{ pi_server_apps_backup_git_user }}"
-
 - name: git user can read deployment key
   ansible.builtin.include_role:
     name: pi_server.apps.certs.deployment_key_reader
   vars:
-    user: "{{ pi_server_apps_backup_git_user }}"
+    user: "{{ pi_server_apps_main_data_user }}"
 
 - name: mount backup partition
   become: true
@@ -92,8 +79,8 @@
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_git_dir }}"
     state: directory
-    owner: "{{ pi_server_apps_backup_git_user }}"
-    group: "{{ pi_server_apps_backup_git_user }}"
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
 - name: last run date file
@@ -147,7 +134,7 @@
     name: pi_server.utils.sudoers_fragment
   vars:
     src: git-sudoers.j2
-    name: "{{ pi_server_apps_backup_git_user }}"
+    name: "{{ pi_server_apps_main_data_user }}-backup-git"
 
 - name: main cronjob
   ansible.builtin.include_role:
@@ -166,6 +153,6 @@
   vars:
     job: backup-git
     src: backup-git.j2
-    user: "{{ pi_server_apps_backup_git_user }}"
+    user: "{{ pi_server_apps_main_data_user }}"
     systemd_conflicts: []
     docker_conflicts: []

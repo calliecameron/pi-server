@@ -11,15 +11,11 @@
 #   * "A" for audio    (eg. media_dir=A,/var/lib/minidlna/music)
 #   * "P" for pictures (eg. media_dir=P,/var/lib/minidlna/pictures)
 #   * "V" for video    (eg. media_dir=V,/var/lib/minidlna/videos)
-#
-# WARNING: After changing this option, you need to rebuild the database. Either
-#          run minidlna with the '-R' option, or delete the 'files.db' file
-#          from the db_dir directory (see below).
-#          On Debian, you can run, as root, 'service minidlna force-reload' instead.
+#   * "PV" for pictures and video (eg. media_dir=PV,/var/lib/minidlna/digital_camera)
 media_dir={{ pi_server_apps_minidlna_media_dir }}
 
 db_dir={{ pi_server_apps_minidlna_db_dir }}
-log_dir=/var/log
+log_dir=/var/log/minidlna
 log_level=warn
 root_container=B
 network_interface={{ pi_server_lan_iface }}

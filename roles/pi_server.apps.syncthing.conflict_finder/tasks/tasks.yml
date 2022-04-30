@@ -1,19 +1,6 @@
 - name: dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.cron
-
-- name: user
-  ansible.builtin.include_role:
-    name: pi_server.utils.user
-  vars:
-    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
-    register:
-
-- name: read main data
-  ansible.builtin.include_role:
-    name: pi_server.apps.main_data.reader
-  vars:
-    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
+    name: pi_server.apps.main_data
 
 - name: cronjob
   ansible.builtin.include_role:
@@ -21,7 +8,7 @@
   vars:
     job: syncthing-conflict-finder
     src: conflict-finder.j2
-    user: "{{ pi_server_apps_syncthing_conflict_finder_user }}"
+    user: "{{ pi_server_apps_main_data_user }}"
     systemd_conflicts: []
     docker_conflicts: []
 

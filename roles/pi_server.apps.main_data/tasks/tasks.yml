@@ -9,11 +9,6 @@
     user: "{{ pi_server_apps_main_data_user }}"
     register:
 
-- name: readers group
-  become: true
-  ansible.builtin.group:
-    name: "{{ pi_server_apps_main_data_readers_group }}"
-
 - name: data dir
   become: true
   ansible.builtin.file:
@@ -39,43 +34,7 @@
     state: directory
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,o=
-
-- name: backed-up data dir group ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_main_dir }}"
-    entity: "{{ pi_server_apps_main_data_user }}"
-    etype: group
-    state: absent
-
-- name: backed-up data dir reader group ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_main_dir }}"
-    entity: "{{ pi_server_apps_main_data_readers_group }}"
-    etype: group
-    permissions: rx
-    state: present
-
-- name: backed-up data dir default ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_main_dir }}"
-    default: true
-    entity: "{{ pi_server_apps_main_data_readers_group }}"
-    etype: group
-    permissions: rX
-    state: present
-
-- name: backed-up data dir default mask
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_main_dir }}"
-    default: true
-    etype: mask
-    permissions: rX
-    state: present
+    mode: u=rwx,go=
 
 - name: non-backed-up data dir
   become: true
@@ -84,65 +43,15 @@
     state: directory
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,o=
-
-- name: non-backed-up data dir group ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    entity: "{{ pi_server_apps_main_data_user }}"
-    etype: group
-    state: absent
-
-- name: non-backed-up data dir reader group ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    entity: "{{ pi_server_apps_main_data_readers_group }}"
-    etype: group
-    permissions: rx
-    state: present
-
-- name: non-backed-up data dir default ACLs
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    default: true
-    entity: "{{ pi_server_apps_main_data_readers_group }}"
-    etype: group
-    permissions: rX
-    state: present
-
-- name: non-backed-up data dir default mask
-  become: true
-  ansible.posix.acl:
-    path: "{{ pi_server_apps_main_data_no_backup_dir }}"
-    default: true
-    etype: mask
-    permissions: rX
-    state: present
-
-- name: get non-root user
-  become: false
-  ansible.builtin.command:
-    cmd: "id -nu"
-  register: scratch_user
-  changed_when: false
-
-- name: get non-root group
-  become: false
-  ansible.builtin.command:
-    cmd: "id -ng"
-  register: scratch_group
-  changed_when: false
+    mode: u=rwx,go=
 
 - name: scratch dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_data_scratch_dir }}"
     state: directory
-    owner: "{{ scratch_user.stdout }}"
-    group: "{{ scratch_group.stdout }}"
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
     mode: u=rwx,go=
 
 - name: mount backup partition

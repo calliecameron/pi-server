@@ -77,10 +77,10 @@ class TestRolePiFull:
             assert log.count(r'.*FAILURE.*') == 0
             assert log.count(r'.*KILLED.*') == 0
             assert log.count(r'.*SUCCESS.*') == 1
-            assert log.count(r"Wrote to '.*' for cert '.*'") == 4
+            assert log.count(r"Wrote to '.*' for cert '.*'") == 5
             with host.sudo():
                 metrics = Lines(collect_dir.file('certs.prom').content_string)
-            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 4
+            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
 
     @for_host_types('pi')
     def test_syncthing(
@@ -160,8 +160,8 @@ class TestRolePiFull:
             assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
 
             assert host.file('/mnt/backup/pi-server-backup/git').exists
-            assert host.file('/mnt/backup/pi-server-backup/git').user == 'pi-server-backup-git'
-            assert host.file('/mnt/backup/pi-server-backup/git').group == 'pi-server-backup-git'
+            assert host.file('/mnt/backup/pi-server-backup/git').user == 'pi-server-data'
+            assert host.file('/mnt/backup/pi-server-backup/git').group == 'pi-server-data'
 
         def main_backup_file(path: File, backup: str) -> File:
             return host.file(
@@ -285,7 +285,7 @@ class TestRolePiFull:
                     host.check_output(
                         f"chown pi-server-data:pi-server-data '{git_config_file.path}'")
                     host.check_output(
-                        f"chmod u=rw,g=r,o= '{git_config_file.path}'")
+                        f"chmod u=rw,go= '{git_config_file.path}'")
 
             def run_git() -> None:
                 journal.clear()
@@ -389,7 +389,7 @@ class TestRolePiFull:
         host = hosts[hostname]
         assert host.service('minidlna').is_enabled
         assert host.service('minidlna').is_running
-        assert host.process.filter(user='minidlna', comm='minidlnad')
+        assert host.process.filter(user='pi-server-data', comm='minidlnad')
 
     @for_host_types('pi')
     def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:

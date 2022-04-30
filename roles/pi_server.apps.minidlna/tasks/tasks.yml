@@ -2,25 +2,23 @@
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.main_data
+
 - name: install minidlna
   become: true
   ansible.builtin.package:
     name: minidlna
     state: present
 
-- name: allow data access
-  ansible.builtin.include_role:
-    name: pi_server.apps.main_data.reader
-  vars:
-    user: "{{ pi_server_apps_minidlna_user }}"
-
 - name: media dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_media_dir }}"
     state: directory
-    owner: "{{ pi_server_apps_minidlna_user }}"
-    group: "{{ pi_server_apps_minidlna_user }}"
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
 - name: config dir
@@ -28,8 +26,8 @@
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_config_dir }}"
     state: directory
-    owner: "{{ pi_server_apps_minidlna_user }}"
-    group: "{{ pi_server_apps_minidlna_user }}"
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
 - name: db dir
@@ -37,9 +35,25 @@
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_db_dir }}"
     state: directory
-    owner: "{{ pi_server_apps_minidlna_user }}"
-    group: "{{ pi_server_apps_minidlna_user }}"
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
+
+- name: systemd user
+  become: true
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/minidlna.service
+    line: "User={{ pi_server_apps_main_data_user }}"
+    regexp: "^User=minidlna$"
+  notify: reload minidlna
+
+- name: systemd group
+  become: true
+  ansible.builtin.lineinfile:
+    path: /lib/systemd/system/minidlna.service
+    line: "Group={{ pi_server_apps_main_data_user }}"
+    regexp: "^Group=minidlna$"
+  notify: reload minidlna
 
 - name: config
   become: true
