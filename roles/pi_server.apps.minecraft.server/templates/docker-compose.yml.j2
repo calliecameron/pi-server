@@ -1,0 +1,30 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+services:
+  "{{ pi_server_apps_minecraft_server_service }}":
+    image: "itzg/minecraft-server:{{ pi_server_apps_minecraft_server_docker_version }}"
+    restart: always
+    user: "{{ minecraft_user.uid }}:{{ minecraft_user.group }}"
+    command:
+      - "--forceUpgrade"
+    ports:
+      - "{{ pi_server_apps_minecraft_server_port }}:{{ pi_server_apps_minecraft_server_port }}"
+    volumes:
+      - "{{ pi_server_apps_minecraft_server_data_dir }}:/data"
+      - "/etc/timezone:/etc/timezone:ro"
+    environment:
+      EULA: "TRUE"
+      TYPE: "SPIGOT"
+      VERSION: "{{ pi_server_apps_minecraft_server_version }}"
+      MEMORY: "{{ pi_server_minecraft_server_java_heap_mb }}m"
+      ENABLE_ROLLING_LOGS: "true"
+      STOP_DURATION: "1800"
+    stop_grace_period: "30m"
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+
+networks:
+  "{{ pi_server_apps_traefik_network }}":
+    external: true

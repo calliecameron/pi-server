@@ -1,0 +1,10 @@
+- name: define role
+  include_tasks: "{{ define_role }}"
+  vars:
+    _private: true
+    _run_once: true
+    _args: []
+    _host_vars: []
+    _export_vars:
+      - pi_server_apps_minecraft_etc
+      - pi_server_apps_minecraft_var

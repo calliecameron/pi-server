@@ -1,0 +1,47 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+set -eu
+
+DATA_DIR='{{ pi_server_apps_minecraft_server_data_dir }}'
+COMPOSE_FILE='{{ pi_server_apps_minecraft_server_compose_file }}'
+SERVICE='{{ pi_server_apps_minecraft_server_service }}'
+SERVER_PROPERTIES="${DATA_DIR}/server.properties"
+
+function list-worlds() {
+    find "${DATA_DIR}" -name 'server.properties.*' |
+        (while read -r line; do basename "${line}"; done) |
+        sed 's/server\.properties\.//g' |
+        paste -sd '|' -
+}
+
+WORLDS="$(list-worlds)"
+
+if [ -z "${WORLDS}" ]; then
+    echo 'No worlds available.'
+    exit 1
+fi
+
+function usage() {
+    echo "Usage: $(basename "${0}") {${WORLDS}}"
+    exit 1
+}
+
+test -z "${1:-}" && usage
+
+PROPERTIES="${SERVER_PROPERTIES}.${1}"
+
+test -f "${PROPERTIES}" || usage
+
+if [ -f "${SERVER_PROPERTIES}" ] &&
+    [ "$(stat --printf='%h' "${SERVER_PROPERTIES}")" != '2' ]; then
+    echo "server.properties exists but doesn't appear to be a link; not going any further."
+    exit 1
+fi
+
+sudo docker-compose -f "${COMPOSE_FILE}" stop "${SERVICE}"
+
+sudo rm -f "${SERVER_PROPERTIES}"
+sudo ln "${PROPERTIES}" "${SERVER_PROPERTIES}"
+
+sudo docker-compose -f "${COMPOSE_FILE}" start "${SERVICE}"

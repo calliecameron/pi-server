@@ -1,0 +1,100 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.minecraft.base
+
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.docker
+
+- name: user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_minecraft_server_user }}"
+    register: minecraft_user
+
+- name: data dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_server_data_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_minecraft_server_user }}"
+    group: "{{ pi_server_apps_minecraft_server_user }}"
+    mode: u=rwx,go=rx
+
+- name: compose dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_server_compose_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_minecraft_server_compose_file }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload minecraft server
+
+- include_tasks: compose.yml
+  vars:
+    restart: false
+
+- name: bin dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_server_bin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: set world script
+  become: true
+  ansible.builtin.template:
+    src: minecraft-set-world.j2
+    dest: "{{ pi_server_apps_minecraft_server_bin_dir }}/minecraft-set-world"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: backup script
+  become: true
+  ansible.builtin.template:
+    src: minecraft-backup.j2
+    dest: "{{ pi_server_apps_minecraft_server_bin_dir }}/minecraft-backup"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: bin dir on path
+  become: false
+  ansible.builtin.lineinfile:
+    path: ".bashrc"
+    line: "export PATH=\"{{ pi_server_apps_minecraft_server_bin_dir }}:${PATH}\""
+    mode: u=rw,go=
+    create: true
+
+- name: monitor containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_minecraft_server_docker_compose }}"
+
+- name: pause on cron
+  ansible.builtin.include_role:
+    name: pi_server.apps.cron.pause_docker_on_cron
+  vars:
+    compose_file: "{{ pi_server_apps_minecraft_server_compose_file }}"
+    service: minecraft
+
+- name: port
+  ansible.builtin.include_role:
+    name: pi_server.apps.firewall.tcp_port
+  vars:
+    port: "{{ pi_server_apps_minecraft_server_port }}"
