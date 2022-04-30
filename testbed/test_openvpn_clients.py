@@ -28,7 +28,7 @@ class TestOpenVPNClients:
         try:
             with hosts['pi2'].disable_login_emails():
                 email.clear()
-                with openvpn.connect('pi1', 'openvpn-server-to-server-client-pi2'):
+                with openvpn.connect('pi1', 'pi-server-openvpn-server-to-server-client-pi2'):
                     net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
@@ -53,7 +53,7 @@ class TestOpenVPNClients:
         try:
             with hosts['pi2'].disable_login_emails():
                 email.clear()
-                with openvpn.connect('pi1', 'openvpn-server-to-server-client-pi2'):
+                with openvpn.connect('pi1', 'pi-server-openvpn-server-to-server-client-pi2'):
                     net.assert_routes({
                         'internet': {
                             'external': [],
@@ -143,7 +143,7 @@ class TestOpenVPNClients:
         try:
             with hosts['pi2'].disable_login_emails():
                 email.clear()
-                with openvpn.connect('ubuntu', 'openvpn-client-pi2'):
+                with openvpn.connect('ubuntu', 'pi-server-openvpn-client-pi2'):
                     net.assert_reachability({
                         'internet': ['external', 'internet', 'router1_wan', 'router2_wan',
                                      'ubuntu'],
@@ -179,7 +179,7 @@ class TestOpenVPNClients:
         try:
             with hosts['pi2'].disable_login_emails():
                 email.clear()
-                with openvpn.connect('ubuntu', 'openvpn-client-pi2'):
+                with openvpn.connect('ubuntu', 'pi-server-openvpn-client-pi2'):
                     net.assert_routes({
                         'internet': {
                             'external': [],
