@@ -1,0 +1,9 @@
+- name: assemble minecraft site
+  become: true
+  ansible.builtin.assemble:
+    src: "{{ pi_server_apps_minecraft_site_fragments_dir }}"
+    dest: "{{ pi_server_apps_minecraft_site_web_root }}/index.html"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  listen: "assemble minecraft site"

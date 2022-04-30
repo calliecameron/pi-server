@@ -1,0 +1,112 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.minecraft.base
+
+- name: etc dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_site_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: fragments dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_site_fragments_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: var dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_site_var }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: web root dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_site_web_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: temp dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_site_temp_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_minecraft_site_user }}"
+    register: minecraft_site_user
+
+- name: base files
+  ansible.builtin.include_role:
+    name: pi_server.utils.bootstrap_site
+  vars:
+    fragments_dir: "{{ pi_server_apps_minecraft_site_fragments_dir }}"
+    web_root: "{{ pi_server_apps_minecraft_site_web_root }}"
+    temp_dir: "{{ pi_server_apps_minecraft_site_temp_dir }}"
+    head_title: "Minecraft"
+    body_title: "Minecraft"
+    favicon_basename: "favicon"
+    fragments_notify: "assemble minecraft site"
+
+- name: body
+  become: true
+  ansible.builtin.template:
+    src: body.html.j2
+    dest: "{{ pi_server_apps_minecraft_site_fragments_dir }}/body.html"
+    owner: root
+    group: root
+    mode: a=r
+  notify: "assemble minecraft site"
+
+- name: redstone images
+  become: true
+  ansible.builtin.copy:
+    src: redstone
+    dest: "{{ pi_server_apps_minecraft_site_web_root }}/redstone"
+    owner: root
+    group: root
+    mode: a=r
+    directory_mode: u=rwx,go=rx
+
+- name: nginx
+  ansible.builtin.include_role:
+    name: pi_server.utils.nginx
+  vars:
+    name: "{{ pi_server_apps_minecraft_site_entrypoint }}"
+    entrypoint: "{{ pi_server_apps_minecraft_site_entrypoint }}"
+    compose_dir: "{{ pi_server_apps_minecraft_site_etc }}"
+    uid: "{{ minecraft_site_user.uid }}"
+    gid: "{{ minecraft_site_user.group }}"
+    web_root: "{{ pi_server_apps_minecraft_site_web_root }}"
+
+- name: entrypoint
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik.http_entrypoint
+  vars:
+    name: "{{ pi_server_apps_minecraft_site_entrypoint }}"
+    port: "{{ pi_server_apps_minecraft_site_traefik_port }}"
+
+- name: open port
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik.publish_port
+  vars:
+    container_port: "{{ pi_server_apps_minecraft_site_traefik_port }}"
+    host_port: "80"
