@@ -48,7 +48,7 @@ end
 
 def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask, other_lan_mask, other_vpn_mask)
   config.vm.define name do |box|
-    box.vm.box = "ubuntu/focal64"
+    box.vm.box = "ubuntu/jammy64"
     box.vm.hostname = name
     box.vm.network "private_network", ip: wan_ip
     box.vm.network "private_network", ip: lan_ip
@@ -74,7 +74,7 @@ end
 
 def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_target_name, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_client_vpn_mask, openvpn_role)
   config.vm.define name do |box|
-    box.vm.box = "ubuntu/focal64"
+    box.vm.box = "ubuntu/jammy64"
     box.vm.hostname = name
     box.vm.network "private_network", ip: pi_ip
     box.vm.disk :disk, size: "100MB", name: "external"
@@ -119,7 +119,7 @@ end
 
 def ubuntu(config)
   config.vm.define "ubuntu" do |ubuntu|
-    ubuntu.vm.box = "ubuntu/focal64"
+    ubuntu.vm.box = "ubuntu/jammy64"
     ubuntu.vm.hostname = "ubuntu"
     ubuntu.vm.network "private_network", ip: $addrs["ubuntu"]
     sync_folders(ubuntu)

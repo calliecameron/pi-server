@@ -47,7 +47,7 @@
     dest: /etc/networkd-dispatcher/routable.d/testbed-boot
     owner: root
     group: root
-    mode: a=rx
+    mode: u=rwx,go=rx
 
 - name: ssh-keygen
   become: false

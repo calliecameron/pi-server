@@ -1,7 +1,7 @@
 # pi-server
 
 Configuration framework for amd64 and arm64 servers (including Raspberry Pi 4)
-running Ubuntu 20.04 LTS.
+running Ubuntu 22.04 LTS.
 
 ## Roles
 
