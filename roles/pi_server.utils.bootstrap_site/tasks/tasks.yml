@@ -47,6 +47,14 @@
     group: root
     mode: u=rw,go=r
 
+- name: check if bootstrap installed
+  become: true
+  ansible.builtin.command:
+    cmd: "ls '{{ args.web_root }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}-dist'"
+  register: bootstrap_exists
+  failed_when: false
+  changed_when: false
+
 - name: download bootstrap
   become: true
   ansible.builtin.get_url:
@@ -55,6 +63,7 @@
     owner: root
     group: root
     mode: a=r
+  when: bootstrap_exists.rc != 0
 
 - name: extract bootstrap
   become: true
@@ -65,13 +74,32 @@
     owner: root
     group: root
     mode: u=rwx,go=rx
+  when: bootstrap_exists.rc != 0
 
-- name: fix permissions
-  become: true
-  ansible.builtin.file:
-    path: "{{ args.web_root }}"
-    state: directory
-    recurse: true
-    owner: root
-    group: root
-    mode: u=rwX,go=rX
+- name: initial dir permissions
+  become: yes
+  ansible.builtin.command:
+    cmd: "find '{{ args.web_root }}' -type d -exec stat -c '%n %a' '{}' ';'"
+  changed_when: false
+  register: initial_dir_permissions
+
+- name: fix dir permissions
+  become: yes
+  ansible.builtin.command:
+    cmd: "find '{{ args.web_root }}' -type d -exec chmod 'u=rwx,go=rx' '{}' ';' -exec stat -c '%n %a' '{}' ';'"
+  changed_when: initial_dir_permissions.stdout_lines | sort() != dir_permissions.stdout_lines | sort()
+  register: dir_permissions
+
+- name: initial file permissions
+  become: yes
+  ansible.builtin.command:
+    cmd: "find '{{ args.web_root }}' -type f -exec stat -c '%n %a' '{}' ';'"
+  changed_when: false
+  register: initial_file_permissions
+
+- name: fix file permissions
+  become: yes
+  ansible.builtin.command:
+    cmd: "find '{{ args.web_root }}' -type f -exec chmod 'u=rw,go=r' '{}' ';' -exec stat -c '%n %a' '{}' ';'"
+  changed_when: initial_file_permissions.stdout_lines | sort() != file_permissions.stdout_lines | sort()
+  register: file_permissions
