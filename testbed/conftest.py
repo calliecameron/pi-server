@@ -787,7 +787,7 @@ Host.journal = _host_journal  # type: ignore
 
 class WebDriver(Firefox):
     def click(self, element: Any) -> None:
-        self.execute_script("arguments[0].scrollIntoView();", element)
+        self.execute_script("arguments[0].scrollIntoView();", element)  # type: ignore
         # Scrolling takes time, so we can't click immediately
         time.sleep(1)
         element.click()

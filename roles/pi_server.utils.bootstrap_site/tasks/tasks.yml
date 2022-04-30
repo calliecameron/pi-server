@@ -77,28 +77,28 @@
   when: bootstrap_exists.rc != 0
 
 - name: initial dir permissions
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type d -exec stat -c '%n %a' '{}' ';'"
   changed_when: false
   register: initial_dir_permissions
 
 - name: fix dir permissions
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type d -exec chmod 'u=rwx,go=rx' '{}' ';' -exec stat -c '%n %a' '{}' ';'"
   changed_when: initial_dir_permissions.stdout_lines | sort() != dir_permissions.stdout_lines | sort()
   register: dir_permissions
 
 - name: initial file permissions
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type f -exec stat -c '%n %a' '{}' ';'"
   changed_when: false
   register: initial_file_permissions
 
 - name: fix file permissions
-  become: yes
+  become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type f -exec chmod 'u=rw,go=r' '{}' ';' -exec stat -c '%n %a' '{}' ';'"
   changed_when: initial_file_permissions.stdout_lines | sort() != file_permissions.stdout_lines | sort()
