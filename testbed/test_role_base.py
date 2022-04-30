@@ -75,6 +75,23 @@ class TestRoleBase:
                 },
             ], only_from=hostname)
 
+        # Emails are sent when we connect to a network.
+        with host.disable_login_emails():
+            email.clear()
+            with host.sudo():
+                host.check_output('ip link set enp0s8 down')
+                host.check_output('ip link set enp0s8 up')
+
+            time.sleep(65)
+            email.assert_emails([
+                {
+                    'from': f'notification@{hostname}.testbed',
+                    'to': 'fake@fake.testbed',
+                    'subject': f'[{hostname}] Connected to network',
+                    'body_re': r'.*up.*\n(.*\n)*',
+                },
+            ], only_from=hostname)
+
     # SSH is partially tested by the fact we can still log in at all, and partially
     # by the email-at-login behaviour.
 
