@@ -1,6 +1,6 @@
 - name: dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.monitoring
+    name: pi_server.apps.monitoring.base
 
 - name: dependency
   ansible.builtin.include_role:

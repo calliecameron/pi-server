@@ -1,18 +1,20 @@
 - name: define role
   include_tasks: "{{ define_role }}"
   vars:
-    _private: true
+    _private: false
     _run_once: true
     _args: []
     _host_vars: []
     _export_vars:
       - pi_server_apps_monitoring_etc
+      - pi_server_apps_monitoring_var
       - pi_server_apps_monitoring_prometheus_rules
       - pi_server_apps_monitoring_prometheus_scrapes
       - pi_server_apps_monitoring_grafana_etc
       - pi_server_apps_monitoring_grafana_datasources
       - pi_server_apps_monitoring_grafana_dashboards
       - pi_server_apps_monitoring_grafana_plugins
+      - pi_server_apps_monitoring_node_exporter_collect
       - pi_server_apps_monitoring_monitored_systemd
       - pi_server_apps_monitoring_monitored_docker
       - pi_server_apps_monitoring_writers_group

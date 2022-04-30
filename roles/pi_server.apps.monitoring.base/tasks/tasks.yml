@@ -11,6 +11,15 @@
     group: root
     mode: u=rwx,go=rx
 
+- name: var dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_var }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
 - name: prometheus scrape dir
   become: true
   ansible.builtin.file:
@@ -60,6 +69,15 @@
   become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_monitoring_writers_group }}"
+
+- name: node exporter collect dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
+    state: directory
+    owner: root
+    group: "{{ pi_server_apps_monitoring_writers_group }}"
+    mode: u=rwx,g=rwxt,o=rx
 
 - name: monitored systemd services
   ansible.builtin.include_role:

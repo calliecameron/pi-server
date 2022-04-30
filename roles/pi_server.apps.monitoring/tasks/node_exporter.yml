@@ -5,15 +5,6 @@
     user: "{{ pi_server_apps_monitoring_node_exporter_user }}"
     register: node_exporter_user
 
-- name: node exporter collect dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
-    state: directory
-    owner: root
-    group: "{{ pi_server_apps_monitoring_writers_group }}"
-    mode: u=rwx,g=rwxt,o=rx
-
 - name: collect dir ACLs
   become: true
   ansible.posix.acl:

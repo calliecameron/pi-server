@@ -18,15 +18,6 @@
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
-- name: var dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_monitoring_var }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - include_tasks: prometheus.yml
 
 - include_tasks: grafana.yml
