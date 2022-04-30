@@ -178,6 +178,43 @@ class TestRolePiCore:
                 driver.get('http://' + this_addr + '/prometheus')
                 driver.validate_html()
 
+            # Test links to pages from role_base, that can't be tested in their own file, because
+            # the control panel doesn't exist at that point
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Traefik')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == 'Traefik'
+
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Grafana')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == 'System - Grafana'
+
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Prometheus')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == f'Prometheus | {hostname}'
+
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Alert manager')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == 'Alertmanager'
+
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='cAdvisor')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == 'cAdvisor - /'
+
         addr = addrs[hostname]
         local = hostname + '.local'
         test(addr, local)
