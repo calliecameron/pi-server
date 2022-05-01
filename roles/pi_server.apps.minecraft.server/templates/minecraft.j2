@@ -2,6 +2,8 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 # Minecraft server management script
 
+# shellcheck disable=SC2120
+
 set -eu
 
 MINECRAFT_USER='{{ pi_server_apps_minecraft_server_user }}'
@@ -24,6 +26,8 @@ Commands:
     start the server
   stop
     stop the server
+  rcon
+    connect to the server console
   init-worlds
     set up worlds to be managed by this script
   list-worlds
@@ -61,6 +65,7 @@ function is-running() {
 }
 
 function minecraft-is-running() {
+    test -n "${1:-}" && usage
     if is-running; then
         echo 'yes'
         exit 0
@@ -71,15 +76,22 @@ function minecraft-is-running() {
 }
 
 function minecraft-start() {
+    test -n "${1:-}" && usage
     if ! is-running; then
         sudo docker-compose -f "${COMPOSE_FILE}" start
     fi
 }
 
 function minecraft-stop() {
+    test -n "${1:-}" && usage
     if is-running; then
         sudo docker-compose -f "${COMPOSE_FILE}" stop
     fi
+}
+
+function minecraft-rcon() {
+    test -n "${1:-}" && usage
+    sudo docker exec -it "${CONTAINER}" rcon-cli
 }
 
 function server-properties-is-link() {
@@ -97,6 +109,7 @@ function worlds-initialised() {
 }
 
 function minecraft-init-worlds() {
+    test -n "${1:-}" && usage
     if server-properties-is-link && dynmap-is-link; then
         echo 'Already done, nothing to do'
         exit 0
@@ -129,6 +142,7 @@ function minecraft-init-worlds() {
 }
 
 function minecraft-list-worlds() {
+    test -n "${1:-}" && usage
     worlds-initialised
     local WORLDS
     WORLDS="$(find "${DATA_DIR}" -name 'server.properties.*' -execdir basename '{}' ';' | sed 's/server\.properties\.//g')"
@@ -139,12 +153,14 @@ function minecraft-list-worlds() {
 }
 
 function minecraft-current-world() {
+    test -n "${1:-}" && usage
     worlds-initialised
     grep level-name "${SERVER_PROPERTIES}" | sed 's/level-name=//g'
 }
 
 function minecraft-new-world() {
     test -z "${1:-}" && usage
+    test -n "${2:-}" && usage
     local WORLD="${1}"
     worlds-initialised
     local PROPERTIES="${SERVER_PROPERTIES}.${WORLD}"
@@ -165,6 +181,7 @@ function minecraft-new-world() {
 
 function minecraft-set-world() {
     test -z "${1:-}" && usage
+    test -n "${2:-}" && usage
     local WORLD="${1}"
     if [ "$(minecraft-current-world)" = "${WORLD}" ]; then
         echo 'Already active, nothing to do'
@@ -202,6 +219,7 @@ function minecraft-set-world() {
 }
 
 function minecraft-backup() {
+    test -n "${1:-}" && usage
     minecraft-stop
     sudo chmod -R o+r "${DATA_DIR}"
     tar -cJf "backup-$(date '+%Y-%m-%d').tar.xz" -C "${DATA_DIR}" .
