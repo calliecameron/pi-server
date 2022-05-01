@@ -10,4 +10,4 @@
     dest: "{{ pi_server_apps_control_panel_web_root }}/{{ args.dest }}"
     owner: root
     group: root
-    mode: a=r
+    mode: u=rw,go=r
