@@ -1,0 +1,211 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Minecraft server management script
+
+set -eu
+
+MINECRAFT_USER='{{ pi_server_apps_minecraft_server_user }}'
+COMPOSE_FILE='{{ pi_server_apps_minecraft_server_compose_file }}'
+CONTAINER='{{ minecraft_container_name.stdout | trim("/") }}'
+DATA_DIR='{{ pi_server_apps_minecraft_server_data_dir }}'
+SERVER_PROPERTIES="${DATA_DIR}/server.properties"
+DYNMAP_DIR='{{ pi_server_apps_minecraft_server_dynmap_dir }}'
+DYNMAP_CURRENT='{{ pi_server_apps_minecraft_server_dynmap_current_dir }}'
+MAPS_SCRIPT='{{ pi_server_apps_minecraft_server_dynmap_maps_script }}'
+
+function usage() {
+    cat <<EOF
+Usage: $(basename "${0}") command [args...]
+
+Commands:
+  is-running
+    whether the server is running
+  start
+    start the server
+  stop
+    stop the server
+  init-worlds
+    set up worlds to be managed by this script
+  list-worlds
+    list available worlds
+  current-world
+    get the currently-active world
+  new-world world
+    create (but don't activate) a new world; make sure to edit the world's
+    server.properties after this
+  set-world world
+    activate a world
+  backup
+    backup the server to a tar in the current directory
+EOF
+    exit 1
+}
+
+function error() {
+    echo "ERROR:" "${@}"
+    exit 1
+}
+
+function main() {
+    test -z "${1:-}" && usage
+    local FUNC="minecraft-${1}"
+    if [ "$(type -t "${FUNC}")" = 'function' ]; then
+        "${FUNC}" "${@:2}"
+    else
+        usage
+    fi
+}
+
+function is-running() {
+    sudo docker ps | grep "${CONTAINER}" &>/dev/null
+}
+
+function minecraft-is-running() {
+    if is-running; then
+        echo 'yes'
+        exit 0
+    else
+        echo 'no'
+        exit 1
+    fi
+}
+
+function minecraft-start() {
+    if ! is-running; then
+        sudo docker-compose -f "${COMPOSE_FILE}" start
+    fi
+}
+
+function minecraft-stop() {
+    if is-running; then
+        sudo docker-compose -f "${COMPOSE_FILE}" stop
+    fi
+}
+
+function server-properties-is-link() {
+    [ -f "${SERVER_PROPERTIES}" ] && [ "$(stat --printf='%h' "${SERVER_PROPERTIES}")" = '2' ]
+}
+
+function dynmap-is-link() {
+    [ -d "${DYNMAP_CURRENT}" ] && [ -L "${DYNMAP_CURRENT}" ]
+}
+
+function worlds-initialised() {
+    if ! server-properties-is-link || ! dynmap-is-link; then
+        error "worlds don't appear to be initialised (try running 'minecraft init-worlds)"
+    fi
+}
+
+function minecraft-init-worlds() {
+    if server-properties-is-link && dynmap-is-link; then
+        echo 'Already done, nothing to do'
+        exit 0
+    fi
+
+    minecraft-stop
+
+    local CURRENT_WORLD
+    CURRENT_WORLD="$(grep level-name "${SERVER_PROPERTIES}" | sed 's/level-name=//g')"
+
+    if ! server-properties-is-link; then
+        local TARGET="${SERVER_PROPERTIES}.${CURRENT_WORLD}"
+        if [ -e "${TARGET}" ]; then
+            error "${TARGET} exists, can't go any further"
+        fi
+        sudo mv "${SERVER_PROPERTIES}" "${TARGET}"
+        sudo ln "${TARGET}" "${SERVER_PROPERTIES}"
+    fi
+
+    if ! dynmap-is-link; then
+        local TARGET="${DYNMAP_DIR}/map.${CURRENT_WORLD}"
+        if [ -e "${TARGET}" ]; then
+            error "${TARGET} exists, can't go any further"
+        fi
+        sudo mv "${DYNMAP_CURRENT}" "${TARGET}"
+        sudo ln -s "$(basename "${TARGET}")" "${DYNMAP_CURRENT}"
+    fi
+
+    minecraft-start
+}
+
+function minecraft-list-worlds() {
+    worlds-initialised
+    local WORLDS
+    WORLDS="$(find "${DATA_DIR}" -name 'server.properties.*' -execdir basename '{}' ';' | sed 's/server\.properties\.//g')"
+    if [ -z "${WORLDS}" ]; then
+        error "no worlds found (try running 'minecraft init-worlds')"
+    fi
+    echo "${WORLDS}"
+}
+
+function minecraft-current-world() {
+    worlds-initialised
+    grep level-name "${SERVER_PROPERTIES}" | sed 's/level-name=//g'
+}
+
+function minecraft-new-world() {
+    test -z "${1:-}" && usage
+    local WORLD="${1}"
+    worlds-initialised
+    local PROPERTIES="${SERVER_PROPERTIES}.${WORLD}"
+    local DYNMAP="${DYNMAP_DIR}/map.${WORLD}"
+    if [ -e "${PROPERTIES}" ]; then
+        error 'server.properties for this world already exists'
+    fi
+    if [ -e "${DYNMAP}" ]; then
+        error 'dynmap for this world already exists'
+    fi
+    sudo cp "${SERVER_PROPERTIES}" "${PROPERTIES}"
+    sudo sed -i "s/^level-name=.*$/level-name=${WORLD}/g" "${PROPERTIES}"
+    sudo chown "${MINECRAFT_USER}:${MINECRAFT_USER}" "${PROPERTIES}"
+    sudo chmod 'u=rw,go=r' "${PROPERTIES}"
+
+    echo "Created world, remember to edit ${PROPERTIES}"
+}
+
+function minecraft-set-world() {
+    test -z "${1:-}" && usage
+    local WORLD="${1}"
+    if [ "$(minecraft-current-world)" = "${WORLD}" ]; then
+        echo 'Already active, nothing to do'
+        exit 0
+    fi
+
+    local PROPERTIES="${SERVER_PROPERTIES}.${WORLD}"
+    local DYNMAP="${DYNMAP_DIR}/map.${WORLD}"
+    if [ ! -f "${PROPERTIES}" ]; then
+        error 'unknown world'
+    fi
+
+    minecraft-stop
+
+    sudo rm "${SERVER_PROPERTIES}"
+    sudo ln "${PROPERTIES}" "${SERVER_PROPERTIES}"
+
+    if [ ! -e "${DYNMAP}" ]; then
+        sudo mkdir "${DYNMAP}"
+        sudo mkdir "${DYNMAP}/web"
+        sudo chown -R "${MINECRAFT_USER}:${MINECRAFT_USER}" "${DYNMAP}"
+        sudo chmod -R 'u=rwx,go=rx' "${DYNMAP}"
+    fi
+
+    sudo rm "${DYNMAP_CURRENT}"
+    sudo ln -s "$(basename "${DYNMAP}")" "${DYNMAP_CURRENT}"
+
+    find "${DYNMAP_DIR}" -name 'map.*' -type d | sort | (
+        while read -r line; do
+            echo "document.write(\"<li>World: <a href=\\\"/dynmap/$(basename "${line}")/web/index.html\\\">$(basename "${line}" | sed 's/map\.//g')</a></li>\");"
+        done
+    ) | sudo tee "${MAPS_SCRIPT}" >/dev/null
+
+    minecraft-start
+}
+
+function minecraft-backup() {
+    minecraft-stop
+    sudo chmod -R o+r "${DATA_DIR}"
+    tar -cJf "backup-$(date '+%Y-%m-%d').tar.xz" -C "${DATA_DIR}" .
+    minecraft-start
+}
+
+main "${@}"

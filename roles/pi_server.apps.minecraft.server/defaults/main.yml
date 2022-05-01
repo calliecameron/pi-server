@@ -15,4 +15,5 @@ pi_server_apps_minecraft_server_dynmap_url: "https://dev.bukkit.org/projects/dyn
 pi_server_apps_minecraft_server_dynmap_dir: "{{ pi_server_apps_minecraft_var }}/dynmap"
 pi_server_apps_minecraft_server_dynmap_current_dir: "{{ pi_server_apps_minecraft_server_dynmap_dir }}/current"
 pi_server_apps_minecraft_server_dynmap_web_dir: "{{ pi_server_apps_minecraft_server_dynmap_current_dir }}/web"
+pi_server_apps_minecraft_server_dynmap_maps_script: "{{ pi_server_apps_minecraft_server_dynmap_dir }}/maps.js"
 pi_server_apps_minecraft_server_nginx_version: "1.20.2-alpine"

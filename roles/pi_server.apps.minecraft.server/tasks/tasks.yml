@@ -140,6 +140,15 @@
     group: "{{ pi_server_apps_minecraft_server_user }}"
     mode: "u=rwx,go=rx"
 
+- name: dynmap maps script
+  ansible.builtin.include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_minecraft_server_dynmap_maps_script }}"
+    owner: "{{ pi_server_apps_minecraft_server_user }}"
+    group: "{{ pi_server_apps_minecraft_server_user }}"
+    mode: u=rw,go=r
+
 - name: data dir
   become: true
   ansible.builtin.file:
@@ -172,40 +181,45 @@
   vars:
     restart: false
 
-# - name: bin dir
-#   become: true
-#   ansible.builtin.file:
-#     path: "{{ pi_server_apps_minecraft_server_bin_dir }}"
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: u=rwx,go=rx
+- name: get container ID
+  become: true
+  ansible.builtin.command:
+    cmd: "docker-compose -f '{{ pi_server_apps_minecraft_server_compose_file }}' ps -q '{{ pi_server_apps_minecraft_server_service }}'"
+  register: minecraft_container_id
+  changed_when: false
 
-# - name: set world script
-#   become: true
-#   ansible.builtin.template:
-#     src: minecraft-set-world.j2
-#     dest: "{{ pi_server_apps_minecraft_server_bin_dir }}/minecraft-set-world"
-#     owner: root
-#     group: root
-#     mode: a=rx
+- name: get container name
+  become: true
+  ansible.builtin.command:
+    cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ minecraft_container_id.stdout }}"
+  register: minecraft_container_name
+  changed_when: false
 
-# - name: backup script
-#   become: true
-#   ansible.builtin.template:
-#     src: minecraft-backup.j2
-#     dest: "{{ pi_server_apps_minecraft_server_bin_dir }}/minecraft-backup"
-#     owner: root
-#     group: root
-#     mode: a=rx
+- name: bin dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minecraft_server_bin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
 
-# - name: bin dir on path
-#   become: false
-#   ansible.builtin.lineinfile:
-#     path: ".bashrc"
-#     line: "export PATH=\"{{ pi_server_apps_minecraft_server_bin_dir }}:${PATH}\""
-#     mode: u=rw,go=
-#     create: true
+- name: management script
+  become: true
+  ansible.builtin.template:
+    src: minecraft.j2
+    dest: "{{ pi_server_apps_minecraft_server_bin_dir }}/minecraft"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: bin dir on path
+  become: false
+  ansible.builtin.lineinfile:
+    path: ".bashrc"
+    line: "export PATH=\"{{ pi_server_apps_minecraft_server_bin_dir }}:${PATH}\""
+    mode: u=rw,go=
+    create: true
 
 - name: monitor containers
   ansible.builtin.include_role:

@@ -35,7 +35,7 @@ services:
     restart: always
     user: "{{ minecraft_user.uid }}:{{ minecraft_user.group }}"
     volumes:
-      - "{{ pi_server_apps_minecraft_server_dynmap_web_dir }}:/usr/share/nginx/html:ro"
+      - "{{ pi_server_apps_minecraft_server_dynmap_dir }}:/usr/share/nginx/html:ro"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
     deploy:
