@@ -11,6 +11,8 @@ services:
       - "{{ pi_server_apps_minecraft_server_port }}:{{ pi_server_apps_minecraft_server_port }}"
     volumes:
       - "{{ pi_server_apps_minecraft_server_data_dir }}:/data"
+      - "{{ pi_server_apps_minecraft_server_config_dir }}:/config:ro"
+      - "{{ pi_server_apps_minecraft_server_plugins_dir }}:/plugins:ro"
       - "/etc/timezone:/etc/timezone:ro"
     environment:
       EULA: "TRUE"
@@ -19,12 +21,8 @@ services:
       MEMORY: "{{ pi_server_minecraft_server_java_heap_mb }}m"
       ENABLE_ROLLING_LOGS: "true"
       STOP_DURATION: "{{ pi_server_minecraft_server_stop_time_seconds }}"
+      COPY_CONFIG_DEST: "/data"
+      SYNC_SKIP_NEWER_IN_DESTINATION: "false"
     stop_grace_period: "{{ pi_server_minecraft_server_stop_time_seconds }}s"
-    networks:
-      - "{{ pi_server_apps_traefik_network }}"
     deploy:
       replicas: 1
-
-networks:
-  "{{ pi_server_apps_traefik_network }}":
-    external: true

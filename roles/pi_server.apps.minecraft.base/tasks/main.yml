@@ -8,3 +8,4 @@
     _export_vars:
       - pi_server_apps_minecraft_etc
       - pi_server_apps_minecraft_var
+      - pi_server_apps_minecraft_site_entrypoint
