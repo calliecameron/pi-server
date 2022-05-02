@@ -1,0 +1,27 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.base
+
+- name: install console-data
+  become: true
+  ansible.builtin.package:
+    name: console-data
+    state: present
+
+- name: keymap
+  become: true
+  ansible.builtin.copy:
+    src: "{{ args.src }}"
+    dest: "{{ args.dest }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: make keymap the default
+  become: true
+  ansible.builtin.template:
+    src: "keyboard.j2"
+    dest: /etc/default/keyboard
+    owner: root
+    group: root
+    mode: u=rw,go=r
