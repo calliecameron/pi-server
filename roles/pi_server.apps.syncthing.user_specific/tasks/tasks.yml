@@ -1,0 +1,11 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.base
+
+- name: syncthing
+  ansible.builtin.include_role:
+    name: pi_server.apps.syncthing.base
+  vars:
+    user: "{{ ansible_user }}"
+    config_dir: "{{ pi_server_apps_syncthing_user_specific_config_dir }}"
+    home_dir: "{{ pi_server_apps_syncthing_user_specific_home }}"
