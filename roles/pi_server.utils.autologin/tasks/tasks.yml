@@ -1,0 +1,22 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.base
+
+- name: auto-login dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_utils_autologin_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: auto-login conf
+  become: true
+  ansible.builtin.template:
+    src: autologin.conf.j2
+    dest: "{{ pi_server_utils_autologin_conf }}"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify: reload autologin

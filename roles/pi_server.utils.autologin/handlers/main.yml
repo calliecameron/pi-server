@@ -1,0 +1,7 @@
+- name: reload autologin
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ pi_server_utils_autologin_service }}"
+    daemon_reload: true
+    state: restarted
+  listen: "reload autologin"
