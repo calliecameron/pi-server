@@ -591,6 +591,10 @@ class ShadowDir:
                 self._host.check_output(f'umount {self._path}')
                 self._host.check_output(f'rm -r {self._tmpdir}')
 
+    @property
+    def path(self) -> str:
+        return self._path
+
     def file(self, path: str) -> File:
         return self._host.file(os.path.join(self._path, path))
 
