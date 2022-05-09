@@ -8,4 +8,8 @@
 
 - name: dependency
   ansible.builtin.include_role:
+    name: pi_server.roles.minecraft_server
+
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.host_to_server_client

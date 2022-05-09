@@ -121,6 +121,9 @@ def ubuntu(config)
   config.vm.define "ubuntu" do |ubuntu|
     ubuntu.vm.box = "ubuntu/jammy64"
     ubuntu.vm.hostname = "ubuntu"
+    ubuntu.vm.provider "virtualbox" do |v|
+      v.memory = 2048
+    end
     ubuntu.vm.network "private_network", ip: $addrs["ubuntu"]
     sync_folders(ubuntu)
     ubuntu.vm.provision "ansible" do |ansible|
@@ -140,7 +143,11 @@ def ubuntu(config)
         pi_server_testbed_router_ip: $addrs["internet"],
         pi_server_testbed_internet_ip: $addrs["internet"],
         pi_server_testbed_openvpn_target_name: "pi2",
-        pi_server_testbed_openvpn_target_ip: $addrs["router2_wan"]
+        pi_server_testbed_openvpn_target_ip: $addrs["router2_wan"],
+        pi_server_swap_size_mb: "512",
+        pi_server_control_panel_port: "8080",
+        pi_server_minecraft_server_java_heap_mb: "1024",
+        pi_server_minecraft_server_stop_time_seconds: "10"
       }
     end
     ubuntu.vm.provision :reload
