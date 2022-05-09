@@ -98,7 +98,7 @@ function minecraft-rcon() {
 }
 
 function server-properties-is-link() {
-    [ -f "${SERVER_PROPERTIES}" ] && [ "$(stat --printf='%h' "${SERVER_PROPERTIES}")" = '2' ]
+    [ -f "${SERVER_PROPERTIES}" ] && [ -L "${SERVER_PROPERTIES}" ]
 }
 
 function dynmap-is-link() {
@@ -129,7 +129,7 @@ function minecraft-init-worlds() {
             error "${TARGET} exists, can't go any further"
         fi
         sudo mv "${SERVER_PROPERTIES}" "${TARGET}"
-        sudo ln "${TARGET}" "${SERVER_PROPERTIES}"
+        sudo ln -s "$(basename "${TARGET}")" "${SERVER_PROPERTIES}"
     fi
 
     if ! dynmap-is-link; then
@@ -200,7 +200,7 @@ function minecraft-set-world() {
     minecraft-stop
 
     sudo rm "${SERVER_PROPERTIES}"
-    sudo ln "${PROPERTIES}" "${SERVER_PROPERTIES}"
+    sudo ln -s "$(basename "${PROPERTIES}")" "${SERVER_PROPERTIES}"
 
     if [ ! -e "${DYNMAP}" ]; then
         sudo mkdir "${DYNMAP}"
