@@ -8,6 +8,7 @@ set -eu
 
 MINECRAFT_USER='{{ pi_server_apps_minecraft_server_user }}'
 COMPOSE_FILE='{{ pi_server_apps_minecraft_server_compose_file }}'
+SERVICE='{{ pi_server_apps_minecraft_server_service }}'
 CONTAINER='{{ minecraft_container_name.stdout | trim("/") }}'
 DATA_DIR='{{ pi_server_apps_minecraft_server_data_dir }}'
 SERVER_PROPERTIES="${DATA_DIR}/server.properties"
@@ -41,6 +42,8 @@ Commands:
     activate a world
   backup
     backup the server to a tar in the current directory
+  force-upgrade
+    force upgrade the current world
 EOF
     exit 1
 }
@@ -224,6 +227,12 @@ function minecraft-backup() {
     sudo chmod -R o+r "${DATA_DIR}"
     tar -cJf "backup-$(date '+%Y-%m-%d').tar.xz" -C "${DATA_DIR}" .
     minecraft-start
+}
+
+function minecraft-force-upgrade() {
+    test -n "${1:-}" && usage
+    minecraft-stop
+    sudo docker-compose -f "${COMPOSE_FILE}" run --rm "${SERVICE}" --forceUpgrade
 }
 
 main "${@}"

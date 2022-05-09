@@ -5,8 +5,6 @@ services:
     image: "itzg/minecraft-server:{{ pi_server_apps_minecraft_server_docker_version }}"
     restart: always
     user: "{{ minecraft_user.uid }}:{{ minecraft_user.group }}"
-    command:
-      - "--forceUpgrade"
     ports:
       - "{{ pi_server_apps_minecraft_server_port }}:{{ pi_server_apps_minecraft_server_port }}"
     volumes:
