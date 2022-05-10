@@ -18,7 +18,9 @@ pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc
 pi_server_apps_monitoring_alertmanager_version: "v0.24.0"
 
 pi_server_apps_monitoring_cadvisor_port: "8080"
-pi_server_apps_monitoring_cadvisor_version: "v0.39.3"
+pi_server_apps_monitoring_cadvisor_version: "0.39.3"
+pi_server_apps_monitoring_cadvisor_dir: "{{ pi_server_apps_monitoring_etc }}/cadvisor"
+pi_server_apps_monitoring_cadvisor_image: "pi_server_cadvisor"
 
 pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
 pi_server_apps_monitoring_webhook_dir: "{{ pi_server_apps_monitoring_etc }}/webhook"

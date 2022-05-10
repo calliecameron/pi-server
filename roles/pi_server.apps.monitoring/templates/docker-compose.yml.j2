@@ -82,7 +82,7 @@ services:
       - "traefik.http.routers.alertmanager.rule=PathPrefix(`/alertmanager`)"
 
   cadvisor:
-    image: "gcr.io/cadvisor/cadvisor:{{ pi_server_apps_monitoring_cadvisor_version }}"
+    image: "{{ pi_server_apps_monitoring_cadvisor_image }}"
     restart: always
     command:
       - "--port={{ pi_server_apps_monitoring_cadvisor_port }}"
