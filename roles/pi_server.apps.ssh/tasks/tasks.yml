@@ -56,6 +56,7 @@
       become: true
   vars:
     ssh_allow_users: "{{ ansible_user }}"
+    ssh_allow_tcp_forwarding: "yes"
 
 - name: monitor ssh service
   ansible.builtin.include_role:
