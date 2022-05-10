@@ -9,6 +9,7 @@
     password: !
     password_lock: true
     shell: /usr/sbin/nologin
+    home: /nonexistent
     create_home: false
   register: temp_user
 

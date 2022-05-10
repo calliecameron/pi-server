@@ -9,3 +9,4 @@
     groups:
       - "{{ pi_server_apps_monitoring_writers_group }}"
     append: true
+    create_home: false

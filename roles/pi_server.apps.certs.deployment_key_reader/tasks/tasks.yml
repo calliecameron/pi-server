@@ -9,3 +9,4 @@
     groups:
       - "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     append: true
+    create_home: false
