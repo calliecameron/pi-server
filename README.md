@@ -7,7 +7,12 @@ running Ubuntu 22.04 LTS.
 
 ## Preparation
 
-Create a non-root user that you can SSH into using an SSH key.
+Create a non-root user that you can SSH into using an SSH key:
+
+```shell
+sudo adduser USER
+sudo adduser USER sudo
+```
 
 TODO from old notes:
 
