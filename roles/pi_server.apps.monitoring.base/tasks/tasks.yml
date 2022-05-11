@@ -97,28 +97,4 @@
     group: root
     mode: a=r
 
-- name: get monitored systemd services
-  become: true
-  ansible.builtin.command:
-    cmd: "cat {{ pi_server_apps_monitoring_monitored_systemd }}"
-  register: monitored_systemd
-  changed_when: false
-
-- name: get monitored docker containers
-  become: true
-  ansible.builtin.command:
-    cmd: "cat {{ pi_server_apps_monitoring_monitored_docker }}"
-  register: monitored_docker
-  changed_when: false
-
-- name: generate system dashboard
-  become: true
-  ansible.builtin.template:
-    src: system.json.j2
-    dest: "{{ pi_server_apps_monitoring_grafana_dashboards }}/system.json"
-    owner: root
-    group: root
-    mode: a=r
-  vars:
-    systemd_services: "{{ monitored_systemd.stdout_lines }}"
-    docker_containers: "{{ monitored_docker.stdout_lines }}"
+- include_tasks: system_dashboard.yml

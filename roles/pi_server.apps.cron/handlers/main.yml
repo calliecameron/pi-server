@@ -1,6 +1,0 @@
-- name: reload cron runner
-  become: true
-  ansible.builtin.systemd:
-    name: pi-server-cron
-    daemon_reload: true
-  listen: "reload cron runner"
