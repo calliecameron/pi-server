@@ -1,5 +1,0 @@
-- name: reload cronjobs
-  become: true
-  ansible.builtin.systemd:
-    daemon_reload: true
-  listen: "reload cronjobs"

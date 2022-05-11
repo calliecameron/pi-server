@@ -52,4 +52,4 @@
   vars:
     src: service.j2
     service: "pi-server-openvpn-client-{{ args.name }}"
-    service_notify: "reload openvpn"
+    enabled: false

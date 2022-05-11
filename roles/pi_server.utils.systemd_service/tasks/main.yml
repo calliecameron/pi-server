@@ -6,6 +6,6 @@
     _args:
       - src
       - service
-      - service_notify
+      - enabled
     _host_vars: []
     _export_vars: []

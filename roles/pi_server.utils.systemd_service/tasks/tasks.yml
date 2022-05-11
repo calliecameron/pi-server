@@ -10,4 +10,12 @@
     owner: root
     group: root
     mode: a=r
-  notify: "{{ args.service_notify }}"
+  register: systemd_result
+
+- name: "systemd '{{ args.service }}'"
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ args.service }}"
+    daemon_reload: "{{ systemd_result.changed }}"
+    enabled: "{{ args.enabled }}"
+    state: "{% if args.enabled %}{% if systemd_result.changed %}restarted{% else %}started{% endif %}{% else %}stopped{% endif %}"

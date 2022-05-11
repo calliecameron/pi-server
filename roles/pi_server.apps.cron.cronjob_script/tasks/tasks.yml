@@ -50,4 +50,4 @@
   vars:
     src: service.j2
     service: "pi-server-cron-{{ args.job }}"
-    service_notify: "reload cronjobs"
+    enabled: false

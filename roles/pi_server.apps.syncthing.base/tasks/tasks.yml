@@ -110,7 +110,7 @@
   vars:
     src: service.j2
     service: "{{ pi_server_apps_syncthing_service }}"
-    service_notify: "reload syncthing"
+    enabled: true
 
 - name: monitoring
   ansible.builtin.include_role:

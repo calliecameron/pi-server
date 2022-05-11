@@ -109,7 +109,7 @@
   vars:
     src: service.j2
     service: "{{ pi_server_apps_shutdownd_service }}"
-    service_notify: "reload shutdownd"
+    enabled: true
 
 - name: monitor main service
   ansible.builtin.include_role:
