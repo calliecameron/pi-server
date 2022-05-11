@@ -1,4 +1,3 @@
 - name: reload firewall
-  become: true
-  community.general.ufw:
-    state: enabled
+  include_tasks: reload.yml
+  listen: "reload firewall"

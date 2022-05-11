@@ -83,3 +83,5 @@
     proto: tcp
     rule: allow
   notify: reload firewall
+
+- include_tasks: reload.yml
