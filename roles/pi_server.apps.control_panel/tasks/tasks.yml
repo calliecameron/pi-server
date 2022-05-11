@@ -28,7 +28,7 @@
     head_title: "Home | {{ pi_server_hostname }}"
     body_title: "{{ pi_server_hostname }}"
     favicon_basename: "favicon"
-    fragments_notify: "assemble control panel"
+    fragments_target: "{{ pi_server_apps_control_panel_index }}"
 
 - name: header
   ansible.builtin.include_role:

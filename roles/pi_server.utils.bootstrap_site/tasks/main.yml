@@ -10,6 +10,6 @@
       - head_title
       - body_title
       - favicon_basename
-      - fragments_notify
+      - fragments_target
     _host_vars: []
     _export_vars: []

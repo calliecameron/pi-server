@@ -54,6 +54,15 @@
     user: "{{ pi_server_apps_minecraft_site_user }}"
     register: minecraft_site_user
 
+- name: body
+  become: true
+  ansible.builtin.template:
+    src: body.html.j2
+    dest: "{{ pi_server_apps_minecraft_site_fragments_dir }}/body.html"
+    owner: root
+    group: root
+    mode: a=r
+
 - name: base files
   ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_site
@@ -64,17 +73,7 @@
     head_title: "Minecraft"
     body_title: "Minecraft"
     favicon_basename: "favicon"
-    fragments_notify: "assemble minecraft site"
-
-- name: body
-  become: true
-  ansible.builtin.template:
-    src: body.html.j2
-    dest: "{{ pi_server_apps_minecraft_site_fragments_dir }}/body.html"
-    owner: root
-    group: root
-    mode: a=r
-  notify: "assemble minecraft site"
+    fragments_target: "{{ pi_server_apps_minecraft_site_web_root }}/index.html"
 
 - name: redstone images
   become: true

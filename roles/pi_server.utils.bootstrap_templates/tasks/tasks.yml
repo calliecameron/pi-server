@@ -10,7 +10,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: "{{ args.fragments_notify }}"
+  register: header_result
 
 - name: footer
   become: true
@@ -20,4 +20,12 @@
     owner: root
     group: root
     mode: a=r
+  register: footer_result
+
+- name: notify
+  ansible.builtin.assert:
+    that:
+      - true
+  when: args.fragments_notify and (header_result.changed or footer_result.changed)
+  changed_when: true
   notify: "{{ args.fragments_notify }}"

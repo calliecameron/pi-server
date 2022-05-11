@@ -10,4 +10,5 @@
       - pi_server_apps_control_panel_fragments_dir
       - pi_server_apps_control_panel_var
       - pi_server_apps_control_panel_web_root
+      - pi_server_apps_control_panel_index
       - pi_server_apps_control_panel_entrypoint
