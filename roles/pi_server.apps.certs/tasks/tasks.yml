@@ -118,6 +118,15 @@
     group: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     mode: ug=r,o=
 
+- name: certs size script
+  become: true
+  ansible.builtin.copy:
+    src: certs-size
+    dest: /etc/ca-certificates/update.d/pi-server-certs-size
+    owner: root
+    group: root
+    mode: a=rx
+
 - name: copy ca cert
   become: true
   ansible.builtin.copy:
@@ -127,7 +136,20 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload ca cert
+
+- name: cert database size
+  become: true
+  ansible.builtin.stat:
+    path: /etc/ssl/certs/ca-certificates.crt
+  register: stat_result
+  changed_when: false
+
+- name: generate certs database
+  become: true
+  ansible.builtin.command:
+    cmd: update-ca-certificates
+  register: update_result
+  changed_when: update_result.stdout | regex_search('pi-server [0-9]+') | regex_search('[0-9]+') != stat_result.stat.size | string()
 
 - name: ca cert in control panel
   ansible.builtin.include_role:

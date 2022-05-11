@@ -1,0 +1,4 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+printf 'pi-server %s\n' "$(stat -c '%s' /etc/ssl/certs/ca-certificates.crt)"
