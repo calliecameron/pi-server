@@ -20,6 +20,10 @@
 
 - name: dependency
   ansible.builtin.include_role:
+    name: pi_server.utils.swap
+
+- name: dependency
+  ansible.builtin.include_role:
     name: pi_server.roles.base
 
 - name: dependency

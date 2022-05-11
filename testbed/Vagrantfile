@@ -76,6 +76,9 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
   config.vm.define name do |box|
     box.vm.box = "ubuntu/jammy64"
     box.vm.hostname = name
+    box.vm.provider "virtualbox" do |v|
+      v.memory = 1280
+    end  
     box.vm.network "private_network", ip: pi_ip
     box.vm.disk :disk, size: "100MB", name: "external"
     sync_folders(box)
@@ -102,6 +105,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_storage_spinning_drive: "no",
         pi_server_lan_network: pi_lan_mask,
         pi_server_vpn_network: pi_vpn_mask,
+        pi_server_swap_size_mb: "512",
         pi_server_testbed_router_ip: router_lan_ip,
         pi_server_testbed_internet_ip: $addrs["internet"],
         pi_server_testbed_openvpn_target_name: openvpn_target_name,
