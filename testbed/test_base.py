@@ -3,7 +3,7 @@ from conftest import BASE_REACHABILITY, Net, vms_down
 PORT_RANGES_TO_SCAN = [
     (1, 2000),
     (8000, 9000),
-    (20000, 24000),
+    (20000, 26000),
 ]
 
 
@@ -195,6 +195,9 @@ class TestBase:
                 'ubuntu': {
                     'tcp': {
                         22,  # SSH
+                        80,  # Minecraft site
+                        8080,  # Control panel
+                        25565,  # Minecraft
                     },
                     'udp': set()
                 },
