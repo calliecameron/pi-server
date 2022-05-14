@@ -4,7 +4,7 @@ from typing import Dict
 from urllib.parse import urlparse
 from selenium.webdriver.common.by import By
 from testinfra.host import Host
-from conftest import for_host_types, WebDriver
+from conftest import for_host_types, Lines, WebDriver
 
 
 class TestRoleMinecraftServer:
@@ -25,7 +25,8 @@ class TestRoleMinecraftServer:
                     '/etc/pi-server/minecraft/minecraft-server/docker-compose.yml stop')
 
             with host.shadow_dir('/var/pi-server/minecraft/server') as server_dir, \
-                    host.shadow_dir('/var/pi-server/minecraft/dynmap') as map_dir:
+                    host.shadow_dir('/var/pi-server/minecraft/dynmap') as map_dir, \
+                    host.shadow_file('/var/pi-server/minecraft/dynmap/maps.js') as map_file:
                 server_properties = server_dir.file('server.properties')
                 server_properties_world = server_dir.file('server.properties.world')
                 server_properties_foo = server_dir.file('server.properties.foo')
@@ -40,6 +41,9 @@ class TestRoleMinecraftServer:
                             'chown -R ' +
                             f"pi-server-minecraft:pi-server-minecraft '{map_dir.path}/current'")
                         host.check_output(f"chmod -R u=rwx,go=rx '{map_dir.path}/current'")
+                        host.check_output(
+                            f"chown pi-server-minecraft:pi-server-minecraft '{map_file.path}'")
+                        host.check_output(f"chmod u=rw,go=r '{map_file.path}'")
 
                     with host.sudo():
                         host.check_output(
@@ -84,6 +88,8 @@ class TestRoleMinecraftServer:
                     assert not map_current.is_symlink
                     assert not map_world.exists
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     host.run_expect([1], '/var/pi-server/minecraft/bin/minecraft list-worlds')
                     host.run_expect([1], '/var/pi-server/minecraft/bin/minecraft current-world')
@@ -99,6 +105,8 @@ class TestRoleMinecraftServer:
                     assert not map_current.is_symlink
                     assert not map_world.exists
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -122,6 +130,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -145,6 +155,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -169,6 +181,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -193,6 +207,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -218,6 +234,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -242,6 +260,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -267,6 +287,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -296,6 +318,8 @@ class TestRoleMinecraftServer:
                     assert map_world.is_directory
                     assert not map_world.is_symlink
                     assert not map_foo.exists
+                    assert map_file.is_file
+                    assert not map_file.content_string.strip()
 
                     with host.sudo():
                         assert server_service.is_running
@@ -326,6 +350,11 @@ class TestRoleMinecraftServer:
                     assert not map_world.is_symlink
                     assert map_foo.is_directory
                     assert not map_foo.is_symlink
+                    assert map_file.is_file
+                    lines = Lines(map_file.content_string.strip())
+                    assert len(lines) == 2
+                    assert lines.count(r'.*world.*') == 1
+                    assert lines.count(r'.*foo.*') == 1
 
                     with host.sudo():
                         assert server_service.is_running
@@ -361,6 +390,11 @@ class TestRoleMinecraftServer:
                     assert not map_world.is_symlink
                     assert map_foo.is_directory
                     assert not map_foo.is_symlink
+                    assert map_file.is_file
+                    lines = Lines(map_file.content_string.strip())
+                    assert len(lines) == 2
+                    assert lines.count(r'.*world.*') == 1
+                    assert lines.count(r'.*foo.*') == 1
 
                     with host.sudo():
                         assert server_service.is_running

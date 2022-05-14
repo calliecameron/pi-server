@@ -148,7 +148,7 @@ function minecraft-list-worlds() {
     test -n "${1:-}" && usage
     worlds-initialised
     local WORLDS
-    WORLDS="$(find "${DATA_DIR}" -name 'server.properties.*' -execdir basename '{}' ';' | sed 's/server\.properties\.//g')"
+    WORLDS="$(find "${DATA_DIR}" -name 'server.properties.*' -execdir basename '{}' ';' | sed 's/server\.properties\.//g' | sort)"
     if [ -z "${WORLDS}" ]; then
         error "no worlds found (try running 'minecraft init-worlds')"
     fi
