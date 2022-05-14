@@ -192,6 +192,7 @@ class TestRolePiCore:
                 link = driver.find_element(by=By.LINK_TEXT, value='Grafana')
                 assert urlparse(link.get_attribute('href')).hostname == this_addr
                 driver.click(link)
+                time.sleep(5)
                 assert driver.title == 'System - Grafana'
 
             with WebDriver() as driver:

@@ -143,7 +143,7 @@ groups:
                         host.check_output('chmod a=r /etc/pi-server/monitoring/rules.d/test.yml')
                         host.check_output('pkill -HUP prometheus')  # reload rules
                         data.write('pi_server_test_test{job="test"} 1')
-                    time.sleep(90)  # prometheus scrapes every minute
+                    time.sleep(120)  # prometheus scrapes every minute
                     email.assert_has_emails([
                         {
                             'from': f'notification@{hostname}.testbed',
@@ -162,7 +162,7 @@ groups:
             email.clear()
             try:
                 host.make_bigfile('bigfile', '/')
-                time.sleep(300)  # alert has a 2m trigger duration, plus scrape delay
+                time.sleep(360)  # alert has a 2m trigger duration, plus scrape delay
                 email.assert_has_emails([
                     {
                         'from': f'notification@{hostname}.testbed',
@@ -190,7 +190,7 @@ groups:
                             'docker-compose -f /etc/pi-server/monitoring/docker-compose.yml stop '
                             'grafana')
 
-                    time.sleep(300)  # absent takes a while to show up
+                    time.sleep(360)  # absent takes a while to show up
                     email.assert_has_emails([
                         {
                             'from': f'notification@{hostname}.testbed',
