@@ -6,9 +6,9 @@ CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 export CA_DIR # openssl.conf uses this
 
 if tty -s; then
-    read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
+    read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo || exit 1
 else
-    read -r PASSWD
+    read -r PASSWD || exit 1
 fi
 
 exec 3<<EOF

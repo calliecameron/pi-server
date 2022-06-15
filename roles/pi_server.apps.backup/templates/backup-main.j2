@@ -13,8 +13,14 @@ BACKUP_PARTITION='{{ pi_server_apps_main_storage_backup_mount_dir }}'
 function cleanup() {
     sync
     if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-        sudo umount "${BACKUP_PARTITION}"
+        if ! sudo umount "${BACKUP_PARTITION}"; then
+            warning 'cannot unmount backup partition'
+        fi
     fi
+}
+
+function warning() {
+    echo "WARNING:" "${@}"
 }
 
 function error() {

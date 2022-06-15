@@ -12,9 +12,9 @@ if [ -z "${CERT_NAME}" ]; then
     exit 1
 fi
 
-read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo
-read -r -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo
-read -r -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo
+read -r -s -p "Enter the password to unlock the root CA key: " PASSWD && echo || exit 1
+read -r -s -p "Enter the password for the new PKCS#12 file: " PKCS_PASSWD && echo || exit 1
+read -r -s -p "Enter the new PKCS#12 password again: " PKCS_PASSWD2 && echo || exit 1
 
 if [ "${PKCS_PASSWD}" != "${PKCS_PASSWD2}" ]; then
     echo "The passwords do not match"

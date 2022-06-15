@@ -18,7 +18,7 @@ if [ -z "${SERVER_HOSTNAME}" ]; then
     exit 1
 fi
 
-read -r -s -p "Enter the password for the root CA key: " PASSWD && echo
+read -r -s -p "Enter the password for the root CA key: " PASSWD && echo || exit 1
 
 # Create directory structure
 CERT_DIR="${CA_DIR}/certs/server/${SERVER_ADDR}__$(date '+%Y_%m_%d_%H_%M_%S')"
@@ -32,17 +32,17 @@ echo "IP.1 = ${SERVER_ADDR}" >>"${LOCAL_CONF}"
 
 function do-cert() {
     # Certificate request
-    openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes
+    openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes &&
 
     # Sign
-    exec 3<<EOF
+    exec 3<<EOF &&
 ${PASSWD}
 EOF
-    openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3
+    openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
 
     # Cleanup
-    rm "${CERT_DIR}/${1}.csr"
-    chmod u=r,go= "${CERT_DIR}/${1}.key"
+    rm "${CERT_DIR}/${1}.csr" &&
+    chmod u=r,go= "${CERT_DIR}/${1}.key" &&
     chmod a=r "${CERT_DIR}/${1}.crt"
 }
 

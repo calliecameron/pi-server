@@ -45,7 +45,7 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
         if [ -n "${line}" ]; then
             REPO_PATH="${GIT_DIR}/$(basename "${line}" '.git')"
             if [ ! -d "${REPO_PATH}" ]; then
-                cd /
+                cd / || error "failed to prepare to clone ${line}"
                 echo "Cloning ${line} to ${REPO_PATH}"
                 if git clone --mirror "${line}" "${REPO_PATH}"; then
                     echo "Cloned ${line} to ${REPO_PATH}"
@@ -53,7 +53,7 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
                     error "cloning ${line} failed"
                 fi
             else
-                cd "${REPO_PATH}"
+                cd "${REPO_PATH}" || error "failed to prepare to update ${REPO_PATH}"
                 echo "Updating ${REPO_PATH}"
                 if git fetch --all && git fetch --all --tags; then
                     echo "Updated ${REPO_PATH}"

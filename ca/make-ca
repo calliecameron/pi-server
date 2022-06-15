@@ -24,15 +24,13 @@ function get-new-password() {
     local PASSWD_1
     local PASSWD_2
 
-    read -r -s -p "Enter the new password for the root CA key: " PASSWD_1
-    echo 1>&2
+    read -r -s -p "Enter the new password for the root CA key: " PASSWD_1 && echo 1>&2 || exit 1
     if [ -z "${PASSWD_1}" ]; then
         echo 'Error: password must not be empty' 1>&2
         exit 1
     fi
 
-    read -r -s -p 'Enter the new password again: ' PASSWD_2
-    echo 1>&2
+    read -r -s -p 'Enter the new password again: ' PASSWD_2 && echo 1>&2 || exit 1
     if [ "${PASSWD_1}" != "${PASSWD_2}" ]; then
         echo 'Error: the passwords do not match' 1>&2
         exit 1

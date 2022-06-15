@@ -13,7 +13,7 @@ test ! -e "${1}" && usage
 CA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/.."
 export CA_DIR # openssl.conf uses this
 
-read -r -s -p "Enter the password to unlock the root CA key:" PASSWD && echo
+read -r -s -p "Enter the password to unlock the root CA key:" PASSWD && echo || exit 1
 
 # Revoke the certificate
 exec 3<<EOF
