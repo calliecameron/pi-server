@@ -137,12 +137,16 @@ groups:
             email.clear()
             try:
                 with host.shadow_file('/etc/pi-server/monitoring/rules.d/test.yml') as rules, \
-                        host.shadow_file('/var/pi-server/monitoring/collect/test.prom') as data:
+                        host.shadow_file('/var/pi-server/monitoring/collect/test1.prom') as data1, \
+                        host.shadow_file('/var/pi-server/monitoring/collect/test2.prom') as data2:
                     with host.sudo():
                         rules.write(textfile_alert)
                         host.check_output('chmod a=r /etc/pi-server/monitoring/rules.d/test.yml')
                         host.check_output('pkill -HUP prometheus')  # reload rules
-                        data.write('pi_server_test_test{job="test"} 1')
+                        data1.write('# HELP pi_server_test_test foo\n'
+                                    'pi_server_test_test{job="test", foo="bar"} 1')
+                        data2.write('# HELP pi_server_test_test foo\n'
+                                    'pi_server_test_test{job="test", foo="baz"} 1')
                     time.sleep(120)  # prometheus scrapes every minute
                     email.assert_has_emails([
                         {
@@ -150,7 +154,8 @@ groups:
                             'to': 'fake@fake.testbed',
                             'subject': f'[{hostname}] TestAlert',
                             'body_re': (fr'Summary: Test alert.(.*\n)+Instance: {hostname}(.*\n)+'
-                                        r'Job: test(.*\n)+Alert 1 of 1:(.*\n)+'),
+                                        r'Job: test(.*\n)+Alert 1 of 2:(.*\n)+Foo: bar(.*\n)+'
+                                        r'Alert 2 of 2:(.*\n)+Foo: baz(.*\n)+'),
                         }
                     ], only_from=hostname)
             finally:

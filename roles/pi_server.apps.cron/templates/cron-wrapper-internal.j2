@@ -125,6 +125,7 @@ function set-state() {
         return 0
     fi
     write-metric-file 'state' \
+        '# HELP cron_state current cronjob state' \
         "cron_state{job=\"cron\", cronjob=\"${JOB}\", state=\"RUNNING\"} ${RUNNING}" \
         "cron_state{job=\"cron\", cronjob=\"${JOB}\", state=\"SUCCESS\"} ${SUCCESS}" \
         "cron_state{job=\"cron\", cronjob=\"${JOB}\", state=\"FAILURE\"} ${FAILURE}"
@@ -147,7 +148,9 @@ function set-timestamp() {
         warning 'missing arg to set-timestamp'
         return 0
     fi
-    write-metric-file "${1}" "cron_${1}_time{job=\"cron\", cronjob=\"${JOB}\"} $(date +%s)"
+    write-metric-file "${1}" \
+        "# HELP cron_${1}_time cronjob last ${1} timestamp" \
+        "cron_${1}_time{job=\"cron\", cronjob=\"${JOB}\"} $(date +%s)"
 }
 
 function set-start-time() {
