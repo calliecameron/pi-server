@@ -1,8 +1,11 @@
 import os.path
+import time
 from typing import Dict, List, Set
+from urllib.parse import urlparse
 from testinfra.host import Host
 from testinfra.modules.file import File
-from conftest import for_host_types, Lines
+from selenium.webdriver.common.by import By
+from conftest import for_host_types, Lines, WebDriver
 
 
 class TestRolePiFull:
@@ -86,7 +89,8 @@ class TestRolePiFull:
     def test_syncthing(
             self,
             hostname: str,
-            hosts: Dict[str, Host]) -> None:
+            hosts: Dict[str, Host],
+            addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
         assert host.service('pi-server-syncthing').is_enabled
         assert host.service('pi-server-syncthing').is_running
@@ -140,6 +144,18 @@ class TestRolePiFull:
             with host.sudo():
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 2') == 1
+
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Control panel')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                time.sleep(5)
+                assert driver.title == f'{hostname} | Syncthing'
+
+        test(addrs[hostname])
+        test(hostname + '.local')
 
     @for_host_types('pi')
     def test_backup(
@@ -385,11 +401,22 @@ class TestRolePiFull:
 
     @for_host_types('pi')
     def test_minidlna(
-            self, hostname: str, hosts: Dict[str, Host]) -> None:
+            self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
         assert host.service('minidlna').is_enabled
         assert host.service('minidlna').is_running
         assert host.process.filter(user='pi-server-data', comm='minidlnad')
+
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Minidlna status')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title.startswith('MiniDLNA')
+
+        test(addrs[hostname])
+        test(hostname + '.local')
 
     @for_host_types('pi')
     def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
