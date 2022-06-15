@@ -1,5 +1,0 @@
-- name: reload minecraft server
-  include_tasks: compose.yml
-  vars:
-    restart: true
-  listen: "reload minecraft server"

@@ -1,3 +1,0 @@
-pi_server_apps_minecraft_etc: "{{ pi_server_etc }}/minecraft"
-pi_server_apps_minecraft_var: "{{ pi_server_var }}/minecraft"
-pi_server_apps_minecraft_site_entrypoint: "minecraft_site"

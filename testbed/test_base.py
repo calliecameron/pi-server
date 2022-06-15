@@ -195,9 +195,6 @@ class TestBase:
                 'ubuntu': {
                     'tcp': {
                         22,  # SSH
-                        80,  # Minecraft site
-                        8080,  # Control panel
-                        25565,  # Minecraft
                     },
                     'udp': set()
                 },

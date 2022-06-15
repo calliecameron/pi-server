@@ -1,7 +1,0 @@
-pi_server_apps_minecraft_site_etc: "{{ pi_server_apps_minecraft_etc }}/minecraft-site"
-pi_server_apps_minecraft_site_fragments_dir: "{{ pi_server_apps_minecraft_site_etc }}/fragments.d"
-pi_server_apps_minecraft_site_var: "{{ pi_server_apps_minecraft_var }}/site"
-pi_server_apps_minecraft_site_web_root: "{{ pi_server_apps_minecraft_site_var }}/web-root"
-pi_server_apps_minecraft_site_temp_dir: "{{ pi_server_apps_minecraft_site_var }}/temp"
-pi_server_apps_minecraft_site_user: "pi-server-minecraft-site"
-pi_server_apps_minecraft_site_traefik_port: "8082"

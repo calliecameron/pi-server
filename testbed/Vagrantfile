@@ -78,7 +78,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
     box.vm.hostname = name
     box.vm.provider "virtualbox" do |v|
       v.memory = 1280
-    end  
+    end
     box.vm.network "private_network", ip: pi_ip
     box.vm.disk :disk, size: "100MB", name: "external"
     sync_folders(box)
@@ -126,7 +126,7 @@ def ubuntu(config)
     ubuntu.vm.box = "ubuntu/jammy64"
     ubuntu.vm.hostname = "ubuntu"
     ubuntu.vm.provider "virtualbox" do |v|
-      v.memory = 2048
+      v.memory = 1280
     end
     ubuntu.vm.network "private_network", ip: $addrs["ubuntu"]
     sync_folders(ubuntu)
@@ -149,9 +149,6 @@ def ubuntu(config)
         pi_server_testbed_openvpn_target_name: "pi2",
         pi_server_testbed_openvpn_target_ip: $addrs["router2_wan"],
         pi_server_swap_size_mb: "512",
-        pi_server_control_panel_port: "8080",
-        pi_server_minecraft_server_java_heap_mb: "1024",
-        pi_server_minecraft_server_stop_time_seconds: "10"
       }
     end
     ubuntu.vm.provision :reload
