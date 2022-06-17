@@ -1,0 +1,39 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+services:
+  pihole:
+    image: "pihole/pihole:{{ pi_server_apps_pihole_version }}"
+    hostname: "{{ pi_server_hostname }}"
+    restart: always
+    ports:
+      - "53:53/tcp"
+      - "53:53/udp"
+    environment:
+      TZ: "{{ pi_server_timezone }}"
+      WEBPASSWORD: "{{ pi_server_pihole_web_password }}"
+      FTLCONF_REPLY_ADDR4: "{{ pi_server_lan_ip }}"
+      DNSMASQ_LISTENING: "all"
+      PIHOLE_UID: "{{ pihole_user.uid }}"
+      PIHOLE_GID: "{{ pihole_user.group }}"
+      WEB_UID: "{{ pihole_web_user.uid }}"
+      WEB_GID: "{{ pihole_web_user.group }}"
+    volumes:
+      - pihole-etc:/etc/pihole
+      - pihole-dnsmasq-etc:/etc/dnsmasq.d
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.services.pihole.loadbalancer.server.port=80"
+      - "traefik.http.routers.pihole.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.pihole.rule=PathPrefix(`/admin`)"
+
+volumes:
+  pihole-etc:
+  pihole-dnsmasq-etc:
+
+networks:
+  "{{ pi_server_apps_traefik_network }}":
+    external: true

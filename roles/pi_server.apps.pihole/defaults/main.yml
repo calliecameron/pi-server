@@ -1,0 +1,7 @@
+pi_server_apps_pihole_version: "2022.05"
+pi_server_apps_pihole_etc: "{{ pi_server_etc }}/pihole"
+pi_server_apps_pihole_docker_compose: "{{ pi_server_apps_pihole_etc }}/docker-compose.yml"
+pi_server_apps_pihole_user: "pi-server-pihole"
+pi_server_apps_pihole_web_user: "pi-server-pihole-web"
+pi_server_apps_pihole_resolved_dir: "/etc/systemd/resolved.conf.d"
+pi_server_apps_pihole_resolved_overrides: "{{ pi_server_apps_pihole_resolved_dir }}/00-overrides.conf"

@@ -106,6 +106,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_lan_network: pi_lan_mask,
         pi_server_vpn_network: pi_vpn_mask,
         pi_server_swap_size_mb: "512",
+        pi_server_pihole_web_password: "foobar",
         pi_server_testbed_router_ip: router_lan_ip,
         pi_server_testbed_internet_ip: $addrs["internet"],
         pi_server_testbed_openvpn_target_name: openvpn_target_name,

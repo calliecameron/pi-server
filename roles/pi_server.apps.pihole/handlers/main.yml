@@ -1,0 +1,14 @@
+- name: reload resolved
+  become: true
+  ansible.builtin.systemd:
+    name: systemd-resolved
+    daemon_reload: true
+    enabled: true
+    state: restarted
+  listen: "reload resolved"
+
+- name: reload pihole
+  include_tasks: compose.yml
+  vars:
+    restart: true
+  listen: "reload pihole"

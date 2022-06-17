@@ -1,0 +1,94 @@
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.docker
+
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik
+
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.control_panel
+
+- name: etc dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_pihole_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: pihole user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_pihole_user }}"
+    register: pihole_user
+
+- name: pihole web user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_pihole_web_user }}"
+    register: pihole_web_user
+
+- name: resolved overrides dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_pihole_resolved_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: resolved overrides
+  become: true
+  ansible.builtin.template:
+    src: resolved-overrides.conf.j2
+    dest: "{{ pi_server_apps_pihole_resolved_overrides }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload resolved
+
+- name: resolv.conf
+  become: true
+  ansible.builtin.file:
+    path: /etc/resolv.conf
+    state: link
+    src: /run/systemd/resolve/resolv.conf
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify: reload resolved
+
+- name: flush handlers
+  ansible.builtin.meta: flush_handlers
+
+- name: compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_pihole_docker_compose }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload pihole
+
+- include_tasks: compose.yml
+  vars:
+    restart: false
+
+- name: monitor containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_pihole_docker_compose }}"
+
+- name: control panel links
+  ansible.builtin.include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: adblocking

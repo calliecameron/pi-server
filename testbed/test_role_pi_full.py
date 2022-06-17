@@ -424,3 +424,29 @@ class TestRolePiFull:
         host = hosts[hostname]
         assert host.service('openvpn').is_enabled
         assert host.service('openvpn').is_running
+
+    @for_host_types('pi')
+    def test_pihole(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+        host = hosts[hostname]
+
+        # Good domain
+        assert not Lines(host.check_output('nslookup google.com')).contains(r'Address: 0\.0\.0\.0')
+        assert not Lines(host.check_output('nslookup google.com localhost')
+                         ).contains(r'Address: 0\.0\.0\.0')
+
+        # Ad-serving domain
+        assert not Lines(host.check_output('nslookup ads.google.com')
+                         ).contains(r'Address: 0\.0\.0\.0')
+        assert Lines(host.check_output('nslookup ads.google.com localhost')
+                     ).contains(r'Address: 0\.0\.0\.0')
+
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Pi-hole')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title == f'Pi-hole - {hostname}'
+
+        test(addrs[hostname])
+        test(hostname + '.local')

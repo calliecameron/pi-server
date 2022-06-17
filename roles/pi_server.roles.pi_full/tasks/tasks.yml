@@ -29,3 +29,7 @@
 - name: dependency
   ansible.builtin.include_role:
     name: pi_server.apps.openvpn.server
+
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.pihole
