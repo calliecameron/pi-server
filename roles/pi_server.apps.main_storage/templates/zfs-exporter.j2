@@ -1,0 +1,51 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+set -eu
+
+ZPOOL='{{ pi_server_data_zpool }}'
+DATASET_NAME='{{ pi_server_apps_main_storage_data_dataset }}'
+DATASET="${ZPOOL}/${DATASET_NAME}"
+
+function warning() {
+    echo "WARNING:" "${@}"
+}
+
+function scrape() {
+    local OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
+    local OUTPUT_FILE="${OUTPUT_DIR}/zfs-exporter.prom"
+    local TMP_FILE="${OUTPUT_FILE}.tmp"
+    if ! : >"${TMP_FILE}"; then
+        warning "failed to initialize '${TMP_FILE}'"
+        return 0
+    fi
+
+    local STATE
+    STATE="$(zpool get -H -o value health "${ZPOOL}")"
+    if [ -n "${STATE}" ]; then
+        if ! echo "zfs_zpool_state{job=\"zfs\", state=\"${STATE}\"} 1" >>"${TMP_FILE}"; then
+            warning "failed to write state to '${TMP_FILE}'"
+        fi
+    fi
+
+    local LATEST_SNAPSHOT
+    LATEST_SNAPSHOT="$(zfs list -H -p -t snapshot -o creation "${DATASET}" | sort -r | head -n 1)"
+    if [ -n "${LATEST_SNAPSHOT}" ]; then
+        if ! echo "zfs_latest_snapshot{job=\"zfs\"} ${LATEST_SNAPSHOT}" >>"${TMP_FILE}"; then
+            warning "failed to write latest snapshot to '${TMP_FILE}'"
+        fi
+    fi
+
+    if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
+        echo "wrote metrics to '${OUTPUT_FILE}'"
+    else
+        warning "failed to write to '${OUTPUT_FILE}'"
+    fi
+}
+
+scrape
+
+while true; do
+    sleep 5m
+    scrape
+done

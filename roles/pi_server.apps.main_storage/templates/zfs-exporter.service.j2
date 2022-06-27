@@ -1,0 +1,13 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+[Unit]
+After=network.target
+
+[Service]
+ExecStart={{ pi_server_apps_main_storage_zfs_exporter_script }}
+Restart=always
+User={{ pi_server_apps_main_storage_zfs_exporter_user }}
+Group={{ pi_server_apps_main_storage_zfs_exporter_user }}
+
+[Install]
+WantedBy=multi-user.target

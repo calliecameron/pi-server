@@ -1,0 +1,7 @@
+- name: reload zfs exporter
+  become: true
+  ansible.builtin.systemd:
+    name: "{{ pi_server_apps_main_storage_zfs_exporter_service }}"
+    enabled: true
+    state: restarted
+  listen: "reload zfs exporter"

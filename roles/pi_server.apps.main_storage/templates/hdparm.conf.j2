@@ -1,9 +1,0 @@
-# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
-
-quiet
-
-{% if pi_server_storage_spinning_drive == 'yes' %}
-{{ pi_server_storage_drive }} {
-    spindown_time = 242
-}
-{% endif %}

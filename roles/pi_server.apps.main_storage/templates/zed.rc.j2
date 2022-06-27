@@ -1,0 +1,9 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Apart from email settings, these are the defaults from the package.
+
+ZED_EMAIL_ADDR="root"
+ZED_EMAIL_PROG="xargs"
+ZED_EMAIL_OPTS="-0 '{{ pi_server_apps_email_script }}' '@SUBJECT@'"
+ZED_NOTIFY_INTERVAL_SECS=3600
+ZED_USE_ENCLOSURE_LEDS=1
+ZED_SYSLOG_SUBCLASS_EXCLUDE="history_event"
