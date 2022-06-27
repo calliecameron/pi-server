@@ -3,12 +3,13 @@
 
 set -eu
 
-ZPOOL='{{ pi_server_data_zpool }}'
+ZPOOL='{{ pi_server_storage_zpool }}'
 DATASET_NAME='{{ pi_server_apps_main_storage_data_dataset }}'
 DATASET="${ZPOOL}/${DATASET_NAME}"
 
-function warning() {
-    echo "WARNING:" "${@}"
+function error() {
+    echo "ERROR:" "${@}"
+    exit 1
 }
 
 function scrape() {
@@ -16,30 +17,36 @@ function scrape() {
     local OUTPUT_FILE="${OUTPUT_DIR}/zfs-exporter.prom"
     local TMP_FILE="${OUTPUT_FILE}.tmp"
     if ! : >"${TMP_FILE}"; then
-        warning "failed to initialize '${TMP_FILE}'"
-        return 0
+        error "failed to initialize '${TMP_FILE}'"
     fi
 
     local STATE
     STATE="$(zpool get -H -o value health "${ZPOOL}")"
-    if [ -n "${STATE}" ]; then
-        if ! echo "zfs_zpool_state{job=\"zfs\", state=\"${STATE}\"} 1" >>"${TMP_FILE}"; then
-            warning "failed to write state to '${TMP_FILE}'"
-        fi
+    local VALUE='1'
+
+    if [ -z "${STATE}" ]; then
+        STATE='ONLINE'
+        VALUE='0'
+    fi
+
+    if ! echo "zfs_zpool_state{job=\"zfs\", state=\"${STATE}\"} ${VALUE}" >>"${TMP_FILE}"; then
+        error "failed to write state to '${TMP_FILE}'"
     fi
 
     local LATEST_SNAPSHOT
     LATEST_SNAPSHOT="$(zfs list -H -p -t snapshot -o creation "${DATASET}" | sort -r | head -n 1)"
-    if [ -n "${LATEST_SNAPSHOT}" ]; then
-        if ! echo "zfs_latest_snapshot{job=\"zfs\"} ${LATEST_SNAPSHOT}" >>"${TMP_FILE}"; then
-            warning "failed to write latest snapshot to '${TMP_FILE}'"
-        fi
+    if [ -z "${LATEST_SNAPSHOT}" ]; then
+        LATEST_SNAPSHOT='0'
+    fi
+
+    if ! echo "zfs_latest_snapshot_time{job=\"zfs\"} ${LATEST_SNAPSHOT}" >>"${TMP_FILE}"; then
+        error "failed to write latest snapshot time to '${TMP_FILE}'"
     fi
 
     if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
         echo "wrote metrics to '${OUTPUT_FILE}'"
     else
-        warning "failed to write to '${OUTPUT_FILE}'"
+        error "failed to write to '${OUTPUT_FILE}'"
     fi
 }
 
