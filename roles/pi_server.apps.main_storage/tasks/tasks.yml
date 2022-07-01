@@ -155,4 +155,9 @@
   vars:
     systemd_service: "{{ pi_server_apps_main_storage_zfs_exporter_service }}"
 
-# TODO alerts
+- name: alerts
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.custom_alerts
+  vars:
+    src: zfs-alerts-custom.yml
+    job: zfs

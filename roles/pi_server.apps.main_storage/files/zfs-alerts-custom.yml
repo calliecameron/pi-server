@@ -1,0 +1,23 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+groups:
+  - name: zfs alerts custom
+    rules:
+      - alert: ZfsNoPools
+        expr: absent(zfs_zpool_state{job="zfs"})
+        for: 10m
+        annotations:
+          summary: No zfs pools found.
+      - alert: ZfsPoolUnhealthy
+        expr: (avg by (zpool, state) (zfs_zpool_state{job="zfs", state!~"ONLINE"})) > 0
+        annotations:
+          summary: A zfs pool is unhealthy.
+      - alert: ZfsNoSnapshots
+        expr: absent(zfs_snapshot_time{job="zfs"})
+        for: 1h
+        annotations:
+          summary: No zfs snapshots found.
+      - alert: ZfsSnapshotTooOld
+        expr: (time() - (max by (dataset) (zfs_snapshot_time{job="zfs"}))) > (60 *60)
+        annotations:
+          summary: The latest snapshot for a zfs dataset is more than 1h old.

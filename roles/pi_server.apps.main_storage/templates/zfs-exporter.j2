@@ -3,10 +3,6 @@
 
 set -eu
 
-ZPOOL='{{ pi_server_storage_zpool }}'
-DATASET_NAME='{{ pi_server_apps_main_storage_data_dataset }}'
-DATASET="${ZPOOL}/${DATASET_NAME}"
-
 function error() {
     echo "ERROR:" "${@}"
     exit 1
@@ -20,28 +16,17 @@ function scrape() {
         error "failed to initialize '${TMP_FILE}'"
     fi
 
-    local STATE
-    STATE="$(zpool get -H -o value health "${ZPOOL}")"
-    local VALUE='1'
+    zpool list -H -o name,health | while read -r name state; do
+        if ! echo "zfs_zpool_state{job=\"zfs\", zpool=\"${name}\", state=\"${state}\"} 1" >>"${TMP_FILE}"; then
+            error "failed to write state for '${name}' to '${TMP_FILE}'"
+        fi
+    done
 
-    if [ -z "${STATE}" ]; then
-        STATE='ONLINE'
-        VALUE='0'
-    fi
-
-    if ! echo "zfs_zpool_state{job=\"zfs\", state=\"${STATE}\"} ${VALUE}" >>"${TMP_FILE}"; then
-        error "failed to write state to '${TMP_FILE}'"
-    fi
-
-    local LATEST_SNAPSHOT
-    LATEST_SNAPSHOT="$(zfs list -H -p -t snapshot -o creation "${DATASET}" | sort -r | head -n 1)"
-    if [ -z "${LATEST_SNAPSHOT}" ]; then
-        LATEST_SNAPSHOT='0'
-    fi
-
-    if ! echo "zfs_latest_snapshot_time{job=\"zfs\"} ${LATEST_SNAPSHOT}" >>"${TMP_FILE}"; then
-        error "failed to write latest snapshot time to '${TMP_FILE}'"
-    fi
+    zfs list -H -p -t snapshot -o name,creation | while IFS=$'@\t ' read -r dataset snapshot timestamp; do
+        if ! echo "zfs_snapshot_time{job=\"zfs\", dataset=\"${dataset}\", snapshot=\"${snapshot}\"} ${timestamp}" >>"${TMP_FILE}"; then
+            error "failed to write snapshot time for '${dataset},${snapshot}' to '${TMP_FILE}'"
+        fi
+    done
 
     if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
         echo "wrote metrics to '${OUTPUT_FILE}'"
