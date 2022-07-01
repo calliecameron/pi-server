@@ -22,7 +22,7 @@ end
 
 def internet(config)
   config.vm.define "internet" do |internet|
-    internet.vm.box = "ubuntu/focal64"
+    internet.vm.box = "ubuntu/jammy64"
     internet.vm.hostname = "internet"
     internet.vm.network "private_network", ip: $addrs["internet"]
     sync_folders(internet)
