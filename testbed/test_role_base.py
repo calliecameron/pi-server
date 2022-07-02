@@ -48,14 +48,14 @@ class TestRoleBase:
             {
                 'from': f'notification@{hostname}.testbed',
                 'to': 'fake@fake.testbed',
-                'subject': f'[{hostname}] SSH login: vagrant from {client_ip}',
+                'subject_re': fr'\[{hostname}\] SSH login: vagrant from {client_ip}',
                 'body_re': (r'(.*\n)*PAM_USER=vagrant\n(.*\n)*PAM_RHOST=%s\n(.*\n)*' %
                             client_ip.replace('.', r'\.')),
             },
             {
                 'from': f'notification@{hostname}.testbed',
                 'to': 'fake@fake.testbed',
-                'subject': f'[{hostname}] foo',
+                'subject_re': fr'\[{hostname}\] foo',
                 'body_re': r'bar\n\n',
             },
         ], only_from=hostname)
@@ -70,7 +70,7 @@ class TestRoleBase:
                 {
                     'from': f'notification@{hostname}.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': f'[{hostname}] foo',
+                    'subject_re': fr'\[{hostname}\] foo',
                     'body_re': r'bar\n\n',
                 },
             ], only_from=hostname)
@@ -87,7 +87,7 @@ class TestRoleBase:
                 {
                     'from': f'notification@{hostname}.testbed',
                     'to': 'fake@fake.testbed',
-                    'subject': f'[{hostname}] Connected to network',
+                    'subject_re': fr'\[{hostname}\] Connected to network',
                     'body_re': r'.*up.*\n(.*\n)*',
                 },
             ], only_from=hostname)
@@ -152,7 +152,7 @@ groups:
                         {
                             'from': f'notification@{hostname}.testbed',
                             'to': 'fake@fake.testbed',
-                            'subject': f'[{hostname}] TestAlert',
+                            'subject_re': fr'\[{hostname}\] TestAlert',
                             'body_re': (fr'Summary: Test alert.(.*\n)+Instance: {hostname}(.*\n)+'
                                         r'Job: test(.*\n)+Alert 1 of 2:(.*\n)+Foo: bar(.*\n)+'
                                         r'Alert 2 of 2:(.*\n)+Foo: baz(.*\n)+'),
@@ -172,7 +172,7 @@ groups:
                     {
                         'from': f'notification@{hostname}.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': f'[{hostname}] HostOutOfDiskSpace',
+                        'subject_re': fr'\[{hostname}\] HostOutOfDiskSpace',
                         'body_re': (r'Summary: Host out of disk space(.*\n)+Instance: '
                                     fr'{hostname}(.*\n)+Job: node(.*\n)+Alert 1 of 1:(.*\n)+'),
                     }
@@ -200,14 +200,14 @@ groups:
                         {
                             'from': f'notification@{hostname}.testbed',
                             'to': 'fake@fake.testbed',
-                            'subject': f'[{hostname}] TestDockerJobMissing',
+                            'subject_re': fr'\[{hostname}\] TestDockerJobMissing',
                             'body_re': (r'Summary: Grafana missing(.*\n)+Job: cadvisor(.*\n)+'
                                         r'Name: monitoring_grafana_1(.*\n)+Alert 1 of 1:(.*\n)+'),
                         },
                         {
                             'from': f'notification@{hostname}.testbed',
                             'to': 'fake@fake.testbed',
-                            'subject': f'[{hostname}] TestSystemdJobMissing',
+                            'subject_re': fr'\[{hostname}\] TestSystemdJobMissing',
                             'body_re': (r'Summary: Cron missing(.*\n)+'
                                         r'Id: /system.slice/cron.service(.*\n)+'
                                         r'Job: cadvisor(.*\n)+'

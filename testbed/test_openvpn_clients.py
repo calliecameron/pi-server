@@ -33,8 +33,8 @@ class TestOpenVPNClients:
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': (
-                            f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
+                        'subject_re': (
+                            fr'\[pi2\] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
                         'body_re': r'Connected at .*\n(.*\n)*',
                     }], only_from='pi2')
                 net.assert_reachability(BASE_REACHABILITY)
@@ -125,8 +125,8 @@ class TestOpenVPNClients:
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': (
-                            f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
+                        'subject_re': (
+                            fr'\[pi2\] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
                         'body_re': r'Connected at .*\n(.*\n)*',
                     }], only_from='pi2')
         finally:
@@ -160,8 +160,8 @@ class TestOpenVPNClients:
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': (
-                            f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}'),
+                        'subject_re': (
+                            fr'\[pi2\] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}'),
                         'body_re': r'Connected at .*\n(.*\n)*',
                     }], only_from='pi2')
                 net.assert_reachability(BASE_REACHABILITY)
@@ -243,8 +243,8 @@ class TestOpenVPNClients:
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': (
-                            f'[pi2] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}'),
+                        'subject_re': (
+                            fr'\[pi2\] OpenVPN connection: ubuntu-client from {addrs["ubuntu"]}'),
                         'body_re': r'Connected at .*\n(.*\n)*',
                     }], only_from='pi2')
         finally:
@@ -270,8 +270,8 @@ class TestOpenVPNClients:
                     email.assert_has_emails([{
                         'from': 'notification@pi2.testbed',
                         'to': 'fake@fake.testbed',
-                        'subject': (
-                            f'[pi2] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
+                        'subject_re': (
+                            fr'\[pi2\] OpenVPN connection: pi1-client from {addrs["router1_wan"]}'),
                         'body_re': r'Connected at .*\n(.*\n)*',
                     }], only_from='pi2')
                     with pi1.sudo():

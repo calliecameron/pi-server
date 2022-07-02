@@ -416,9 +416,8 @@ class Email:
         if msg:
             return False, msg
 
-        msg = check_field('subject', expected['subject'], email['subject'])
-        if msg:
-            return False, msg
+        if re.fullmatch(expected['subject_re'], email['subject']) is None:
+            return False, fail_msg('subject', expected['subject_re'], email['subject'])
 
         if re.fullmatch(expected['body_re'], email['text']) is None:
             return False, fail_msg('text', expected['body_re'], email['text'])
@@ -434,7 +433,7 @@ class Email:
                 f'Length of want and got differ ({len(emails)} vs {len(got_emails)}); all '
                 'emails:\n' + json.dumps(got_emails, sort_keys=True, indent=2))
         for email, expected in zip(sorted(got_emails, key=lambda e: cast(str, e['subject'])),
-                                   sorted(emails, key=lambda e: e['subject'])):
+                                   sorted(emails, key=lambda e: e['subject_re'])):
             matches, msg = self._matches(expected, email)
             if not matches:
                 pytest.fail(msg)
@@ -444,7 +443,7 @@ class Email:
         """Emails must be a subset of what's on the server."""
         got_emails = sorted(self._get(only_from), key=lambda e: cast(str, e['subject']))
 
-        for expected in sorted(emails, key=lambda e: e['subject']):
+        for expected in sorted(emails, key=lambda e: e['subject_re']):
             found = False
             for email in got_emails:
                 if self._matches(expected, email)[0]:
@@ -636,20 +635,6 @@ def _host_disable_login_emails(self: Host) -> Iterator[None]:
 
 
 Host.disable_login_emails = _host_disable_login_emails  # type: ignore
-
-
-@contextmanager
-def _host_mount_backup_dir(self: Host) -> Iterator[None]:
-    try:
-        with self.sudo():
-            self.check_output('mount /mnt/backup')
-        yield
-    finally:
-        with self.sudo():
-            self.check_output('umount /mnt/backup')
-
-
-Host.mount_backup_dir = _host_mount_backup_dir  # type: ignore
 
 
 @contextmanager

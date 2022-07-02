@@ -5,7 +5,7 @@ from urllib.parse import urlparse
 from testinfra.host import Host
 from testinfra.modules.file import File
 from selenium.webdriver.common.by import By
-from conftest import for_host_types, Lines, WebDriver
+from conftest import for_host_types, Email, Lines, WebDriver
 
 
 class TestRolePiFull:
@@ -14,22 +14,65 @@ class TestRolePiFull:
     def test_main_storage(
             self,
             hostname: str,
-            hosts: Dict[str, Host]) -> None:
+            hosts: Dict[str, Host],
+            email: Email) -> None:
         host = hosts[hostname]
 
-        data = host.mount_point('/mnt/data')
+        pool = host.mount_point('/mnt/data')
+        assert pool.exists
+        assert pool.filesystem == 'zfs'
+        assert pool.device == 'data'
+
+        data = host.mount_point('/mnt/data/pi-server-data')
         assert data.exists
-        assert data.filesystem == 'ext4'
-        assert data.device == '/dev/sdc1'
+        assert data.filesystem == 'zfs'
+        assert data.device == 'data/pi-server-data'
 
-        backup = host.mount_point('/mnt/backup')
-        assert not backup.exists
+        scratch = host.mount_point('/mnt/data/scratch')
+        assert scratch.exists
+        assert scratch.filesystem == 'zfs'
+        assert scratch.device == 'data/scratch'
 
-        with host.mount_backup_dir():
-            backup = host.mount_point('/mnt/backup')
-            assert backup.exists
-            assert backup.filesystem == 'ext4'
-            assert backup.device == '/dev/sdc2'
+        # zed doesn't email when a single-device pool fails, so to test that it can email, we have
+        # to create a temporary mirrored pool, and corrupt one of the mirrors.
+        with host.shadow_file('/tmp/file1') as f1, \
+                host.shadow_file('/tmp/file2') as f2, \
+                host.disable_login_emails():
+            try:
+                with host.sudo():
+                    host.check_output(f'dd if=/dev/zero of={f1.path} bs=100M count=1')
+                    host.check_output(f'dd if=/dev/zero of={f2.path} bs=100M count=1')
+                    host.check_output(f'zpool create test mirror {f1.path} {f2.path}')
+
+                email.clear()
+                with host.sudo():
+                    host.check_output(f'dd if=/dev/urandom of={f1.path} bs=10K count=1 seek=1')
+                    host.check_output('zpool scrub test')
+
+                time.sleep(7 * 60)
+
+                email.assert_has_emails([
+                    {
+                        'from': f'notification@{hostname}.testbed',
+                        'to': 'fake@fake.testbed',
+                        'subject_re': (
+                            fr'\[{hostname}\] ZFS device fault for pool 0x[0-9A-F]+ on {hostname}'),
+                        'body_re': (
+                            fr'(.*\n)* *state: UNAVAIL(.*\n)* *host: {hostname}(.*\n)* *vpath: '
+                            fr'{f1.path}(.*\n)*'),
+                    },
+                    {
+                        'from': f'notification@{hostname}.testbed',
+                        'to': 'fake@fake.testbed',
+                        'subject_re': fr'\[{hostname}\] ZfsPoolUnhealthy',
+                        'body_re': (
+                            r'Summary: A zfs pool is unhealthy\.(.*\n)*State: DEGRADED(.*\n)*'
+                            r'Zpool: test(.*\n)*'),
+                    },
+                ], only_from=hostname)
+            finally:
+                with host.sudo():
+                    host.check_output('zpool destroy test')
 
     @for_host_types('pi')
     def test_main_data(
@@ -53,11 +96,6 @@ class TestRolePiFull:
         assert host.file('/mnt/data/scratch').exists
         assert host.file('/mnt/data/scratch').user == 'vagrant'
         assert host.file('/mnt/data/scratch').group == 'vagrant'
-
-        with host.mount_backup_dir():
-            assert host.file('/mnt/backup/pi-server-backup').exists
-            assert host.file('/mnt/backup/pi-server-backup').user == 'root'
-            assert host.file('/mnt/backup/pi-server-backup').group == 'root'
 
     @for_host_types('pi')
     def test_certs(
