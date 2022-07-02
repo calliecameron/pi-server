@@ -9,15 +9,6 @@
     user: "{{ pi_server_apps_main_data_user }}"
     register:
 
-- name: data dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_main_data_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
 - name: config dir
   become: true
   ansible.builtin.file:
@@ -27,10 +18,10 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: backed-up data dir
+- name: data dir
   become: true
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_data_main_dir }}"
+    path: "{{ pi_server_apps_main_data_data_dir }}"
     state: directory
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
@@ -48,29 +39,8 @@
 - name: scratch dir
   become: true
   ansible.builtin.file:
-    path: "{{ pi_server_apps_main_data_scratch_dir }}"
+    path: "{{ pi_server_apps_main_storage_scratch_dir }}"
     state: directory
     owner: "{{ ansible_user }}"
     group: "{{ ansible_user }}"
     mode: u=rwx,go=
-
-- name: mount backup partition
-  become: true
-  ansible.builtin.command:
-    cmd: "mount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
-  changed_when: false
-
-- name: backup dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_main_data_backup_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=rx
-
-- name: unmount backup partition
-  become: true
-  ansible.builtin.command:
-    cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
-  changed_when: false
