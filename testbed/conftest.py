@@ -654,6 +654,45 @@ def _host_group_membership(self: Host, user: str, group: str) -> Iterator[None]:
 Host.group_membership = _host_group_membership  # type: ignore
 
 
+class Time:
+    def __init__(
+            self, host: Host, time: str, date: str) -> None:
+        super().__init__()
+        self._host = host
+        self._time = time
+        self._date = date
+        self._restore_guest_additions = False
+
+    def __enter__(self) -> None:
+        with self._host.sudo():
+            if self._host.service('virtualbox-guest-utils').is_running:
+                self._host.check_output('systemctl stop virtualbox-guest-utils')
+                self._restore_guest_additions = True
+            self._host.check_output('timedatectl set-ntp false')
+        self.set_time(self._time, self._date)
+
+    def set_time(self, time: str, date: str) -> None:
+        self._time = time
+        self._date = date
+        with self._host.sudo():
+            self._host.check_output(
+                f"timedatectl set-time '{self._date} {self._time}'")
+
+    def __exit__(self, *exc_info: Any) -> None:
+        with self._host.sudo():
+            self._host.check_output('timedatectl set-ntp true')
+            if self._restore_guest_additions:
+                self._host.check_output('systemctl start virtualbox-guest-utils')
+
+
+def _host_time(self: Host, time: str,
+               date: str = datetime.date.today().isoformat()) -> Time:
+    return Time(self, time, date)
+
+
+Host.time = _host_time  # type: ignore
+
+
 class CronRunner:
     def __init__(
             self, host: Host,
@@ -667,25 +706,20 @@ class CronRunner:
         self._date = date
         self._cmd_to_watch = cmd_to_watch
         self._disable_sources_list = disable_sources_list
-        self._restore_guest_additions = False
         self._sources_list = None  # type: Optional[ShadowFile]
+        self._time_control = None  # type: Optional[Time]
 
     def __enter__(self) -> None:
         with self._host.sudo():
             if self._disable_sources_list:
                 self._sources_list = self._host.shadow_file('/etc/apt/sources.list')
                 self._sources_list.__enter__()
-            if self._host.service('virtualbox-guest-utils').is_running:
-                self._host.check_output('systemctl stop virtualbox-guest-utils')
-                self._restore_guest_additions = True
-            self._host.check_output('timedatectl set-ntp false')
-            # Large change to override cron's daylight-saving-time handling
-            self._host.check_output(
-                f"timedatectl set-time '{self._date} 09:00:00'")
-            time.sleep(90)
-            # Wait for it to start
-            self._host.check_output(
-                f"timedatectl set-time '{self._date} {self._time}'")
+        # Large change to override cron's daylight-saving-time handling
+        self._time_control = self._host.time('09:00:00', self._date)
+        self._time_control.__enter__()
+        time.sleep(90)
+        # Wait for it to start
+        self._time_control.set_time(self._time, self._date)
         self._host.check_output(
             ("timeout 60 bash -c "
              f"\"while ! pgrep -x -f '{self._cmd_to_watch}'; do true; done\"; true"))
@@ -694,10 +728,9 @@ class CronRunner:
         # Wait for cron to finish
         self._host.check_output(
             f"while pgrep -x -f '{self._cmd_to_watch}'; do true; done")
+        if self._time_control:
+            self._time_control.__exit__(None)
         with self._host.sudo():
-            self._host.check_output('timedatectl set-ntp true')
-            if self._restore_guest_additions:
-                self._host.check_output('systemctl start virtualbox-guest-utils')
             if self._sources_list:
                 self._sources_list.__exit__(None)
         time.sleep(2)

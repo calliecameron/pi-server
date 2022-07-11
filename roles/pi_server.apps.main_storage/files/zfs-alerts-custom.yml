@@ -18,6 +18,6 @@ groups:
         annotations:
           summary: No zfs snapshots found.
       - alert: ZfsSnapshotTooOld
-        expr: (time() - (max by (dataset) (zfs_snapshot_time{job="zfs"}))) > (60 *60)
+        expr: (time() - (max by (dataset) (zfs_snapshot_time{job="zfs"}))) > (60 * 60)
         annotations:
           summary: The latest snapshot for a zfs dataset is more than 1h old.

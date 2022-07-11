@@ -1,3 +1,4 @@
+import datetime
 import os.path
 import time
 from typing import Dict, List, Set
@@ -73,6 +74,32 @@ class TestRolePiFull:
             finally:
                 with host.sudo():
                     host.check_output('zpool destroy test')
+
+        with host.disable_login_emails():
+            email.clear()
+            try:
+                now = datetime.datetime.now()
+                with host.sudo():
+                    host.check_output('systemctl stop cron')
+                    host.check_output(f'zfs snapshot data@test-{int(now.timestamp())}')
+
+                with host.time((now + datetime.timedelta(hours=2)).time().isoformat()):
+                    time.sleep(5 * 60)
+
+                    email.assert_has_emails([
+                        {
+                            'from': f'notification@{hostname}.testbed',
+                            'to': 'fake@fake.testbed',
+                            'subject_re': fr'\[{hostname}\] ZfsSnapshotTooOld',
+                            'body_re': (
+                                r'Summary: The latest snapshot for a zfs dataset is more than 1h '
+                                r'old\.(.*\n)*'),
+                        },
+                    ], only_from=hostname)
+
+            finally:
+                with host.sudo():
+                    host.check_output('systemctl start cron')
 
     @for_host_types('pi')
     def test_main_data(
