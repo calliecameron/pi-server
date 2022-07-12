@@ -69,6 +69,7 @@
   ansible.builtin.get_url:
     url: "https://github.com/twbs/bootstrap/releases/download/v{{ pi_server_utils_bootstrap_templates_bootstrap_version }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}-dist.zip"
     dest: "{{ args.temp_dir }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}.zip"
+    checksum: "{{ pi_server_utils_bootstrap_site_bootstrap_checksum }}"
     owner: root
     group: root
     mode: a=r
