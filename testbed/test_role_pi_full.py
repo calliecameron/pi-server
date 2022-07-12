@@ -174,32 +174,6 @@ class TestRolePiFull:
         assert host.file('/mnt/data/scratch').group == 'vagrant'
 
     @for_host_types('pi')
-    def test_certs(
-            self,
-            hostname: str,
-            hosts: Dict[str, Host]) -> None:
-        host = hosts[hostname]
-        service = host.service('pi-server-cron-certs')
-        journal = host.journal()
-
-        with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
-            journal.clear()
-            with host.run_crons():
-                pass
-
-            assert not service.is_running
-            log = journal.entries('pi-server-cron-certs')
-            assert log.count(r'.*ERROR.*') == 0
-            assert log.count(r'.*WARNING.*') == 0
-            assert log.count(r'.*FAILURE.*') == 0
-            assert log.count(r'.*KILLED.*') == 0
-            assert log.count(r'.*SUCCESS.*') == 1
-            assert log.count(r"Wrote to '.*' for cert '.*'") == 5
-            with host.sudo():
-                metrics = Lines(collect_dir.file('certs.prom').content_string)
-            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
-
-    @for_host_types('pi')
     def test_syncthing(
             self,
             hostname: str,
@@ -232,7 +206,7 @@ class TestRolePiFull:
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 0') == 1
 
-        # Conflicts
+        # Conflicts, bad permissions
         with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir, \
                 host.shadow_file('/mnt/data/pi-server-data/data/foo.txt') as f1, \
                 host.shadow_file('/mnt/data/pi-server-data/data/bar.sync-conflict.txt') as f2, \
@@ -240,8 +214,13 @@ class TestRolePiFull:
                     '/mnt/data/pi-server-data/data-no-backups/baz.sync-conflict.txt') as f3:
             with host.sudo():
                 f1.write('')
+                host.check_output(f'chmod go+rwx {f1.path}')
+                host.check_output(f'chown pi-server-data:pi-server-data {f1.path}')
+                assert host.file(f1.path).mode == 0o677
                 f2.write('')
+                host.check_output(f'chown pi-server-data:pi-server-data {f2.path}')
                 f3.write('')
+                host.check_output(f'chown pi-server-data:pi-server-data {f3.path}')
             journal.clear()
             with host.run_crons():
                 pass
@@ -259,6 +238,9 @@ class TestRolePiFull:
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 2') == 1
 
+            with host.sudo():
+                assert host.file(f1.path).mode == 0o600
+
         def test(this_addr: str) -> None:
             with WebDriver() as driver:
                 driver.get('http://' + this_addr)
@@ -270,6 +252,32 @@ class TestRolePiFull:
 
         test(addrs[hostname])
         test(hostname + '.local')
+
+    @for_host_types('pi')
+    def test_certs(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        service = host.service('pi-server-cron-certs')
+        journal = host.journal()
+
+        with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
+            journal.clear()
+            with host.run_crons():
+                pass
+
+            assert not service.is_running
+            log = journal.entries('pi-server-cron-certs')
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Wrote to '.*' for cert '.*'") == 5
+            with host.sudo():
+                metrics = Lines(collect_dir.file('certs.prom').content_string)
+            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
 
     @for_host_types('pi')
     def test_backup(

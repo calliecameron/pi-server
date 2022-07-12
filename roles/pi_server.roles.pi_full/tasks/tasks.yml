@@ -10,9 +10,9 @@
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-# - name: dependency
-#   ansible.builtin.include_role:
-#     name: pi_server.apps.syncthing.system_wide
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.syncthing.system_wide
 
 # - name: dependency
 #   ansible.builtin.include_role:

@@ -4,7 +4,7 @@
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/syncthing "-gui-address=0.0.0.0:{{ pi_server_apps_syncthing_web_port }}" "-home={{ pi_server_apps_syncthing_base_args.config_dir }}" -no-browser
+ExecStart=/usr/bin/syncthing "--gui-address=0.0.0.0:{{ pi_server_apps_syncthing_web_port }}" "--home={{ pi_server_apps_syncthing_base_args.config_dir }}" --no-browser --no-default-folder
 Restart=always
 User={{ pi_server_apps_syncthing_base_args.user }}
 Group={{ pi_server_apps_syncthing_base_args.user }}

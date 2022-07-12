@@ -6,7 +6,7 @@ set -eu
 
 {{ cron_wrapper_line }}
 
-DATA_DIR='{{ pi_server_apps_main_data_main_dir }}'
+DATA_DIR='{{ pi_server_apps_main_data_data_dir }}'
 NO_BACKUP_DIR='{{ pi_server_apps_main_data_no_backup_dir }}'
 OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
 OUTPUT_FILE="${OUTPUT_DIR}/syncthing-conflicts.prom"

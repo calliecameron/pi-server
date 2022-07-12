@@ -1,7 +1,7 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
 groups:
-  - name: syncthing alerts custom
+  - name: syncthing conflicts alerts custom
     rules:
       - alert: SyncthingFileConflicts
         expr: (avg by () (syncthing_conflicts{job="syncthing-conflicts"})) > 0

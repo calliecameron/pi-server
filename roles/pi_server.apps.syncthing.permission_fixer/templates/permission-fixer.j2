@@ -1,0 +1,27 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Fix file permissions in syncthing.
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+DATA_DIR='{{ pi_server_apps_main_data_data_dir }}'
+NO_BACKUP_DIR='{{ pi_server_apps_main_data_no_backup_dir }}'
+
+function error() {
+    echo 'ERROR:' "${@}"
+    exit 1
+}
+
+function do-dir() {
+    local DIR="${1}"
+    if chmod -R go-rwx "${DIR}"; then
+        echo "Processed '${DIR}'"
+    else
+        error "failed to process '${DIR}'"
+    fi
+}
+
+do-dir "${DATA_DIR}"
+do-dir "${NO_BACKUP_DIR}"

@@ -1,12 +1,10 @@
 - name: dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.certs
+    name: pi_server.apps.traefik
 
-- name: give access to https key
+- name: dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.certs.https_key_reader
-  vars:
-    user: "{{ args.user }}"
+    name: pi_server.apps.control_panel
 
 - name: apt key
   become: true
@@ -33,25 +31,11 @@
     group: "{{ args.user }}"
     mode: u=rwx,go=
 
-- name: https cert symlink
-  become: true
-  ansible.builtin.file:
-    path: "{{ args.config_dir }}/https-cert.pem"
-    src: "{{ pi_server_apps_certs_https_cert }}"
-    state: link
-
-- name: https key symlink
-  become: true
-  ansible.builtin.file:
-    path: "{{ args.config_dir }}/https-key.pem"
-    src: "{{ pi_server_apps_certs_https_key }}"
-    state: link
-
 - name: generate initial config
   become: true
   become_user: "{{ args.user }}"
   ansible.builtin.command:
-    cmd: "syncthing '-generate={{ args.config_dir }}'"
+    cmd: "syncthing '--generate={{ args.config_dir }}' --no-default-folder"
     creates: "{{ args.config_dir }}/config.xml"
 
 - name: disable global discovery
@@ -96,13 +80,13 @@
     xpath: "/configuration/options/crashReportingEnabled"
     value: "false"
 
-- name: https for the gui
+- name: disabe https for the gui
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/gui"
     attribute: "tls"
-    value: "true"
+    value: "false"
 
 - name: systemd service
   ansible.builtin.include_role:
@@ -139,7 +123,7 @@
     path_prefix: "syncthing"
     strip_prefix: true
     port: "{{ pi_server_apps_syncthing_web_port }}"
-    https: true
+    https: false
 
 - name: control panel fragment
   ansible.builtin.include_role:
