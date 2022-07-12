@@ -1,3 +1,4 @@
+import datetime
 from typing import Dict
 from testinfra.host import Host
 from conftest import AddrInNet, BASE_REACHABILITY, Email, Net, OpenVPN, Vagrant
@@ -264,7 +265,7 @@ class TestOpenVPNClients:
             with pi2.disable_login_emails():
                 email.clear()
                 with pi1.run_crons(
-                        time='22:59:50',
+                        time=datetime.time(hour=22, minute=59, second=50),
                         cmd_to_watch='/bin/bash /etc/pi-server/openvpn/openvpn-nightly'):
                     net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
                     email.assert_has_emails([{

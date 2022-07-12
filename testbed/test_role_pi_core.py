@@ -1,3 +1,4 @@
+import datetime
 import time
 from typing import Dict
 from urllib.parse import urlparse
@@ -60,7 +61,8 @@ class TestRolePiCore:
             journal.clear()
             mockserver.clear()
             mockserver.expect(zoneedit_req)
-            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/pi-server-zoneedit'):
+            with host.run_crons(datetime.time(hour=0, minute=16, second=50),
+                                '/bin/bash /etc/cron.hourly/pi-server-zoneedit'):
                 pass
             mockserver.assert_not_called()
 
@@ -123,7 +125,8 @@ class TestRolePiCore:
             journal.clear()
             mockserver.clear()
             mockserver.expect(zoneedit_req)
-            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+            with host.run_crons(datetime.time(hour=0, minute=16, second=50),
+                                '/bin/bash /etc/cron.hourly/zoneedit-update'):
                 pass
             mockserver.assert_called()
 
@@ -144,7 +147,8 @@ class TestRolePiCore:
             journal.clear()
             mockserver.clear()
             mockserver.expect(zoneedit_req)
-            with host.run_crons('00:16:50', '/bin/bash /etc/cron.hourly/zoneedit-update'):
+            with host.run_crons(datetime.time(hour=0, minute=16, second=50),
+                                '/bin/bash /etc/cron.hourly/zoneedit-update'):
                 pass
             mockserver.assert_not_called()
 

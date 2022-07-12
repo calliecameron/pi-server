@@ -21,3 +21,12 @@ groups:
         expr: (time() - (max by (dataset) (zfs_snapshot_time{job="zfs"}))) > (60 * 60)
         annotations:
           summary: The latest snapshot for a zfs dataset is more than 1h old.
+      - alert: ZfsNoScrub
+        expr: absent(zfs_scrub_time{job="zfs"})
+        for: 10d
+        annotations:
+          summary: No zfs scrubs found.
+      - alert: ZfsScrubTooOld
+        expr: (time() - (max by (zpool) (zfs_scrub_time{job="zfs"}))) > (10 * 24 * 60 * 60)
+        annotations:
+          summary: The latest scrub for a zpool is more than 10d old.

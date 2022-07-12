@@ -1,7 +1,8 @@
 import datetime
+from contextlib import contextmanager
 import os.path
 import time
-from typing import Dict, List, Set
+from typing import Dict, Iterator, List, Set
 from urllib.parse import urlparse
 from testinfra.host import Host
 from testinfra.modules.file import File
@@ -34,20 +35,48 @@ class TestRolePiFull:
         assert scratch.filesystem == 'zfs'
         assert scratch.device == 'data/scratch'
 
-        # zed doesn't email when a single-device pool fails, so to test that it can email, we have
-        # to create a temporary mirrored pool, and corrupt one of the mirrors.
-        with host.shadow_file('/tmp/file1') as f1, \
-                host.shadow_file('/tmp/file2') as f2, \
-                host.disable_login_emails():
+        @contextmanager
+        def temp_zpool() -> Iterator[None]:
+            with host.shadow_file('/tmp/file1') as f1, \
+                    host.shadow_file('/tmp/file2') as f2:
+                try:
+                    with host.sudo():
+                        host.check_output(f'dd if=/dev/zero of={f1.path} bs=100M count=1')
+                        host.check_output(f'dd if=/dev/zero of={f2.path} bs=100M count=1')
+                        host.check_output(f'zpool create test mirror {f1.path} {f2.path}')
+                    yield
+                finally:
+                    with host.sudo():
+                        host.check_output('zpool destroy test')
+
+        @contextmanager
+        def no_cron() -> Iterator[None]:
             try:
                 with host.sudo():
-                    host.check_output(f'dd if=/dev/zero of={f1.path} bs=100M count=1')
-                    host.check_output(f'dd if=/dev/zero of={f2.path} bs=100M count=1')
-                    host.check_output(f'zpool create test mirror {f1.path} {f2.path}')
+                    host.check_output('systemctl stop cron')
+                yield
+            finally:
+                with host.sudo():
+                    host.check_output('systemctl start cron')
 
+        def clear_prometheus() -> None:
+            with host.sudo():
+                host.check_output(
+                    'docker-compose -f /etc/pi-server/monitoring/docker-compose.yml down')
+                host.check_output('docker volume rm monitoring_prometheus-data')
+                host.check_output('docker volume rm monitoring_alertmanager-data')
+                host.check_output(
+                    'docker-compose -f /etc/pi-server/monitoring/docker-compose.yml up -d')
+
+        with host.disable_login_emails():
+
+            # Test pool status
+            # zed doesn't email when a single-device pool fails, so to test that it can email, we
+            # have to create a temporary mirrored pool, and corrupt one of the mirrors.
+            with temp_zpool():
                 email.clear()
                 with host.sudo():
-                    host.check_output(f'dd if=/dev/urandom of={f1.path} bs=10K count=1 seek=1')
+                    host.check_output('dd if=/dev/urandom of=/tmp/file1 bs=10K count=1 seek=1')
                     host.check_output('zpool scrub test')
 
                 time.sleep(7 * 60)
@@ -60,7 +89,7 @@ class TestRolePiFull:
                             fr'\[{hostname}\] ZFS device fault for pool 0x[0-9A-F]+ on {hostname}'),
                         'body_re': (
                             fr'(.*\n)* *state: UNAVAIL(.*\n)* *host: {hostname}(.*\n)* *vpath: '
-                            fr'{f1.path}(.*\n)*'),
+                            r'/tmp/file1(.*\n)*'),
                     },
                     {
                         'from': f'notification@{hostname}.testbed',
@@ -71,19 +100,15 @@ class TestRolePiFull:
                             r'Zpool: test(.*\n)*'),
                     },
                 ], only_from=hostname)
-            finally:
-                with host.sudo():
-                    host.check_output('zpool destroy test')
 
-        with host.disable_login_emails():
-            email.clear()
-            try:
+            # Test snapshots
+            with temp_zpool(), no_cron():
+                email.clear()
                 now = datetime.datetime.now()
                 with host.sudo():
-                    host.check_output('systemctl stop cron')
-                    host.check_output(f'zfs snapshot data@test-{int(now.timestamp())}')
+                    host.check_output(f'zfs snapshot test@{int(now.timestamp())}')
 
-                with host.time((now + datetime.timedelta(hours=2)).time().isoformat()):
+                with host.time((now + datetime.timedelta(hours=2)).time()):
                     time.sleep(5 * 60)
 
                     email.assert_has_emails([
@@ -93,13 +118,37 @@ class TestRolePiFull:
                             'subject_re': fr'\[{hostname}\] ZfsSnapshotTooOld',
                             'body_re': (
                                 r'Summary: The latest snapshot for a zfs dataset is more than 1h '
-                                r'old\.(.*\n)*'),
+                                r'old\.(.*\n)*Dataset: test(.*\n)*'),
                         },
                     ], only_from=hostname)
 
+            # Test scrubbing
+            try:
+                with temp_zpool(), no_cron():
+                    email.clear()
+                    now = datetime.datetime.now()
+                    with host.sudo():
+                        host.check_output('zpool scrub -w test')
+
+                    with host.time(now.time(), (now + datetime.timedelta(days=12)).date()):
+                        # Big time jumps confuse prometheus, so delete its data.
+                        clear_prometheus()
+
+                        time.sleep(5 * 60)
+
+                        email.assert_has_emails([
+                            {
+                                'from': f'notification@{hostname}.testbed',
+                                'to': 'fake@fake.testbed',
+                                'subject_re': fr'\[{hostname}\] ZfsScrubTooOld',
+                                'body_re': (
+                                    r'Summary: The latest scrub for a zpool is more than 10d old\.'
+                                    r'(.*\n)*Zpool: test(.*\n)*'),
+                            },
+                        ], only_from=hostname)
             finally:
-                with host.sudo():
-                    host.check_output('systemctl start cron')
+                # Big time jumps confuse prometheus, so delete its data.
+                clear_prometheus()
 
     @for_host_types('pi')
     def test_main_data(
@@ -281,7 +330,7 @@ class TestRolePiFull:
                 with host.sudo():
                     data_file.write(date)
                     config_file.write(date)
-                with host.run_crons(date=date):
+                with host.run_crons(date=datetime.date.fromisoformat(date)):
                     pass
 
             def backfill_main(backup: str, num: int) -> None:

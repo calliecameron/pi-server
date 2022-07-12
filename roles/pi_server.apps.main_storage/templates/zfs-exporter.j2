@@ -3,6 +3,8 @@
 
 set -eu
 
+SCRUB_INFO='{{ pi_server_apps_main_storage_zfs_scrub_info_script }}'
+
 function error() {
     echo "ERROR:" "${@}"
     exit 1
@@ -25,6 +27,18 @@ function scrape() {
     zfs list -H -p -t snapshot -o name,creation | while IFS=$'@\t ' read -r dataset snapshot timestamp; do
         if ! echo "zfs_snapshot_time{job=\"zfs\", dataset=\"${dataset}\", snapshot=\"${snapshot}\"} ${timestamp}" >>"${TMP_FILE}"; then
             error "failed to write snapshot time for '${dataset},${snapshot}' to '${TMP_FILE}'"
+        fi
+    done
+
+    local NOW
+    local NAME
+    local TIMESTAMP
+    NOW="$(date +%s)"
+    "${SCRUB_INFO}" | grep -E -o '[a-zA-Z0-9_]+_last_ago=-?[0-9]+' | while IFS='=' read -r raw_name time_ago; do
+        NAME="${raw_name//_last_ago/}"
+        TIMESTAMP=$((NOW - time_ago))
+        if ! echo "zfs_scrub_time{job=\"zfs\", zpool=\"${NAME}\"} ${TIMESTAMP}" >>"${TMP_FILE}"; then
+            error "failed to write scrub time for '${NAME}' to '${TMP_FILE}'"
         fi
     done
 

@@ -141,6 +141,16 @@
     mode: a=rx
   notify: reload zfs exporter
 
+- name: scrub info script
+  become: true
+  ansible.builtin.get_url:
+    url: "https://raw.githubusercontent.com/Josef-Friedrich/check_zpool_scrub/{{ pi_server_apps_main_storage_zfs_scrub_info_commit }}/check_zpool_scrub"
+    dest: "{{ pi_server_apps_main_storage_zfs_scrub_info_script }}"
+    checksum: "{{ pi_server_apps_main_storage_zfs_scrub_info_checksum }}"
+    owner: root
+    group: root
+    mode: a=rx
+
 - name: exporter service
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service

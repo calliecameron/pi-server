@@ -656,11 +656,11 @@ Host.group_membership = _host_group_membership  # type: ignore
 
 class Time:
     def __init__(
-            self, host: Host, time: str, date: str) -> None:
+            self, host: Host, time: datetime.time, date: datetime.date) -> None:
         super().__init__()
         self._host = host
-        self._time = time
-        self._date = date
+        self._initial_time = time
+        self._initial_date = date
         self._restore_guest_additions = False
 
     def __enter__(self) -> None:
@@ -669,14 +669,12 @@ class Time:
                 self._host.check_output('systemctl stop virtualbox-guest-utils')
                 self._restore_guest_additions = True
             self._host.check_output('timedatectl set-ntp false')
-        self.set_time(self._time, self._date)
+        self.set_time(self._initial_time, self._initial_date)
 
-    def set_time(self, time: str, date: str) -> None:
-        self._time = time
-        self._date = date
+    def set_time(self, time: datetime.time, date: datetime.date) -> None:
         with self._host.sudo():
             self._host.check_output(
-                f"timedatectl set-time '{self._date} {self._time}'")
+                f"timedatectl set-time '{date.isoformat()} {time.isoformat()}'")
 
     def __exit__(self, *exc_info: Any) -> None:
         with self._host.sudo():
@@ -685,8 +683,10 @@ class Time:
                 self._host.check_output('systemctl start virtualbox-guest-utils')
 
 
-def _host_time(self: Host, time: str,
-               date: str = datetime.date.today().isoformat()) -> Time:
+def _host_time(self: Host, time: datetime.time,
+               date: Optional[datetime.date] = None) -> Time:
+    if date is None:
+        date = datetime.date.today()
     return Time(self, time, date)
 
 
@@ -696,10 +696,10 @@ Host.time = _host_time  # type: ignore
 class CronRunner:
     def __init__(
             self, host: Host,
-            time: str,
+            time: datetime.time,
             cmd_to_watch: str,
             disable_sources_list: bool,
-            date: str) -> None:
+            date: datetime.date) -> None:
         super().__init__()
         self._host = host
         self._time = time
@@ -715,7 +715,7 @@ class CronRunner:
                 self._sources_list = self._host.shadow_file('/etc/apt/sources.list')
                 self._sources_list.__enter__()
         # Large change to override cron's daylight-saving-time handling
-        self._time_control = self._host.time('09:00:00', self._date)
+        self._time_control = self._host.time(datetime.time(hour=9), self._date)
         self._time_control.__enter__()
         time.sleep(90)
         # Wait for it to start
@@ -738,10 +738,14 @@ class CronRunner:
 
 def _host_run_crons(
         self: Host,
-        time: str = '02:24:50',
+        time: Optional[datetime.time] = None,
         cmd_to_watch: str = '/bin/bash /etc/pi-server/cron/cron-runner',
         disable_sources_list: bool = True,
-        date: str = datetime.date.today().isoformat()) -> CronRunner:
+        date: Optional[datetime.date] = None) -> CronRunner:
+    if time is None:
+        time = datetime.time(hour=2, minute=24, second=50)
+    if date is None:
+        date = datetime.date.today()
     return CronRunner(self, time, cmd_to_watch, disable_sources_list, date)
 
 
