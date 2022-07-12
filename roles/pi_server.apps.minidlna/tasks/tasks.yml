@@ -65,6 +65,25 @@
     mode: a=r
   notify: reload minidlna
 
+- name: overrides dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minidlna_overrides_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: overrides
+  become: true
+  ansible.builtin.template:
+    src: minidlna-overrides.conf.j2
+    dest: "{{ pi_server_apps_minidlna_overrides }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: reload minidlna
+
 - name: monitoring
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service

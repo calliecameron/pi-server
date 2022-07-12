@@ -254,6 +254,25 @@ class TestRolePiFull:
         test(hostname + '.local')
 
     @for_host_types('pi')
+    def test_minidlna(
+            self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+        host = hosts[hostname]
+        assert host.service('minidlna').is_enabled
+        assert host.service('minidlna').is_running
+        assert host.process.filter(user='pi-server-data', comm='minidlnad')
+
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get('http://' + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value='Minidlna status')
+                assert urlparse(link.get_attribute('href')).hostname == this_addr
+                driver.click(link)
+                assert driver.title.startswith('MiniDLNA')
+
+        test(addrs[hostname])
+        test(hostname + '.local')
+
+    @for_host_types('pi')
     def test_certs(
             self,
             hostname: str,
@@ -520,25 +539,6 @@ class TestRolePiFull:
             assert log.count(r'Cloned.*') == 0
             assert log.count(r'.*cloning.*failed') == 0
             assert log.count(r'.*fetching.*failed') == 0
-
-    @for_host_types('pi')
-    def test_minidlna(
-            self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
-        host = hosts[hostname]
-        assert host.service('minidlna').is_enabled
-        assert host.service('minidlna').is_running
-        assert host.process.filter(user='pi-server-data', comm='minidlnad')
-
-        def test(this_addr: str) -> None:
-            with WebDriver() as driver:
-                driver.get('http://' + this_addr)
-                link = driver.find_element(by=By.LINK_TEXT, value='Minidlna status')
-                assert urlparse(link.get_attribute('href')).hostname == this_addr
-                driver.click(link)
-                assert driver.title.startswith('MiniDLNA')
-
-        test(addrs[hostname])
-        test(hostname + '.local')
 
     @for_host_types('pi')
     def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
