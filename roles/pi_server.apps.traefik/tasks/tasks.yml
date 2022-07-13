@@ -38,4 +38,4 @@
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
-    name: traefik
+    name: reverseproxy
