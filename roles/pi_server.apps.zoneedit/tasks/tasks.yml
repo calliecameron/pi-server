@@ -46,6 +46,7 @@
     user: "{{ pi_server_apps_zoneedit_user }}"
     systemd_conflicts: []
     docker_conflicts: []
+    systemd_overrides: []
 
 - name: hourly cronjob
   become: true

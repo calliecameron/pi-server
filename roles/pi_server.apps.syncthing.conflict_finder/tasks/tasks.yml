@@ -11,6 +11,9 @@
     user: "{{ pi_server_apps_main_data_user }}"
     systemd_conflicts: []
     docker_conflicts: []
+    systemd_overrides:
+      - "[Service]"
+      - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
 
 - name: alerts
   ansible.builtin.include_role:

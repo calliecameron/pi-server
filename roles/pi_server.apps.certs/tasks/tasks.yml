@@ -175,6 +175,7 @@
     user: "{{ pi_server_apps_certs_user }}"
     systemd_conflicts: []
     docker_conflicts: []
+    systemd_overrides: []
 
 - name: dashboard
   ansible.builtin.include_role:

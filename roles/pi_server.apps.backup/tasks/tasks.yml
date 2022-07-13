@@ -146,6 +146,7 @@
     systemd_conflicts:
       - "{{ pi_server_apps_syncthing_service }}"
     docker_conflicts: []
+    systemd_overrides: []
 
 - name: git cronjob
   ansible.builtin.include_role:
@@ -156,3 +157,4 @@
     user: "{{ pi_server_apps_main_data_user }}"
     systemd_conflicts: []
     docker_conflicts: []
+    systemd_overrides: []

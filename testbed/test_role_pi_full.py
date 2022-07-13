@@ -184,17 +184,20 @@ class TestRolePiFull:
         assert host.service('pi-server-syncthing').is_running
         assert host.process.filter(user='pi-server-data', comm='syncthing')
 
-        service = host.service('pi-server-cron-syncthing-conflict-finder')
+        conflict_service_name = 'pi-server-cron-syncthing-conflict-finder'
+        conflict_service = host.service(conflict_service_name)
+        permission_service_name = 'pi-server-cron-syncthing-permission-fixer'
+        permission_service = host.service(permission_service_name)
         journal = host.journal()
 
-        # No conflicts
+        # No conflicts, no bad permissions
         with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir:
             journal.clear()
             with host.run_crons():
                 pass
 
-            assert not service.is_running
-            log = journal.entries('pi-server-cron-syncthing-conflict-finder')
+            assert not conflict_service.is_running
+            log = journal.entries(conflict_service_name)
             assert log.count(r'.*ERROR.*') == 0
             assert log.count(r'.*WARNING.*') == 0
             assert log.count(r'.*FAILURE.*') == 0
@@ -206,6 +209,19 @@ class TestRolePiFull:
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 0') == 1
 
+            assert not permission_service.is_running
+            log = journal.entries(permission_service_name)
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Fixed file.*") == 0
+            assert log.count(r"Fixed 0 file\(s\)") == 1
+            with host.sudo():
+                metrics = Lines(collect_dir.file('syncthing-permissions.prom').content_string)
+            assert metrics.count(r'syncthing_permissions_fixed{job="syncthing-permissions"} 0') == 1
+
         # Conflicts, bad permissions
         with host.shadow_dir('/var/pi-server/monitoring/collect') as collect_dir, \
                 host.shadow_file('/mnt/data/pi-server-data/data/foo.txt') as f1, \
@@ -214,19 +230,23 @@ class TestRolePiFull:
                     '/mnt/data/pi-server-data/data-no-backups/baz.sync-conflict.txt') as f3:
             with host.sudo():
                 f1.write('')
-                host.check_output(f'chmod go+rwx {f1.path}')
+                host.check_output(f'chmod u=rw,go=rwx {f1.path}')
                 host.check_output(f'chown pi-server-data:pi-server-data {f1.path}')
                 assert host.file(f1.path).mode == 0o677
                 f2.write('')
+                host.check_output(f'chmod u=rw,go= {f2.path}')
                 host.check_output(f'chown pi-server-data:pi-server-data {f2.path}')
+                assert host.file(f2.path).mode == 0o600
                 f3.write('')
+                host.check_output(f'chmod u=rwx,go= {f3.path}')
                 host.check_output(f'chown pi-server-data:pi-server-data {f3.path}')
+                assert host.file(f3.path).mode == 0o700
             journal.clear()
             with host.run_crons():
                 pass
 
-            assert not service.is_running
-            log = journal.entries('pi-server-cron-syncthing-conflict-finder')
+            assert not conflict_service.is_running
+            log = journal.entries(conflict_service_name)
             assert log.count(r'.*ERROR.*') == 0
             assert log.count(r'.*WARNING.*') == 0
             assert log.count(r'.*FAILURE.*') == 0
@@ -237,6 +257,19 @@ class TestRolePiFull:
             with host.sudo():
                 metrics = Lines(collect_dir.file('syncthing-conflicts.prom').content_string)
             assert metrics.count(r'syncthing_conflicts{job="syncthing-conflicts"} 2') == 1
+
+            assert not permission_service.is_running
+            log = journal.entries(permission_service_name)
+            assert log.count(r'.*ERROR.*') == 0
+            assert log.count(r'.*WARNING.*') == 0
+            assert log.count(r'.*FAILURE.*') == 0
+            assert log.count(r'.*KILLED.*') == 0
+            assert log.count(r'.*SUCCESS.*') == 1
+            assert log.count(r"Fixed file.*") == 1
+            assert log.count(r"Fixed 1 file\(s\)") == 1
+            with host.sudo():
+                metrics = Lines(collect_dir.file('syncthing-permissions.prom').content_string)
+            assert metrics.count(r'syncthing_permissions_fixed{job="syncthing-permissions"} 1') == 1
 
             with host.sudo():
                 assert host.file(f1.path).mode == 0o600

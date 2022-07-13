@@ -48,6 +48,7 @@
     user: "{{ pi_server_apps_cron_runner_user }}"
     systemd_conflicts: []
     docker_conflicts: []
+    systemd_overrides: []
 
 - name: crontab
   become: true

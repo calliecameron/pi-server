@@ -51,3 +51,12 @@
     src: service.j2
     service: "pi-server-cron-{{ args.job }}"
     enabled: false
+
+- name: "cronjob '{{ args.job }}' systemd unit overrides"
+  ansible.builtin.include_role:
+    name: pi_server.utils.systemd_service_overrides
+  vars:
+    src: overrides.j2
+    service: "pi-server-cron-{{ args.job }}"
+    enabled: false
+  when: args.systemd_overrides

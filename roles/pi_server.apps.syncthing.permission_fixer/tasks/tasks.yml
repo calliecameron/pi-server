@@ -12,3 +12,4 @@
     systemd_conflicts:
       - "{{ pi_server_apps_syncthing_service }}"
     docker_conflicts: []
+    systemd_overrides: []
