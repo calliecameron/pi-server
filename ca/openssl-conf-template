@@ -13,8 +13,8 @@ database = $dir/data/index.txt
 serial = $dir/data/serial.txt
 crl = $dir/ca/crl
 
-default_days = 3650
-default_crl_days= 3650
+default_days = 36500
+default_crl_days= 36500
 default_md = sha256
 preserve = no
 email_in_dn = no

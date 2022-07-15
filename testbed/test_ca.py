@@ -19,7 +19,7 @@ class TestCA:
         password = 'foobar'
         openvpn_path = 'PATH="/usr/sbin:${PATH}"'
         today = datetime.datetime.today().date()
-        ten_years = today + datetime.timedelta(days=3650)
+        one_hundred_years = today + datetime.timedelta(days=36500)
 
         def check_with_stdin(cmd: str, stdin: List[str]) -> None:
             host.check_output("printf '%s\n' | %s" % ('\n'.join(stdin), cmd))
@@ -65,7 +65,7 @@ class TestCA:
             assert cast(BasicConstraints, ca.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert ca.not_valid_before.date() == today
-            assert ca.not_valid_after.date() == ten_years
+            assert ca.not_valid_after.date() == one_hundred_years
 
             crl = load_pem_x509_crl(host.file(crl_file).content)
             assert not list(crl)
@@ -76,7 +76,7 @@ class TestCA:
             assert not cast(BasicConstraints, c1.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert c1.not_valid_before.date() == today
-            assert c1.not_valid_after.date() == ten_years
+            assert c1.not_valid_after.date() == one_hundred_years
 
             c2 = load_pem_x509_certificate(host.file(c2_cert).content)
             assert c2.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
@@ -84,7 +84,7 @@ class TestCA:
             assert not cast(BasicConstraints, c2.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert c2.not_valid_before.date() == today
-            assert c2.not_valid_after.date() == ten_years
+            assert c2.not_valid_after.date() == one_hundred_years
 
             openvpn = load_pem_x509_certificate(host.file(server_openvpn_cert).content)
             assert openvpn.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
@@ -93,7 +93,7 @@ class TestCA:
             assert not cast(BasicConstraints, openvpn.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert openvpn.not_valid_before.date() == today
-            assert openvpn.not_valid_after.date() == ten_years
+            assert openvpn.not_valid_after.date() == one_hundred_years
 
             https = load_pem_x509_certificate(host.file(server_https_cert).content)
             assert https.issuer.rfc4514_string() == 'CN=Test CA,O=pi-server,C=GB'
@@ -102,7 +102,7 @@ class TestCA:
             assert not cast(BasicConstraints, https.extensions.get_extension_for_oid(
                 ExtensionOID.BASIC_CONSTRAINTS).value).ca
             assert https.not_valid_before.date() == today
-            assert https.not_valid_after.date() == ten_years
+            assert https.not_valid_after.date() == one_hundred_years
 
             # Revoke
             path = os.path.join(scripts_dir, 'revoke-cert')

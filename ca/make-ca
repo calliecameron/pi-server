@@ -57,12 +57,12 @@ chmod -R u=rwx,go= "${CA_DIR}"
 
 export CA_DIR # openssl.conf uses this
 
-# Create the root CA certificate; valid for 10 years
+# Create the root CA certificate; valid for 100 years
 exec 3<<EOF
 ${PASSWD}
 EOF
 
-openssl req -config "${CA_DIR}/openssl.conf" -x509 -days 3650 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3
+openssl req -config "${CA_DIR}/openssl.conf" -x509 -days 36500 -newkey rsa -keyout "${CA_DIR}/ca/ca.key" -out "${CA_DIR}/ca/ca.crt" -outform PEM -passout fd:3
 chmod ugo=r "${CA_DIR}/ca/ca.crt"
 chmod u=r,go= "${CA_DIR}/ca/ca.key"
 
