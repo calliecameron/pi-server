@@ -22,14 +22,14 @@
   ansible.builtin.include_role:
     name: pi_server.apps.pihole
 
-# - name: dependency
-#   ansible.builtin.include_role:
-#     name: pi_server.apps.certs
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs
 
 # - name: dependency
 #   ansible.builtin.include_role:
 #     name: pi_server.apps.backup
 
-# - name: dependency
-#   ansible.builtin.include_role:
-#     name: pi_server.apps.openvpn.server
+- name: dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.openvpn.server

@@ -151,21 +151,6 @@
   register: update_result
   changed_when: update_result.stdout | regex_search('pi-server [0-9]+') | regex_search('[0-9]+') != stat_result.stat.size | string()
 
-- name: ca cert in control panel
-  ansible.builtin.include_role:
-    name: pi_server.apps.control_panel.asset
-  vars:
-    src: "{{ pi_server_apps_certs_ca }}"
-    remote_src: true
-    dest: ca.crt
-
-- name: control panel fragment
-  ansible.builtin.include_role:
-    name: pi_server.apps.control_panel.fragment
-  vars:
-    src: fragment.html.j2
-    name: certs
-
 - name: cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
