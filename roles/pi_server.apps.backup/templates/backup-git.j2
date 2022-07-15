@@ -6,20 +6,9 @@ set -eu
 
 {{ cron_wrapper_line }}
 
-BACKUP_PARTITION='{{ pi_server_apps_main_storage_backup_mount_dir }}'
 GIT_BACKUP_CONFIG='{{ pi_server_apps_backup_git_config }}'
 GIT_DIR='{{ pi_server_apps_backup_git_dir }}'
 GIT_SSH_SCRIPT='{{ pi_server_apps_backup_git_ssh }}'
-
-function cleanup() {
-    cd /
-    sync
-    if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-        if ! sudo umount "${BACKUP_PARTITION}"; then
-            warning 'cannot unmount backup partition'
-        fi
-    fi
-}
 
 function warning() {
     echo "WARNING:" "${@}"
@@ -27,15 +16,8 @@ function warning() {
 
 function error() {
     echo "ERROR:" "${@}"
-    cleanup
     exit 1
 }
-
-if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-    if ! sudo mount "${BACKUP_PARTITION}"; then
-        error 'cannot mount backup partition'
-    fi
-fi
 
 export GIT_SSH="${GIT_SSH_SCRIPT}"
 
@@ -66,5 +48,3 @@ if [ -f "${GIT_BACKUP_CONFIG}" ]; then
 else
     warning 'config file does not exist'
 fi
-
-cleanup

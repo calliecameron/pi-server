@@ -365,134 +365,38 @@ class TestRolePiFull:
             addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
         journal = host.journal()
-        backup_root = '/mnt/backup/pi-server-backup'
-        backup_main_root = os.path.join(backup_root, 'main')
-        backup_git_root = os.path.join(backup_root, 'git')
+        # backup_main_root = os.path.join(backup_root, 'main')
+        backup_git_root = '/mnt/data/pi-server-data/git-backup'
         data_root = '/mnt/data/pi-server-data/data'
-        config_root = '/mnt/data/pi-server-data/config'
-        with host.mount_backup_dir():
-            assert host.file('/mnt/backup/pi-server-backup/main').exists
-            assert host.file('/mnt/backup/pi-server-backup/main').user == 'root'
-            assert host.file('/mnt/backup/pi-server-backup/main').group == 'root'
+        # config_root = '/mnt/data/pi-server-data/config'
+        assert host.file(backup_git_root).exists
+        assert host.file(backup_git_root).user == 'pi-server-data'
+        assert host.file(backup_git_root).group == 'pi-server-data'
 
-            assert host.file('/mnt/backup/pi-server-backup/git').exists
-            assert host.file('/mnt/backup/pi-server-backup/git').user == 'pi-server-data'
-            assert host.file('/mnt/backup/pi-server-backup/git').group == 'pi-server-data'
+        # def main_backup_file(path: File, backup: str) -> File:
+        #     return host.file(
+        #         f'{backup_main_root}/{backup}/{hostname}{path.path}')
 
-        def main_backup_file(path: File, backup: str) -> File:
-            return host.file(
-                f'{backup_main_root}/{backup}/{hostname}{path.path}')
+        # def clear_backups() -> None:
+        #     with host.sudo():
+        #         # host.check_output(f'rm -rf {backup_main_root}/*')
+        #         host.check_output(f'rm -rf {backup_git_root}/*')
+        #         # host.check_output(f'echo > {backup_root}/last-run-date.txt')
 
-        def clear_backups() -> None:
-            with host.mount_backup_dir():
-                with host.sudo():
-                    host.check_output(f'rm -rf {backup_main_root}/*')
-                    host.check_output(f'rm -rf {backup_git_root}/*')
-                    host.check_output(f'echo > {backup_root}/last-run-date.txt')
+        # with host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
+        #     host.shadow_file(os.path.join(config_root, 'foo.txt')) as config_file, \
+        #     host.shadow_dir(
+        #         os.path.join(
+        #             data_root, f'{hostname}-backup-config')) as git_config_dir:
 
-        with host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
-            host.shadow_file(os.path.join(config_root, 'foo.txt')) as config_file, \
-            host.shadow_dir(
+        # Part 1 - git backups
+        with host.shadow_dir(
                 os.path.join(
                     data_root, f'{hostname}-backup-config')) as git_config_dir:
             git_config_file = git_config_dir.file('git-backup-configuration.txt')
-            clear_backups()
 
-            # Part 1 - data backups
-            # Daily backups happen every day, weekly backups happen on Mondays, and monthly backups
-            # happen on the first day of the month. So we test the following dates:
-            #   - 2021/05/30 (Sun): daily only
-            #   - 2021/05/31 (Mon): daily and weekly
-            #   - 2021/06/01 (Tue): daily and monthly
-            #   - 2021/06/02 (Wed): daily only
-
-            def check_main(backup: str, s: str) -> None:
-                with host.mount_backup_dir():
-                    with host.sudo():
-                        assert main_backup_file(data_file, backup).content_string.strip('\n') == s
-                        assert main_backup_file(config_file, backup).content_string.strip('\n') == s
-
-            def run_main(date: str) -> None:
-                with host.sudo():
-                    data_file.write(date)
-                    config_file.write(date)
-                with host.run_crons(date=datetime.date.fromisoformat(date)):
-                    pass
-
-            def backfill_main(backup: str, num: int) -> None:
-                with host.mount_backup_dir():
-                    with host.sudo():
-                        out_base = main_backup_file(
-                            data_file, backup + '.0').content_string.strip('\n')
-                        for i in range(1, num + 1):
-                            host.check_output(
-                                f'cp -a {backup_main_root}/{backup}.0 ' +
-                                f'{backup_main_root}/{backup}.{i}')
-                            main_backup_file(data_file, f'{backup}.{i}').write(
-                                f'{out_base} {i}')
-                            main_backup_file(config_file, f'{backup}.{i}').write(
-                                f'{out_base} {i}')
-
-            run_main('2021-05-30')
-            check_main('daily.0', '2021-05-30')
-
-            backfill_main('daily', 6)
-            check_main('daily.0', '2021-05-30')
-            check_main('daily.1', '2021-05-30 1')
-            check_main('daily.2', '2021-05-30 2')
-            check_main('daily.3', '2021-05-30 3')
-            check_main('daily.4', '2021-05-30 4')
-            check_main('daily.5', '2021-05-30 5')
-            check_main('daily.6', '2021-05-30 6')
-
-            run_main('2021-05-31')
-            check_main('daily.0', '2021-05-31')
-            check_main('daily.1', '2021-05-30')
-            check_main('daily.2', '2021-05-30 1')
-            check_main('daily.3', '2021-05-30 2')
-            check_main('daily.4', '2021-05-30 3')
-            check_main('daily.5', '2021-05-30 4')
-            check_main('weekly.0', '2021-05-30 5')
-
-            backfill_main('weekly', 3)
-            check_main('daily.0', '2021-05-31')
-            check_main('daily.1', '2021-05-30')
-            check_main('daily.2', '2021-05-30 1')
-            check_main('daily.3', '2021-05-30 2')
-            check_main('daily.4', '2021-05-30 3')
-            check_main('daily.5', '2021-05-30 4')
-            check_main('weekly.0', '2021-05-30 5')
-            check_main('weekly.1', '2021-05-30 5 1')
-            check_main('weekly.2', '2021-05-30 5 2')
-            check_main('weekly.3', '2021-05-30 5 3')
-
-            run_main('2021-06-01')
-            check_main('daily.0', '2021-06-01')
-            check_main('daily.1', '2021-05-31')
-            check_main('daily.2', '2021-05-30')
-            check_main('daily.3', '2021-05-30 1')
-            check_main('daily.4', '2021-05-30 2')
-            check_main('daily.5', '2021-05-30 3')
-            check_main('daily.6', '2021-05-30 4')
-            check_main('weekly.0', '2021-05-30 5')
-            check_main('weekly.1', '2021-05-30 5 1')
-            check_main('weekly.2', '2021-05-30 5 2')
-            check_main('monthly.0', '2021-05-30 5 3')
-
-            run_main('2021-06-02')
-            check_main('daily.0', '2021-06-02')
-            check_main('daily.1', '2021-06-01')
-            check_main('daily.2', '2021-05-31')
-            check_main('daily.3', '2021-05-30')
-            check_main('daily.4', '2021-05-30 1')
-            check_main('daily.5', '2021-05-30 2')
-            check_main('daily.6', '2021-05-30 3')
-            check_main('weekly.0', '2021-05-30 5')
-            check_main('weekly.1', '2021-05-30 5 1')
-            check_main('weekly.2', '2021-05-30 5 2')
-            check_main('monthly.0', '2021-05-30 5 3')
-
-            # Part 2 - git backups
+            with host.sudo():
+                host.check_output(f'rm -rf {backup_git_root}/*')
 
             def write_git_config(repos: List[str]) -> None:
                 with host.sudo():
@@ -509,9 +413,8 @@ class TestRolePiFull:
                     pass
 
             def check_git_repos(repos: Set[str]) -> None:
-                with host.mount_backup_dir():
-                    with host.sudo():
-                        assert set(host.file(backup_git_root).listdir()) == repos
+                with host.sudo():
+                    assert set(host.file(backup_git_root).listdir()) == repos
 
             # Empty config - do nothing
             run_git()
@@ -598,6 +501,100 @@ class TestRolePiFull:
             assert log.count(r'Cloned.*') == 0
             assert log.count(r'.*cloning.*failed') == 0
             assert log.count(r'.*fetching.*failed') == 0
+
+            # # Part 1 - data backups
+            # # Daily backups happen every day, weekly backups happen on Mondays, and monthly backups
+            # # happen on the first day of the month. So we test the following dates:
+            # #   - 2021/05/30 (Sun): daily only
+            # #   - 2021/05/31 (Mon): daily and weekly
+            # #   - 2021/06/01 (Tue): daily and monthly
+            # #   - 2021/06/02 (Wed): daily only
+
+            # def check_main(backup: str, s: str) -> None:
+            #     with host.mount_backup_dir():
+            #         with host.sudo():
+            #             assert main_backup_file(data_file, backup).content_string.strip('\n') == s
+            #             assert main_backup_file(config_file, backup).content_string.strip('\n') == s
+
+            # def run_main(date: str) -> None:
+            #     with host.sudo():
+            #         data_file.write(date)
+            #         config_file.write(date)
+            #     with host.run_crons(date=datetime.date.fromisoformat(date)):
+            #         pass
+
+            # def backfill_main(backup: str, num: int) -> None:
+            #     with host.mount_backup_dir():
+            #         with host.sudo():
+            #             out_base = main_backup_file(
+            #                 data_file, backup + '.0').content_string.strip('\n')
+            #             for i in range(1, num + 1):
+            #                 host.check_output(
+            #                     f'cp -a {backup_main_root}/{backup}.0 ' +
+            #                     f'{backup_main_root}/{backup}.{i}')
+            #                 main_backup_file(data_file, f'{backup}.{i}').write(
+            #                     f'{out_base} {i}')
+            #                 main_backup_file(config_file, f'{backup}.{i}').write(
+            #                     f'{out_base} {i}')
+
+            # run_main('2021-05-30')
+            # check_main('daily.0', '2021-05-30')
+
+            # backfill_main('daily', 6)
+            # check_main('daily.0', '2021-05-30')
+            # check_main('daily.1', '2021-05-30 1')
+            # check_main('daily.2', '2021-05-30 2')
+            # check_main('daily.3', '2021-05-30 3')
+            # check_main('daily.4', '2021-05-30 4')
+            # check_main('daily.5', '2021-05-30 5')
+            # check_main('daily.6', '2021-05-30 6')
+
+            # run_main('2021-05-31')
+            # check_main('daily.0', '2021-05-31')
+            # check_main('daily.1', '2021-05-30')
+            # check_main('daily.2', '2021-05-30 1')
+            # check_main('daily.3', '2021-05-30 2')
+            # check_main('daily.4', '2021-05-30 3')
+            # check_main('daily.5', '2021-05-30 4')
+            # check_main('weekly.0', '2021-05-30 5')
+
+            # backfill_main('weekly', 3)
+            # check_main('daily.0', '2021-05-31')
+            # check_main('daily.1', '2021-05-30')
+            # check_main('daily.2', '2021-05-30 1')
+            # check_main('daily.3', '2021-05-30 2')
+            # check_main('daily.4', '2021-05-30 3')
+            # check_main('daily.5', '2021-05-30 4')
+            # check_main('weekly.0', '2021-05-30 5')
+            # check_main('weekly.1', '2021-05-30 5 1')
+            # check_main('weekly.2', '2021-05-30 5 2')
+            # check_main('weekly.3', '2021-05-30 5 3')
+
+            # run_main('2021-06-01')
+            # check_main('daily.0', '2021-06-01')
+            # check_main('daily.1', '2021-05-31')
+            # check_main('daily.2', '2021-05-30')
+            # check_main('daily.3', '2021-05-30 1')
+            # check_main('daily.4', '2021-05-30 2')
+            # check_main('daily.5', '2021-05-30 3')
+            # check_main('daily.6', '2021-05-30 4')
+            # check_main('weekly.0', '2021-05-30 5')
+            # check_main('weekly.1', '2021-05-30 5 1')
+            # check_main('weekly.2', '2021-05-30 5 2')
+            # check_main('monthly.0', '2021-05-30 5 3')
+
+            # run_main('2021-06-02')
+            # check_main('daily.0', '2021-06-02')
+            # check_main('daily.1', '2021-06-01')
+            # check_main('daily.2', '2021-05-31')
+            # check_main('daily.3', '2021-05-30')
+            # check_main('daily.4', '2021-05-30 1')
+            # check_main('daily.5', '2021-05-30 2')
+            # check_main('daily.6', '2021-05-30 3')
+            # check_main('weekly.0', '2021-05-30 5')
+            # check_main('weekly.1', '2021-05-30 5 1')
+            # check_main('weekly.2', '2021-05-30 5 2')
+            # check_main('monthly.0', '2021-05-30 5 3')
 
     @for_host_types('pi')
     def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:

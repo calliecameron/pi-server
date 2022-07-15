@@ -26,7 +26,7 @@
     state: directory
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,g=rx,o=
+    mode: u=rwx,go=
 
 - name: instructions
   become: true
@@ -35,7 +35,7 @@
     dest: "{{ pi_server_apps_backup_config_dir }}/instructions.txt"
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: ug=r,o=
+    mode: u=r,go=
 
 - name: git configuration file
   ansible.builtin.include_role:
@@ -44,14 +44,14 @@
     path: "{{ pi_server_apps_backup_git_config }}"
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rw,g=r,o=
+    mode: u=rw,go=
 
-- name: main user
-  ansible.builtin.include_role:
-    name: pi_server.utils.user
-  vars:
-    user: "{{ pi_server_apps_backup_main_user }}"
-    register:
+# - name: main user
+#   ansible.builtin.include_role:
+#     name: pi_server.utils.user
+#   vars:
+#     user: "{{ pi_server_apps_backup_main_user }}"
+#     register:
 
 - name: git user can read deployment key
   ansible.builtin.include_role:
@@ -59,20 +59,14 @@
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
 
-- name: mount backup partition
-  become: true
-  ansible.builtin.command:
-    cmd: "mount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
-  changed_when: false
-
-- name: main backup dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_backup_main_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: u=rwx,go=
+# - name: main backup dir
+#   become: true
+#   ansible.builtin.file:
+#     path: "{{ pi_server_apps_backup_main_dir }}"
+#     state: directory
+#     owner: root
+#     group: root
+#     mode: u=rwx,go=
 
 - name: git backup dir
   become: true
@@ -83,35 +77,35 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: last run date file
-  ansible.builtin.include_role:
-    name: pi_server.utils.create_file
-  vars:
-    path: "{{ pi_server_apps_backup_last_run }}"
-    owner: "{{ pi_server_apps_backup_main_user }}"
-    group: "{{ pi_server_apps_backup_main_user }}"
-    mode: u=rw,go=r
+# - name: last run date file
+#   ansible.builtin.include_role:
+#     name: pi_server.utils.create_file
+#   vars:
+#     path: "{{ pi_server_apps_backup_last_run }}"
+#     owner: "{{ pi_server_apps_backup_main_user }}"
+#     group: "{{ pi_server_apps_backup_main_user }}"
+#     mode: u=rw,go=r
 
-- name: unmount backup partition
-  become: true
-  ansible.builtin.command:
-    cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
-  changed_when: false
+# - name: unmount backup partition
+#   become: true
+#   ansible.builtin.command:
+#     cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
+#   changed_when: false
 
-- name: install rsnapshot
-  become: true
-  ansible.builtin.package:
-    name: rsnapshot
-    state: present
+# - name: install rsnapshot
+#   become: true
+#   ansible.builtin.package:
+#     name: rsnapshot
+#     state: present
 
-- name: rsnapshot.conf
-  become: true
-  ansible.builtin.template:
-    src: rsnapshot.conf.j2
-    dest: /etc/rsnapshot.conf
-    owner: root
-    group: root
-    mode: a=r
+# - name: rsnapshot.conf
+#   become: true
+#   ansible.builtin.template:
+#     src: rsnapshot.conf.j2
+#     dest: /etc/rsnapshot.conf
+#     owner: root
+#     group: root
+#     mode: a=r
 
 - name: git ssh
   become: true
@@ -122,31 +116,24 @@
     group: root
     mode: a=rx
 
-- name: main user sudoers
-  ansible.builtin.include_role:
-    name: pi_server.utils.sudoers_fragment
-  vars:
-    src: main-sudoers.j2
-    name: "{{ pi_server_apps_backup_main_user }}"
+# - name: main user sudoers
+#   ansible.builtin.include_role:
+#     name: pi_server.utils.sudoers_fragment
+#   vars:
+#     src: main-sudoers.j2
+#     name: "{{ pi_server_apps_backup_main_user }}"
 
-- name: git user sudoers
-  ansible.builtin.include_role:
-    name: pi_server.utils.sudoers_fragment
-  vars:
-    src: git-sudoers.j2
-    name: "{{ pi_server_apps_main_data_user }}-backup-git"
-
-- name: main cronjob
-  ansible.builtin.include_role:
-    name: pi_server.apps.cron.cronjob
-  vars:
-    job: backup-main
-    src: backup-main.j2
-    user: "{{ pi_server_apps_backup_main_user }}"
-    systemd_conflicts:
-      - "{{ pi_server_apps_syncthing_service }}"
-    docker_conflicts: []
-    systemd_overrides: []
+# - name: main cronjob
+#   ansible.builtin.include_role:
+#     name: pi_server.apps.cron.cronjob
+#   vars:
+#     job: backup-main
+#     src: backup-main.j2
+#     user: "{{ pi_server_apps_backup_main_user }}"
+#     systemd_conflicts:
+#       - "{{ pi_server_apps_syncthing_service }}"
+#     docker_conflicts: []
+#     systemd_overrides: []
 
 - name: git cronjob
   ansible.builtin.include_role:
@@ -157,4 +144,7 @@
     user: "{{ pi_server_apps_main_data_user }}"
     systemd_conflicts: []
     docker_conflicts: []
-    systemd_overrides: []
+    systemd_overrides:
+      - "[Service]"
+      - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
+      - "ReadWritePaths={{ pi_server_apps_backup_git_dir }}"
