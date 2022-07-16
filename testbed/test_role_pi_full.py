@@ -3,7 +3,7 @@ from contextlib import contextmanager
 import json
 import os.path
 import time
-from typing import Any, Dict, Iterator, List, Set
+from typing import Dict, Iterator, List, Set
 from urllib.parse import urlparse
 from testinfra.host import Host
 from selenium.webdriver.common.by import By
