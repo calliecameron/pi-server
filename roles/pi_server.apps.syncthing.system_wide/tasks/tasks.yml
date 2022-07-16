@@ -10,6 +10,14 @@
     config_dir: "{{ pi_server_apps_syncthing_system_wide_config_dir }}"
     home_dir: "{{ pi_server_apps_main_data_data_dir }}"
 
+- name: systemd overrides
+  ansible.builtin.include_role:
+    name: pi_server.utils.systemd_service_overrides
+  vars:
+    src: overrides.j2
+    service: "{{ pi_server_apps_syncthing_service }}"
+    enabled: true
+
 - name: conflict finder
   ansible.builtin.include_role:
     name: pi_server.apps.syncthing.conflict_finder

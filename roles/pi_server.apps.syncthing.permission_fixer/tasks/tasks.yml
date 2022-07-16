@@ -12,4 +12,7 @@
     systemd_conflicts:
       - "{{ pi_server_apps_syncthing_service }}"
     docker_conflicts: []
-    systemd_overrides: []
+    systemd_overrides:
+      - "[Service]"
+      - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
+      - "ReadWritePaths={{ pi_server_apps_main_data_data_dir }} {{ pi_server_apps_main_data_no_backup_dir }}"
