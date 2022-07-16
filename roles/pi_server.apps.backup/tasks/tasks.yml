@@ -46,28 +46,6 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rw,go=
 
-# - name: main user
-#   ansible.builtin.include_role:
-#     name: pi_server.utils.user
-#   vars:
-#     user: "{{ pi_server_apps_backup_main_user }}"
-#     register:
-
-- name: git user can read deployment key
-  ansible.builtin.include_role:
-    name: pi_server.apps.certs.deployment_key_reader
-  vars:
-    user: "{{ pi_server_apps_main_data_user }}"
-
-# - name: main backup dir
-#   become: true
-#   ansible.builtin.file:
-#     path: "{{ pi_server_apps_backup_main_dir }}"
-#     state: directory
-#     owner: root
-#     group: root
-#     mode: u=rwx,go=
-
 - name: git backup dir
   become: true
   ansible.builtin.file:
@@ -76,36 +54,6 @@
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
-
-# - name: last run date file
-#   ansible.builtin.include_role:
-#     name: pi_server.utils.create_file
-#   vars:
-#     path: "{{ pi_server_apps_backup_last_run }}"
-#     owner: "{{ pi_server_apps_backup_main_user }}"
-#     group: "{{ pi_server_apps_backup_main_user }}"
-#     mode: u=rw,go=r
-
-# - name: unmount backup partition
-#   become: true
-#   ansible.builtin.command:
-#     cmd: "umount '{{ pi_server_apps_main_storage_backup_mount_dir }}'"
-#   changed_when: false
-
-# - name: install rsnapshot
-#   become: true
-#   ansible.builtin.package:
-#     name: rsnapshot
-#     state: present
-
-# - name: rsnapshot.conf
-#   become: true
-#   ansible.builtin.template:
-#     src: rsnapshot.conf.j2
-#     dest: /etc/rsnapshot.conf
-#     owner: root
-#     group: root
-#     mode: a=r
 
 - name: git ssh
   become: true
@@ -116,24 +64,11 @@
     group: root
     mode: a=rx
 
-# - name: main user sudoers
-#   ansible.builtin.include_role:
-#     name: pi_server.utils.sudoers_fragment
-#   vars:
-#     src: main-sudoers.j2
-#     name: "{{ pi_server_apps_backup_main_user }}"
-
-# - name: main cronjob
-#   ansible.builtin.include_role:
-#     name: pi_server.apps.cron.cronjob
-#   vars:
-#     job: backup-main
-#     src: backup-main.j2
-#     user: "{{ pi_server_apps_backup_main_user }}"
-#     systemd_conflicts:
-#       - "{{ pi_server_apps_syncthing_service }}"
-#     docker_conflicts: []
-#     systemd_overrides: []
+- name: git user can read deployment key
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.deployment_key_reader
+  vars:
+    user: "{{ pi_server_apps_main_data_user }}"
 
 - name: git cronjob
   ansible.builtin.include_role:
@@ -148,3 +83,57 @@
       - "[Service]"
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
       - "ReadWritePaths={{ pi_server_apps_backup_git_dir }}"
+
+- name: install proot
+  become: true
+  ansible.builtin.package:
+    name: proot
+    state: present
+
+- name: install restic
+  become: true
+  ansible.builtin.package:
+    name: restic
+    state: present
+
+- name: restic config
+  become: true
+  ansible.builtin.template:
+    src: restic.conf.j2
+    dest: "{{ pi_server_apps_backup_restic_config }}"
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
+    mode: u=r,go=
+
+- name: restic config dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_backup_restic_config_dir }}"
+    state: directory
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
+    mode: u=rwx,go=
+
+- name: restic cache dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_backup_restic_cache }}"
+    state: directory
+    owner: "{{ pi_server_apps_main_data_user }}"
+    group: "{{ pi_server_apps_main_data_user }}"
+    mode: u=rwx,go=
+
+- name: main cronjob
+  ansible.builtin.include_role:
+    name: pi_server.apps.cron.cronjob
+  vars:
+    job: backup-main
+    src: backup-main.j2
+    user: "{{ pi_server_apps_main_data_user }}"
+    systemd_conflicts:
+      - "{{ pi_server_apps_syncthing_service }}"
+    docker_conflicts: []
+    systemd_overrides:
+      - "[Service]"
+      - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
+      - "ReadWritePaths={{ pi_server_apps_backup_restic_config_dir }}"

@@ -663,13 +663,14 @@ class Time:
         self._initial_date = date
         self._restore_guest_additions = False
 
-    def __enter__(self) -> None:
+    def __enter__(self) -> 'Time':
         with self._host.sudo():
             if self._host.service('virtualbox-guest-utils').is_running:
                 self._host.check_output('systemctl stop virtualbox-guest-utils')
                 self._restore_guest_additions = True
             self._host.check_output('timedatectl set-ntp false')
         self.set_time(self._initial_time, self._initial_date)
+        return self
 
     def set_time(self, time: datetime.time, date: datetime.date) -> None:
         with self._host.sudo():

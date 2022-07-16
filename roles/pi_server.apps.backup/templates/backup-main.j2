@@ -6,18 +6,9 @@ set -eu
 
 {{ cron_wrapper_line }}
 
-LAST_RUN_FILE='{{ pi_server_apps_backup_last_run }}'
-DATA_DIR='{{ pi_server_apps_main_data_main_dir }}'
-BACKUP_PARTITION='{{ pi_server_apps_main_storage_backup_mount_dir }}'
-
-function cleanup() {
-    sync
-    if mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-        if ! sudo umount "${BACKUP_PARTITION}"; then
-            warning 'cannot unmount backup partition'
-        fi
-    fi
-}
+DATA_PATH='{{ pi_server_apps_main_data_data_dir }}'
+BACKUP_PATH='/backup'
+export RESTIC_CACHE_DIR='{{ pi_server_apps_backup_restic_cache }}'
 
 function warning() {
     echo "WARNING:" "${@}"
@@ -25,52 +16,36 @@ function warning() {
 
 function error() {
     echo "ERROR:" "${@}"
-    cleanup
     exit 1
 }
 
-if [ ! -d "${DATA_DIR}" ]; then
-    error 'data directory does not exist'
+source '{{ pi_server_apps_backup_restic_config }}'
+
+if [ -z "${RESTIC_REPOSITORY}" ]; then
+    warning 'no repository specified; nothing to do'
+    exit 0
 fi
 
-if ! mount | grep "${BACKUP_PARTITION}" &>/dev/null; then
-    if ! sudo mount "${BACKUP_PARTITION}" &>/dev/null; then
-        error 'cannot mount backup partition'
-    fi
-fi
-
-TODAY="$(date '+%Y-%m-%d')"
-DAY_OF_WEEK="$(date '+%u')"
-DAY_OF_MONTH="$(date '+%d')"
-
-if [ ! -f "${LAST_RUN_FILE}" ] || [ "${TODAY}" != "$(cat "${LAST_RUN_FILE}")" ]; then
-    echo "${TODAY}" >"${LAST_RUN_FILE}"
-
-    if sudo rsnapshot daily; then
-        echo 'Daily backup succeeded'
-    else
-        error 'Daily backup failed'
-    fi
-
-    if [ "${DAY_OF_WEEK}" == '1' ]; then
-        if sudo rsnapshot weekly; then
-            echo 'Weekly backup succeeded'
-        else
-            error 'weekly backup failed'
-        fi
-    fi
-
-    if [ "${DAY_OF_MONTH}" == '01' ]; then
-        if sudo rsnapshot monthly; then
-            echo 'Monthly backup succeeded'
-        else
-            error 'monthly backup failed'
-        fi
-    fi
-
-    sync
+if proot -b "${DATA_PATH}:${BACKUP_PATH}" restic backup "--host=${RESTIC_HOSTNAME}" "${BACKUP_PATH}"; then
+    echo 'Backup completed'
 else
-    echo 'Already backed up today; nothing to do'
+    error 'backup failed'
 fi
 
-cleanup
+if restic forget "--host=${RESTIC_HOSTNAME}" --keep-daily=7 --keep-weekly=4 --keep-monthly=12 --keep-yearly=3; then
+    echo 'Forget completed'
+else
+    error 'forget failed'
+fi
+
+if restic prune --cleanup-cache; then
+    echo 'Prune completed'
+else
+    error 'prune failed'
+fi
+
+if restic check; then
+    echo 'Check completed'
+else
+    error 'check failed'
+fi

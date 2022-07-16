@@ -1,11 +1,11 @@
 import datetime
 from contextlib import contextmanager
+import json
 import os.path
 import time
-from typing import Dict, Iterator, List, Set
+from typing import Any, Dict, Iterator, List, Set
 from urllib.parse import urlparse
 from testinfra.host import Host
-from testinfra.modules.file import File
 from selenium.webdriver.common.by import By
 from conftest import for_host_types, Email, Lines, WebDriver
 
@@ -358,38 +358,20 @@ class TestRolePiFull:
             assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
 
     @for_host_types('pi')
-    def test_backup(
+    def test_backup_git(
             self,
             hostname: str,
             hosts: Dict[str, Host],
             addrs: Dict[str, str]) -> None:
         host = hosts[hostname]
         journal = host.journal()
-        # backup_main_root = os.path.join(backup_root, 'main')
         backup_git_root = '/mnt/data/pi-server-data/git-backup'
         data_root = '/mnt/data/pi-server-data/data'
-        # config_root = '/mnt/data/pi-server-data/config'
+
         assert host.file(backup_git_root).exists
         assert host.file(backup_git_root).user == 'pi-server-data'
         assert host.file(backup_git_root).group == 'pi-server-data'
 
-        # def main_backup_file(path: File, backup: str) -> File:
-        #     return host.file(
-        #         f'{backup_main_root}/{backup}/{hostname}{path.path}')
-
-        # def clear_backups() -> None:
-        #     with host.sudo():
-        #         # host.check_output(f'rm -rf {backup_main_root}/*')
-        #         host.check_output(f'rm -rf {backup_git_root}/*')
-        #         # host.check_output(f'echo > {backup_root}/last-run-date.txt')
-
-        # with host.shadow_file(os.path.join(data_root, 'foo.txt')) as data_file, \
-        #     host.shadow_file(os.path.join(config_root, 'foo.txt')) as config_file, \
-        #     host.shadow_dir(
-        #         os.path.join(
-        #             data_root, f'{hostname}-backup-config')) as git_config_dir:
-
-        # Part 1 - git backups
         with host.shadow_dir(
                 os.path.join(
                     data_root, f'{hostname}-backup-config')) as git_config_dir:
@@ -502,99 +484,144 @@ class TestRolePiFull:
             assert log.count(r'.*cloning.*failed') == 0
             assert log.count(r'.*fetching.*failed') == 0
 
-            # # Part 1 - data backups
-            # # Daily backups happen every day, weekly backups happen on Mondays, and monthly backups
-            # # happen on the first day of the month. So we test the following dates:
-            # #   - 2021/05/30 (Sun): daily only
-            # #   - 2021/05/31 (Mon): daily and weekly
-            # #   - 2021/06/01 (Tue): daily and monthly
-            # #   - 2021/06/02 (Wed): daily only
+    @for_host_types('pi')
+    def test_backup_main(
+            self,
+            hostname: str,
+            hosts: Dict[str, Host]) -> None:
+        host = hosts[hostname]
+        journal = host.journal()
 
-            # def check_main(backup: str, s: str) -> None:
-            #     with host.mount_backup_dir():
-            #         with host.sudo():
-            #             assert main_backup_file(data_file, backup).content_string.strip('\n') == s
-            #             assert main_backup_file(config_file, backup).content_string.strip('\n') == s
+        try:
+            repo = '/tmp/backup-test'
+            with host.sudo():
+                host.check_output(f'mkdir {repo}')
 
-            # def run_main(date: str) -> None:
-            #     with host.sudo():
-            #         data_file.write(date)
-            #         config_file.write(date)
-            #     with host.run_crons(date=datetime.date.fromisoformat(date)):
-            #         pass
+            with host.shadow_dir('/mnt/data/pi-server-data/config/restic/cache'), \
+                    host.shadow_file('/etc/pi-server/backup/restic.conf') as conf, \
+                    host.shadow_file('/mnt/data/pi-server-data/data/foo.txt') as data_file:
+                with host.sudo():
+                    host.check_output(f'RESTIC_PASSWORD=foobar restic init -r {repo}')
+                    host.check_output(f'chown -R pi-server-data:pi-server-data {repo}')
+                    conf.write('\n'.join([
+                        f"export RESTIC_REPOSITORY='{repo}'",
+                        "export RESTIC_PASSWORD='foobar'",
+                        "export RESTIC_HOSTNAME='main'",
+                        "export B2_ACCOUNT_ID=''",
+                        "export B2_ACCOUNT_KEY=''",
+                    ]))
+                    host.check_output(f'chown pi-server-data:pi-server-data {data_file.path}')
 
-            # def backfill_main(backup: str, num: int) -> None:
-            #     with host.mount_backup_dir():
-            #         with host.sudo():
-            #             out_base = main_backup_file(
-            #                 data_file, backup + '.0').content_string.strip('\n')
-            #             for i in range(1, num + 1):
-            #                 host.check_output(
-            #                     f'cp -a {backup_main_root}/{backup}.0 ' +
-            #                     f'{backup_main_root}/{backup}.{i}')
-            #                 main_backup_file(data_file, f'{backup}.{i}').write(
-            #                     f'{out_base} {i}')
-            #                 main_backup_file(config_file, f'{backup}.{i}').write(
-            #                     f'{out_base} {i}')
+                def check_journal() -> None:
+                    log = journal.entries('pi-server-cron-backup-main')
+                    assert log.count(r'.*ERROR.*') == 0
+                    assert log.count(r'.*WARNING.*') == 0
+                    assert log.count(r'.*FAILURE.*') == 0
+                    assert log.count(r'.*KILLED.*') == 0
+                    assert log.count(r'.*SUCCESS.*') == 1
+                    assert log.count(r'Backup completed') == 1
+                    assert log.count(r'Forget completed') == 1
+                    assert log.count(r'Prune completed') == 1
+                    assert log.count(r'Check completed') == 1
 
-            # run_main('2021-05-30')
-            # check_main('daily.0', '2021-05-30')
+                def write_data(date: datetime.date) -> None:
+                    with host.sudo():
+                        data_file.write(date.isoformat())
 
-            # backfill_main('daily', 6)
-            # check_main('daily.0', '2021-05-30')
-            # check_main('daily.1', '2021-05-30 1')
-            # check_main('daily.2', '2021-05-30 2')
-            # check_main('daily.3', '2021-05-30 3')
-            # check_main('daily.4', '2021-05-30 4')
-            # check_main('daily.5', '2021-05-30 5')
-            # check_main('daily.6', '2021-05-30 6')
+                def run_cron(date: datetime.date) -> None:
+                    write_data(date)
+                    journal.clear()
+                    with host.run_crons(date=date):
+                        pass
+                    check_journal()
 
-            # run_main('2021-05-31')
-            # check_main('daily.0', '2021-05-31')
-            # check_main('daily.1', '2021-05-30')
-            # check_main('daily.2', '2021-05-30 1')
-            # check_main('daily.3', '2021-05-30 2')
-            # check_main('daily.4', '2021-05-30 3')
-            # check_main('daily.5', '2021-05-30 4')
-            # check_main('weekly.0', '2021-05-30 5')
+                def all_snapshots() -> Dict[str, str]:
+                    with host.sudo():
+                        raw = json.loads(host.check_output(
+                            f'RESTIC_PASSWORD=foobar restic snapshots -r {repo} --json'))
+                    out = {}
+                    for snapshot in raw:
+                        date = snapshot['time'][:10]
+                        if date in out:
+                            raise ValueError(f'Multiple snapshots for {date}: {raw}')
+                        out[date] = snapshot['short_id']
+                    return out
 
-            # backfill_main('weekly', 3)
-            # check_main('daily.0', '2021-05-31')
-            # check_main('daily.1', '2021-05-30')
-            # check_main('daily.2', '2021-05-30 1')
-            # check_main('daily.3', '2021-05-30 2')
-            # check_main('daily.4', '2021-05-30 3')
-            # check_main('daily.5', '2021-05-30 4')
-            # check_main('weekly.0', '2021-05-30 5')
-            # check_main('weekly.1', '2021-05-30 5 1')
-            # check_main('weekly.2', '2021-05-30 5 2')
-            # check_main('weekly.3', '2021-05-30 5 3')
+                def check_date(date: str, snapshot: str) -> None:
+                    restore = '/tmp/restore-test'
+                    try:
+                        with host.sudo():
+                            host.check_output(f'mkdir {restore}')
+                            host.check_output(
+                                (f'RESTIC_PASSWORD=foobar restic restore -r {repo} '
+                                 f'-t {restore} {snapshot}'))
+                            assert host.file(
+                                f'{restore}/backup/foo.txt').content_string.strip() == date
+                    finally:
+                        with host.sudo():
+                            host.check_output(f'rm -rf {restore}')
 
-            # run_main('2021-06-01')
-            # check_main('daily.0', '2021-06-01')
-            # check_main('daily.1', '2021-05-31')
-            # check_main('daily.2', '2021-05-30')
-            # check_main('daily.3', '2021-05-30 1')
-            # check_main('daily.4', '2021-05-30 2')
-            # check_main('daily.5', '2021-05-30 3')
-            # check_main('daily.6', '2021-05-30 4')
-            # check_main('weekly.0', '2021-05-30 5')
-            # check_main('weekly.1', '2021-05-30 5 1')
-            # check_main('weekly.2', '2021-05-30 5 2')
-            # check_main('monthly.0', '2021-05-30 5 3')
+                def check(dates: List[str]) -> None:
+                    snapshots = all_snapshots()
+                    assert set(dates) == set(snapshots.keys())
+                    for date in dates:
+                        check_date(date, snapshots[date])
 
-            # run_main('2021-06-02')
-            # check_main('daily.0', '2021-06-02')
-            # check_main('daily.1', '2021-06-01')
-            # check_main('daily.2', '2021-05-31')
-            # check_main('daily.3', '2021-05-30')
-            # check_main('daily.4', '2021-05-30 1')
-            # check_main('daily.5', '2021-05-30 2')
-            # check_main('daily.6', '2021-05-30 3')
-            # check_main('weekly.0', '2021-05-30 5')
-            # check_main('weekly.1', '2021-05-30 5 1')
-            # check_main('weekly.2', '2021-05-30 5 2')
-            # check_main('monthly.0', '2021-05-30 5 3')
+                # When running daily, weekly keeps Sundays; monthly keeps the last day of the month;
+                # both will keep the latest snapshot in an unfinished period
+                # So after running from 2021/05/20 (Thu) - 2021/06/19 (Sat), we'd expect to see:
+                #   - 2021/06/19 (Sat, daily, weekly, monthly, yearly)
+                #   - 2021/06/18 (Fri, daily)
+                #   - 2021/06/17 (Thu, daily)
+                #   - 2021/06/16 (Wed, daily)
+                #   - 2021/06/15 (Tue, daily)
+                #   - 2021/06/14 (Mon, daily)
+                #   - 2021/06/13 (Sun, daily and weekly)
+                #   - 2021/06/06 (Sun, weekly)
+                #   - 2021/05/31 (Mon, monthly)
+                #   - 2021/05/30 (Sun, weekly)
+
+                run_cron(datetime.date(year=2021, month=5, day=20))
+                check(['2021-05-20'])
+
+                # Running with cron is slow, so we run the rest manually
+                t = datetime.time(hour=9)
+                start = datetime.date(year=2021, month=5, day=21)
+                try:
+                    with host.sudo():
+                        host.check_output('systemctl stop pi-server-syncthing')
+                    with host.time(t, start) as time_control:
+                        def run_manually(date: datetime.date) -> None:
+                            write_data(date)
+                            journal.clear()
+                            time_control.set_time(t, date)
+                            with host.sudo():
+                                host.check_output(
+                                    'systemctl start --wait pi-server-cron-backup-main')
+                            check_journal()
+
+                        for i in range(30):
+                            run_manually(start + datetime.timedelta(days=i))
+                finally:
+                    with host.sudo():
+                        host.check_output('systemctl start pi-server-syncthing')
+
+                check([
+                    '2021-05-30',
+                    '2021-05-31',
+                    '2021-06-06',
+                    '2021-06-13',
+                    '2021-06-14',
+                    '2021-06-15',
+                    '2021-06-16',
+                    '2021-06-17',
+                    '2021-06-18',
+                    '2021-06-19',
+                ])
+
+        finally:
+            with host.sudo():
+                host.check_output(f'rm -rf {repo}')
 
     @for_host_types('pi')
     def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:

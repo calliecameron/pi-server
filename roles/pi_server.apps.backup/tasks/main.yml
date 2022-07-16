@@ -6,4 +6,9 @@
     _args: []
     _host_vars:
       - pi_server_hostname
+      - pi_server_restic_repository
+      - pi_server_restic_password
+      - pi_server_restic_hostname
+      - pi_server_restic_b2_account_id
+      - pi_server_restic_b2_account_key
     _export_vars: []
