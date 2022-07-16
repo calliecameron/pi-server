@@ -1,30 +1,76 @@
 # pi-server
 
-Configuration framework for amd64 and arm64 servers (including Raspberry Pi 4)
-running Ubuntu 22.04 LTS.
+Ansible roles for servers running Ubuntu 22.04 LTS. Intended for use on
+Raspberry Pi 4.
 
 ## Roles
 
+Include one or more of the following roles in your playbook:
+
+- `pi_server.roles.base`: basic system with docker, monitoring and automatic
+  updates.
+- `pi_server.roles.pi_core`: basic home server setup; only install this on a
+  machine on a LAN, since it opens various ports. Includes
+  `pi_server.roles.base`.
+- `pi_server.roles.pi_full`: more apps for a home server / NAS: syncthing,
+  minidlna, pihole, restic and openvpn. Includes `pi_server.roles.pi_core`.
+  Requires a zfs pool for storing synced data, and certificates for openvpn; see
+  below.
+
+Before using any of these roles, you must include `pi_server.role_helpers`.
+Example playbook:
+
+```yaml
+- hosts: pi
+  tasks:
+    - ansible.builtin.include_role:
+        name: pi_server.role_helpers
+
+    - ansible.builtin.include_role:
+        name: pi_server.roles.pi_core
+```
+
 ## Preparation
 
-Create a non-root user that you can SSH into using an SSH key:
+Install Ubuntu 22.04 and create a non-root user that you can SSH into using an
+SSH key:
 
 ```shell
 sudo adduser USER
 sudo adduser USER sudo
 ```
 
-TODO from old notes:
+If you're using `pi_server.roles.pi_full`, you must also set up a zfs pool for
+storing synced data (e.g. on a USB disk if using a Raspberry Pi):
 
-```text
-Make sure the external storage is attached and correctly formatted: should have two ext4 partitions, one for primary data storage, and one for backups. (Additional partitions for other things are OK.) The /dev nodes for these partitions should have been set already in ./01-vars.
-
-When formatting the drives, you may want to use 'mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0' to save the Pi from having to initialise everything.
+```shell
+# DEV should be the device file of your disk, e.g. /dev/sda
+# ZPOOL_NAME must match pi_server_storage_zpool in your inventory
+zpool create -m /mnt/data -o autoexpand=on -O acltype=posix -O atime=off -O \
+    compression=on -O xattr=sa "${ZPOOL_NAME}" "${DEV}"
 ```
+
+If you're using `pi_server.roles.pi_full`, you also need to create certificates:
+
+```shell
+# One time only: create the CA. DIR should be encrypted.
+cd 00-ca
+./00-make-ca "${DIR}" "${YOUR_NAME}"
+
+# For each server: create certs.
+cd "${DIR}"
+./scripts/make-pi-server-certs
+```
+
+Then copy the generated certs to `/etc/pi-server/certs` on the server.
 
 ## Installation
 
-install graphviz
+On the host where you'll run ansible:
+
+1. Run `pip install -r requirements.txt`.
+2. Run `ansible-galaxy install -r requirements.yml`.
+3. Run `sudo apt-get install graphviz`
 
 ## Certificates
 
@@ -117,15 +163,6 @@ just a Pi. All the other folders are Pi-specific, though.
 
 The scripts should be run as a non-root user with sudo access, so you
 may need to create one manually first.
-
-Updates
--------
-
-If you pull the repo and see that something has changed, re-run the
-changed script or the scripts that use changed files. Or, if it is a
-big update, it is probably easier to re-run everything, in order; all
-the scripts are idempotent, so anything that hasn't changed will just
-do nothing.
 
 Upgrading from Jessie to Stretch
 --------------------------------
