@@ -203,22 +203,28 @@ class TestBase:
                 'pi1': {
                     'tcp': {
                         22,  # SSH
+                        53,  # DNS
                         80,  # Control panel
                         1194,  # OpenVPN
                         22000,  # Syncthing
                     },
-                    'udp': set()
+                    'udp': {
+                        53,  # DNS
+                    }
                 },
             },
             'router2': {
                 'pi2': {
                     'tcp': {
                         22,  # SSH
+                        53,  # DNS
                         80,  # Control panel
                         1194,  # OpenVPN
                         22000,  # Syncthing
                     },
-                    'udp': set()
+                    'udp': {
+                        53,  # DNS
+                    }
                 },
             },
         }, PORT_RANGES_TO_SCAN)
