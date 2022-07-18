@@ -108,12 +108,6 @@
     mode: a=r
   notify: reload openvpn
 
-- name: monitoring
-  ansible.builtin.include_role:
-    name: pi_server.apps.monitoring.monitor_systemd_service
-  vars:
-    systemd_service: "{{ pi_server_apps_openvpn_service }}"
-
 - name: open port
   ansible.builtin.include_role:
     name: pi_server.apps.firewall.tcp_port
