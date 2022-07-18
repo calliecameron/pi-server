@@ -6,8 +6,7 @@ set -eu
 
 {{ cron_wrapper_line }}
 
-DATA_PATH='{{ pi_server_apps_main_data_data_dir }}'
-BACKUP_PATH='/backup'
+BACKUP_PATH='{{ pi_server_apps_backup_mount_dir }}'
 export RESTIC_CACHE_DIR='{{ pi_server_apps_backup_restic_cache }}'
 
 function warning() {
@@ -26,7 +25,7 @@ if [ -z "${RESTIC_REPOSITORY}" ]; then
     exit 0
 fi
 
-if proot -b "${DATA_PATH}:${BACKUP_PATH}" restic backup "--host=${RESTIC_HOSTNAME}" "${BACKUP_PATH}"; then
+if restic backup "--host=${RESTIC_HOSTNAME}" "${BACKUP_PATH}"; then
     echo 'Backup completed'
 else
     error 'backup failed'

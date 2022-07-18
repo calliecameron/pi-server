@@ -84,12 +84,6 @@
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
       - "ReadWritePaths={{ pi_server_apps_backup_git_dir }}"
 
-- name: install proot
-  become: true
-  ansible.builtin.package:
-    name: proot
-    state: present
-
 - name: install restic
   become: true
   ansible.builtin.package:
@@ -137,3 +131,4 @@
       - "[Service]"
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
       - "ReadWritePaths={{ pi_server_apps_backup_restic_config_dir }}"
+      - "BindReadOnlyPaths={{ pi_server_apps_main_data_data_dir }}:{{ pi_server_apps_backup_mount_dir }}"
