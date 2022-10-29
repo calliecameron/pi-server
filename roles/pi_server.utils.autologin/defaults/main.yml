@@ -1,3 +1,0 @@
-pi_server_utils_autologin_service: "getty@tty1.service"
-pi_server_utils_autologin_dir: "/etc/systemd/system/{{ pi_server_utils_autologin_service }}.d"
-pi_server_utils_autologin_conf: "{{ pi_server_utils_autologin_dir }}/pi-server-autologin.conf"
