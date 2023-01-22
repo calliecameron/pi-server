@@ -19,7 +19,15 @@ if ! sudo apt-get update; then
     error 'apt-get update failed'
 fi
 
-APT_OUTPUT="$(GIT_AUTHOR_NAME='root' GIT_AUTHOR_EMAIL="root@$(hostname)" GIT_COMMITTER_NAME='root' GIT_COMMITTER_EMAIL="root@$(hostname)" DEBIAN_FRONTEND='noninteractive' sudo apt-get -y upgrade)"
+APT_OUTPUT="$(GIT_AUTHOR_NAME='root' \
+    GIT_AUTHOR_EMAIL="root@$(hostname)" \
+    GIT_COMMITTER_NAME='root' \
+    GIT_COMMITTER_EMAIL="root@$(hostname)" \
+    NEEDRESTART_MODE='a' \
+    DEBIAN_FRONTEND='noninteractive' \
+    DEBIAN_PRIORITY='critical' \
+    DPKG_FORCE='confdef,confold,downgrade,security-mac' \
+    sudo apt-get -y upgrade)"
 EXIT_CODE="${?}"
 
 echo "${APT_OUTPUT}"
