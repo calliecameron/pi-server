@@ -101,7 +101,7 @@
     owner: root
     group: root
     mode: a=rx
-  notify: reload shutdownd
+  notify: Reload shutdownd
 
 - name: systemd service
   ansible.builtin.include_role:
@@ -125,7 +125,7 @@
     owner: root
     group: root
     mode: a=rx
-  notify: reload shutdownd ui
+  notify: Reload shutdownd ui
 
 - name: bootstrap templates
   ansible.builtin.include_role:
@@ -134,7 +134,7 @@
     dest_dir: "{{ pi_server_apps_shutdownd_ui_templates_dir }}"
     head_title: "#####1##### | {{ pi_server_hostname }}"
     body_title: "{{ pi_server_hostname }}"
-    fragments_notify: "reload shutdownd ui"
+    fragments_notify: "Reload shutdownd ui"
 
 - name: ui dockerfile
   become: true
@@ -153,7 +153,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload shutdownd ui
+  notify: Reload shutdownd ui
 
 - name: build ui image
   ansible.builtin.include_role:
@@ -161,7 +161,7 @@
   vars:
     name: "{{ pi_server_apps_shutdownd_ui_image }}"
     dir: "{{ pi_server_apps_shutdownd_ui_dir }}"
-    notify: "reload shutdownd ui"
+    notify: Reload shutdownd ui
 
 - include_tasks: compose.yml
   vars:

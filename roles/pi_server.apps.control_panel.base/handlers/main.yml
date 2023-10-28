@@ -1,4 +1,4 @@
-- name: assemble control panel
+- name: Assemble control panel
   become: true
   ansible.builtin.assemble:
     src: "{{ pi_server_apps_control_panel_fragments_dir }}"
@@ -6,4 +6,4 @@
     owner: root
     group: root
     mode: u=rw,go=r
-  listen: "assemble control panel"
+  listen: "Assemble control panel"

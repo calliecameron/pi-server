@@ -1,11 +1,11 @@
-# When updating this file, you can use 'aptitude' to check for any other packages that should be removed;
-# once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages.
+# When updating this file, you can use 'aptitude' to check for any other packages that should be
+# removed; once loaded, type 'l', then '~i!~M' to see all installed non-automatic packages.
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: remove packages
+- name: Remove packages
   become: true
   ansible.builtin.apt:
     name:
@@ -24,7 +24,7 @@
     autoremove: true
     purge: true
 
-- name: install packages
+- name: Install packages
   become: true
   ansible.builtin.apt:
     name:

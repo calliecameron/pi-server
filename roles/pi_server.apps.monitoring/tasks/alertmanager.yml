@@ -6,7 +6,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload monitoring
+  notify: Reload monitoring
 
 - name: scrape alertmanager
   ansible.builtin.include_role:

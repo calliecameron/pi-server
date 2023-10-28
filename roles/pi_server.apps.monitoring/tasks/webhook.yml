@@ -47,4 +47,4 @@
   vars:
     name: "{{ pi_server_apps_monitoring_webhook_image }}"
     dir: "{{ pi_server_apps_monitoring_webhook_dir }}"
-    notify: "reload monitoring"
+    notify: Reload monitoring

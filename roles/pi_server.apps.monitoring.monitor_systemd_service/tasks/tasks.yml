@@ -1,4 +1,4 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
@@ -19,4 +19,4 @@
     owner: root
     group: root
     mode: a=r
-  notify: "reload system dashboard"
+  notify: Reload system dashboard

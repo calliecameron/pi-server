@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.firewall
 
-- name: install docker
+- name: Install docker
   ansible.builtin.include_role:
     name: geerlingguy.docker
     apply:
@@ -15,27 +15,27 @@
       metrics-addr: "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}"
       experimental: true
 
-- name: install pip
+- name: Install pip
   become: true
   ansible.builtin.package:
     name: python3-pip
     state: present
 
-- name: install compose
+- name: Install compose
   become: true
   ansible.builtin.pip:
     name: docker-compose
     umask: "0022"
     version: "{{ pi_server_apps_docker_compose_version }}"
 
-- name: install python SDK
+- name: Install python SDK
   become: true
   ansible.builtin.pip:
     name: docker
     umask: "0022"
     version: "{{ pi_server_apps_docker_python_sdk_version }}"
 
-- name: scrape docker metrics
+- name: Scrape docker metrics
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
@@ -44,18 +44,18 @@
     port: "{{ pi_server_apps_docker_metrics_port }}"
     metrics_path: /metrics
 
-- name: monitor docker
+- name: Monitor docker
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: docker
 
-- name: expose docker metrics to traefik network
+- name: Expose docker metrics to traefik network
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_docker_metrics_port }}"
 
-- name: refresh facts
+- name: Refresh facts
   become: true
   ansible.builtin.setup:

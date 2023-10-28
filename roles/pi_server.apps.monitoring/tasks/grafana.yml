@@ -13,7 +13,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload monitoring
+  notify: Reload monitoring
 
 - name: grafana datasources
   become: true
@@ -23,7 +23,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload monitoring
+  notify: Reload monitoring
 
 - name: grafana dashboards
   become: true
@@ -33,7 +33,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload monitoring
+  notify: Reload monitoring
 
 - name: scrape grafana
   ansible.builtin.include_role:

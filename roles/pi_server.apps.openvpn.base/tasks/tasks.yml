@@ -49,4 +49,4 @@
     group: root
     mode: a=r
   when: autostart.rc != 0
-  notify: reload openvpn
+  notify: Reload openvpn

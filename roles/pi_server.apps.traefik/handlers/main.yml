@@ -1,13 +1,13 @@
-- name: reload traefik config file
+- name: Reload traefik config file
   include_tasks: config_file.yml
-  listen: "reload traefik config file"
+  listen: "Reload traefik config file"
 
-- name: reload traefik compose file
+- name: Reload traefik compose file
   include_tasks: compose_file.yml
-  listen: "reload traefik compose file"
+  listen: "Reload traefik compose file"
 
-- name: reload traefik
+- name: Reload traefik
   include_tasks: compose.yml
   vars:
     restart: true
-  listen: "reload traefik"
+  listen: "Reload traefik"

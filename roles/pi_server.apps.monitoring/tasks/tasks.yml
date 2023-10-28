@@ -38,7 +38,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload monitoring
+  notify: Reload monitoring
 
 - include_tasks: compose.yml
   vars:

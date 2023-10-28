@@ -45,7 +45,7 @@
     path: /lib/systemd/system/minidlna.service
     line: "User={{ pi_server_apps_main_data_user }}"
     regexp: "^User=minidlna$"
-  notify: reload minidlna
+  notify: Reload minidlna
 
 - name: systemd group
   become: true
@@ -53,7 +53,7 @@
     path: /lib/systemd/system/minidlna.service
     line: "Group={{ pi_server_apps_main_data_user }}"
     regexp: "^Group=minidlna$"
-  notify: reload minidlna
+  notify: Reload minidlna
 
 - name: config
   become: true
@@ -63,7 +63,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload minidlna
+  notify: Reload minidlna
 
 - name: overrides
   ansible.builtin.include_role:

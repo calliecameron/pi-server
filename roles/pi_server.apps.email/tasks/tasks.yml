@@ -1,14 +1,14 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: install ssmtp
+- name: Install ssmtp
   become: true
   ansible.builtin.package:
     name: ssmtp
     state: present
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_email_etc }}"
@@ -17,7 +17,7 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: ssmtp.conf
+- name: Ssmtp.conf
   become: true
   ansible.builtin.template:
     src: ssmtp.conf.j2
@@ -26,7 +26,7 @@
     group: mail
     mode: ug=r,o=
 
-- name: email script
+- name: Email script
   become: true
   ansible.builtin.template:
     src: send-email.j2
@@ -35,7 +35,7 @@
     group: root
     mode: a=rx
 
-- name: send email on net up
+- name: Send email on net up
   ansible.builtin.include_role:
     name: pi_server.utils.net_up_script
   vars:

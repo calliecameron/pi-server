@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: "user '{{ args.user }}'"
+- name: "User '{{ args.user }}'"
   become: true
   ansible.builtin.user:
     name: "{{ args.user }}"
@@ -13,7 +13,7 @@
     create_home: false
   register: temp_user
 
-- name: save user details
+- name: Save user details
   ansible.builtin.set_fact:
     "{{ args.register }}": "{{ temp_user }}"
   when: args.register

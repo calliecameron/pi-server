@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: "check if {{ args.path }} exists"
+- name: "Check if {{ args.path }} exists"
   become: true
   ansible.builtin.command:
     cmd: "ls {{ args.path }}"
@@ -10,7 +10,7 @@
   failed_when: false
   changed_when: false
 
-- name: "fail if {{ args.path }} doesn't exist"
+- name: "Fail if {{ args.path }} doesn't exist"
   ansible.builtin.fail:
     msg: "{{ args.msg }}"
   when: exists.rc != 0

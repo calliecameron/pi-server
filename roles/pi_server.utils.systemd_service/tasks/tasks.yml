@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: "systemd service '{{ args.service }}'"
+- name: "Systemd service '{{ args.service }}'"
   become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
@@ -12,7 +12,7 @@
     mode: a=r
   register: systemd_result
 
-- name: "systemd '{{ args.service }}'"
+- name: "Systemd '{{ args.service }}'"
   become: true
   ansible.builtin.systemd:
     name: "{{ args.service }}"

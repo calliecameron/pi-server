@@ -41,4 +41,4 @@
     group: root
     mode: a=r
   loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
-  notify: "reload system dashboard"
+  notify: Reload system dashboard

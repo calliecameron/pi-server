@@ -22,7 +22,7 @@
   vars:
     name: "{{ pi_server_apps_monitoring_cadvisor_image }}"
     dir: "{{ pi_server_apps_monitoring_cadvisor_dir }}"
-    notify: "reload monitoring"
+    notify: Reload monitoring
 
 - name: scrape cadvisor
   ansible.builtin.include_role:

@@ -1,8 +1,10 @@
 #!/bin/sh
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
+
 if [ "${PAM_TYPE}" != 'close_session' ]; then
     if ! grep -F -x "${PAM_USER}:${PAM_RHOST}" '{{ pi_server_apps_ssh_login_exceptions }}' >/dev/null 2>/dev/null; then
-        '{{ pi_server_apps_email_script }}' "SSH login: ${PAM_USER} from ${PAM_RHOST}" "$(env)" &
+        "${EMAIL_SCRIPT}" "SSH login: ${PAM_USER} from ${PAM_RHOST}" "$(env)" &
     fi
 fi

@@ -24,4 +24,4 @@
     mode: a=r
   vars:
     entrypoint_lines: "{{ raw_entrypoints.stdout_lines }}"
-  notify: reload traefik
+  notify: Reload traefik

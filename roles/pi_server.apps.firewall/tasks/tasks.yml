@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: before.rules
+- name: Before.rules
   become: true
   ansible.builtin.copy:
     src: before.rules
@@ -10,9 +10,9 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: before6.rules
+- name: Before6.rules
   become: true
   ansible.builtin.copy:
     src: before6.rules
@@ -20,9 +20,9 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: after.rules dir
+- name: After.rules dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_firewall_after_rules }}"
@@ -30,9 +30,9 @@
     owner: root
     group: root
     mode: u=rwx,g=rx,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: after.rules
+- name: After.rules
   become: true
   ansible.builtin.copy:
     src: after.rules
@@ -40,9 +40,9 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: assemble after.rules
+- name: Assemble after.rules
   become: true
   ansible.builtin.assemble:
     src: "{{ pi_server_apps_firewall_after_rules }}"
@@ -50,9 +50,9 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: after6.rules
+- name: After6.rules
   become: true
   ansible.builtin.copy:
     src: after6.rules
@@ -60,28 +60,29 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: default incoming
+- name: Default incoming
   become: true
   community.general.ufw:
     default: deny
     direction: incoming
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: default outgoing
+- name: Default outgoing
   become: true
   community.general.ufw:
     default: allow
     direction: outgoing
-  notify: reload firewall
+  notify: Reload firewall
 
-- name: allow ssh
+- name: Allow ssh
   become: true
   community.general.ufw:
     port: 22
     proto: tcp
     rule: allow
-  notify: reload firewall
+  notify: Reload firewall
 
-- include_tasks: reload.yml
+- name: Reload
+  ansible.builtin.include_tasks: reload.yml

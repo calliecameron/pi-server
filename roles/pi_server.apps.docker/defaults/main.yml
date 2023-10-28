@@ -3,4 +3,4 @@ pi_server_apps_docker_arch_map:
   aarch64: arm64
 pi_server_apps_docker_metrics_port: "9323"
 pi_server_apps_docker_compose_version: "1.29.2"
-pi_server_apps_docker_python_sdk_version: "5.0.3"
+pi_server_apps_docker_python_sdk_version: "6.1.3"

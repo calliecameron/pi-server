@@ -8,4 +8,4 @@
     port: "{{ args.port }}"
     proto: udp
     rule: allow
-  notify: reload firewall
+  notify: Reload firewall

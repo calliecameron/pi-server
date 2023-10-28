@@ -95,7 +95,7 @@
     owner: root
     group: root
     mode: u=r,go=
-  notify: reload openvpn
+  notify: Reload openvpn
 
 - name: autostart server
   become: true
@@ -106,7 +106,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload openvpn
+  notify: Reload openvpn
 
 - name: open port
   ansible.builtin.include_role:

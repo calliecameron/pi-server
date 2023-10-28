@@ -50,7 +50,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload resolved
+  notify: Reload resolved
 
 - name: resolv.conf
   become: true
@@ -61,7 +61,7 @@
     owner: root
     group: root
     mode: u=rw,go=r
-  notify: reload resolved
+  notify: Reload resolved
 
 - name: flush handlers
   ansible.builtin.meta: flush_handlers
@@ -74,7 +74,7 @@
     owner: root
     group: root
     mode: a=r
-  notify: reload pihole
+  notify: Reload pihole
 
 - include_tasks: compose.yml
   vars:

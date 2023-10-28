@@ -15,4 +15,4 @@
     mode: a=r
   vars:
     ports: "{{ raw_ports.stdout_lines }}"
-  notify: reload traefik
+  notify: Reload traefik

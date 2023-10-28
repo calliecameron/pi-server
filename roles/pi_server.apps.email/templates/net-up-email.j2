@@ -3,9 +3,13 @@
 # Send an email when the network connects; intended to monitor reboots
 
 LAN_IFACE='{{ pi_server_lan_iface }}'
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
 
 if [ -n "${LAN_IFACE}" ] && [ "${IFACE}" = "${LAN_IFACE}" ]; then
-    ( sleep 1m; '{{ pi_server_apps_email_script }}' "Connected to network" "$(uptime)" ) &
+    (
+        sleep 1m
+        "${EMAIL_SCRIPT}" "Connected to network" "$(uptime)"
+    ) &
 fi
 
 exit 0

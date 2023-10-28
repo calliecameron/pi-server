@@ -10,7 +10,7 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall
 
 - name: assemble after.rules
   become: true
@@ -20,4 +20,4 @@
     owner: root
     group: root
     mode: u=rw,g=r,o=
-  notify: reload firewall
+  notify: Reload firewall

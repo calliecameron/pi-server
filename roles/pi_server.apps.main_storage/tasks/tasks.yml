@@ -139,7 +139,7 @@
     owner: root
     group: root
     mode: a=rx
-  notify: reload zfs exporter
+  notify: Reload zfs exporter
 
 - name: scrub info script
   become: true

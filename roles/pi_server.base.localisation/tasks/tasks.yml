@@ -1,25 +1,26 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: set timezone
+- name: Set timezone
   become: true
   community.general.timezone:
     name: "{{ pi_server_timezone }}"
 
-- name: generate locale
+- name: Generate locale
   become: true
   community.general.locale_gen:
     name: "en_GB.UTF-8"
 
-- name: check system locale
+- name: Check system locale
   ansible.builtin.command:
     cmd: localectl status
   register: locale_status
   changed_when: false
 
-- name: set system locale
+- name: Set system locale
   become: true
   ansible.builtin.command:
     cmd: "localectl set-locale en_GB.UTF-8"
   when: "locale_status.stdout.find('System Locale: LANG=en_GB.UTF-8') == -1"
+  changed_when: true
