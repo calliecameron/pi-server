@@ -1,7 +1,8 @@
 import time
 from collections.abc import Mapping
 
-from conftest import Email, Lines, for_host_types
+from conftest import for_host_types
+from helpers import Email, Lines
 from testinfra.host import Host
 
 

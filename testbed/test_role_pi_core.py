@@ -4,7 +4,8 @@ from collections.abc import Mapping
 from urllib.parse import urlparse
 
 import requests
-from conftest import MockServer, Vagrant, WebDriver, for_host_types
+from conftest import for_host_types
+from helpers import MockServer, Vagrant, WebDriver
 from selenium.webdriver.common.by import By
 from testinfra.host import Host
 

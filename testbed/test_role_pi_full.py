@@ -7,7 +7,8 @@ from contextlib import contextmanager
 from typing import Iterator
 from urllib.parse import urlparse
 
-from conftest import Email, Lines, WebDriver, for_host_types
+from conftest import for_host_types
+from helpers import Email, Lines, WebDriver
 from selenium.webdriver.common.by import By
 from testinfra.host import Host
 

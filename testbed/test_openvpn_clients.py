@@ -1,7 +1,8 @@
 import datetime
 from collections.abc import Mapping
 
-from conftest import BASE_REACHABILITY, AddrInNet, Email, Net, OpenVPN, Vagrant
+from conftest import BASE_REACHABILITY
+from helpers import AddrInNet, Email, Net, OpenVPN, Vagrant
 from testinfra.host import Host
 
 SERVER_TO_SERVER_REACHABILITY = {

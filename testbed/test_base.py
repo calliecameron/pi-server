@@ -1,4 +1,5 @@
-from conftest import BASE_REACHABILITY, Net, vms_down
+from conftest import BASE_REACHABILITY, vms_down
+from helpers import Net
 
 PORT_RANGES_TO_SCAN = [
     (1, 2000),
