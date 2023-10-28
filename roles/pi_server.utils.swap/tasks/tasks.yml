@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: setup swap
+- name: Setup swap
   ansible.builtin.include_role:
     name: geerlingguy.swap
     apply:
@@ -11,7 +11,7 @@
     swap_file_size_mb: "{{ pi_server_swap_size_mb }}"
     swap_swappiness: 10
 
-- name: set vfs_cache_pressure
+- name: Set vfs_cache_pressure
   become: true
   ansible.posix.sysctl:
     name: vm.vfs_cache_pressure

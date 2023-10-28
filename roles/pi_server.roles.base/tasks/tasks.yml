@@ -1,51 +1,51 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base.hostname
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base.localisation
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base.packages
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base.cleanup_users
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base.os_hardening
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.email
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.ssh
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.firewall
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.cron
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.updates
