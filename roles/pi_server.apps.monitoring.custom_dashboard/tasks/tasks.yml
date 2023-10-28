@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
-- name: custom dashboard
+- name: Custom dashboard
   become: true
   ansible.builtin.copy:
     src: "{{ args.src }}"

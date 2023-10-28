@@ -1,11 +1,11 @@
-- name: grafana user
+- name: Grafana user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_monitoring_grafana_user }}"
     register: grafana_user
 
-- name: grafana config
+- name: Grafana config
   become: true
   ansible.builtin.template:
     src: grafana.ini.j2
@@ -15,7 +15,7 @@
     mode: a=r
   notify: Reload monitoring
 
-- name: grafana datasources
+- name: Grafana datasources
   become: true
   ansible.builtin.template:
     src: datasources.yml.j2
@@ -25,7 +25,7 @@
     mode: a=r
   notify: Reload monitoring
 
-- name: grafana dashboards
+- name: Grafana dashboards
   become: true
   ansible.builtin.copy:
     src: dashboards.yml
@@ -35,7 +35,7 @@
     mode: a=r
   notify: Reload monitoring
 
-- name: scrape grafana
+- name: Scrape grafana
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:

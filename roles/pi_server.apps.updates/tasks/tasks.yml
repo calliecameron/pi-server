@@ -1,28 +1,28 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: needrestart
+- name: Needrestart
   become: true
   ansible.builtin.package:
     name: needrestart
     state: present
 
-- name: user
+- name: User
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_updates_user }}"
     register:
 
-- name: sudoers
+- name: Sudoers
   ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
     name: "{{ pi_server_apps_updates_user }}"
 
-- name: listchanges.conf
+- name: Listchanges.conf
   become: true
   ansible.builtin.copy:
     src: listchanges.conf
@@ -31,7 +31,7 @@
     group: root
     mode: a=r
 
-- name: cronjob
+- name: Cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
@@ -42,13 +42,13 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: dashboard
+- name: Dashboard
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: updates.json
 
-- name: alerts
+- name: Alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:

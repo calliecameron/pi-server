@@ -1,30 +1,33 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.base
 
-- include_tasks: config_file.yml
+- name: Config file
+  ansible.builtin.include_tasks: config_file.yml
 
-- include_tasks: compose_file.yml
+- name: Compose file
+  ansible.builtin.include_tasks: compose_file.yml
 
-- include_tasks: compose.yml
+- name: Compose
+  ansible.builtin.include_tasks: compose.yml
   vars:
     restart: false
 
-- name: monitor containers
+- name: Monitor containers
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_traefik_docker_compose }}"
 
-- name: scrape job
+- name: Scrape job
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
@@ -33,7 +36,7 @@
     port: "{{ pi_server_apps_traefik_metrics_port }}"
     metrics_path: /metrics
 
-- name: control panel fragment
+- name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:

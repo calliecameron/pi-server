@@ -5,14 +5,14 @@ import http.server
 import sys
 import time
 
-WEBPAGE_HEADER = '/etc/shutdownd/00-header.html'
-WEBPAGE_FOOTER = '/etc/shutdownd/zz-footer.html'
+WEBPAGE_HEADER = "/etc/shutdownd/00-header.html"
+WEBPAGE_FOOTER = "/etc/shutdownd/zz-footer.html"
 # Though this is really an int, we keep it as a string here so the linter
 # doesn't complain about the templating
-PORT = '{{ pi_server_apps_shutdownd_ui_port }}'
-COMMAND_FILE = '/var/shutdownd/command'
-SHUTDOWN_URL = '/shutdownd/shutdown'
-RESTART_URL = '/shutdownd/restart'
+PORT = "{{ pi_server_apps_shutdownd_ui_port }}"
+COMMAND_FILE = "/var/shutdownd/command"
+SHUTDOWN_URL = "/shutdownd/shutdown"
+RESTART_URL = "/shutdownd/restart"
 
 MAIN_PAGE_BODY = """
 <h1>%s</h1>
@@ -46,70 +46,74 @@ RESTARTING_BODY = """
 
 class Responder(http.server.BaseHTTPRequestHandler):
     def construct_response(self, title: str, body: str) -> bytes:
-        page = ''
+        page = ""
         try:
-            with open(WEBPAGE_HEADER, encoding='utf-8') as f:
+            with open(WEBPAGE_HEADER, encoding="utf-8") as f:
                 page += f.read()
-            page = page.replace('#####1#####', title)
+            page = page.replace("#####1#####", title)
         except IOError:
-            page += ('<html><head><meta charset="utf-8">' +
-                     f'<title>{title}</title></head><body>')
+            page += '<html><head><meta charset="utf-8">' + f"<title>{title}</title></head><body>"
 
-        page += ('<div class="container first-container"><div class="row"><div class="col">' +
-                 body + '</div></div></div>')
+        page += (
+            '<div class="container first-container"><div class="row"><div class="col">'
+            + body
+            + "</div></div></div>"
+        )
 
         try:
-            with open(WEBPAGE_FOOTER, encoding='utf-8') as f:
+            with open(WEBPAGE_FOOTER, encoding="utf-8") as f:
                 page += f.read()
         except IOError:
-            page += '</body></html>'
+            page += "</body></html>"
 
-        return page.encode('utf-8')
+        return page.encode("utf-8")
 
     def respond(self, title: str, body: str) -> None:
         self.send_response(200)
-        self.send_header('Content-type', 'text/html')
+        self.send_header("Content-type", "text/html")
         self.end_headers()
         self.wfile.write(self.construct_response(title, body))
 
     def fail(self) -> None:
         self.send_response(404)
-        self.send_header('Content-type', 'text/html')
+        self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(self.construct_response(
-            'Error',
-            '<h1>Error!</h1><p>The requested page could not be found</p>'))
+        self.wfile.write(
+            self.construct_response(
+                "Error", "<h1>Error!</h1><p>The requested page could not be found</p>"
+            )
+        )
 
     def main_page(self, title: str, url: str) -> None:
         self.respond(title, MAIN_PAGE_BODY % (title, title, url, title))
 
     def do_command(self, command: str) -> None:
-        with open(COMMAND_FILE, mode='w', encoding='utf-8') as f:
-            f.write(f'{command}\n')
+        with open(COMMAND_FILE, mode="w", encoding="utf-8") as f:
+            f.write(f"{command}\n")
 
     def do_GET(self) -> None:
         if self.path == SHUTDOWN_URL:
-            self.main_page('Shut down', SHUTDOWN_URL)
+            self.main_page("Shut down", SHUTDOWN_URL)
         elif self.path == RESTART_URL:
-            self.main_page('Restart', RESTART_URL)
+            self.main_page("Restart", RESTART_URL)
         else:
             self.fail()
 
     def do_POST(self) -> None:
         if self.path == SHUTDOWN_URL:
-            self.respond('Shut down', SHUTTING_DOWN_BODY)
+            self.respond("Shut down", SHUTTING_DOWN_BODY)
             time.sleep(1)
-            self.do_command('shutdown')
+            self.do_command("shutdown")
             sys.exit(0)
         elif self.path == RESTART_URL:
-            self.respond('Restart', RESTARTING_BODY)
+            self.respond("Restart", RESTARTING_BODY)
             time.sleep(1)
-            self.do_command('reboot')
+            self.do_command("reboot")
             sys.exit(0)
         else:
             self.fail()
 
 
-server_address = ('', int(PORT))
+server_address = ("", int(PORT))
 httpd = http.server.HTTPServer(server_address, Responder)
 httpd.serve_forever()

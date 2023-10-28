@@ -1,11 +1,11 @@
-- name: webhook user
+- name: Webhook user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_monitoring_webhook_user }}"
     register: webhook_user
 
-- name: webhook dir
+- name: Webhook dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_monitoring_webhook_dir }}"
@@ -14,7 +14,7 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: webhook config
+- name: Webhook config
   become: true
   ansible.builtin.template:
     src: webhook.conf.j2
@@ -23,7 +23,7 @@
     group: root
     mode: a=r
 
-- name: webhook alert script
+- name: Webhook alert script
   become: true
   ansible.builtin.copy:
     src: webhook-alert
@@ -32,7 +32,7 @@
     group: root
     mode: a=rx
 
-- name: webhook dockerfile
+- name: Webhook dockerfile
   become: true
   ansible.builtin.template:
     src: webhook-dockerfile.j2
@@ -41,7 +41,7 @@
     group: root
     mode: a=r
 
-- name: build webhook image
+- name: Build webhook image
   ansible.builtin.include_role:
     name: pi_server.apps.docker.build
   vars:

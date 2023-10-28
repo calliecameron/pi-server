@@ -1,36 +1,42 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.email
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
-- include_tasks: prometheus.yml
+- name: Prometheus
+  ansible.builtin.include_tasks: prometheus.yml
 
-- include_tasks: grafana.yml
+- name: Grafana
+  ansible.builtin.include_tasks: grafana.yml
 
-- include_tasks: node_exporter.yml
+- name: Node exporter
+  ansible.builtin.include_tasks: node_exporter.yml
 
-- include_tasks: cadvisor.yml
+- name: Cadvisor
+  ansible.builtin.include_tasks: cadvisor.yml
 
-- include_tasks: alertmanager.yml
+- name: Alertmanager
+  ansible.builtin.include_tasks: alertmanager.yml
 
-- include_tasks: webhook.yml
+- name: Webhook
+  ansible.builtin.include_tasks: webhook.yml
 
-- name: docker compose file
+- name: Docker compose file
   become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
@@ -40,17 +46,18 @@
     mode: a=r
   notify: Reload monitoring
 
-- include_tasks: compose.yml
+- name: Compose
+  ansible.builtin.include_tasks: compose.yml
   vars:
     restart: false
 
-- name: monitor containers
+- name: Monitor containers
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
 
-- name: control panel fragment
+- name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:

@@ -73,7 +73,6 @@ while true; do
         ;;
     *)
         usage
-        exit 1
         ;;
     esac
 done
@@ -235,6 +234,7 @@ function failure() {
     exit 1
 }
 
+# shellcheck disable=SC2317
 function handle-signal() {
     msg 'caught a signal'
     if [ -n "${PID:-}" ]; then

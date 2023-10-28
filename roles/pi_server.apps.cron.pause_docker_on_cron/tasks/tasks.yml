@@ -1,22 +1,22 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
-- name: get container ID
+- name: Get container ID
   become: true
   ansible.builtin.command:
     cmd: "docker-compose -f '{{ args.compose_file }}' ps -q '{{ args.service }}'"
   register: container_id
   changed_when: false
 
-- name: get container name
+- name: Get container name
   become: true
   ansible.builtin.command:
     cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_id.stdout }}"
   register: container_name
   changed_when: false
 
-- name: pause on cron
+- name: Pause on cron
   ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:

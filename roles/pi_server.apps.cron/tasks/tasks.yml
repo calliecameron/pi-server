@@ -1,12 +1,12 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
-- name: cron wrapper
+- name: Cron wrapper
   become: true
   ansible.builtin.template:
     src: cron-wrapper.bash.j2
@@ -15,7 +15,7 @@
     group: root
     mode: a=r
 
-- name: cron wrapper internal
+- name: Cron wrapper internal
   become: true
   ansible.builtin.template:
     src: cron-wrapper-internal.j2
@@ -24,21 +24,21 @@
     group: root
     mode: a=rx
 
-- name: cron runner user
+- name: Cron runner user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_cron_runner_user }}"
     register:
 
-- name: sudoers
+- name: Sudoers
   ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
     name: "{{ pi_server_apps_cron_runner_user }}"
 
-- name: cron runner
+- name: Cron runner
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
@@ -50,7 +50,7 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: crontab
+- name: Crontab
   become: true
   ansible.builtin.copy:
     src: crontab
@@ -59,19 +59,19 @@
     group: root
     mode: u=rw,go=
 
-- name: monitor cron service
+- name: Monitor cron service
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: cron
 
-- name: dashboard
+- name: Dashboard
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: cron.json
 
-- name: alerts
+- name: Alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:

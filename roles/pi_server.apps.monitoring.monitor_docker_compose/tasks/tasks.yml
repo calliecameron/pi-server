@@ -1,26 +1,26 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
-- name: get container IDs
+- name: Get container IDs
   become: true
   ansible.builtin.command:
     cmd: "docker-compose -f {{ args.compose_file }} ps -q"
   register: container_ids
   changed_when: false
 
-- name: get container names
+- name: Get container names
   become: true
   ansible.builtin.command:
     cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_ids.stdout }}"
   register: container_names
   changed_when: false
 
-- name: "docker standard alerts for {{ args.compose_file }}"
+- name: "Docker standard alerts for {{ args.compose_file }}"
   become: true
   ansible.builtin.template:
     src: docker-alerts-standard.yml.j2
@@ -32,7 +32,7 @@
     container: "{{ item }}"
   loop: "{{ container_names.stdout_lines | map('trim', '/') }}"
 
-- name: "standard dashboard for {{ args.compose_file }}"
+- name: "Standard dashboard for {{ args.compose_file }}"
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_monitoring_monitored_docker }}"

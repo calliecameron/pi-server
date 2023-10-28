@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.base
 
-- name: "add {{ args.user }} to monitoring writers"
+- name: "Add {{ args.user }} to monitoring writers"
   become: true
   ansible.builtin.user:
     name: "{{ args.user }}"

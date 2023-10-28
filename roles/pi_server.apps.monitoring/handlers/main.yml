@@ -1,5 +1,5 @@
 - name: Reload monitoring
-  include_tasks: compose.yml
+  ansible.builtin.include_tasks: compose.yml
   vars:
     restart: true
   listen: "Reload monitoring"

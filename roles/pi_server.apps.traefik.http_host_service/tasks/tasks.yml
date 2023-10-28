@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.base
 
-- name: service config
+- name: Service config
   become: true
   ansible.builtin.template:
     src: service.yml.j2

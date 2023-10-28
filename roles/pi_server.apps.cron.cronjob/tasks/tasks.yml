@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
-- name: cronjob script
+- name: Cronjob script
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:

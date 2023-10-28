@@ -1,4 +1,4 @@
-- name: alertmanager config
+- name: Alertmanager config
   become: true
   ansible.builtin.template:
     src: alertmanager.yml.j2
@@ -8,7 +8,7 @@
     mode: a=r
   notify: Reload monitoring
 
-- name: scrape alertmanager
+- name: Scrape alertmanager
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:

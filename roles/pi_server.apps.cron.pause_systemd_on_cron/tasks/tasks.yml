@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.cron.base
 
-- name: "pause systemd '{{ service }}' on cron"
+- name: "Pause systemd '{{ service }}' on cron"
   ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:

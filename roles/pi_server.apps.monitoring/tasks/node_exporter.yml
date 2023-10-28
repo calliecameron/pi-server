@@ -1,11 +1,11 @@
-- name: node exporter user
+- name: Node exporter user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_monitoring_node_exporter_user }}"
     register: node_exporter_user
 
-- name: collect dir ACLs
+- name: Collect dir ACLs
   become: true
   ansible.posix.acl:
     path: "{{ pi_server_apps_monitoring_node_exporter_collect }}"
@@ -15,14 +15,14 @@
     permissions: r
     state: present
 
-- name: node exporter custom alerts
+- name: Node exporter custom alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:
     src: node-alerts-custom.yml
     job: node
 
-- name: scrape node exporter
+- name: Scrape node exporter
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.scrape_job
   vars:
@@ -31,7 +31,7 @@
     port: "{{ pi_server_apps_monitoring_node_exporter_port }}"
     metrics_path: /metrics
 
-- name: expose node exporter port to containers
+- name: Expose node exporter port to containers
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.open_host_port_to_containers
   vars:

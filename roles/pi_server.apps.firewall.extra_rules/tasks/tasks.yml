@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.firewall
 
-- name: install rules
+- name: Install rules
   become: true
   ansible.builtin.template:
     src: "{{ args.src }}"
@@ -12,7 +12,7 @@
     mode: u=rw,g=r,o=
   notify: Reload firewall
 
-- name: assemble after.rules
+- name: Assemble after.rules
   become: true
   ansible.builtin.assemble:
     src: "{{ pi_server_apps_firewall_after_rules }}"
