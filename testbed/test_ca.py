@@ -1,6 +1,7 @@
 import datetime
 import os.path
-from typing import Dict, List, cast
+from collections.abc import Mapping, Sequence
+from typing import cast
 
 from cryptography.x509 import load_pem_x509_certificate, load_pem_x509_crl
 from cryptography.x509.extensions import BasicConstraints
@@ -9,7 +10,7 @@ from testinfra.host import Host
 
 
 class TestCA:
-    def test_ca(self, hosts: Dict[str, Host]) -> None:
+    def test_ca(self, hosts: Mapping[str, Host]) -> None:
         host = hosts["internet"]
         test_root_dir = "/home/vagrant/ca-test"
         root_dir = os.path.join(test_root_dir, "ca")
@@ -22,10 +23,10 @@ class TestCA:
         today = datetime.datetime.today().date()
         one_hundred_years = today + datetime.timedelta(days=36500)
 
-        def check_with_stdin(cmd: str, stdin: List[str]) -> None:
+        def check_with_stdin(cmd: str, stdin: Sequence[str]) -> None:
             host.check_output("printf '%s\n' | %s" % ("\n".join(stdin), cmd))
 
-        def matching_dir(dirs: List[str], prefix: str) -> str:
+        def matching_dir(dirs: Sequence[str], prefix: str) -> str:
             for d in dirs:
                 if d.startswith(prefix):
                     return d

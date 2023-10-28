@@ -1,8 +1,8 @@
-from typing import Any, Dict, Tuple
+from typing import Any
 
 class Mark:
     name: str
-    kwargs: Dict[str, Tuple[str, ...]]
+    kwargs: dict[str, tuple[str, ...]]
 
 class MarkDecorator:
     def __call__(self, *args: Any, **kwargs: Any) -> MarkDecorator: ...

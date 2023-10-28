@@ -7,22 +7,11 @@ import os.path
 import re
 import time
 from collections import OrderedDict
+from collections.abc import Iterator, Mapping, Sequence, Set
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from functools import wraps
-from typing import (
-    Any,
-    Callable,
-    Dict,
-    Iterator,
-    List,
-    Optional,
-    Sequence,
-    Set,
-    Tuple,
-    TypeVar,
-    cast,
-)
+from typing import Any, Callable, Optional, TypeVar, cast
 from urllib.parse import ParseResult, urlparse
 
 import codetiming
@@ -63,9 +52,9 @@ File.clear = _file_clear  # type: ignore
 class Timer(codetiming.Timer):
     def __init__(self, name: str = "[unnamed timer]") -> None:
         super().__init__(name=name, logger=logging.debug)
-        self._args = []  # type: List[str]
-        self._retval = None  # type: object
-        self._extra_text = []  # type: List[object]
+        self._args: list[str] = []
+        self._retval: object = None
+        self._extra_text: list[object] = []
 
     @staticmethod
     def _escape_str(s: str) -> str:
@@ -142,19 +131,19 @@ class Vagrant:
         self._v = vagrant_lib.Vagrant()
         # VM operations are slow, so we cache the state. If state is modified externally, run
         # rescan_state to update the cache.
-        self._state = {}  # type: Dict[str, bool]
+        self._state: dict[str, bool] = {}
         self.rescan_state()
 
     def rescan_state(self) -> None:
         self._state = {vm.name: vm.state == self._v.RUNNING for vm in self._v.status()}
 
-    def state(self) -> Dict[str, bool]:
+    def state(self) -> dict[str, bool]:
         return self._state
 
-    def all_vms(self) -> List[str]:
+    def all_vms(self) -> list[str]:
         return sorted(self._state)
 
-    def running_vms(self) -> List[str]:
+    def running_vms(self) -> list[str]:
         return sorted([vm for vm, up in self._state.items() if up])
 
     @timer
@@ -211,8 +200,8 @@ class Net:
     def __init__(
         # pylint: disable=redefined-outer-name
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
         vagrant: Vagrant,
     ) -> None:
         super().__init__()
@@ -225,7 +214,7 @@ class Net:
         return self._hosts[host].addr(self._addrs[addr]).is_reachable
 
     @timer
-    def traceroute(self, t: Timer, host: str, addr: str) -> List[str]:
+    def traceroute(self, t: Timer, host: str, addr: str) -> list[str]:
         """Gets the hops from host to addr; empty list means unreachable."""
         result = trparse.loads(
             self._hosts[host].check_output("sudo traceroute -I %s", self._addrs[addr])
@@ -257,8 +246,8 @@ class Net:
 
     @timer
     def nmap(
-        self, t: Timer, host: str, addr: str, ranges: List[Tuple[int, int]]
-    ) -> Dict[str, Set[int]]:
+        self, t: Timer, host: str, addr: str, ranges: Sequence[tuple[int, int]]
+    ) -> dict[str, set[int]]:
         """Gets the open ports on addr as seen from host."""
         ports = ",".join([f"{a}-{b}" for (a, b) in ranges])
         result = self._hosts[host].check_output(
@@ -283,8 +272,8 @@ class Net:
         return {"tcp": tcp, "udp": udp}
 
     def _host_addr_pairs(
-        self, hosts: List[str]  # pylint: disable=redefined-outer-name
-    ) -> List[Tuple[str, str]]:
+        self, hosts: Sequence[str]  # pylint: disable=redefined-outer-name
+    ) -> list[tuple[str, str]]:
         running_vms = self._vagrant.running_vms()
         if sorted(hosts) != running_vms:
             raise ValueError(
@@ -305,7 +294,7 @@ class Net:
         self,
         want_fn: Callable[[str, str], object],
         got_fn: Callable[[str, str], object],
-        host_addr_pairs: List[Tuple[str, str]],
+        host_addr_pairs: Sequence[tuple[str, str]],
     ) -> None:
         expected = [want_fn(host, addr) for host, addr in host_addr_pairs]
         logging.debug("Running %d checks", len(host_addr_pairs))
@@ -326,7 +315,7 @@ class Net:
             pytest.fail("\n".join(lines))
 
     @timer
-    def assert_reachability(self, reachable: Dict[str, List[str]]) -> None:
+    def assert_reachability(self, reachable: Mapping[str, Sequence[str]]) -> None:
         """Verify reachability of all host/addr pairs is as expected.
 
         Args:
@@ -341,7 +330,7 @@ class Net:
         )
 
     @timer
-    def assert_routes(self, routes: Dict[str, Dict[str, List[object]]]) -> None:
+    def assert_routes(self, routes: Mapping[str, Mapping[str, Sequence[object]]]) -> None:
         """Verify routes between all host/addr pairs are as expected.
 
         Args:
@@ -350,7 +339,7 @@ class Net:
           not listed will be checked for being unreachable.
         """
 
-        def traceroute(host: str, addr: str) -> List[str]:
+        def traceroute(host: str, addr: str) -> list[str]:
             result = self.traceroute(host, addr)  # pylint: disable=no-value-for-parameter
             if addr == "external" and result:
                 # External is a special case, in that we don't care where the packets go once they
@@ -366,7 +355,7 @@ class Net:
         self._assert_result(
             lambda host, addr: [
                 (self._addrs[hop] if isinstance(hop, str) else hop)
-                for hop in (routes[host][addr] + [addr] if addr in routes[host] else [])
+                for hop in (list(routes[host][addr]) + [addr] if addr in routes[host] else [])
             ],
             traceroute,
             self._host_addr_pairs(sorted(routes)),
@@ -374,7 +363,9 @@ class Net:
 
     @timer
     def assert_ports_open(
-        self, ports: Dict[str, Dict[str, Dict[str, Set[int]]]], ranges: List[Tuple[int, int]]
+        self,
+        ports: Mapping[str, Mapping[str, Mapping[str, Set[int]]]],
+        ranges: Sequence[tuple[int, int]],
     ) -> None:
         """Check that only the given ports are open for the given host/addr pairs."""
         host_addr_pairs = []
@@ -450,7 +441,7 @@ class Email:
         r = requests.delete(f"http://{self._host}:{self._PORT}/api/emails", timeout=60)
         r.raise_for_status()
 
-    def _get(self, only_from: Optional[str] = None) -> List[Any]:
+    def _get(self, only_from: Optional[str] = None) -> list[Any]:
         r = requests.get(f"http://{self._host}:{self._PORT}/api/emails", timeout=60)
         r.raise_for_status()
         got_emails = r.json()
@@ -461,12 +452,13 @@ class Email:
                 if e["from"]["value"][0]["address"] == f"notification@{only_from}.testbed"
                 or not e["from"]["value"][0]["address"]
             ]
-        return cast(List[Any], got_emails)
+        return cast(list[Any], got_emails)
 
     @staticmethod
     def _matches(
-        expected: Dict[str, Any], email: Dict[str, Any]  # pylint: disable=redefined-outer-name
-    ) -> Tuple[bool, str]:
+        expected: Mapping[str, Any],
+        email: Mapping[str, Any],  # pylint: disable=redefined-outer-name
+    ) -> tuple[bool, str]:
         def fail_msg(field_name: str, want: str, got: str) -> str:
             return (
                 f"Email field '{field_name}' doesn't match: want:\n{want}\ngot:\n{got}\n"
@@ -495,7 +487,9 @@ class Email:
 
         return True, ""
 
-    def assert_emails(self, emails: List[Dict[str, str]], only_from: Optional[str] = None) -> None:
+    def assert_emails(
+        self, emails: Sequence[Mapping[str, str]], only_from: Optional[str] = None
+    ) -> None:
         """Emails must exactly match."""
         got_emails = self._get(only_from)
 
@@ -513,7 +507,7 @@ class Email:
                 pytest.fail(msg)
 
     def assert_has_emails(
-        self, emails: List[Dict[str, str]], only_from: Optional[str] = None
+        self, emails: Sequence[Mapping[str, str]], only_from: Optional[str] = None
     ) -> None:
         """Emails must be a subset of what's on the server."""
         got_emails = sorted(self._get(only_from), key=lambda e: cast(str, e["subject"]))
@@ -545,7 +539,7 @@ class MockServer:
     def __init__(self, host: str) -> None:
         super().__init__()
         self._host = host
-        self._expectations = []  # type: List[str]
+        self._expectations: list[str] = []
 
     def clear(self) -> None:
         self._expectations = []
@@ -558,9 +552,10 @@ class MockServer:
         )
         r.raise_for_status()
 
-    def expect(self, json: Dict[Any, Any]) -> None:  # pylint: disable=redefined-outer-name
-        json["times"] = {"remainingTimes": 1}
-        r = requests.put(f"http://{self._host}:{self._PORT}/expectation", json=json, timeout=60)
+    def expect(self, json: Mapping[Any, Any]) -> None:  # pylint: disable=redefined-outer-name
+        j = dict(json)
+        j["times"] = {"remainingTimes": 1}
+        r = requests.put(f"http://{self._host}:{self._PORT}/expectation", json=j, timeout=60)
         r.raise_for_status()
         self._expectations.append(r.json()[0]["httpRequest"])
 
@@ -652,7 +647,7 @@ class ShadowDir:
         super().__init__()
         self._host = host
         self._path = path
-        self._tmpdir = None  # type: Optional[str]
+        self._tmpdir: Optional[str] = None
 
     def __enter__(self) -> "ShadowDir":
         with self._host.sudo():
@@ -797,8 +792,8 @@ class CronRunner:
         self._date = date
         self._cmd_to_watch = cmd_to_watch
         self._disable_sources_list = disable_sources_list
-        self._sources_list = None  # type: Optional[ShadowFile]
-        self._time_control = None  # type: Optional[Time]
+        self._sources_list: Optional[ShadowFile] = None
+        self._time_control: Optional[Time] = None
 
     def __enter__(self) -> None:
         with self._host.sudo():
@@ -917,11 +912,11 @@ class WebDriver(Firefox):
         errors = tidy_document(self.page_source, options={"show-warnings": 0})[1]
         assert not errors
 
-    def validate_links(self) -> Set[ParseResult]:
+    def validate_links(self) -> set[ParseResult]:
         this_addr = urlparse(self.current_url).hostname
 
-        def elems(tag: str) -> List[Any]:
-            e = cast(List[Any], self.find_elements(By.TAG_NAME, tag))
+        def elems(tag: str) -> list[Any]:
+            e = cast(list[Any], self.find_elements(By.TAG_NAME, tag))
             assert e
             return e
 
@@ -947,7 +942,7 @@ class OpenVPN:
     def __init__(
         # pylint: disable=redefined-outer-name
         self,
-        hosts: Dict[str, Host],
+        hosts: Mapping[str, Host],
         vagrant: Vagrant,
     ) -> None:
         super().__init__()
@@ -967,7 +962,7 @@ class OpenVPN:
                 host.check_output(f"systemctl stop '{service}'")
 
 
-def _hostnames() -> List[str]:
+def _hostnames() -> list[str]:
     """Returns all host names from the ansible inventory."""
     return sorted(_ANSIBLE_RUNNER.get_hosts())
 
@@ -986,8 +981,8 @@ def host_number(hostname: str) -> str:
     return match.group(1)
 
 
-def _hostnames_by_type() -> Dict[str, List[str]]:
-    out = {}  # type: Dict[str, List[str]]
+def _hostnames_by_type() -> dict[str, list[str]]:
+    out: dict[str, list[str]] = {}
     for hostname in _hostnames():
         out.setdefault(_host_type(hostname), []).append(hostname)
     for value in out.values():
@@ -1003,16 +998,16 @@ def corresponding_hostname(hostname: str, host_type: str) -> str:
 
 
 @pytest.fixture(scope="session")
-def hosts() -> Dict[str, Host]:
+def hosts() -> dict[str, Host]:
     """Returns all hosts by name from the ansible inventory."""
     return {name: _ANSIBLE_RUNNER.get_host(name, ssh_config="ssh_config") for name in _hostnames()}
 
 
 @pytest.fixture(scope="session")
 def hosts_by_type(
-    hosts: Dict[str, Host]  # pylint: disable=redefined-outer-name
-) -> Dict[str, List[Tuple[str, Host]]]:
-    out = {}  # type: Dict[str, List[Tuple[str, Host]]]
+    hosts: Mapping[str, Host]  # pylint: disable=redefined-outer-name
+) -> dict[str, list[tuple[str, Host]]]:
+    out: dict[str, list[tuple[str, Host]]] = {}
     for host_type, hostnames in _hostnames_by_type().items():
         out[host_type] = [(hostname, hosts[hostname]) for hostname in hostnames]
     return out
@@ -1033,17 +1028,17 @@ def for_host_types(*args: str) -> MarkDecorator:
 
 
 @pytest.fixture(scope="session")
-def addrs() -> Dict[str, str]:
+def addrs() -> dict[str, str]:
     """Returns all IP addresses by name."""
     with open("config.json", encoding="utf-8") as f:
-        return cast(Dict[str, str], json.load(f)["addrs"])
+        return cast(dict[str, str], json.load(f)["addrs"])
 
 
 @pytest.fixture(scope="session")
-def masks() -> Dict[str, str]:
+def masks() -> dict[str, str]:
     """Returns all net masks by name."""
     with open("config.json", encoding="utf-8") as f:
-        return cast(Dict[str, str], json.load(f)["masks"])
+        return cast(dict[str, str], json.load(f)["masks"])
 
 
 @pytest.fixture(scope="session")
@@ -1054,8 +1049,8 @@ def vagrant() -> Vagrant:
 @pytest.fixture(scope="session")
 def net(
     # pylint: disable=redefined-outer-name
-    hosts: Dict[str, Host],
-    addrs: Dict[str, str],
+    hosts: Mapping[str, Host],
+    addrs: Mapping[str, str],
     vagrant: Vagrant,
 ) -> Net:
     return Net(hosts, addrs, vagrant)
@@ -1064,21 +1059,21 @@ def net(
 @pytest.fixture(scope="session")
 def openvpn(
     # pylint: disable=redefined-outer-name
-    hosts: Dict[str, Host],
+    hosts: Mapping[str, Host],
     vagrant: Vagrant,
 ) -> OpenVPN:
     return OpenVPN(hosts, vagrant)
 
 
 @pytest.fixture()
-def email(addrs: Dict[str, str]) -> Email:  # pylint: disable=redefined-outer-name
+def email(addrs: Mapping[str, str]) -> Email:  # pylint: disable=redefined-outer-name
     e = Email(addrs["internet"])
     e.clear()
     return e
 
 
 @pytest.fixture()
-def mockserver(addrs: Dict[str, str]) -> MockServer:  # pylint: disable=redefined-outer-name
+def mockserver(addrs: Mapping[str, str]) -> MockServer:  # pylint: disable=redefined-outer-name
     m = MockServer(addrs["internet"])
     m.clear()
     return m
@@ -1089,7 +1084,7 @@ def mockserver(addrs: Dict[str, str]) -> MockServer:  # pylint: disable=redefine
 def ensure_vm_state(
     vagrant: Vagrant, request: FixtureRequest  # pylint: disable=redefined-outer-name
 ) -> None:
-    vms_down: Tuple[str, ...] = ()  # pylint: disable=redefined-outer-name
+    vms_down: tuple[str, ...] = ()  # pylint: disable=redefined-outer-name
     for mark in request.keywords.get("pytestmark", []):
         if mark.name == "vms_down":
             vms_down = mark.kwargs["vms"]

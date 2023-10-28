@@ -1,6 +1,6 @@
 import datetime
 import time
-from typing import Dict
+from collections.abc import Mapping
 from urllib.parse import urlparse
 
 import requests
@@ -11,7 +11,7 @@ from testinfra.host import Host
 
 class TestRolePiCore:
     @for_host_types("pi")
-    def test_avahi(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_avahi(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         addrs = (
             host.check_output('ip a | grep "inet " | cut "-d " -f 6 | sed "s|/.*||g"')
@@ -22,7 +22,9 @@ class TestRolePiCore:
         assert addr in addrs
 
     @for_host_types("pi")
-    def test_zoneedit(self, hostname: str, hosts: Dict[str, Host], mockserver: MockServer) -> None:
+    def test_zoneedit(
+        self, hostname: str, hosts: Mapping[str, Host], mockserver: MockServer
+    ) -> None:
         host = hosts[hostname]
         service = host.service("pi-server-cron-zoneedit")
         journal = host.journal()
@@ -167,7 +169,7 @@ class TestRolePiCore:
             assert log.count(r".*ZoneEdit update failed") == 1
 
     @for_host_types("pi")
-    def test_control_panel(self, hostname: str, addrs: Dict[str, str]) -> None:
+    def test_control_panel(self, hostname: str, addrs: Mapping[str, str]) -> None:
         def test(this_addr: str, other_addr: str) -> None:
             # Test that the main page links to the other address
             with WebDriver() as driver:
@@ -226,7 +228,7 @@ class TestRolePiCore:
 
     @for_host_types("pi")
     def test_shutdownd(
-        self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str], vagrant: Vagrant
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str], vagrant: Vagrant
     ) -> None:
         host = hosts[hostname]
         path = "/tmp/disappear-on-reboot"

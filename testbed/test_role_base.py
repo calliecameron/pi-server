@@ -1,5 +1,5 @@
 import time
-from typing import Dict
+from collections.abc import Mapping
 
 from conftest import Email, Lines, for_host_types
 from testinfra.host import Host
@@ -7,11 +7,11 @@ from testinfra.host import Host
 
 class TestRoleBase:
     @for_host_types("pi", "ubuntu")
-    def test_hostname(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_hostname(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         assert hosts[hostname].check_output("hostname") == hostname
 
     @for_host_types("pi", "ubuntu")
-    def test_localisation(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_localisation(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         lines = Lines(hosts[hostname].check_output("timedatectl status"), hostname)
         assert lines.contains(r" *Time zone: Europe/Zurich.*")
 
@@ -19,12 +19,12 @@ class TestRoleBase:
         assert lines.contains(r" *System Locale: LANG=en_GB.UTF-8")
 
     @for_host_types("pi", "ubuntu")
-    def test_packages(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_packages(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         # We pick one of the packages that the script installs, that isn't installed by default.
         assert hosts[hostname].package("etckeeper").is_installed
 
     @for_host_types("pi", "ubuntu")
-    def test_cleanup_users(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_cleanup_users(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         # We pick the most important user - root - and a few that are changed
         with host.sudo():
@@ -35,7 +35,7 @@ class TestRoleBase:
             assert host.user("messagebus").password == "*"
 
     @for_host_types("pi", "ubuntu")
-    def test_email(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_email(self, email: Email, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         client_ip = host.client_ip()
 
@@ -110,7 +110,7 @@ class TestRoleBase:
     # Firewall is tested by the port scan in test_base.py.
 
     @for_host_types("pi", "ubuntu")
-    def test_docker(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_docker(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         assert host.service("docker").is_enabled
         assert host.service("docker").is_running
@@ -119,7 +119,7 @@ class TestRoleBase:
     # Traefik is tested by being able to access dashboards later on.
 
     @for_host_types("pi", "ubuntu")
-    def test_monitoring(self, email: Email, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_monitoring(self, email: Email, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         textfile_alert = """
 groups:
@@ -262,7 +262,7 @@ groups:
                     )
 
     @for_host_types("pi", "ubuntu")
-    def test_cron(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_cron(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         """This tests the cron system, not any particular cronjob."""
         host = hosts[hostname]
         journal = host.journal()
@@ -707,7 +707,9 @@ echo bar
                 host.check_output("systemctl daemon-reload")
 
     @for_host_types("pi", "ubuntu")
-    def test_updates(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    def test_updates(
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+    ) -> None:
         host = hosts[hostname]
         internet = hosts["internet"]
         known_packages = []

@@ -1,13 +1,11 @@
-from typing import List
-
 class Probe:
     annotation: str
     ip: str
 
 class Hop:
-    probes: List[Probe]
+    probes: list[Probe]
 
 class Traceroute:
-    hops: List[Hop]
+    hops: list[Hop]
 
 def loads(data: str) -> Traceroute: ...

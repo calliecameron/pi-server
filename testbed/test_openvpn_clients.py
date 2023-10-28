@@ -1,5 +1,5 @@
 import datetime
-from typing import Dict
+from collections.abc import Mapping
 
 from conftest import BASE_REACHABILITY, AddrInNet, Email, Net, OpenVPN, Vagrant
 from testinfra.host import Host
@@ -65,8 +65,8 @@ SERVER_TO_SERVER_REACHABILITY = {
 class TestOpenVPNClients:
     def test_server_to_server_reachability(
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
         email: Email,
         net: Net,
         openvpn: OpenVPN,
@@ -97,9 +97,9 @@ class TestOpenVPNClients:
 
     def test_server_to_server_routing(
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
-        masks: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
+        masks: Mapping[str, str],
         email: Email,
         net: Net,
         openvpn: OpenVPN,
@@ -198,8 +198,8 @@ class TestOpenVPNClients:
 
     def test_host_to_server_reachability(
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
         email: Email,
         net: Net,
         openvpn: OpenVPN,
@@ -290,8 +290,8 @@ class TestOpenVPNClients:
 
     def test_host_to_server_routing(
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
         email: Email,
         net: Net,
         openvpn: OpenVPN,
@@ -382,8 +382,8 @@ class TestOpenVPNClients:
 
     def test_nightly_connection(
         self,
-        hosts: Dict[str, Host],
-        addrs: Dict[str, str],
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
         email: Email,
         net: Net,
         vagrant: Vagrant,

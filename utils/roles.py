@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import sys
+from collections.abc import Mapping, Sequence
 from pathlib import Path
-from typing import Dict, FrozenSet, List, Set, Tuple, cast
+from typing import cast
 
 import yaml
 
@@ -50,19 +51,19 @@ class Role:
         return self._run_once
 
     @property
-    def args(self) -> List[str]:
+    def args(self) -> list[str]:
         return self._args
 
     @property
-    def host_vars(self) -> List[str]:
+    def host_vars(self) -> list[str]:
         return self._host_vars
 
     @property
-    def export_vars(self) -> List[str]:
+    def export_vars(self) -> list[str]:
         return self._export_vars
 
     @property
-    def includes(self) -> FrozenSet[str]:
+    def includes(self) -> frozenset[str]:
         return self._includes
 
     def _parse_main(self) -> None:
@@ -93,9 +94,9 @@ class Role:
 
         self._private = cast(bool, task_vars["_private"])
         self._run_once = cast(bool, task_vars["_run_once"])
-        self._args = cast(List[str], task_vars["_args"])
-        self._host_vars = cast(List[str], task_vars["_host_vars"])
-        self._export_vars = cast(List[str], task_vars["_export_vars"])
+        self._args = cast(list[str], task_vars["_args"])
+        self._host_vars = cast(list[str], task_vars["_host_vars"])
+        self._export_vars = cast(list[str], task_vars["_export_vars"])
 
     def _parse_includes(self) -> None:
         includes = set()
@@ -108,7 +109,7 @@ class Role:
                             includes.add(task["ansible.builtin.include_role"]["name"])
         self._includes = frozenset(includes)
 
-    def validate(self, all_roles: Dict[str, "Role"]) -> None:
+    def validate(self, all_roles: Mapping[str, "Role"]) -> None:
         for i in sorted(self._includes):
             if i.startswith(ROLE_PREFIX) and i not in all_roles:
                 raise ValueError(f"{self._name} depends on nonexistent role {i}")
@@ -118,7 +119,7 @@ class Role:
     def _must_depend_on_base(self) -> bool:
         return self._name not in BASE_DEPENDENCY_EXEMPTIONS and "testbed" not in self._name
 
-    def _depends_on_base(self, all_roles: Dict[str, "Role"]) -> bool:
+    def _depends_on_base(self, all_roles: Mapping[str, "Role"]) -> bool:
         for i in sorted(self._includes):
             if not i.startswith(ROLE_PREFIX):
                 continue
@@ -152,9 +153,9 @@ class Role:
         return out
 
 
-def load_roles(roots: List[str]) -> Dict[str, Role]:
-    out: Dict[str, Role] = {}
-    tidy_names: Dict[str, Role] = {}
+def load_roles(roots: Sequence[str]) -> dict[str, Role]:
+    out: dict[str, Role] = {}
+    tidy_names: dict[str, Role] = {}
     for root in roots:
         for path in Path(root).resolve().iterdir():
             if path.is_dir() and (path / "tasks" / "main.yml").exists():
@@ -172,8 +173,8 @@ def load_roles(roots: List[str]) -> Dict[str, Role]:
     return out
 
 
-def dependency_graph(roles: Dict[str, Role]) -> None:
-    prefix_groups: Dict[str, Set[str]] = {}
+def dependency_graph(roles: Mapping[str, Role]) -> None:
+    prefix_groups: dict[str, set[str]] = {}
     processed = set()
     for r in roles.values():
         if r.prefix in roles:
@@ -192,7 +193,7 @@ def dependency_graph(roles: Dict[str, Role]) -> None:
             prefix_groups[r.prefix].add(r.name)
             processed.add(r.name)
 
-    clusters: Dict[str, Tuple[Set[str], Set[Tuple[str, str]]]] = {}
+    clusters: dict[str, tuple[set[str], set[tuple[str, str]]]] = {}
     other_edges = set()
     for name, group in prefix_groups.items():
         edges = set()

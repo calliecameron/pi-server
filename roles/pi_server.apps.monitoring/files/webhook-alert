@@ -7,7 +7,8 @@ import json
 import re
 import subprocess
 import sys
-from typing import Any, Dict, List, NoReturn, Optional, cast
+from collections.abc import Mapping
+from typing import Any, NoReturn, Optional, cast
 
 EMAIL_SCRIPT = "/send-email"
 
@@ -34,12 +35,12 @@ def send_bad(subject: str, body: str) -> NoReturn:
     _send(subject, body, 1)
 
 
-def process_args() -> Dict[str, Any]:
+def process_args() -> dict[str, Any]:
     """Validate and process args."""
     if len(sys.argv) != 2:
         send_bad("Malformed alert", "Wrong args passed to webhook-alert:\n\n%s" % str(sys.argv))
     try:
-        return cast(Dict[str, Any], json.loads(sys.argv[1]))
+        return cast(dict[str, Any], json.loads(sys.argv[1]))
     except json.JSONDecodeError:
         send_bad("Malformed alert", "Data passed to webhook-alert is not json:\n\n%s" % sys.argv[1])
 
@@ -49,7 +50,7 @@ def pair(key: str, value: str) -> str:
     return "%s: %s" % (key.capitalize(), value)
 
 
-def pretty_format_annotations(annotations: Dict[str, str]) -> List[str]:
+def pretty_format_annotations(annotations: Mapping[str, str]) -> list[str]:
     """Pretty format alert annotations."""
     annotations = dict(annotations)
     out = []
@@ -69,12 +70,12 @@ def pretty_format_annotations(annotations: Dict[str, str]) -> List[str]:
     return out
 
 
-def pretty_format_labels(labels: Dict[str, str]) -> List[str]:
+def pretty_format_labels(labels: Mapping[str, str]) -> list[str]:
     """Pretty format alert labels."""
     return [pair(key, value) for key, value in sorted(labels.items())]
 
 
-def pretty_format(annotations: Dict[str, str], labels: Dict[str, str]) -> List[str]:
+def pretty_format(annotations: Mapping[str, str], labels: Mapping[str, str]) -> list[str]:
     """Pretty-format annotations and labels."""
     return pretty_format_annotations(annotations) + pretty_format_labels(labels)
 
@@ -104,7 +105,7 @@ def pretty_format_time(raw: Optional[str]) -> str:
     return time.strftime("%a %Y-%m-%d %H:%M %Z (UTC%z)")
 
 
-def get_subject(j: Dict[str, Any]) -> str:
+def get_subject(j: Mapping[str, Any]) -> str:
     """Get the email subject."""
     subject = cast(str, j.get("commonLabels", {}).get("alertname"))
     if subject:

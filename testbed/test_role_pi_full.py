@@ -2,8 +2,9 @@ import datetime
 import json
 import os.path
 import time
+from collections.abc import Mapping, Sequence, Set
 from contextlib import contextmanager
-from typing import Dict, Iterator, List, Set
+from typing import Iterator
 from urllib.parse import urlparse
 
 from conftest import Email, Lines, WebDriver, for_host_types
@@ -13,7 +14,7 @@ from testinfra.host import Host
 
 class TestRolePiFull:
     @for_host_types("pi")
-    def test_main_storage(self, hostname: str, hosts: Dict[str, Host], email: Email) -> None:
+    def test_main_storage(self, hostname: str, hosts: Mapping[str, Host], email: Email) -> None:
         host = hosts[hostname]
 
         pool = host.mount_point("/mnt/data")
@@ -162,7 +163,7 @@ class TestRolePiFull:
                 clear_prometheus()
 
     @for_host_types("pi")
-    def test_main_data(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_main_data(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
 
         assert host.file("/mnt/data/pi-server-data/config").exists
@@ -182,7 +183,9 @@ class TestRolePiFull:
         assert host.file("/mnt/data/scratch").group == "vagrant"
 
     @for_host_types("pi")
-    def test_syncthing(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    def test_syncthing(
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+    ) -> None:
         host = hosts[hostname]
         assert host.service("pi-server-syncthing").is_enabled
         assert host.service("pi-server-syncthing").is_running
@@ -293,7 +296,9 @@ class TestRolePiFull:
         test(hostname + ".local")
 
     @for_host_types("pi")
-    def test_minidlna(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    def test_minidlna(
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+    ) -> None:
         host = hosts[hostname]
         assert host.service("minidlna").is_enabled
         assert host.service("minidlna").is_running
@@ -311,7 +316,9 @@ class TestRolePiFull:
         test(hostname + ".local")
 
     @for_host_types("pi")
-    def test_pihole(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    def test_pihole(
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+    ) -> None:
         host = hosts[hostname]
 
         # Good domain
@@ -340,7 +347,7 @@ class TestRolePiFull:
         test(hostname + ".local")
 
     @for_host_types("pi")
-    def test_certs(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_certs(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         service = host.service("pi-server-cron-certs")
         journal = host.journal()
@@ -363,7 +370,9 @@ class TestRolePiFull:
             assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
 
     @for_host_types("pi")
-    def test_backup_git(self, hostname: str, hosts: Dict[str, Host], addrs: Dict[str, str]) -> None:
+    def test_backup_git(
+        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+    ) -> None:
         host = hosts[hostname]
         journal = host.journal()
         backup_git_root = "/mnt/data/pi-server-data/git-backup"
@@ -381,7 +390,7 @@ class TestRolePiFull:
             with host.sudo():
                 host.check_output(f"rm -rf {backup_git_root}/*")
 
-            def write_git_config(repos: List[str]) -> None:
+            def write_git_config(repos: Sequence[str]) -> None:
                 with host.sudo():
                     git_config_file.write(
                         "\n".join([f'vagrant@{addrs["internet"]}:git/{r}' for r in repos])
@@ -487,7 +496,7 @@ class TestRolePiFull:
             assert log.count(r".*fetching.*failed") == 0
 
     @for_host_types("pi")
-    def test_backup_main(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_backup_main(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]
         journal = host.journal()
 
@@ -538,7 +547,7 @@ class TestRolePiFull:
                         pass
                     check_journal()
 
-                def all_snapshots() -> Dict[str, str]:
+                def all_snapshots() -> dict[str, str]:
                     with host.sudo():
                         raw = json.loads(
                             host.check_output(
@@ -572,7 +581,7 @@ class TestRolePiFull:
                         with host.sudo():
                             host.check_output(f"rm -rf {restore}")
 
-                def check(dates: List[str]) -> None:
+                def check(dates: Sequence[str]) -> None:
                     snapshots = all_snapshots()
                     assert set(dates) == set(snapshots.keys())
                     for date in dates:
@@ -639,7 +648,7 @@ class TestRolePiFull:
                 host.check_output(f"rm -rf {repo}")
 
     @for_host_types("pi")
-    def test_openvpn_server(self, hostname: str, hosts: Dict[str, Host]) -> None:
+    def test_openvpn_server(self, hostname: str, hosts: Mapping[str, Host]) -> None:
         """This just installs the openvpn service, not any configs."""
         host = hosts[hostname]
         assert host.service("openvpn").is_enabled
