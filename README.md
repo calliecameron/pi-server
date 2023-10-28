@@ -70,7 +70,7 @@ On the host where you'll run ansible:
 
 1. Run `pip install -r requirements.txt`.
 2. Run `ansible-galaxy install -r requirements.yml`.
-3. Run `sudo apt-get install graphviz`
+3. Run `sudo apt-get install graphviz tidy`
 
 ## Certificates
 

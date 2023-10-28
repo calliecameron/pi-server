@@ -1,4 +1,4 @@
-- name: install openvpn
+- name: Install openvpn
   become: true
   ansible.builtin.package:
     name: openvpn

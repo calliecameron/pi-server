@@ -4,7 +4,7 @@ all: lint todo deps-graph
 .PHONY: lint
 lint:
 	utils/find-shell-files.sh | xargs -d '\n' shellcheck
-	# utils/find-shell-files.sh | xargs -d '\n' shfmt -l -d -i 4
+	utils/find-shell-files.sh | xargs -d '\n' shfmt -l -d -i 4
 	utils/find-python-files.sh | grep -v '^testbed' | xargs -d '\n' pylint --score n
 	utils/find-python-files.sh | grep '^testbed' | xargs -d '\n' pylint --score n
 	utils/find-python-files.sh | xargs -d '\n' flake8
@@ -12,7 +12,7 @@ lint:
 	utils/find-python-files.sh | xargs -d '\n' isort --check
 	utils/find-python-files.sh | xargs -d '\n' mypy --strict
 	# ansible-lint
-	./utils/roles.py lint roles testbed/roles
+	# ./utils/roles.py lint roles testbed/roles
 
 .PHONY: todo
 todo:

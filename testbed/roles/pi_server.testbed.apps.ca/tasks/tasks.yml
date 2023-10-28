@@ -1,10 +1,10 @@
-- name: install openvpn
+- name: Install openvpn
   become: true
   ansible.builtin.package:
     name: openvpn
     state: present
 
-- name: generate CA
+- name: Generate CA
   become: false
   ansible.builtin.shell:
     cmd: "PATH=\"/usr/sbin:${PATH}\" {{ pi_server_testbed_apps_ca_scripts }}/make-ca {{ pi_server_testbed_apps_ca_out }} pi-server"
@@ -16,7 +16,7 @@
       Test CA
     creates: "{{ pi_server_testbed_apps_ca_out }}"
 
-- name: server certs script
+- name: Server certs script
   become: false
   ansible.builtin.copy:
     src: generate-server-certs.sh
@@ -25,7 +25,7 @@
     group: vagrant
     mode: a=rx
 
-- name: generate server certs
+- name: Generate server certs
   become: false
   ansible.builtin.command:
     cmd: "/home/vagrant/generate-server-certs.sh {{ pi_server_testbed_apps_ca_out }} pi1 {{ pi_server_testbed_pi1_ip }} pi2 {{ pi_server_testbed_pi2_ip }} ubuntu {{ pi_server_testbed_ubuntu_ip }}"

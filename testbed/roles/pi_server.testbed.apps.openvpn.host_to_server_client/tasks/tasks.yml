@@ -1,12 +1,12 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.host_to_server_client
 
-- name: client config
+- name: Client config
   ansible.builtin.include_role:
     name: pi_server.apps.openvpn.host_to_server_client
   vars:

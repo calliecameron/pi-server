@@ -1,25 +1,25 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.base
   vars:
     boot_script: internet-boot.j2
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.fakesmtp
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.aptly
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.mockserver
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.ca
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.git_server

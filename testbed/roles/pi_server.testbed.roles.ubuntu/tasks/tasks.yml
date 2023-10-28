@@ -1,15 +1,15 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.roles.pi_base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.utils.swap
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.roles.base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.host_to_server_client

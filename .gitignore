@@ -7,3 +7,4 @@ __pycache__/
 /deps-graph.txt
 /deps-graph.svg
 .ansible-galaxy
+/.vscode/

@@ -1,45 +1,45 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.roles.pi_base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.storage
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.zoneedit
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.mockserver_client
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.server
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.utils.swap
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.roles.base
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.roles.pi_core
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.roles.pi_full
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.server_to_server_client
   when: pi_server_testbed_openvpn_role == 'client'
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.openvpn.server_to_server_server
   when: pi_server_testbed_openvpn_role == 'server'

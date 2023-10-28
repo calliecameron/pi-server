@@ -1,10 +1,10 @@
-- name: install git
+- name: Install git
   become: true
   ansible.builtin.package:
     name: git
     state: present
 
-- name: git server setup script
+- name: Git server setup script
   become: false
   ansible.builtin.copy:
     src: setup-git-server.sh
@@ -13,7 +13,7 @@
     group: vagrant
     mode: a=rx
 
-- name: setup git server
+- name: Setup git server
   become: false
   ansible.builtin.command:
     cmd: /home/vagrant/setup-git-server.sh

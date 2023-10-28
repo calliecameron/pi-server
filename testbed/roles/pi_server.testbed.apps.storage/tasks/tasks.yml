@@ -1,10 +1,10 @@
-- name: install zfs
+- name: Install zfs
   become: true
   ansible.builtin.package:
     name: zfsutils-linux
     state: present
 
-- name: check if zpool exists
+- name: Check if zpool exists
   become: false
   ansible.builtin.command:
     cmd: "zpool list '{{ pi_server_storage_zpool }}'"
@@ -12,8 +12,9 @@
   failed_when: false
   changed_when: false
 
-- name: create zpool
+- name: Create zpool
   become: true
   ansible.builtin.command:
     cmd: "zpool create -m /mnt/data -o autoexpand=on -O acltype=posix -O atime=off -O compression=on -O xattr=sa '{{ pi_server_storage_zpool }}' '{{ pi_server_testbed_storage_drive }}'"
   when: exists.rc != 0
+  changed_when: true

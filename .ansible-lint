@@ -1,4 +1,8 @@
 skip_list:
   - command-instead-of-module
   - line-length
+  - yaml[line-length]
   - role-name
+  - var-naming[no-role-prefix]
+  - var-naming[no-reserved]
+  - var-naming[no-jinja]

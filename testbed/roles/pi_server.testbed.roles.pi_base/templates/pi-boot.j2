@@ -6,6 +6,7 @@ source '{{ pi_server_testbed_base_helper }}'
 
 LAN_IFACE='{{ pi_server_lan_iface }}'
 
+# shellcheck disable=SC2317
 function setup() {
     # Vagrant's default route is through NAT, delete it first
     ip route del default

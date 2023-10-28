@@ -13,14 +13,16 @@ VAGRANT_IFACE='{{ pi_server_testbed_vagrant_iface }}'
 INTERNET_IFACE='{{ pi_server_testbed_internet_iface }}'
 LAN_IFACE='{{ pi_server_testbed_lan_iface }}'
 
+# shellcheck disable=SC2317
 function iface-exists() {
     ip a | grep "${1}" &>/dev/null
 }
 
+# shellcheck disable=SC2317
 function setup() {
     if iface-exists lo &&
-            iface-exists "${INTERNET_IFACE}" &&
-            iface-exists "${LAN_IFACE}"; then
+        iface-exists "${INTERNET_IFACE}" &&
+        iface-exists "${LAN_IFACE}"; then
         sysctl -w net.ipv4.ip_forward=1
 
         # Vagrant's existing default route is through NAT, so delete it first

@@ -9,12 +9,8 @@ external client not on either LAN.
 1. Install [VirtualBox](https://www.virtualbox.org/),
    [Vagrant](https://www.vagrantup.com/) and
    [Geckodriver](https://github.com/mozilla/geckodriver).
-2. Run `sudo apt-get install tidy`.
-3. Run `pip install -r ../requirements.txt`.
-4. Run `pip install -r requirements.txt`.
-5. Run `ansible-galaxy install -r ../requirements.yml`.
-6. Run `ansible-galaxy install -r requirements.yml`.
-7. Start the testbed with `vagrant up`.
+2. Run `ansible-galaxy install -r ../requirements.yml`.
+3. Start the testbed with `vagrant up`.
 
 ## Integration tests
 

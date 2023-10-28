@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.apps.certs.base
 
-- name: install certs
+- name: Install certs
   become: true
   ansible.builtin.package:
     name: "{{ pi_server_hostname }}-server-certs"

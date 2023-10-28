@@ -1,4 +1,4 @@
-- name: zoneedit in /etc/hosts
+- name: Zoneedit in /etc/hosts
   become: true
   ansible.builtin.lineinfile:
     path: /etc/hosts

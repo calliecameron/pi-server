@@ -1,4 +1,4 @@
-- name: validate args
+- name: Validate args
   ansible.builtin.fail:
     msg: "Expected arg '{{ _role_helpers_item }}' is not set"
   loop: "{{ _args }}"
@@ -6,7 +6,7 @@
     loop_var: _role_helpers_item
   when: lookup('vars', _role_helpers_item, default='__undefined__') == '__undefined__'
 
-- name: validate host vars
+- name: Validate host vars
   ansible.builtin.fail:
     msg: "Expected host var '{{ _role_helpers_item }}' is not set; set it in your inventory"
   loop: "{{ _host_vars }}"
@@ -19,35 +19,35 @@
 # the stack - which means lazy evaluation fails. Setting facts forces strict evaluation, which we
 # use to build our own arg stack.
 
-- name: clear saved arg values
+- name: Clear saved arg values
   ansible.builtin.set_fact:
     _pi_server_role_helpers_latest_arg_values: []
 
-- name: save arg values
+- name: Save arg values
   ansible.builtin.set_fact:
     _pi_server_role_helpers_latest_arg_values: "{{ _pi_server_role_helpers_latest_arg_values + [lookup('vars', _role_helpers_item)] }}"
   loop: "{{ _args }}"
   loop_control:
     loop_var: _role_helpers_item
 
-- name: save args
+- name: Save args
   ansible.builtin.set_fact:
     _pi_server_role_helpers_latest_args: "{{ dict(arg_pairs) }}"
   vars:
     arg_pairs: "{{ _args | zip(_pi_server_role_helpers_latest_arg_values) }}"
 
-- name: save args under role name
+- name: Save args under role name
   ansible.builtin.set_fact:
     "{{ role_name.replace('.', '_') + '_args' }}": "{{ _pi_server_role_helpers_latest_args }}"
 
-- name: push stack frame
+- name: Push stack frame
   ansible.builtin.set_fact:
     _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack | default([initial_frame]) + [frame] }}"
   vars:
     frame: "{{ {'name': role_name, 'args': _pi_server_role_helpers_latest_args} }}"
     initial_frame: {'name': '', 'args': {}}
 
-- name: check if calling is allowed
+- name: Check if calling is allowed
   ansible.builtin.fail:
     msg: "Role is marked private, and may not be called here"
   when: _private and caller_prefix != allowed_prefix and caller_name != allowed_prefix
@@ -56,26 +56,26 @@
     caller_name: "{{ _pi_server_role_helpers_call_stack[-2]['name'] }}"
     caller_prefix: "{{ caller_name.split('.')[:-1] | join('.') }}"
 
-- name: run tasks
-  include_tasks: tasks.yml
+- name: Run tasks
+  ansible.builtin.include_tasks: tasks.yml
   vars:
     args: "{{ _pi_server_role_helpers_call_stack[-1]['args'] }}"
 
-- name: pop stack frame
+- name: Pop stack frame
   ansible.builtin.set_fact:
     _pi_server_role_helpers_call_stack: "{{ _pi_server_role_helpers_call_stack[:-1] }}"
 
-- name: clear args under role name
+- name: Clear args under role name
   ansible.builtin.set_fact:
     "{{ role_name.replace('.', '_') + '_args' }}": {}
 
-- name: export vars
+- name: Export vars
   ansible.builtin.set_fact:
     "{{ _role_helpers_item }}": "{{ lookup('vars', _role_helpers_item) }}"
   loop: "{{ _export_vars }}"
   loop_control:
     loop_var: _role_helpers_item
 
-- name: mark done
+- name: Mark done
   ansible.builtin.set_fact:
     "{{ '_' + role_name.replace('.', '_') + '_done' }}": true

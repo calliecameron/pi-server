@@ -1,7 +1,10 @@
-- hosts: all
+- name: Ubuntu
+  hosts: all
   tasks:
-    - ansible.builtin.include_role:
+    - name: Dependency
+      ansible.builtin.include_role:
         name: pi_server.role_helpers
 
-    - ansible.builtin.include_role:
+    - name: Dependency
+      ansible.builtin.include_role:
         name: pi_server.testbed.roles.ubuntu

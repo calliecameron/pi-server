@@ -34,16 +34,16 @@ function do-cert() {
     # Certificate request
     openssl req -config "${LOCAL_CONF}" -new -subj "/C=GB/O=@@@@@1@@@@@/CN=${2}" -newkey rsa -keyout "${CERT_DIR}/${1}.key" -out "${CERT_DIR}/${1}.csr" -outform PEM -nodes &&
 
-    # Sign
-    exec 3<<EOF &&
+        # Sign
+        exec 3<<EOF &&
 ${PASSWD}
 EOF
-    openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
+        openssl ca -config "${LOCAL_CONF}" -in "${CERT_DIR}/${1}.csr" -out "${CERT_DIR}/${1}.crt" -outdir "${CA_DIR}/data" -extensions server -batch -passin fd:3 &&
 
-    # Cleanup
-    rm "${CERT_DIR}/${1}.csr" &&
-    chmod u=r,go= "${CERT_DIR}/${1}.key" &&
-    chmod a=r "${CERT_DIR}/${1}.crt"
+        # Cleanup
+        rm "${CERT_DIR}/${1}.csr" &&
+        chmod u=r,go= "${CERT_DIR}/${1}.key" &&
+        chmod a=r "${CERT_DIR}/${1}.crt"
 }
 
 do-cert 'https' "${SERVER_ADDR}"

@@ -1,10 +1,10 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.testbed.base
   vars:
     boot_script: pi-boot.j2
 
-- name: default route
+- name: Default route
   become: true
   ansible.builtin.template:
     src: fakepi-default-route.j2

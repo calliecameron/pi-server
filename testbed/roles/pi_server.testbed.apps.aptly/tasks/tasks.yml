@@ -1,34 +1,34 @@
-- name: install rng-tools
+- name: Install rng-tools
   become: true
   ansible.builtin.package:
     name: rng-tools
     state: present
 
-- name: generate gpg key
+- name: Generate gpg key
   become: false
   ansible.builtin.shell:
     cmd: timeout -s 9 5 sudo /usr/sbin/rngd -f -r /dev/urandom & gpg --yes --pinentry-mode loopback --passphrase '' --quick-generate-key vagrant; wait; true
     creates: .gnupg
 
-- name: add aptly key
+- name: Add aptly key
   become: true
   ansible.builtin.apt_key:
     url: https://www.aptly.info/pubkey.txt
 
-- name: add aptly repo
+- name: Add aptly repo
   become: true
   ansible.builtin.apt_repository:
     repo: deb http://repo.aptly.info/ squeeze main
 
-- name: install aptly
+- name: Install aptly
   become: true
   ansible.builtin.package:
     name: aptly
     state: present
 
-- name: configure aptly
+- name: Configure aptly
   ansible.builtin.include_role:
-    name: manala.aptly
+    name: manala.roles.aptly
     apply:
       become: true
   vars:
@@ -36,6 +36,7 @@
     manala_aptly_config:
       - architectures:
           - amd64
+    manala_aptly_config_template: aptly.conf.j2
     manala_aptly_repositories:
       - name: main
         comment: main
@@ -43,14 +44,16 @@
         distribution: main
         origin: test
         label: test
+        architectures: amd64
       - name: certs
         comment: certs
         component: certs
         distribution: certs
         origin: test
         label: test
+        architectures: amd64
 
-- name: install aptly systemd unit
+- name: Install aptly systemd unit
   become: true
   ansible.builtin.copy:
     src: aptly.service
@@ -59,7 +62,7 @@
     group: root
     mode: a=r
 
-- name: enable aptly
+- name: Enable aptly
   become: true
   ansible.builtin.systemd:
     name: aptly
@@ -67,41 +70,41 @@
     enabled: true
     state: started
 
-- name: install equivs
+- name: Install equivs
   become: true
   ansible.builtin.package:
     name: equivs
     state: present
 
-- name: copy package configs
+- name: Copy package configs
   become: false
   ansible.builtin.copy:
     src: aptly
     dest: .
     mode: a=rx
 
-- name: build fake package 1
+- name: Build fake package 1
   become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1
     chdir: aptly
     creates: pi-server-test_1_all.deb
 
-- name: build fake package 1.1
+- name: Build fake package 1.1
   become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1.1
     chdir: aptly
     creates: pi-server-test_1.1_all.deb
 
-- name: build fake package 1.2
+- name: Build fake package 1.2
   become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test-1.2
     chdir: aptly
     creates: pi-server-test_1.2_all.deb
 
-- name: build fake package 2
+- name: Build fake package 2
   become: false
   ansible.builtin.command:
     cmd: equivs-build pi-server-test2
