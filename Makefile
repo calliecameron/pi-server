@@ -3,7 +3,7 @@ all: lint todo deps-graph
 
 .PHONY: lint
 lint:
-	# utils/find-shell-files.sh | xargs -d '\n' shellcheck
+	utils/find-shell-files.sh | xargs -d '\n' shellcheck
 	# utils/find-shell-files.sh | xargs -d '\n' shfmt -l -d -i 4
 	utils/find-python-files.sh | grep -v '^testbed' | xargs -d '\n' pylint --score n
 	utils/find-python-files.sh | grep '^testbed' | xargs -d '\n' pylint --score n
