@@ -1,29 +1,29 @@
 #!/usr/bin/env python3
 
-from typing import cast, Dict, FrozenSet, List, Set, Tuple
-from pathlib import Path
 import sys
+from pathlib import Path
+from typing import Dict, FrozenSet, List, Set, Tuple, cast
+
 import yaml
 
-
-ROLE_PREFIX = 'pi_server'
-BASE_ROLE = 'pi_server.base'
-BASE_DEPENDENCY_EXEMPTIONS = frozenset({BASE_ROLE, 'pi_server.role_helpers'})
+ROLE_PREFIX = "pi_server"
+BASE_ROLE = "pi_server.base"
+BASE_DEPENDENCY_EXEMPTIONS = frozenset({BASE_ROLE, "pi_server.role_helpers"})
 
 
 class Role:
     def __init__(self, path: Path) -> None:
         super().__init__()
         self._path = path.resolve()
-        self._tasks_dir = self._path / 'tasks'
+        self._tasks_dir = self._path / "tasks"
         self._name = self._path.name
-        self._tidy_name = self._name.replace('.', '_')
-        self._prefix = '.'.join(self._name.split('.')[:-1])
+        self._tidy_name = self._name.replace(".", "_")
+        self._prefix = ".".join(self._name.split(".")[:-1])
         try:
             self._parse_main()
             self._parse_includes()
         except ValueError as e:
-            raise ValueError(f'Error loading role {self._name}: {e}') from e
+            raise ValueError(f"Error loading role {self._name}: {e}") from e
 
     @property
     def path(self) -> Path:
@@ -66,38 +66,36 @@ class Role:
         return self._includes
 
     def _parse_main(self) -> None:
-        tasks = yaml.safe_load((self._tasks_dir / 'main.yml').read_text())
+        tasks = yaml.safe_load((self._tasks_dir / "main.yml").read_text())
         if len(tasks) != 1:
             raise ValueError(
-                f'main.yml must include exactly one task, calling define_role; got {len(tasks)}')
+                f"main.yml must include exactly one task, calling define_role; got {len(tasks)}"
+            )
         task = tasks[0]
 
-        want_keys = {'name', 'include_tasks', 'vars'}
+        want_keys = {"name", "include_tasks", "vars"}
         if task.keys() != want_keys:
+            raise ValueError(f"task in main.yml must have keys {want_keys}; got {task.keys()}")
+        want_name = "define role"
+        if task["name"] != want_name:
+            raise ValueError(f'task in main.yml must have name {want_name}; got {task["name"]}')
+        want_include = "{{ define_role }}"
+        if task["include_tasks"] != want_include:
             raise ValueError(
-                f'task in main.yml must have keys {want_keys}; got {task.keys()}')
-        want_name = 'define role'
-        if task['name'] != want_name:
-            raise ValueError(
-                f'task in main.yml must have name {want_name}; got {task["name"]}')
-        want_include = '{{ define_role }}'
-        if task['include_tasks'] != want_include:
-            raise ValueError(
-                f'task in main.yml must have include_tasks {want_include}; ' +
-                f'got {task["include_tasks"]}')
+                f"task in main.yml must have include_tasks {want_include}; "
+                + f'got {task["include_tasks"]}'
+            )
 
-        task_vars = task['vars']
-        want_keys = {'_private', '_run_once',
-                     '_args', '_host_vars', '_export_vars'}
+        task_vars = task["vars"]
+        want_keys = {"_private", "_run_once", "_args", "_host_vars", "_export_vars"}
         if task_vars.keys() != want_keys:
-            raise ValueError(
-                f'vars in main.yml must have keys {want_keys}; got {task_vars.keys()}')
+            raise ValueError(f"vars in main.yml must have keys {want_keys}; got {task_vars.keys()}")
 
-        self._private = cast(bool, task_vars['_private'])
-        self._run_once = cast(bool, task_vars['_run_once'])
-        self._args = cast(List[str], task_vars['_args'])
-        self._host_vars = cast(List[str], task_vars['_host_vars'])
-        self._export_vars = cast(List[str], task_vars['_export_vars'])
+        self._private = cast(bool, task_vars["_private"])
+        self._run_once = cast(bool, task_vars["_run_once"])
+        self._args = cast(List[str], task_vars["_args"])
+        self._host_vars = cast(List[str], task_vars["_host_vars"])
+        self._export_vars = cast(List[str], task_vars["_export_vars"])
 
     def _parse_includes(self) -> None:
         includes = set()
@@ -106,24 +104,21 @@ class Role:
                 tasks = yaml.safe_load(path.read_text())
                 if tasks:
                     for task in tasks:
-                        if 'ansible.builtin.include_role' in task:
-                            includes.add(
-                                task['ansible.builtin.include_role']['name'])
+                        if "ansible.builtin.include_role" in task:
+                            includes.add(task["ansible.builtin.include_role"]["name"])
         self._includes = frozenset(includes)
 
-    def validate(self, all_roles: Dict[str, 'Role']) -> None:
+    def validate(self, all_roles: Dict[str, "Role"]) -> None:
         for i in sorted(self._includes):
             if i.startswith(ROLE_PREFIX) and i not in all_roles:
-                raise ValueError(
-                    f'{self._name} depends on nonexistent role {i}')
-        if (self._must_depend_on_base() and not self._depends_on_base(all_roles)):
-            raise ValueError(f'{self._name} does not depend on {BASE_ROLE}')
+                raise ValueError(f"{self._name} depends on nonexistent role {i}")
+        if self._must_depend_on_base() and not self._depends_on_base(all_roles):
+            raise ValueError(f"{self._name} does not depend on {BASE_ROLE}")
 
     def _must_depend_on_base(self) -> bool:
-        return (self._name not in BASE_DEPENDENCY_EXEMPTIONS
-                and 'testbed' not in self._name)
+        return self._name not in BASE_DEPENDENCY_EXEMPTIONS and "testbed" not in self._name
 
-    def _depends_on_base(self, all_roles: Dict[str, 'Role']) -> bool:
+    def _depends_on_base(self, all_roles: Dict[str, "Role"]) -> bool:
         for i in sorted(self._includes):
             if not i.startswith(ROLE_PREFIX):
                 continue
@@ -134,48 +129,51 @@ class Role:
         return False
 
     def __repr__(self) -> str:
-        out = (f'{self._name}\n  {self._tidy_name}\n  {self._path}\n' +
-               f'  Private: {self._private}\n  Run once: {self._run_once}\n')
+        out = (
+            f"{self._name}\n  {self._tidy_name}\n  {self._path}\n"
+            + f"  Private: {self._private}\n  Run once: {self._run_once}\n"
+        )
 
-        out += '  Args:\n'
+        out += "  Args:\n"
         for a in sorted(self._args):
-            out += f'    {a}\n'
+            out += f"    {a}\n"
 
-        out += '  Host vars:\n'
+        out += "  Host vars:\n"
         for h in sorted(self._host_vars):
-            out += f'    {h}\n'
+            out += f"    {h}\n"
 
-        out += '  Export vars:\n'
+        out += "  Export vars:\n"
         for e in sorted(self._export_vars):
-            out += f'    {e}\n'
+            out += f"    {e}\n"
 
-        out += '  Includes:\n'
+        out += "  Includes:\n"
         for i in sorted(self._includes):
-            out += f'    {i}\n'
+            out += f"    {i}\n"
         return out
 
 
 def load_roles(roots: List[str]) -> Dict[str, Role]:
-    out = {}  # type: Dict[str, Role]
-    tidy_names = {}  # type: Dict[str, Role]
+    out: Dict[str, Role] = {}
+    tidy_names: Dict[str, Role] = {}
     for root in roots:
         for path in Path(root).resolve().iterdir():
-            if path.is_dir and (path / 'tasks' / 'main.yml').exists():
+            if path.is_dir() and (path / "tasks" / "main.yml").exists():
                 r = Role(path)
                 if r.name in out:
                     raise ValueError(
-                        'Found duplicate role names at paths ' +
-                        f'{r.path} and {out[r.name].path}')
+                        "Found duplicate role names at paths " + f"{r.path} and {out[r.name].path}"
+                    )
                 if r.tidy_name in tidy_names:
                     raise ValueError(
-                        'Found duplicate role tidy names at paths ' +
-                        f'{r.path} and {tidy_names[r.tidy_name].path}')
+                        "Found duplicate role tidy names at paths "
+                        + f"{r.path} and {tidy_names[r.tidy_name].path}"
+                    )
                 out[r.name] = r
     return out
 
 
 def dependency_graph(roles: Dict[str, Role]) -> None:
-    prefix_groups = {}  # type: Dict[str, Set[str]]
+    prefix_groups: Dict[str, Set[str]] = {}
     processed = set()
     for r in roles.values():
         if r.prefix in roles:
@@ -194,7 +192,7 @@ def dependency_graph(roles: Dict[str, Role]) -> None:
             prefix_groups[r.prefix].add(r.name)
             processed.add(r.name)
 
-    clusters = {}  # type: Dict[str, Tuple[Set[str], Set[Tuple[str, str]]]]
+    clusters: Dict[str, Tuple[Set[str], Set[Tuple[str, str]]]] = {}
     other_edges = set()
     for name, group in prefix_groups.items():
         edges = set()
@@ -206,7 +204,7 @@ def dependency_graph(roles: Dict[str, Role]) -> None:
                     other_edges.add((r_name, i))
         clusters[name] = (group, edges)
 
-    out = ['digraph Deps {', '  newrank=true', '  splines=false']
+    out = ["digraph Deps {", "  newrank=true", "  splines=false"]
     for cluster, items in sorted(clusters.items()):
         nodes, edges = items
         out.append(f'  subgraph "cluster_{cluster}" {{')
@@ -214,32 +212,32 @@ def dependency_graph(roles: Dict[str, Role]) -> None:
             out.append(f'    "{node}"')
         for edge in sorted(edges):
             out.append(f'    "{edge[0]}" -> "{edge[1]}" [minlen=2]')
-        out.append('  }')
+        out.append("  }")
 
     for edge in sorted(other_edges):
         out.append(f'  "{edge[0]}" -> "{edge[1]}" [minlen=2]')
 
-    out.append('}')
+    out.append("}")
 
-    print('\n'.join(out))
+    print("\n".join(out))
 
 
 def main() -> None:
     if len(sys.argv) < 3:
-        raise ValueError('Usage: ./roles.py command roots...')
+        raise ValueError("Usage: ./roles.py command roots...")
 
     command = sys.argv[1]
-    if command not in {'lint', 'deps'}:
-        raise ValueError(f'Unknown command {command}')
+    if command not in {"lint", "deps"}:
+        raise ValueError(f"Unknown command {command}")
 
     roles = load_roles(sys.argv[2:])
     for r in roles.values():
         r.validate(roles)
 
-    if command == 'lint':
+    if command == "lint":
         # Loading and validating is all we have to do here
         pass
-    elif command == 'deps':
+    elif command == "deps":
         dependency_graph(roles)
 
 

@@ -1,7 +1,6 @@
 from typing import List, NamedTuple
 
-Status = NamedTuple('Status', [('name', str), ('state', str), ('provider', str)])
-
+Status = NamedTuple("Status", [("name", str), ("state", str), ("provider", str)])
 
 class Vagrant:
     RUNNING: str

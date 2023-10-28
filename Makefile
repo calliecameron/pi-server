@@ -1,22 +1,28 @@
 .PHONY: all
-all: lint todo deps
+all: lint todo deps-graph
 
 .PHONY: lint
 lint:
-	ansible-lint
+	# utils/find-shell-files.sh | xargs -d '\n' shellcheck
+	# utils/find-shell-files.sh | xargs -d '\n' shfmt -l -d -i 4
+	pylint --score n --recursive y --ignore-paths testbed .
+	pylint --score n --recursive y testbed
+	utils/find-python-files.sh | xargs -d '\n' flake8
+	utils/find-python-files.sh | xargs -d '\n' black --check
+	utils/find-python-files.sh | xargs -d '\n' isort --check
+	utils/find-python-files.sh | xargs -d '\n' mypy --strict
+	# ansible-lint
 	./utils/roles.py lint roles testbed/roles
-	cd utils && make
-	cd testbed && make
 
 .PHONY: todo
 todo:
 	grep -ir --exclude=Makefile --exclude-dir=.git todo
 
-.PHONY: deps
-deps:
+.PHONY: deps-graph
+deps-graph:
 	./utils/roles.py deps roles > deps-graph.txt
 	dot -Tsvg -o deps-graph.svg deps-graph.txt
 
 .PHONY: clean
 clean:
-	rm -f deps-graph.txt deps-graph.svg
+	rm -rf *~ .*~ *.pyc .mypy_cache __pycache__ *.log deps-graph.txt deps-graph.svg

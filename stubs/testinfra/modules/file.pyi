@@ -1,6 +1,5 @@
 from typing import List
 
-
 class File:
     path: str
     exists: bool

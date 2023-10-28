@@ -1,17 +1,17 @@
 import datetime
 from typing import Any, ContextManager, List, Optional
+
 from conftest import CronRunner, Journal, ShadowDir, ShadowFile, Time
 from testinfra.backend.base import CommandResult
 from testinfra.modules.addr import Addr
 from testinfra.modules.docker import Docker
 from testinfra.modules.file import File
+from testinfra.modules.mountpoint import MountPoint
 from testinfra.modules.package import Package
-from testinfra.modules.user import User
+from testinfra.modules.process import Process
 from testinfra.modules.service import Service
 from testinfra.modules.sudo import Sudo
-from testinfra.modules.mountpoint import MountPoint
-from testinfra.modules.process import Process
-
+from testinfra.modules.user import User
 
 class Host:
     def addr(self, addr: str) -> Addr: ...
@@ -26,9 +26,13 @@ class Host:
     def user(self, user: str) -> User: ...
     def sudo(self, user: Optional[str] = None) -> Sudo: ...
     def service(self, name: str) -> Service: ...
-    def run_crons(self, time: Optional[datetime.time] = None, cmd_to_watch: str = '',
-                  disable_sources_list: bool = True, date: Optional[datetime.date] = None) -> CronRunner: ...
-
+    def run_crons(
+        self,
+        time: Optional[datetime.time] = None,
+        cmd_to_watch: str = "",
+        disable_sources_list: bool = True,
+        date: Optional[datetime.date] = None,
+    ) -> CronRunner: ...
     def client_ip(self) -> str: ...
     def disable_login_emails(self) -> ContextManager[None]: ...
     def make_bigfile(self, path: str, mount_point: str) -> None: ...

@@ -1,4 +1,5 @@
 from typing import List
+
 from testinfra.host import Host
 
 class AnsibleRunner:
