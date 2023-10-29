@@ -1,4 +1,4 @@
-pi_server_apps_pihole_version: "2022.05"
+pi_server_apps_pihole_version: "2023.10.0"
 pi_server_apps_pihole_etc: "{{ pi_server_etc }}/pihole"
 pi_server_apps_pihole_docker_compose: "{{ pi_server_apps_pihole_etc }}/docker-compose.yml"
 pi_server_apps_pihole_user: "pi-server-pihole"

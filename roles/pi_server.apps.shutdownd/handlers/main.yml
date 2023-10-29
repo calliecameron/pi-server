@@ -7,7 +7,7 @@
   listen: "Reload shutdownd"
 
 - name: Reload shutdownd ui
-  include_tasks: compose.yml
+  ansible.builtin.include_tasks: compose.yml
   vars:
     restart: true
   listen: "Reload shutdownd ui"

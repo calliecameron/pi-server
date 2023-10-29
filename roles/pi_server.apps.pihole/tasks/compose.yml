@@ -1,4 +1,4 @@
-- name: docker compose
+- name: Docker compose
   become: true
   community.docker.docker_compose:
     project_src: "{{ pi_server_apps_pihole_etc }}"

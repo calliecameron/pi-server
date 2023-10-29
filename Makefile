@@ -11,8 +11,8 @@ lint:
 	utils/find-python-files.sh | xargs -d '\n' black --check
 	utils/find-python-files.sh | xargs -d '\n' isort --check
 	utils/find-python-files.sh | xargs -d '\n' mypy --strict --scripts-are-modules
-	# ansible-lint
-	# ./utils/roles.py lint roles testbed/roles
+	ansible-lint --offline
+	./utils/roles.py lint roles testbed/roles
 
 .PHONY: todo
 todo:

@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_zoneedit_etc }}"
@@ -11,14 +11,14 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: user
+- name: User
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_zoneedit_user }}"
     register:
 
-- name: username file
+- name: Username file
   become: true
   ansible.builtin.template:
     src: username.txt.j2
@@ -27,7 +27,7 @@
     group: "{{ pi_server_apps_zoneedit_user }}"
     mode: u=r,o=
 
-- name: password file
+- name: Password file
   become: true
   ansible.builtin.template:
     src: password.txt.j2
@@ -36,7 +36,7 @@
     group: "{{ pi_server_apps_zoneedit_user }}"
     mode: u=r,o=
 
-- name: script
+- name: Script
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
@@ -48,7 +48,7 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: hourly cronjob
+- name: Hourly cronjob
   become: true
   ansible.builtin.template:
     src: hourly.j2
@@ -57,7 +57,7 @@
     group: root
     mode: a=rx
 
-- name: run at net up
+- name: Run at net up
   ansible.builtin.include_role:
     name: pi_server.utils.net_up_script
   vars:

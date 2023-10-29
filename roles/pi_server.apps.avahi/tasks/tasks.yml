@@ -1,14 +1,14 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: install avahi
+- name: Install avahi
   become: true
   ansible.builtin.package:
     name: avahi-daemon
     state: present
 
-- name: config
+- name: Config
   become: true
   ansible.builtin.copy:
     src: avahi.conf
@@ -17,13 +17,13 @@
     group: root
     mode: a=r
 
-- name: firewall
+- name: Firewall
   ansible.builtin.include_role:
     name: pi_server.apps.firewall.udp_port
   vars:
     port: "{{ pi_server_apps_avahi_port }}"
 
-- name: monitoring
+- name: Monitoring
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:

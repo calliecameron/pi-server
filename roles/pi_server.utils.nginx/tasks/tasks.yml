@@ -1,12 +1,12 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: docker compose file
+- name: Docker compose file
   become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
@@ -15,7 +15,7 @@
     group: root
     mode: a=r
 
-- name: docker compose
+- name: Docker compose
   become: true
   community.docker.docker_compose:
     project_src: "{{ args.compose_dir }}"
@@ -24,7 +24,7 @@
     remove_orphans: true
     restarted: false
 
-- name: monitoring
+- name: Monitoring
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:

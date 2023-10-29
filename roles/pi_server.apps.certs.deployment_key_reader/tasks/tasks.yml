@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- name: "add {{ args.user }} to deployment key readers"
+- name: "Add {{ args.user }} to deployment key readers"
   become: true
   ansible.builtin.user:
     name: "{{ args.user }}"

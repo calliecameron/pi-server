@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- name: syncthing
+- name: Syncthing
   ansible.builtin.include_role:
     name: pi_server.apps.syncthing.base
   vars:
@@ -10,7 +10,7 @@
     config_dir: "{{ pi_server_apps_syncthing_system_wide_config_dir }}"
     home_dir: "{{ pi_server_apps_main_data_data_dir }}"
 
-- name: systemd overrides
+- name: Systemd overrides
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service_overrides
   vars:
@@ -18,15 +18,15 @@
     service: "{{ pi_server_apps_syncthing_service }}"
     enabled: true
 
-- name: conflict finder
+- name: Conflict finder
   ansible.builtin.include_role:
     name: pi_server.apps.syncthing.conflict_finder
 
-- name: permission fixer
+- name: Permission fixer
   ansible.builtin.include_role:
     name: pi_server.apps.syncthing.permission_fixer
 
-- name: dashboard
+- name: Dashboard
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:

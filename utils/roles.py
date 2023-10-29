@@ -74,17 +74,17 @@ class Role:
             )
         task = tasks[0]
 
-        want_keys = {"name", "include_tasks", "vars"}
+        want_keys = {"name", "ansible.builtin.include_tasks", "vars"}
         if task.keys() != want_keys:
             raise ValueError(f"task in main.yml must have keys {want_keys}; got {task.keys()}")
-        want_name = "define role"
+        want_name = "Define role"
         if task["name"] != want_name:
             raise ValueError(f'task in main.yml must have name {want_name}; got {task["name"]}')
         want_include = "{{ define_role }}"
-        if task["include_tasks"] != want_include:
+        if task["ansible.builtin.include_tasks"] != want_include:
             raise ValueError(
-                f"task in main.yml must have include_tasks {want_include}; "
-                + f'got {task["include_tasks"]}'
+                f"task in main.yml must have ansible.builtin.include_tasks {want_include}; "
+                + f'got {task["ansible.builtin.include_tasks"]}'
             )
 
         task_vars = task["vars"]

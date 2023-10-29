@@ -16,7 +16,7 @@ RESTART_URL = "/shutdownd/restart"
 
 MAIN_PAGE_BODY = """
 <h1>%s</h1>
-<p>%s the Raspberry Pi?</p>
+<p>%s the server?</p>
 <form action="%s" method="post">
   <div class="d-grid gap-2">
     <button class="btn btn-outline-primary"
@@ -31,7 +31,7 @@ MAIN_PAGE_BODY = """
 
 SHUTTING_DOWN_BODY = """
 <h1>Shut down</h1>
-<p>The Raspberry Pi is now shutting down.</p>
+<p>The server is now shutting down.</p>
 <p>Once all the lights except the red one are off, then it is safe to
 disconnect the power.</p>
 <p>Reconnect the power to start the Pi up again.</p>
@@ -39,7 +39,7 @@ disconnect the power.</p>
 
 RESTARTING_BODY = """
 <h1>Restart</h1>
-<p>The Raspberry Pi is now restarting.</p>
+<p>The server is now restarting.</p>
 <p>This will take a few minutes.</p>
 """
 

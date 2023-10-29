@@ -1,22 +1,22 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.openvpn.base
 
-- name: user
+- name: User
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_openvpn_nightly_connection_user }}"
     register:
 
-- name: sudoers
+- name: Sudoers
   ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: sudoers.j2
     name: "{{ pi_server_apps_openvpn_nightly_connection_user }}"
 
-- name: script
+- name: Script
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
@@ -29,7 +29,7 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: crontab
+- name: Crontab
   become: true
   ansible.builtin.copy:
     src: crontab

@@ -1,14 +1,14 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.email
 
-- name: install zfs
+- name: Install zfs
   become: true
   ansible.builtin.package:
     name: zfsutils-linux
     state: present
 
-- name: check if zpool exists
+- name: Check if zpool exists
   become: false
   ansible.builtin.command:
     cmd: "zpool list '{{ pi_server_storage_zpool }}'"
@@ -16,24 +16,24 @@
   failed_when: false
   changed_when: false
 
-- name: fail if zpool doesn't exist
+- name: Fail if zpool doesn't exist
   ansible.builtin.fail:
     msg: "zpool '{{ pi_server_storage_zpool }}' doesn't exist"
   when: exists.rc != 0
 
-- name: get zpool mountpoint
+- name: Get zpool mountpoint
   become: false
   ansible.builtin.command:
     cmd: "zfs get -H -o value mountpoint '{{ pi_server_storage_zpool }}'"
   register: mountpoint
   changed_when: false
 
-- name: fail if zpool has the wrong mountpoint
+- name: Fail if zpool has the wrong mountpoint
   ansible.builtin.fail:
     msg: "zpool '{{ pi_server_storage_zpool }}' isn't mounted at '{{ pi_server_apps_main_storage_zpool_mount_dir }}'"
   when: mountpoint.stdout != pi_server_apps_main_storage_zpool_mount_dir
 
-- name: check if data dataset exists
+- name: Check if data dataset exists
   become: false
   ansible.builtin.command:
     cmd: "zfs list '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_data_dataset }}'"
@@ -41,25 +41,26 @@
   failed_when: false
   changed_when: false
 
-- name: create data dataset if it doesn't exist
+- name: Create data dataset if it doesn't exist
   become: true
   ansible.builtin.command:
     cmd: "zfs create '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_data_dataset }}'"
   when: exists.rc != 0
+  changed_when: true
 
-- name: get data dataset mountpoint
+- name: Get data dataset mountpoint
   become: false
   ansible.builtin.command:
     cmd: "zfs get -H -o value mountpoint '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_data_dataset }}'"
   register: mountpoint
   changed_when: false
 
-- name: fail if data dataset has the wrong mountpoint
+- name: Fail if data dataset has the wrong mountpoint
   ansible.builtin.fail:
     msg: "dataset '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_data_dataset }}' isn't mounted at '{{ pi_server_apps_main_storage_data_dir }}'"
   when: mountpoint.stdout != pi_server_apps_main_storage_data_dir
 
-- name: check if scratch dataset exists
+- name: Check if scratch dataset exists
   become: false
   ansible.builtin.command:
     cmd: "zfs list '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_scratch_dataset }}'"
@@ -67,25 +68,26 @@
   failed_when: false
   changed_when: false
 
-- name: create scratch dataset if it doesn't exist
+- name: Create scratch dataset if it doesn't exist
   become: true
   ansible.builtin.command:
     cmd: "zfs create '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_scratch_dataset }}'"
   when: exists.rc != 0
+  changed_when: true
 
-- name: get scratch dataset mountpoint
+- name: Get scratch dataset mountpoint
   become: false
   ansible.builtin.command:
     cmd: "zfs get -H -o value mountpoint '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_scratch_dataset }}'"
   register: mountpoint
   changed_when: false
 
-- name: fail if scratch dataset has the wrong mountpoint
+- name: Fail if scratch dataset has the wrong mountpoint
   ansible.builtin.fail:
     msg: "dataset '{{ pi_server_storage_zpool }}/{{ pi_server_apps_main_storage_scratch_dataset }}' isn't mounted at '{{ pi_server_apps_main_storage_scratch_dir }}'"
   when: mountpoint.stdout != pi_server_apps_main_storage_scratch_dir
 
-- name: configure zed
+- name: Configure zed
   become: true
   ansible.builtin.template:
     src: zed.rc.j2
@@ -94,13 +96,13 @@
     group: root
     mode: u=rw,go=r
 
-- name: install zfs-auto-snapshot
+- name: Install zfs-auto-snapshot
   become: true
   ansible.builtin.package:
     name: zfs-auto-snapshot
     state: present
 
-- name: configure weekly scrub
+- name: Configure weekly scrub
   become: true
   ansible.builtin.template:
     src: zfs-scrub.j2
@@ -109,7 +111,7 @@
     group: root
     mode: a=rx
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_main_storage_etc }}"
@@ -118,20 +120,20 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: exporter user
+- name: Exporter user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_main_storage_zfs_exporter_user }}"
     register:
 
-- name: exporter monitoring writer
+- name: Exporter monitoring writer
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.writer
   vars:
     user: "{{ pi_server_apps_main_storage_zfs_exporter_user }}"
 
-- name: exporter script
+- name: Exporter script
   become: true
   ansible.builtin.template:
     src: zfs-exporter.j2
@@ -141,7 +143,7 @@
     mode: a=rx
   notify: Reload zfs exporter
 
-- name: scrub info script
+- name: Scrub info script
   become: true
   ansible.builtin.get_url:
     url: "https://raw.githubusercontent.com/Josef-Friedrich/check_zpool_scrub/{{ pi_server_apps_main_storage_zfs_scrub_info_commit }}/check_zpool_scrub"
@@ -151,7 +153,7 @@
     group: root
     mode: a=rx
 
-- name: exporter service
+- name: Exporter service
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service
   vars:
@@ -159,13 +161,13 @@
     service: "{{ pi_server_apps_main_storage_zfs_exporter_service }}"
     enabled: true
 
-- name: monitor exporter service
+- name: Monitor exporter service
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_main_storage_zfs_exporter_service }}"
 
-- name: alerts
+- name: Alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:

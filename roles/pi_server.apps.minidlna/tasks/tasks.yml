@@ -1,18 +1,18 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- name: install minidlna
+- name: Install minidlna
   become: true
   ansible.builtin.package:
     name: minidlna
     state: present
 
-- name: media dir
+- name: Media dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_media_dir }}"
@@ -21,7 +21,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: config dir
+- name: Config dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_config_dir }}"
@@ -30,7 +30,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: db dir
+- name: DB dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_minidlna_db_dir }}"
@@ -39,7 +39,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: systemd user
+- name: Systemd user
   become: true
   ansible.builtin.lineinfile:
     path: /lib/systemd/system/minidlna.service
@@ -47,7 +47,7 @@
     regexp: "^User=minidlna$"
   notify: Reload minidlna
 
-- name: systemd group
+- name: Systemd group
   become: true
   ansible.builtin.lineinfile:
     path: /lib/systemd/system/minidlna.service
@@ -55,7 +55,7 @@
     regexp: "^Group=minidlna$"
   notify: Reload minidlna
 
-- name: config
+- name: Config
   become: true
   ansible.builtin.template:
     src: minidlna.conf.j2
@@ -65,7 +65,7 @@
     mode: a=r
   notify: Reload minidlna
 
-- name: overrides
+- name: Overrides
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service_overrides
   vars:
@@ -73,25 +73,25 @@
     service: "{{ pi_server_apps_minidlna_service }}"
     enabled: true
 
-- name: monitoring
+- name: Monitoring
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_minidlna_service }}"
 
-- name: pause on cron
+- name: Pause on cron
   ansible.builtin.include_role:
     name: pi_server.apps.cron.pause_systemd_on_cron
   vars:
     service: "{{ pi_server_apps_minidlna_service }}"
 
-- name: expose to traefik network
+- name: Expose to traefik network
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_minidlna_http_port }}"
 
-- name: add to traefik
+- name: Add to traefik
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.http_host_service
   vars:
@@ -102,14 +102,14 @@
     port: "{{ pi_server_apps_minidlna_http_port }}"
     https: false
 
-- name: control panel fragment
+- name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
     name: mediaserver
 
-- name: dlna port
+- name: DLNA port
   ansible.builtin.include_role:
     name: pi_server.apps.firewall.udp_port
   vars:

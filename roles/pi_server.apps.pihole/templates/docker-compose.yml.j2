@@ -11,7 +11,7 @@ services:
     environment:
       TZ: "{{ pi_server_timezone }}"
       WEBPASSWORD: "{{ pi_server_pihole_web_password }}"
-      FTLCONF_REPLY_ADDR4: "{{ pi_server_lan_ip }}"
+      FTLCONF_LOCAL_IPV4: "{{ pi_server_lan_ip }}"
       DNSMASQ_LISTENING: "all"
       PIHOLE_UID: "{{ pihole_user.uid }}"
       PIHOLE_GID: "{{ pihole_user.group }}"

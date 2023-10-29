@@ -1,32 +1,32 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.openvpn.server
 
-- name: lan network route
+- name: LAN network route
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
     line: "route {{ args.client_lan_network }} 255.255.255.0"
 
-- name: vpn network route
+- name: VPN network route
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
     line: "route {{ args.client_vpn_network }} 255.255.255.0"
 
-- name: lan network push route
+- name: LAN network push route
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
     line: "push \"route {{ args.client_lan_network }} 255.255.255.0\""
 
-- name: vpn network push route
+- name: VPN network push route
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_server_to_server_config }}"
     line: "push \"route {{ args.client_vpn_network }} 255.255.255.0\""
 
-- name: client config
+- name: Client config
   become: true
   ansible.builtin.template:
     src: client-config.j2

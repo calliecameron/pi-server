@@ -1,27 +1,27 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.openvpn.server
 
-- name: save client cert name
+- name: Save client cert name
   ansible.builtin.set_fact:
     pi_server_apps_openvpn_server_to_server_client_cert: "{{ pi_server_apps_certs_etc }}/openvpn-server-to-server-client.crt"
     pi_server_apps_openvpn_server_to_server_client_key: "{{ pi_server_apps_certs_etc }}/openvpn-server-to-server-client.key"
 
-- name: check that client cert exists
+- name: Check that client cert exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_cert }}"
     msg: "client cert ({{ pi_server_apps_openvpn_server_to_server_client_cert }}) doesn't exist"
 
-- name: check that client key exists
+- name: Check that client key exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_key }}"
     msg: "client key ({{ pi_server_apps_openvpn_server_to_server_client_key }}) doesn't exist"
 
-- name: client cert
+- name: Client cert
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_cert }}"
@@ -29,7 +29,7 @@
     group: root
     mode: a=r
 
-- name: client key
+- name: Client key
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_server_to_server_client_key }}"
@@ -37,7 +37,7 @@
     group: root
     mode: u=r,go=
 
-- name: config file
+- name: Config file
   become: true
   ansible.builtin.template:
     src: config.j2
@@ -46,7 +46,7 @@
     group: root
     mode: u=r,go=
 
-- name: systemd service
+- name: Systemd service
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service
   vars:

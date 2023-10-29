@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: templates
+- name: Templates
   ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_templates
   vars:
@@ -11,7 +11,7 @@
     body_title: "{{ args.body_title }}"
     fragments_notify:
 
-- name: assemble
+- name: Assemble
   become: true
   ansible.builtin.assemble:
     src: "{{ args.fragments_dir }}"
@@ -20,7 +20,7 @@
     group: root
     mode: u=rw,go=r
 
-- name: css
+- name: Css
   become: true
   ansible.builtin.copy:
     src: pi.css
@@ -29,7 +29,7 @@
     group: root
     mode: u=rw,go=r
 
-- name: favicon.ico
+- name: Favicon.ico
   become: true
   ansible.builtin.copy:
     src: "{{ args.favicon_basename }}.ico"
@@ -38,7 +38,7 @@
     group: root
     mode: u=rw,go=r
 
-- name: favicon.png
+- name: Favicon.png
   become: true
   ansible.builtin.copy:
     src: "{{ args.favicon_basename }}.png"
@@ -47,7 +47,7 @@
     group: root
     mode: u=rw,go=r
 
-- name: favicon-apple.png
+- name: Favicon-apple.png
   become: true
   ansible.builtin.copy:
     src: "{{ args.favicon_basename }}-apple.png"
@@ -56,7 +56,7 @@
     group: root
     mode: u=rw,go=r
 
-- name: check if bootstrap installed
+- name: Check if bootstrap installed
   become: true
   ansible.builtin.command:
     cmd: "ls '{{ args.web_root }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}-dist'"
@@ -64,7 +64,7 @@
   failed_when: false
   changed_when: false
 
-- name: download bootstrap
+- name: Download bootstrap
   become: true
   ansible.builtin.get_url:
     url: "https://github.com/twbs/bootstrap/releases/download/v{{ pi_server_utils_bootstrap_templates_bootstrap_version }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}-dist.zip"
@@ -75,7 +75,7 @@
     mode: a=r
   when: bootstrap_exists.rc != 0
 
-- name: extract bootstrap
+- name: Extract bootstrap
   become: true
   ansible.builtin.unarchive:
     src: "{{ args.temp_dir }}/bootstrap-{{ pi_server_utils_bootstrap_templates_bootstrap_version }}.zip"
@@ -86,28 +86,28 @@
     mode: u=rwx,go=rx
   when: bootstrap_exists.rc != 0
 
-- name: initial dir permissions
+- name: Initial dir permissions
   become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type d -exec stat -c '%n %a' '{}' ';'"
   changed_when: false
   register: initial_dir_permissions
 
-- name: fix dir permissions
+- name: Fix dir permissions
   become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type d -exec chmod 'u=rwx,go=rx' '{}' ';' -exec stat -c '%n %a' '{}' ';'"
   changed_when: initial_dir_permissions.stdout_lines | sort() != dir_permissions.stdout_lines | sort()
   register: dir_permissions
 
-- name: initial file permissions
+- name: Initial file permissions
   become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type f -exec stat -c '%n %a' '{}' ';'"
   changed_when: false
   register: initial_file_permissions
 
-- name: fix file permissions
+- name: Fix file permissions
   become: true
   ansible.builtin.command:
     cmd: "find '{{ args.web_root }}' -type f -exec chmod 'u=rw,go=r' '{}' ';' -exec stat -c '%n %a' '{}' ';'"

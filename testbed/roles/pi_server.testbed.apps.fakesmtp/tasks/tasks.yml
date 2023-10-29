@@ -4,7 +4,7 @@
     apply:
       become: true
   vars:
-    nodejs_version: "20.x"
+    nodejs_version: "16.x"
     nodejs_npm_global_packages:
       - name: fake-smtp-server
 

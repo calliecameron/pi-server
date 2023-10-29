@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: header
+- name: Header
   become: true
   ansible.builtin.template:
     src: header.html.j2
@@ -12,7 +12,7 @@
     mode: a=r
   register: header_result
 
-- name: footer
+- name: Footer
   become: true
   ansible.builtin.template:
     src: footer.html.j2
@@ -22,7 +22,7 @@
     mode: a=r
   register: footer_result
 
-- name: notify
+- name: Notify
   ansible.builtin.assert:
     that:
       - true

@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- name: cronjob
+- name: Cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
@@ -15,7 +15,7 @@
       - "[Service]"
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
 
-- name: alerts
+- name: Alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:

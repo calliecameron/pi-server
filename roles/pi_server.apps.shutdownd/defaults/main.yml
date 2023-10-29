@@ -13,4 +13,4 @@ pi_server_apps_shutdownd_ui_templates_dir: "{{ pi_server_apps_shutdownd_etc }}/u
 pi_server_apps_shutdownd_ui_script: "{{ pi_server_apps_shutdownd_ui_dir }}/shutdownd-ui"
 pi_server_apps_shutdownd_ui_docker_compose: "{{ pi_server_apps_shutdownd_etc }}/docker-compose.yml"
 pi_server_apps_shutdownd_ui_image: "pi-server-shutdownd-ui"
-pi_server_apps_shutdownd_ui_python_version: "3.10.4-bullseye"
+pi_server_apps_shutdownd_ui_python_version: "3.10.13-bookworm"

@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.base
 
-- name: temp dir
+- name: Temp dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_control_panel_temp_dir }}"
@@ -11,14 +11,14 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: user
+- name: User
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_control_panel_user }}"
     register: control_panel_user
 
-- name: base files
+- name: Base files
   ansible.builtin.include_role:
     name: pi_server.utils.bootstrap_site
   vars:
@@ -30,21 +30,21 @@
     favicon_basename: "favicon"
     fragments_target: "{{ pi_server_apps_control_panel_index }}"
 
-- name: header
+- name: Header
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: main-header.html.j2
     name: 00-00-main-header
 
-- name: footer
+- name: Footer
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: main-footer.html.j2
     name: zz-zz-main-footer
 
-- name: nginx
+- name: Nginx
   ansible.builtin.include_role:
     name: pi_server.utils.nginx
   vars:
@@ -55,14 +55,14 @@
     gid: "{{ control_panel_user.group }}"
     web_root: "{{ pi_server_apps_control_panel_web_root }}"
 
-- name: entrypoint
+- name: Entrypoint
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.http_entrypoint
   vars:
     name: "{{ pi_server_apps_control_panel_entrypoint }}"
     port: "{{ pi_server_apps_control_panel_traefik_port }}"
 
-- name: open port
+- name: Open port
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.publish_port
   vars:

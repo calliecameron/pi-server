@@ -1,16 +1,16 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.syncthing.system_wide
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_etc }}"
@@ -19,7 +19,7 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: config dir
+- name: Config dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_config_dir }}"
@@ -28,7 +28,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: instructions
+- name: Instructions
   become: true
   ansible.builtin.copy:
     src: instructions.txt
@@ -37,7 +37,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=r,go=
 
-- name: git configuration file
+- name: Git configuration file
   ansible.builtin.include_role:
     name: pi_server.utils.create_file
   vars:
@@ -46,7 +46,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rw,go=
 
-- name: git backup dir
+- name: Git backup dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_git_dir }}"
@@ -55,7 +55,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: git ssh
+- name: Git ssh
   become: true
   ansible.builtin.template:
     src: git-ssh.j2
@@ -64,13 +64,13 @@
     group: root
     mode: a=rx
 
-- name: git user can read deployment key
+- name: Git user can read deployment key
   ansible.builtin.include_role:
     name: pi_server.apps.certs.deployment_key_reader
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
 
-- name: git cronjob
+- name: Git cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
@@ -84,13 +84,13 @@
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
       - "ReadWritePaths={{ pi_server_apps_backup_git_dir }}"
 
-- name: install restic
+- name: Install restic
   become: true
   ansible.builtin.package:
     name: restic
     state: present
 
-- name: restic config
+- name: Restic config
   become: true
   ansible.builtin.template:
     src: restic.conf.j2
@@ -99,7 +99,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=r,go=
 
-- name: restic config dir
+- name: Restic config dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_restic_config_dir }}"
@@ -108,7 +108,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: restic cache dir
+- name: Restic cache dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_backup_restic_cache }}"
@@ -117,7 +117,7 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rwx,go=
 
-- name: main cronjob
+- name: Main cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:

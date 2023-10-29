@@ -1,28 +1,28 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel
 
-- name: apt key
+- name: Apt key
   become: true
   ansible.builtin.apt_key:
     url: "https://syncthing.net/release-key.gpg"
 
-- name: apt repo
+- name: Apt repo
   become: true
   ansible.builtin.apt_repository:
     repo: "deb https://apt.syncthing.net/ syncthing stable"
 
-- name: install
+- name: Install
   become: true
   ansible.builtin.package:
     name: syncthing
     state: present
 
-- name: config dir
+- name: Config dir
   become: true
   ansible.builtin.file:
     path: "{{ args.config_dir }}"
@@ -31,56 +31,56 @@
     group: "{{ args.user }}"
     mode: u=rwx,go=
 
-- name: generate initial config
+- name: Generate initial config
   become: true
   become_user: "{{ args.user }}"
   ansible.builtin.command:
     cmd: "syncthing '--generate={{ args.config_dir }}' --no-default-folder"
     creates: "{{ args.config_dir }}/config.xml"
 
-- name: disable global discovery
+- name: Disable global discovery
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/globalAnnounceEnabled"
     value: "false"
 
-- name: disable start browser
+- name: Disable start browser
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/startBrowser"
     value: "false"
 
-- name: disable relaying
+- name: Disable relaying
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/relaysEnabled"
     value: "false"
 
-- name: disable NAT
+- name: Disable NAT
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/natEnabled"
     value: "false"
 
-- name: disable usage reporting
+- name: Disable usage reporting
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/urAccepted"
     value: "-1"
 
-- name: disable crash reporting
+- name: Disable crash reporting
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
     xpath: "/configuration/options/crashReportingEnabled"
     value: "false"
 
-- name: disabe https for the gui
+- name: Disable https for the gui
   become: true
   community.general.xml:
     path: "{{ args.config_dir }}/config.xml"
@@ -88,7 +88,7 @@
     attribute: "tls"
     value: "false"
 
-- name: systemd service
+- name: Systemd service
   ansible.builtin.include_role:
     name: pi_server.utils.systemd_service
   vars:
@@ -96,25 +96,25 @@
     service: "{{ pi_server_apps_syncthing_service }}"
     enabled: true
 
-- name: monitoring
+- name: Monitoring
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_systemd_service
   vars:
     systemd_service: "{{ pi_server_apps_syncthing_service }}"
 
-- name: pause on cron
+- name: Pause on cron
   ansible.builtin.include_role:
     name: pi_server.apps.cron.pause_systemd_on_cron
   vars:
     service: "{{ pi_server_apps_syncthing_service }}"
 
-- name: expose to traefik network
+- name: Expose to traefik network
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_syncthing_web_port }}"
 
-- name: add to traefik
+- name: Add to traefik
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.http_host_service
   vars:
@@ -125,20 +125,20 @@
     port: "{{ pi_server_apps_syncthing_web_port }}"
     https: false
 
-- name: control panel fragment
+- name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
     src: fragment.html.j2
     name: syncthing
 
-- name: tcp port
+- name: TCP port
   ansible.builtin.include_role:
     name: pi_server.apps.firewall.tcp_port
   vars:
     port: "{{ pi_server_apps_syncthing_tcp_port }}"
 
-- name: udp port
+- name: UDP port
   ansible.builtin.include_role:
     name: pi_server.apps.firewall.udp_port
   vars:

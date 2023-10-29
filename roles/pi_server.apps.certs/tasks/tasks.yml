@@ -1,8 +1,8 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.base
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_etc }}"
@@ -11,66 +11,66 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: user
+- name: User
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_certs_user }}"
     register:
 
-- name: https key readers group
+- name: Https key readers group
   become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_https_key_readers_group }}"
 
-- name: deployment key readers group
+- name: Deployment key readers group
   become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
 
-- name: check that ca cert exists
+- name: Check that ca cert exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_ca }}"
     msg: "CA cert ({{ pi_server_apps_certs_ca }}) doesn't exist"
 
-- name: check that crl exists
+- name: Check that crl exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_crl }}"
     msg: "CRL ({{ pi_server_apps_certs_crl }}) doesn't exist"
 
-- name: check that https cert exists
+- name: Check that https cert exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_https_cert }}"
     msg: "HTTPS cert ({{ pi_server_apps_certs_https_cert }}) doesn't exist"
 
-- name: check that https key exists
+- name: Check that https key exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_https_key }}"
     msg: "HTTPS key ({{ pi_server_apps_certs_https_key }}) doesn't exist"
 
-- name: check that deployment public key exists
+- name: Check that deployment public key exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_deployment_key_pub }}"
     msg: "deployment public key ({{ pi_server_apps_certs_deployment_key_pub }}) doesn't exist"
 
-- name: check that deployment key exists
+- name: Check that deployment key exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_certs_deployment_key }}"
     msg: "deployment key ({{ pi_server_apps_certs_deployment_key }}) doesn't exist"
 
-- name: ca cert
+- name: CA cert
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_ca }}"
@@ -78,7 +78,7 @@
     group: root
     mode: a=r
 
-- name: crl
+- name: CRL
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_crl }}"
@@ -86,7 +86,7 @@
     group: root
     mode: a=r
 
-- name: https cert
+- name: Https cert
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_https_cert }}"
@@ -94,7 +94,7 @@
     group: root
     mode: a=r
 
-- name: https key
+- name: Https key
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_https_key }}"
@@ -102,7 +102,7 @@
     group: "{{ pi_server_apps_certs_https_key_readers_group }}"
     mode: ug=r,o=
 
-- name: deployment public key
+- name: Deployment public key
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_deployment_key_pub }}"
@@ -110,7 +110,7 @@
     group: root
     mode: a=r
 
-- name: deployment key
+- name: Deployment key
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_certs_deployment_key }}"
@@ -118,7 +118,7 @@
     group: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
     mode: ug=r,o=
 
-- name: certs size script
+- name: Certs size script
   become: true
   ansible.builtin.copy:
     src: certs-size
@@ -127,7 +127,7 @@
     group: root
     mode: a=rx
 
-- name: copy ca cert
+- name: Copy ca cert
   become: true
   ansible.builtin.copy:
     remote_src: true
@@ -137,21 +137,21 @@
     group: root
     mode: a=r
 
-- name: cert database size
+- name: Cert database size
   become: true
   ansible.builtin.stat:
     path: /etc/ssl/certs/ca-certificates.crt
   register: stat_result
   changed_when: false
 
-- name: generate certs database
+- name: Generate certs database
   become: true
   ansible.builtin.command:
     cmd: update-ca-certificates
   register: update_result
   changed_when: update_result.stdout | regex_search('pi-server [0-9]+') | regex_search('[0-9]+') != stat_result.stat.size | string()
 
-- name: cronjob
+- name: Cronjob
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob
   vars:
@@ -162,13 +162,13 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: dashboard
+- name: Dashboard
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_dashboard
   vars:
     src: certs.json
 
-- name: alerts
+- name: Alerts
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.custom_alerts
   vars:

@@ -1,15 +1,15 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.certs
 
-- name: check that tls auth exists
+- name: Check that tls auth exists
   ansible.builtin.include_role:
     name: pi_server.utils.require_file
   vars:
     path: "{{ pi_server_apps_openvpn_tls_auth }}"
     msg: "openvpn tls auth ({{ pi_server_apps_openvpn_tls_auth }}) doesn't exist"
 
-- name: openvpn tls auth
+- name: Openvpn tls auth
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_tls_auth }}"
@@ -17,7 +17,7 @@
     group: root
     mode: u=r,go=
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_openvpn_etc }}"
@@ -26,13 +26,13 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: install openvpn
+- name: Install openvpn
   become: true
   ansible.builtin.package:
     name: openvpn
     state: present
 
-- name: check whether autostart is set
+- name: Check whether autostart is set
   become: true
   ansible.builtin.command:
     cmd: "grep '^AUTOSTART' '{{ pi_server_apps_openvpn_autostart_file }}'"
@@ -40,7 +40,7 @@
   failed_when: false
   register: autostart
 
-- name: don't autostart connections
+- name: Don't autostart connections
   become: true
   ansible.builtin.lineinfile:
     path: "{{ pi_server_apps_openvpn_autostart_file }}"

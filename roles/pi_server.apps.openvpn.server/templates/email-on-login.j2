@@ -3,5 +3,7 @@
 
 set -eu
 
-'{{ pi_server_apps_email_script }}' "OpenVPN connection: ${common_name:-} from ${trusted_ip:-}" "Connected at ${time_ascii:-}" &
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
+
+"${EMAIL_SCRIPT}" "OpenVPN connection: ${common_name:-} from ${trusted_ip:-}" "Connected at ${time_ascii:-}" &
 exit 0

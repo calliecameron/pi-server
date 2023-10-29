@@ -1,16 +1,16 @@
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.docker
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.traefik
 
-- name: dependency
+- name: Dependency
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel
 
-- name: etc dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_pihole_etc }}"
@@ -19,21 +19,21 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: pihole user
+- name: Pihole user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_pihole_user }}"
     register: pihole_user
 
-- name: pihole web user
+- name: Pihole web user
   ansible.builtin.include_role:
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_pihole_web_user }}"
     register: pihole_web_user
 
-- name: resolved overrides dir
+- name: Resolved overrides dir
   become: true
   ansible.builtin.file:
     path: "{{ pi_server_apps_pihole_resolved_dir }}"
@@ -42,7 +42,7 @@
     group: root
     mode: u=rwx,go=rx
 
-- name: resolved overrides
+- name: Resolved overrides
   become: true
   ansible.builtin.template:
     src: resolved-overrides.conf.j2
@@ -52,7 +52,7 @@
     mode: a=r
   notify: Reload resolved
 
-- name: resolv.conf
+- name: Resolv.conf
   become: true
   ansible.builtin.file:
     path: /etc/resolv.conf
@@ -63,10 +63,10 @@
     mode: u=rw,go=r
   notify: Reload resolved
 
-- name: flush handlers
+- name: Flush handlers
   ansible.builtin.meta: flush_handlers
 
-- name: compose file
+- name: Compose file
   become: true
   ansible.builtin.template:
     src: docker-compose.yml.j2
@@ -76,17 +76,18 @@
     mode: a=r
   notify: Reload pihole
 
-- include_tasks: compose.yml
+- name: Compose
+  ansible.builtin.include_tasks: compose.yml
   vars:
     restart: false
 
-- name: monitor containers
+- name: Monitor containers
   ansible.builtin.include_role:
     name: pi_server.apps.monitoring.monitor_docker_compose
   vars:
     compose_file: "{{ pi_server_apps_pihole_docker_compose }}"
 
-- name: control panel links
+- name: Control panel links
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment
   vars:
