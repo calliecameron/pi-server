@@ -314,7 +314,8 @@ class TestRolePiFull:
                 assert driver.title.startswith("MiniDLNA")
 
         test(addrs[hostname])
-        test(hostname + ".local")
+        # No longer works since https://security.snyk.io/vuln/SNYK-UNMANAGED-MINIDLNA-2419090
+        # test(hostname + ".local")
 
     @for_host_types("pi")
     def test_pihole(
