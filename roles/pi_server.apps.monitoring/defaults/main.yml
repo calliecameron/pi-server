@@ -11,7 +11,7 @@ pi_server_apps_monitoring_node_exporter_version: "v1.6.1"
 pi_server_apps_monitoring_grafana_user: "pi-server-grafana"
 pi_server_apps_monitoring_grafana_port: "3000"
 pi_server_apps_monitoring_grafana_config: "{{ pi_server_apps_monitoring_etc }}/grafana.ini"
-pi_server_apps_monitoring_grafana_version: "10.2.0"
+pi_server_apps_monitoring_grafana_version: "8.5.0"
 
 pi_server_apps_monitoring_alertmanager_port: "9093"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"
