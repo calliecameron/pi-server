@@ -330,6 +330,8 @@ class TestRolePiFull:
         )
 
         # Ad-serving domain
+        # Note that this will fail if pihole is enabled on your network -
+        # disable it before running the test.
         assert not Lines(host.check_output("nslookup ads.google.com")).contains(
             r"Address: 0\.0\.0\.0"
         )
