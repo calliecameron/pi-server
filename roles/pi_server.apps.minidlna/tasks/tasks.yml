@@ -55,6 +55,14 @@
     regexp: "^Group=minidlna$"
   notify: Reload minidlna
 
+- name: Logrotate config
+  become: true
+  ansible.builtin.lineinfile:
+    path: /etc/logrotate.d/minidlna
+    line: "\tcreate 0644 {{ pi_server_apps_main_data_user }} {{ pi_server_apps_main_data_user }}"
+    regexp: "\tcreate 0644"
+  notify: Reload minidlna
+
 - name: Config
   become: true
   ansible.builtin.template:
