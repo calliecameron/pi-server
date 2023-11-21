@@ -399,23 +399,25 @@ class TestOpenVPNClients:
                     time=datetime.time(hour=22, minute=59, second=50),
                     cmd_to_watch="/bin/bash /etc/pi-server/openvpn/openvpn-nightly",
                 ):
-                    net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
-                    email.assert_has_emails(
-                        [
-                            {
-                                "from": "notification@pi2.testbed",
-                                "to": "fake@fake.testbed",
-                                "subject_re": (
-                                    rf"\[pi2\] OpenVPN connection: pi1-client from "
-                                    rf'{addrs["router1_wan"]}'
-                                ),
-                                "body_re": r"Connected at .*\n(.*\n)*",
-                            }
-                        ],
-                        only_from="pi2",
-                    )
-                    with pi1.sudo():
-                        pi1.check_output("systemctl stop pi-server-cron-openvpn-nightly")
+                    try:
+                        net.assert_reachability(SERVER_TO_SERVER_REACHABILITY)
+                        email.assert_has_emails(
+                            [
+                                {
+                                    "from": "notification@pi2.testbed",
+                                    "to": "fake@fake.testbed",
+                                    "subject_re": (
+                                        rf"\[pi2\] OpenVPN connection: pi1-client from "
+                                        rf'{addrs["router1_wan"]}'
+                                    ),
+                                    "body_re": r"Connected at .*\n(.*\n)*",
+                                }
+                            ],
+                            only_from="pi2",
+                        )
+                    finally:
+                        with pi1.sudo():
+                            pi1.check_output("systemctl stop pi-server-cron-openvpn-nightly")
             net.assert_reachability(BASE_REACHABILITY)
         finally:
             vagrant.reboot("pi1", "pi2")

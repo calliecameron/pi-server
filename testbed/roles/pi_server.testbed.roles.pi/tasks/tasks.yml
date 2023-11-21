@@ -25,6 +25,8 @@
 - name: Dependency
   ansible.builtin.include_role:
     name: pi_server.roles.base
+  vars:
+    ssh_max_startups: 1000
 
 - name: Dependency
   ansible.builtin.include_role:

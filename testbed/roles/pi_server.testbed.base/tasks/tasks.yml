@@ -34,8 +34,17 @@
 - name: Sysctl conf
   become: true
   ansible.builtin.copy:
-    src: testbed.conf
+    src: testbed-sysctl.conf
     dest: /etc/sysctl.d/testbed.conf
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Sshd conf
+  become: true
+  ansible.builtin.copy:
+    src: testbed-sshd.conf
+    dest: /etc/ssh/sshd_config.d/testbed.conf
     owner: root
     group: root
     mode: a=r
