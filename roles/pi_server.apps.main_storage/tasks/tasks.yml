@@ -173,3 +173,28 @@
   vars:
     src: zfs-alerts-custom.yml
     job: zfs
+
+- name: Install smartmontools
+  become: true
+  ansible.builtin.package:
+    name: smartmontools
+    state: present
+
+- name: Smartmontools email script
+  become: true
+  ansible.builtin.template:
+    src: smartd-send-email.j2
+    dest: "{{ pi_server_apps_main_storage_smartd_email }}"
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: Smartd.conf
+  become: true
+  ansible.builtin.template:
+    src: smartd.conf.j2
+    dest: "/etc/smartd.conf"
+    owner: root
+    group: root
+    mode: a=r
+  notify: Reload smartd

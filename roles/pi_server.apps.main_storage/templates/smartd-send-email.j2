@@ -1,0 +1,9 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Send a notification email from smartd
+
+set -eu
+
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
+
+"${EMAIL_SCRIPT}" "${SMARTD_SUBJECT:-}" "${SMARTD_FULLMESSAGE:-}"

@@ -5,3 +5,11 @@
     enabled: true
     state: restarted
   listen: "Reload zfs exporter"
+
+- name: Reload smartd
+  become: true
+  ansible.builtin.systemd:
+    name: smartmontools
+    enabled: true
+    state: restarted
+  listen: "Reload smartd"
