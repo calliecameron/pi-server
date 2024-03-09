@@ -1,6 +1,9 @@
 from typing import NamedTuple
 
-Status = NamedTuple("Status", [("name", str), ("state", str), ("provider", str)])
+class Status(NamedTuple):
+    name: str
+    state: str
+    provider: str
 
 class Vagrant:
     RUNNING: str

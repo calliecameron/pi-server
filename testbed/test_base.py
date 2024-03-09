@@ -37,7 +37,7 @@ class TestBase:
                 "pi1": ["router1_lan", "router1_wan", "router2_wan", "pi1", "pi1_vpn", "ubuntu"],
                 "pi2": ["router1_wan", "router2_lan", "router2_wan", "pi2", "pi2_vpn", "ubuntu"],
                 "ubuntu": ["router1_wan", "router2_wan", "ubuntu"],
-            }
+            },
         )
 
     @vms_down("router1")
@@ -66,7 +66,7 @@ class TestBase:
                     "ubuntu",
                 ],
                 "ubuntu": ["external", "internet", "router2_wan", "ubuntu"],
-            }
+            },
         )
 
     def test_routing_base(self, net: Net) -> None:
@@ -127,7 +127,7 @@ class TestBase:
                     "router2_wan": [],
                     "ubuntu": [],
                 },
-            }
+            },
         )
 
     @vms_down("internet")
@@ -172,7 +172,7 @@ class TestBase:
                     "router2_wan": [],
                     "ubuntu": [],
                 },
-            }
+            },
         )
 
     @vms_down("router1")
@@ -214,7 +214,7 @@ class TestBase:
                     "router2_wan": [],
                     "ubuntu": [],
                 },
-            }
+            },
         )
 
     def test_firewall(self, net: Net) -> None:

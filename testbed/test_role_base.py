@@ -5,6 +5,8 @@ from conftest import for_host_types
 from helpers import Email, Lines
 from testinfra.host import Host
 
+# ruff: noqa: PLR2004
+
 
 class TestRoleBase:
     @for_host_types("pi", "ubuntu")
@@ -149,24 +151,22 @@ groups:
             # textfile -> node exporter -> scrape -> prometheus -> alertmanager -> webhook
             email.clear()
             try:
-                with host.shadow_file(
-                    "/etc/pi-server/monitoring/rules.d/test.yml"
-                ) as rules, host.shadow_file(
-                    "/var/pi-server/monitoring/collect/test1.prom"
-                ) as data1, host.shadow_file(
-                    "/var/pi-server/monitoring/collect/test2.prom"
-                ) as data2:
+                with (
+                    host.shadow_file("/etc/pi-server/monitoring/rules.d/test.yml") as rules,
+                    host.shadow_file("/var/pi-server/monitoring/collect/test1.prom") as data1,
+                    host.shadow_file("/var/pi-server/monitoring/collect/test2.prom") as data2,
+                ):
                     with host.sudo():
                         rules.write(textfile_alert)
                         host.check_output("chmod a=r /etc/pi-server/monitoring/rules.d/test.yml")
                         host.check_output("pkill -HUP prometheus")  # reload rules
                         data1.write(
                             "# HELP pi_server_test_test foo\n"
-                            'pi_server_test_test{job="test", foo="bar"} 1'
+                            'pi_server_test_test{job="test", foo="bar"} 1',
                         )
                         data2.write(
                             "# HELP pi_server_test_test foo\n"
-                            'pi_server_test_test{job="test", foo="baz"} 1'
+                            'pi_server_test_test{job="test", foo="baz"} 1',
                         )
                     time.sleep(120)  # prometheus scrapes every minute
                     email.assert_has_emails(
@@ -180,7 +180,7 @@ groups:
                                     r"Job: test(.*\n)+Alert 1 of 2:(.*\n)+Foo: bar(.*\n)+"
                                     r"Alert 2 of 2:(.*\n)+Foo: baz(.*\n)+"
                                 ),
-                            }
+                            },
                         ],
                         only_from=hostname,
                     )
@@ -204,7 +204,7 @@ groups:
                                 r"Summary: Host out of disk space(.*\n)+Instance: "
                                 rf"{hostname}(.*\n)+Job: node(.*\n)+Alert 1 of 1:(.*\n)+"
                             ),
-                        }
+                        },
                     ],
                     only_from=hostname,
                 )
@@ -224,7 +224,7 @@ groups:
                         host.check_output("systemctl stop cron.service")
                         host.check_output(
                             "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml stop "
-                            "grafana"
+                            "grafana",
                         )
 
                     time.sleep(360)  # absent takes a while to show up
@@ -259,7 +259,7 @@ groups:
                     host.check_output("systemctl start cron.service")
                     host.check_output(
                         "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml start "
-                        "grafana"
+                        "grafana",
                     )
 
     @for_host_types("pi", "ubuntu")
@@ -298,44 +298,44 @@ echo bar
 """
 
         def check_state(
-            service: str, running: bool = False, success: bool = False, failure: bool = False
+            service: str,
+            running: bool = False,
+            success: bool = False,
+            failure: bool = False,
         ) -> None:
             with host.sudo():
                 lines = Lines(
                     host.file(
-                        f"/var/pi-server/monitoring/collect/cron-{service}-state.prom"
-                    ).content_string
+                        f"/var/pi-server/monitoring/collect/cron-{service}-state.prom",
+                    ).content_string,
                 )
                 assert lines.contains(
                     f'cron_state\\{{job="cron", cronjob="{service}", '
-                    + f'state="RUNNING"\\}} {int(running)}'
+                    f'state="RUNNING"\\}} {int(running)}',
                 )
                 assert lines.contains(
                     f'cron_state\\{{job="cron", cronjob="{service}", '
-                    + f'state="SUCCESS"\\}} {int(success)}'
+                    f'state="SUCCESS"\\}} {int(success)}',
                 )
                 assert lines.contains(
                     f'cron_state\\{{job="cron", cronjob="{service}", '
-                    + f'state="FAILURE"\\}} {int(failure)}'
+                    f'state="FAILURE"\\}} {int(failure)}',
                 )
 
         try:
             with host.sudo():
                 host.check_output("docker run -d --name=pi_test --stop-timeout=1 debian sleep 1h")
 
-            with host.group_membership("vagrant", "pi-server-monitoring-writers"), host.shadow_file(
-                "/etc/systemd/system/fake1.service"
-            ) as fake1_unit, host.shadow_file(
-                "/etc/systemd/system/fake2.service"
-            ) as fake2_unit, host.shadow_file(
-                "/etc/systemd/system/pi-server-cron-cron1.service"
-            ) as cron1_unit, host.shadow_file(
-                "/etc/systemd/system/pi-server-cron-cron2.service"
-            ) as cron2_unit, host.shadow_dir(
-                "/etc/pi-server/cron/cron.d"
-            ) as cron_dir, host.shadow_dir(
-                "/etc/pi-server/cron/pause.d"
-            ) as pause_dir, host.disable_login_emails():
+            with (
+                host.group_membership("vagrant", "pi-server-monitoring-writers"),
+                host.shadow_file("/etc/systemd/system/fake1.service") as fake1_unit,
+                host.shadow_file("/etc/systemd/system/fake2.service") as fake2_unit,
+                host.shadow_file("/etc/systemd/system/pi-server-cron-cron1.service") as cron1_unit,
+                host.shadow_file("/etc/systemd/system/pi-server-cron-cron2.service") as cron2_unit,
+                host.shadow_dir("/etc/pi-server/cron/cron.d") as cron_dir,
+                host.shadow_dir("/etc/pi-server/cron/pause.d") as pause_dir,
+                host.disable_login_emails(),
+            ):
                 try:
                     with host.sudo():
                         fake1_unit.write(service_unit_template)
@@ -388,7 +388,8 @@ echo bar
                         # Won't start because systemd conflicts are running
                         with host.sudo():
                             host.run_expect(
-                                [1], "systemctl start --wait pi-server-cron-cron1.service"
+                                [1],
+                                "systemctl start --wait pi-server-cron-cron1.service",
                             )
 
                         try:
@@ -399,7 +400,8 @@ echo bar
                             # Won't start because docker conflicts are running
                             with host.sudo():
                                 host.run_expect(
-                                    [1], "systemctl start --wait pi-server-cron-cron1.service"
+                                    [1],
+                                    "systemctl start --wait pi-server-cron-cron1.service",
                                 )
 
                             try:
@@ -409,7 +411,7 @@ echo bar
                                 # Should start successfully
                                 with host.sudo():
                                     host.check_output(
-                                        "systemctl start --wait pi-server-cron-cron1.service"
+                                        "systemctl start --wait pi-server-cron-cron1.service",
                                     )
 
                             finally:
@@ -435,12 +437,13 @@ echo bar
                         run_stamp = "good"
                         with host.sudo():
                             cron1.write(
-                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'")
+                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'"),
                             )
                             cron2.write(
                                 cron_template.format(
-                                    "vagrant", f"sleep 5\necho 'cron2 {run_stamp}'"
-                                )
+                                    "vagrant",
+                                    f"sleep 5\necho 'cron2 {run_stamp}'",
+                                ),
                             )
 
                         with host.run_crons():
@@ -536,12 +539,13 @@ echo bar
                         run_stamp = "bad"
                         with host.sudo():
                             cron1.write(
-                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'")
+                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'"),
                             )
                             cron2.write(
                                 cron_template.format(
-                                    "vagrant", f"sleep 5\necho 'cron2 {run_stamp}'\nfalse"
-                                )
+                                    "vagrant",
+                                    f"sleep 5\necho 'cron2 {run_stamp}'\nfalse",
+                                ),
                             )
 
                         with host.run_crons():
@@ -629,19 +633,21 @@ echo bar
                         check_state("cron2", failure=True)
 
                     # Disable running
-                    with host.shadow_dir(
-                        "/var/pi-server/monitoring/collect"
-                    ) as collect_dir, host.shadow_file("/etc/pi-server/cron/disabled"):
+                    with (
+                        host.shadow_dir("/var/pi-server/monitoring/collect") as collect_dir,
+                        host.shadow_file("/etc/pi-server/cron/disabled"),
+                    ):
                         journal.clear()
                         run_stamp = "disabled"
                         with host.sudo():
                             cron1.write(
-                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'")
+                                cron_template.format("root", f"sleep 5\necho 'cron1 {run_stamp}'"),
                             )
                             cron2.write(
                                 cron_template.format(
-                                    "vagrant", f"sleep 5\necho 'cron2 {run_stamp}'"
-                                )
+                                    "vagrant",
+                                    f"sleep 5\necho 'cron2 {run_stamp}'",
+                                ),
                             )
 
                         with host.run_crons():
@@ -709,7 +715,10 @@ echo bar
 
     @for_host_types("pi", "ubuntu")
     def test_updates(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
     ) -> None:
         host = hosts[hostname]
         internet = hosts["internet"]
@@ -718,11 +727,11 @@ echo bar
         def check_state(updated: int, not_updated: int) -> None:
             with host.sudo():
                 lines = Lines(
-                    host.file("/var/pi-server/monitoring/collect/updates.prom").content_string
+                    host.file("/var/pi-server/monitoring/collect/updates.prom").content_string,
                 )
                 assert lines.contains(f'apt_packages_upgraded\\{{job="updates"\\}} {updated}')
                 assert lines.contains(
-                    f'apt_packages_not_upgraded\\{{job="updates"\\}} {not_updated}'
+                    f'apt_packages_not_upgraded\\{{job="updates"\\}} {not_updated}',
                 )
 
         try:
@@ -734,7 +743,7 @@ echo bar
                 with host.sudo():
                     sources_list.write(
                         "deb [trusted=yes check-date=no date-max-future=86400] "
-                        + f'http://{addrs["internet"]}:8080/ main main'
+                        f'http://{addrs["internet"]}:8080/ main main',
                     )
                     host.check_output("apt-get update")
                     host.check_output("apt-get install pi-server-test")

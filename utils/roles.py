@@ -70,7 +70,7 @@ class Role:
         tasks = yaml.safe_load((self._tasks_dir / "main.yml").read_text())
         if len(tasks) != 1:
             raise ValueError(
-                f"main.yml must include exactly one task, calling define_role; got {len(tasks)}"
+                f"main.yml must include exactly one task, calling define_role; got {len(tasks)}",
             )
         task = tasks[0]
 
@@ -84,7 +84,7 @@ class Role:
         if task["ansible.builtin.include_tasks"] != want_include:
             raise ValueError(
                 f"task in main.yml must have ansible.builtin.include_tasks {want_include}; "
-                + f'got {task["ansible.builtin.include_tasks"]}'
+                f'got {task["ansible.builtin.include_tasks"]}',
             )
 
         task_vars = task["vars"]
@@ -125,14 +125,14 @@ class Role:
                 continue
             if i == BASE_ROLE:
                 return True
-            if all_roles[i]._depends_on_base(all_roles):  # pylint: disable=protected-access
+            if all_roles[i]._depends_on_base(all_roles):  # noqa: SLF001
                 return True
         return False
 
     def __repr__(self) -> str:
         out = (
             f"{self._name}\n  {self._tidy_name}\n  {self._path}\n"
-            + f"  Private: {self._private}\n  Run once: {self._run_once}\n"
+            f"  Private: {self._private}\n  Run once: {self._run_once}\n"
         )
 
         out += "  Args:\n"
@@ -162,12 +162,12 @@ def load_roles(roots: Sequence[str]) -> dict[str, Role]:
                 r = Role(path)
                 if r.name in out:
                     raise ValueError(
-                        "Found duplicate role names at paths " + f"{r.path} and {out[r.name].path}"
+                        "Found duplicate role names at paths " + f"{r.path} and {out[r.name].path}",
                     )
                 if r.tidy_name in tidy_names:
                     raise ValueError(
                         "Found duplicate role tidy names at paths "
-                        + f"{r.path} and {tidy_names[r.tidy_name].path}"
+                        f"{r.path} and {tidy_names[r.tidy_name].path}",
                     )
                 out[r.name] = r
     return out
@@ -209,14 +209,11 @@ def dependency_graph(roles: Mapping[str, Role]) -> None:
     for cluster, items in sorted(clusters.items()):
         nodes, edges = items
         out.append(f'  subgraph "cluster_{cluster}" {{')
-        for node in sorted(nodes):
-            out.append(f'    "{node}"')
-        for edge in sorted(edges):
-            out.append(f'    "{edge[0]}" -> "{edge[1]}" [minlen=2]')
+        out.extend(f'    "{node}"' for node in sorted(nodes))
+        out.extend(f'    "{edge[0]}" -> "{edge[1]}" [minlen=2]' for edge in sorted(edges))
         out.append("  }")
 
-    for edge in sorted(other_edges):
-        out.append(f'  "{edge[0]}" -> "{edge[1]}" [minlen=2]')
+    out.extend(f'  "{edge[0]}" -> "{edge[1]}" [minlen=2]' for edge in sorted(other_edges))
 
     out.append("}")
 
@@ -224,7 +221,7 @@ def dependency_graph(roles: Mapping[str, Role]) -> None:
 
 
 def main() -> None:
-    if len(sys.argv) < 3:
+    if len(sys.argv) < 3:  # noqa: PLR2004
         raise ValueError("Usage: ./roles.py command roots...")
 
     command = sys.argv[1]

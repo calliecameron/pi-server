@@ -88,7 +88,7 @@ class TestOpenVPNClients:
                                     rf'{addrs["router1_wan"]}'
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
-                            }
+                            },
                         ],
                         only_from="pi2",
                     )
@@ -178,7 +178,7 @@ class TestOpenVPNClients:
                                 "router2_wan": [],
                                 "ubuntu": [],
                             },
-                        }
+                        },
                     )
                     email.assert_has_emails(
                         [
@@ -190,7 +190,7 @@ class TestOpenVPNClients:
                                     rf'{addrs["router1_wan"]}'
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
-                            }
+                            },
                         ],
                         only_from="pi2",
                     )
@@ -269,7 +269,7 @@ class TestOpenVPNClients:
                                 "pi2_vpn",
                                 "ubuntu",
                             ],
-                        }
+                        },
                     )
                     email.assert_has_emails(
                         [
@@ -281,7 +281,7 @@ class TestOpenVPNClients:
                                     rf'{addrs["ubuntu"]}'
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
-                            }
+                            },
                         ],
                         only_from="pi2",
                     )
@@ -362,7 +362,7 @@ class TestOpenVPNClients:
                                 "pi2_vpn": [],
                                 "ubuntu": [],
                             },
-                        }
+                        },
                     )
                     email.assert_has_emails(
                         [
@@ -374,7 +374,7 @@ class TestOpenVPNClients:
                                     rf'{addrs["ubuntu"]}'
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
-                            }
+                            },
                         ],
                         only_from="pi2",
                     )
@@ -411,7 +411,7 @@ class TestOpenVPNClients:
                                         rf'{addrs["router1_wan"]}'
                                     ),
                                     "body_re": r"Connected at .*\n(.*\n)*",
-                                }
+                                },
                             ],
                             only_from="pi2",
                         )

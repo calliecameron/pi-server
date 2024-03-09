@@ -51,7 +51,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
             with open(WEBPAGE_HEADER, encoding="utf-8") as f:
                 page += f.read()
             page = page.replace("#####1#####", title)
-        except IOError:
+        except OSError:
             page += '<html><head><meta charset="utf-8">' + f"<title>{title}</title></head><body>"
 
         page += (
@@ -63,7 +63,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
         try:
             with open(WEBPAGE_FOOTER, encoding="utf-8") as f:
                 page += f.read()
-        except IOError:
+        except OSError:
             page += "</body></html>"
 
         return page.encode("utf-8")
@@ -80,8 +80,9 @@ class Responder(http.server.BaseHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(
             self.construct_response(
-                "Error", "<h1>Error!</h1><p>The requested page could not be found</p>"
-            )
+                "Error",
+                "<h1>Error!</h1><p>The requested page could not be found</p>",
+            ),
         )
 
     def main_page(self, title: str, url: str) -> None:
@@ -91,7 +92,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
         with open(COMMAND_FILE, mode="w", encoding="utf-8") as f:
             f.write(f"{command}\n")
 
-    def do_GET(self) -> None:
+    def do_GET(self) -> None:  # noqa: N802
         if self.path == SHUTDOWN_URL:
             self.main_page("Shut down", SHUTDOWN_URL)
         elif self.path == RESTART_URL:
@@ -99,7 +100,7 @@ class Responder(http.server.BaseHTTPRequestHandler):
         else:
             self.fail()
 
-    def do_POST(self) -> None:
+    def do_POST(self) -> None:  # noqa: N802
         if self.path == SHUTDOWN_URL:
             self.respond("Shut down", SHUTTING_DOWN_BODY)
             time.sleep(1)

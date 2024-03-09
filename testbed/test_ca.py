@@ -8,6 +8,8 @@ from cryptography.x509.extensions import BasicConstraints
 from cryptography.x509.oid import ExtensionOID
 from testinfra.host import Host
 
+# ruff: noqa: DTZ002
+
 
 class TestCA:
     def test_ca(self, hosts: Mapping[str, Host]) -> None:
@@ -24,7 +26,7 @@ class TestCA:
         one_hundred_years = today + datetime.timedelta(days=36500)
 
         def check_with_stdin(cmd: str, stdin: Sequence[str]) -> None:
-            host.check_output("printf '%s\n' | %s" % ("\n".join(stdin), cmd))
+            host.check_output("printf '{}\n' | {}".format("\n".join(stdin), cmd))
 
         def matching_dir(dirs: Sequence[str], prefix: str) -> str:
             for d in dirs:
@@ -41,10 +43,12 @@ class TestCA:
             )
 
             check_with_stdin(
-                os.path.join(scripts_dir, "make-client-cert"), ["C1", password, password, password]
+                os.path.join(scripts_dir, "make-client-cert"),
+                ["C1", password, password, password],
             )
             check_with_stdin(
-                os.path.join(scripts_dir, "make-client-cert"), ["C2", password, password, password]
+                os.path.join(scripts_dir, "make-client-cert"),
+                ["C2", password, password, password],
             )
 
             check_with_stdin(
@@ -58,7 +62,8 @@ class TestCA:
             c1_cert = os.path.join(clients_dir, matching_dir(client_dirs, "C1"), "C1.crt")
             c2_cert = os.path.join(clients_dir, matching_dir(client_dirs, "C2"), "C2.crt")
             server_dir = os.path.join(
-                servers_dir, matching_dir(host.file(servers_dir).listdir(), "192.168.0.1")
+                servers_dir,
+                matching_dir(host.file(servers_dir).listdir(), "192.168.0.1"),
             )
             server_openvpn_cert = os.path.join(server_dir, "openvpn.crt")
             server_https_cert = os.path.join(server_dir, "https.crt")

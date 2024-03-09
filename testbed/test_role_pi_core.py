@@ -9,6 +9,8 @@ from helpers import MockServer, Vagrant, WebDriver
 from selenium.webdriver.common.by import By
 from testinfra.host import Host
 
+# ruff: noqa: PLR2004
+
 
 class TestRolePiCore:
     @for_host_types("pi")
@@ -24,7 +26,10 @@ class TestRolePiCore:
 
     @for_host_types("pi")
     def test_zoneedit(
-        self, hostname: str, hosts: Mapping[str, Host], mockserver: MockServer
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        mockserver: MockServer,
     ) -> None:
         host = hosts[hostname]
         service = host.service("pi-server-cron-zoneedit")
@@ -52,11 +57,10 @@ class TestRolePiCore:
             },
         }
 
-        with host.shadow_file(
-            "/etc/pi-server/zoneedit/username.txt"
-        ) as username_file, host.shadow_file(
-            "/etc/pi-server/zoneedit/password.txt"
-        ) as password_file:
+        with (
+            host.shadow_file("/etc/pi-server/zoneedit/username.txt") as username_file,
+            host.shadow_file("/etc/pi-server/zoneedit/password.txt") as password_file,
+        ):
             # No username or password, no request
             journal.clear()
             mockserver.clear()
@@ -177,7 +181,7 @@ class TestRolePiCore:
                 driver.get("http://" + this_addr)
                 driver.validate_html()
                 other_links = driver.validate_links()
-                assert len(other_links) == 1 and list(other_links)[0].hostname == other_addr
+                assert len(other_links) == 1 and next(iter(other_links)).hostname == other_addr
 
             # Test that traefik is routing properly by loading some other path
             with WebDriver() as driver:
@@ -229,7 +233,11 @@ class TestRolePiCore:
 
     @for_host_types("pi")
     def test_shutdownd(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str], vagrant: Vagrant
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
+        vagrant: Vagrant,
     ) -> None:
         host = hosts[hostname]
         path = "/tmp/disappear-on-reboot"

@@ -4,7 +4,7 @@ import re
 import time as time_lib
 from collections.abc import Iterator, Mapping
 from contextlib import contextmanager
-from typing import Optional, cast
+from typing import cast
 
 import pytest
 from _pytest.fixtures import FixtureRequest
@@ -27,8 +27,10 @@ from testinfra.host import Host
 from testinfra.modules.file import File
 from testinfra.utils import ansible_runner
 
+# ruff: noqa: DTZ011
+
 _ANSIBLE_RUNNER = ansible_runner.AnsibleRunner(
-    ".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory"
+    ".vagrant/provisioners/ansible/inventory/vagrant_ansible_inventory",
 )
 
 BASE_REACHABILITY = {
@@ -81,35 +83,35 @@ def _file_write(self: File, content: str) -> None:
     self.check_output(f"echo '{content}' > {self.path}")
 
 
-File.write = _file_write  # type: ignore
+File.write = _file_write  # type: ignore[method-assign]
 
 
 def _file_clear(self: File) -> None:
     self.write("")
 
 
-File.clear = _file_clear  # type: ignore
+File.clear = _file_clear  # type: ignore[method-assign]
 
 
 def _host_shadow_file(self: Host, path: str) -> ShadowFile:
     return ShadowFile(self, path)
 
 
-Host.shadow_file = _host_shadow_file  # type: ignore
+Host.shadow_file = _host_shadow_file  # type: ignore[method-assign]
 
 
 def _host_shadow_dir(self: Host, path: str) -> ShadowDir:
     return ShadowDir(self, path)
 
 
-Host.shadow_dir = _host_shadow_dir  # type: ignore
+Host.shadow_dir = _host_shadow_dir  # type: ignore[method-assign]
 
 
 def _host_client_ip(self: Host) -> str:
     return self.check_output('echo "${SSH_CLIENT}"').split()[0]
 
 
-Host.client_ip = _host_client_ip  # type: ignore
+Host.client_ip = _host_client_ip  # type: ignore[method-assign]
 
 
 def _host_make_bigfile(self: Host, path: str, mount_point: str) -> None:
@@ -122,7 +124,7 @@ def _host_make_bigfile(self: Host, path: str, mount_point: str) -> None:
     self.check_output(f"dd if=/dev/zero of={path} bs=1M count={int(needed / 1024)}")
 
 
-Host.make_bigfile = _host_make_bigfile  # type: ignore
+Host.make_bigfile = _host_make_bigfile  # type: ignore[method-assign]
 
 
 @contextmanager
@@ -134,7 +136,7 @@ def _host_disable_login_emails(self: Host) -> Iterator[None]:
         yield
 
 
-Host.disable_login_emails = _host_disable_login_emails  # type: ignore
+Host.disable_login_emails = _host_disable_login_emails  # type: ignore[method-assign]
 
 
 @contextmanager
@@ -151,28 +153,28 @@ def _host_group_membership(self: Host, user: str, group: str) -> Iterator[None]:
                 self.check_output(f"deluser '{user}' '{group}'")
 
 
-Host.group_membership = _host_group_membership  # type: ignore
+Host.group_membership = _host_group_membership  # type: ignore[method-assign]
 
 
 def _host_time(
     self: Host,
     time: datetime.time,
-    date: Optional[datetime.date] = None,
+    date: datetime.date | None = None,
 ) -> Time:
     if date is None:
         date = datetime.date.today()
     return Time(self, time, date)
 
 
-Host.time = _host_time  # type: ignore
+Host.time = _host_time  # type: ignore[method-assign]
 
 
 def _host_run_crons(
     self: Host,
-    time: Optional[datetime.time] = None,
+    time: datetime.time | None = None,
     cmd_to_watch: str = "/bin/bash /etc/pi-server/cron/cron-runner",
     disable_sources_list: bool = True,
-    date: Optional[datetime.date] = None,
+    date: datetime.date | None = None,
 ) -> CronRunner:
     if time is None:
         time = datetime.time(hour=2, minute=24, second=50)
@@ -181,14 +183,14 @@ def _host_run_crons(
     return CronRunner(self, time, cmd_to_watch, disable_sources_list, date)
 
 
-Host.run_crons = _host_run_crons  # type: ignore
+Host.run_crons = _host_run_crons  # type: ignore[method-assign]
 
 
 def _host_journal(self: Host) -> Journal:
     return Journal(self)
 
 
-Host.journal = _host_journal  # type: ignore
+Host.journal = _host_journal  # type: ignore[method-assign]
 
 
 def _hostnames() -> list[str]:
@@ -234,7 +236,7 @@ def hosts() -> dict[str, Host]:
 
 @pytest.fixture(scope="session")
 def hosts_by_type(
-    hosts: Mapping[str, Host],  # pylint: disable=redefined-outer-name
+    hosts: Mapping[str, Host],
 ) -> dict[str, list[tuple[str, Host]]]:
     out: dict[str, list[tuple[str, Host]]] = {}
     for host_type, hostnames in _hostnames_by_type().items():
@@ -281,24 +283,24 @@ def vms_down(*args: str) -> MarkDecorator:
 
 @pytest.fixture(scope="session")
 def net(
-    hosts: Mapping[str, Host],  # pylint: disable=redefined-outer-name
-    addrs: Mapping[str, str],  # pylint: disable=redefined-outer-name
-    vagrant: Vagrant,  # pylint: disable=redefined-outer-name
+    hosts: Mapping[str, Host],
+    addrs: Mapping[str, str],
+    vagrant: Vagrant,
 ) -> Net:
     return Net(hosts, addrs, vagrant)
 
 
 @pytest.fixture(scope="session")
 def openvpn(
-    hosts: Mapping[str, Host],  # pylint: disable=redefined-outer-name
-    vagrant: Vagrant,  # pylint: disable=redefined-outer-name
+    hosts: Mapping[str, Host],
+    vagrant: Vagrant,
 ) -> OpenVPN:
     return OpenVPN(hosts, vagrant)
 
 
 @pytest.fixture()
 def email(
-    addrs: Mapping[str, str],  # pylint: disable=redefined-outer-name
+    addrs: Mapping[str, str],
 ) -> Email:
     e = Email(addrs["internet"])
     e.clear()
@@ -307,7 +309,7 @@ def email(
 
 @pytest.fixture()
 def mockserver(
-    addrs: Mapping[str, str],  # pylint: disable=redefined-outer-name
+    addrs: Mapping[str, str],
 ) -> MockServer:
     m = MockServer(addrs["internet"])
     m.clear()
@@ -317,7 +319,7 @@ def mockserver(
 @pytest.fixture(scope="function", autouse=True)
 @timer
 def ensure_vm_state(
-    vagrant: Vagrant,  # pylint: disable=redefined-outer-name
+    vagrant: Vagrant,
     request: FixtureRequest,
 ) -> None:
     down: tuple[str, ...] = ()

@@ -2,15 +2,16 @@ import datetime
 import json
 import os.path
 import time
-from collections.abc import Mapping, Sequence, Set
+from collections.abc import Iterator, Mapping, Sequence, Set
 from contextlib import contextmanager
-from typing import Iterator
 from urllib.parse import urlparse
 
 from conftest import for_host_types
 from helpers import Email, Lines, WebDriver
 from selenium.webdriver.common.by import By
 from testinfra.host import Host
+
+# ruff: noqa: PLR2004, DTZ005
 
 
 class TestRolePiFull:
@@ -59,12 +60,12 @@ class TestRolePiFull:
         def clear_prometheus() -> None:
             with host.sudo():
                 host.check_output(
-                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml down"
+                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml down",
                 )
                 host.check_output("docker volume rm monitoring_prometheus-data")
                 host.check_output("docker volume rm monitoring_alertmanager-data")
                 host.check_output(
-                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml up -d"
+                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml up -d",
                 )
 
         with host.disable_login_emails():
@@ -185,7 +186,10 @@ class TestRolePiFull:
 
     @for_host_types("pi")
     def test_syncthing(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
     ) -> None:
         host = hosts[hostname]
         assert host.service("pi-server-syncthing").is_enabled
@@ -231,13 +235,14 @@ class TestRolePiFull:
             assert metrics.count(r'syncthing_permissions_fixed{job="syncthing-permissions"} 0') == 1
 
         # Conflicts, bad permissions
-        with host.shadow_dir("/var/pi-server/monitoring/collect") as collect_dir, host.shadow_file(
-            "/mnt/data/pi-server-data/data/foo.txt"
-        ) as f1, host.shadow_file(
-            "/mnt/data/pi-server-data/data/bar.sync-conflict.txt"
-        ) as f2, host.shadow_file(
-            "/mnt/data/pi-server-data/data-no-backups/baz.sync-conflict.txt"
-        ) as f3:
+        with (
+            host.shadow_dir("/var/pi-server/monitoring/collect") as collect_dir,
+            host.shadow_file("/mnt/data/pi-server-data/data/foo.txt") as f1,
+            host.shadow_file("/mnt/data/pi-server-data/data/bar.sync-conflict.txt") as f2,
+            host.shadow_file(
+                "/mnt/data/pi-server-data/data-no-backups/baz.sync-conflict.txt",
+            ) as f3,
+        ):
             with host.sudo():
                 f1.write("")
                 host.check_output(f"chmod u=rw,go=rwx {f1.path}")
@@ -298,7 +303,10 @@ class TestRolePiFull:
 
     @for_host_types("pi")
     def test_minidlna(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
     ) -> None:
         host = hosts[hostname]
         assert host.service("minidlna").is_enabled
@@ -315,28 +323,31 @@ class TestRolePiFull:
 
         test(addrs[hostname])
         # No longer works since https://security.snyk.io/vuln/SNYK-UNMANAGED-MINIDLNA-2419090
-        # test(hostname + ".local")
+        # test(hostname + ".local") # noqa: ERA001
 
     @for_host_types("pi")
     def test_pihole(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
     ) -> None:
         host = hosts[hostname]
 
         # Good domain
         assert not Lines(host.check_output("nslookup google.com")).contains(r"Address: 0\.0\.0\.0")
         assert not Lines(host.check_output("nslookup google.com localhost")).contains(
-            r"Address: 0\.0\.0\.0"
+            r"Address: 0\.0\.0\.0",
         )
 
         # Ad-serving domain
         # Note that this will fail if pihole is enabled on your network -
         # disable it before running the test.
         assert not Lines(host.check_output("nslookup ads.google.com")).contains(
-            r"Address: 0\.0\.0\.0"
+            r"Address: 0\.0\.0\.0",
         )
         assert Lines(host.check_output("nslookup ads.google.com localhost")).contains(
-            r"Address: 0\.0\.0\.0"
+            r"Address: 0\.0\.0\.0",
         )
 
         def test(this_addr: str) -> None:
@@ -375,7 +386,10 @@ class TestRolePiFull:
 
     @for_host_types("pi")
     def test_backup_git(
-        self, hostname: str, hosts: Mapping[str, Host], addrs: Mapping[str, str]
+        self,
+        hostname: str,
+        hosts: Mapping[str, Host],
+        addrs: Mapping[str, str],
     ) -> None:
         host = hosts[hostname]
         journal = host.journal()
@@ -387,7 +401,7 @@ class TestRolePiFull:
         assert host.file(backup_git_root).group == "pi-server-data"
 
         with host.shadow_dir(
-            os.path.join(data_root, f"{hostname}-backup-config")
+            os.path.join(data_root, f"{hostname}-backup-config"),
         ) as git_config_dir:
             git_config_file = git_config_dir.file("git-backup-configuration.txt")
 
@@ -397,10 +411,10 @@ class TestRolePiFull:
             def write_git_config(repos: Sequence[str]) -> None:
                 with host.sudo():
                     git_config_file.write(
-                        "\n".join([f'vagrant@{addrs["internet"]}:git/{r}' for r in repos])
+                        "\n".join([f'vagrant@{addrs["internet"]}:git/{r}' for r in repos]),
                     )
                     host.check_output(
-                        f"chown pi-server-data:pi-server-data '{git_config_file.path}'"
+                        f"chown pi-server-data:pi-server-data '{git_config_file.path}'",
                     )
                     host.check_output(f"chmod u=rw,go= '{git_config_file.path}'")
 
@@ -509,9 +523,11 @@ class TestRolePiFull:
             with host.sudo():
                 host.check_output(f"mkdir {repo}")
 
-            with host.shadow_dir("/mnt/data/pi-server-data/config/restic/cache"), host.shadow_file(
-                "/etc/pi-server/backup/restic.conf"
-            ) as conf, host.shadow_file("/mnt/data/pi-server-data/data/foo.txt") as data_file:
+            with (
+                host.shadow_dir("/mnt/data/pi-server-data/config/restic/cache"),
+                host.shadow_file("/etc/pi-server/backup/restic.conf") as conf,
+                host.shadow_file("/mnt/data/pi-server-data/data/foo.txt") as data_file,
+            ):
                 with host.sudo():
                     host.check_output(f"RESTIC_PASSWORD=foobar restic init -r {repo}")
                     host.check_output(f"chown -R pi-server-data:pi-server-data {repo}")
@@ -523,8 +539,8 @@ class TestRolePiFull:
                                 "export RESTIC_HOSTNAME='main'",
                                 "export B2_ACCOUNT_ID=''",
                                 "export B2_ACCOUNT_KEY=''",
-                            ]
-                        )
+                            ],
+                        ),
                     )
                     host.check_output(f"chown pi-server-data:pi-server-data {data_file.path}")
 
@@ -555,8 +571,8 @@ class TestRolePiFull:
                     with host.sudo():
                         raw = json.loads(
                             host.check_output(
-                                f"RESTIC_PASSWORD=foobar restic snapshots -r {repo} --json"
-                            )
+                                f"RESTIC_PASSWORD=foobar restic snapshots -r {repo} --json",
+                            ),
                         )
                     out = {}
                     for snapshot in raw:
@@ -572,10 +588,8 @@ class TestRolePiFull:
                         with host.sudo():
                             host.check_output(f"mkdir {restore}")
                             host.check_output(
-                                (
-                                    f"RESTIC_PASSWORD=foobar restic restore -r {repo} "
-                                    f"-t {restore} {snapshot}"
-                                )
+                                f"RESTIC_PASSWORD=foobar restic restore -r {repo} "
+                                f"-t {restore} {snapshot}",
                             )
                             assert (
                                 host.file(f"{restore}/backup/foo.txt").content_string.strip()
@@ -622,7 +636,7 @@ class TestRolePiFull:
                             time_control.set_time(t, date)
                             with host.sudo():
                                 host.check_output(
-                                    "systemctl start --wait pi-server-cron-backup-main"
+                                    "systemctl start --wait pi-server-cron-backup-main",
                                 )
                             check_journal()
 
@@ -644,7 +658,7 @@ class TestRolePiFull:
                         "2021-06-17",
                         "2021-06-18",
                         "2021-06-19",
-                    ]
+                    ],
                 )
 
         finally:

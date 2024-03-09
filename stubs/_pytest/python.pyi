@@ -1,10 +1,9 @@
 from collections.abc import Sequence
-from typing import Optional
 
 from _pytest.mark.structures import Mark
 
 class FunctionDefinition:
-    def get_closest_marker(self, name: str) -> Optional[Mark]: ...
+    def get_closest_marker(self, name: str) -> Mark | None: ...
 
 class Metafunc:
     definition: FunctionDefinition

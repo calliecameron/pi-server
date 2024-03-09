@@ -1,26 +1,26 @@
-[tool.black]
-line-length = 100
-
-[tool.isort]
-profile = "black"
-line_length = 100
-
 [tool.mypy]
 mypy_path = "stubs"
 
-[tool.pylint.MASTER]
-ignore-patterns = ".*.pyi"
+[tool.ruff]
+line-length = 100
+target-version = "py310"
 
-[tool.pylint.'MESSAGES CONTROL']
-disable = "invalid-name,missing-docstring,too-few-public-methods,too-many-public-methods,too-many-locals,too-many-lines,too-many-arguments,too-many-statements,too-many-branches,too-many-instance-attributes,consider-using-f-string,duplicate-code"
-enable = "unused-argument"
-
-[tool.pylint.VARIABLES]
-dummy-variables-rgx = "_.*"
-
-[tool.pylint.REPORTS]
-output-format = "parseable"
-
-[tool.pytest.ini_options]
-filterwarnings = "ignore::DeprecationWarning:pkg_resources.*:"
-log_level = "INFO"
+[tool.ruff.lint]
+select = ["ALL"]
+ignore = [
+    "ANN101",
+    "C90",
+    "D",
+    "EM",
+    "FBT",
+    "INP",
+    "PLR0912",
+    "PLR0913",
+    "PLR0915",
+    "PT",
+    "PTH",
+    "PYI025",
+    "S",
+    "T20",
+    "TRY003",
+]

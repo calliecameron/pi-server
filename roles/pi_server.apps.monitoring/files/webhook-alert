@@ -8,7 +8,7 @@ import re
 import subprocess
 import sys
 from collections.abc import Mapping
-from typing import Any, NoReturn, Optional, cast
+from typing import Any, NoReturn, cast
 
 EMAIL_SCRIPT = "/send-email"
 
@@ -37,7 +37,7 @@ def send_bad(subject: str, body: str) -> NoReturn:
 
 def process_args() -> dict[str, Any]:
     """Validate and process args."""
-    if len(sys.argv) != 2:
+    if len(sys.argv) != 2:  # noqa: PLR2004
         send_bad("Malformed alert", "Wrong args passed to webhook-alert:\n\n%s" % str(sys.argv))
     try:
         return cast(dict[str, Any], json.loads(sys.argv[1]))
@@ -47,7 +47,7 @@ def process_args() -> dict[str, Any]:
 
 def pair(key: str, value: str) -> str:
     """Format a key-value pair."""
-    return "%s: %s" % (key.capitalize(), value)
+    return f"{key.capitalize()}: {value}"
 
 
 def pretty_format_annotations(annotations: Mapping[str, str]) -> list[str]:
@@ -80,7 +80,7 @@ def pretty_format(annotations: Mapping[str, str], labels: Mapping[str, str]) -> 
     return pretty_format_annotations(annotations) + pretty_format_labels(labels)
 
 
-def pretty_format_time(raw: Optional[str]) -> str:
+def pretty_format_time(raw: str | None) -> str:
     """Pretty format a date and time."""
     if not raw:
         return "[UNKNOWN]"
@@ -90,7 +90,7 @@ def pretty_format_time(raw: Optional[str]) -> str:
     # them and handle the timezone manually.
     match = re.match(r"(.+)(\.[0-9]+)(Z|(\+|-)([0-9][0-9]):([0-9][0-9]))", raw)
 
-    if match is None or len(match.groups()) < 3:
+    if match is None or len(match.groups()) < 3:  # noqa: PLR2004
         return raw
 
     timezone = match.group(3)

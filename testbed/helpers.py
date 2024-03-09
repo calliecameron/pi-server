@@ -7,11 +7,11 @@ import os.path
 import re
 import time as time_lib
 from collections import OrderedDict
-from collections.abc import Iterator, Mapping, Sequence, Set
+from collections.abc import Callable, Iterator, Mapping, Sequence, Set
 from concurrent.futures import ThreadPoolExecutor
 from contextlib import contextmanager
 from functools import wraps
-from typing import Any, Callable, Optional, TypeVar, cast
+from typing import Any, TypeVar, cast
 from urllib.parse import ParseResult, urlparse
 
 import codetiming
@@ -24,6 +24,8 @@ from selenium.webdriver.common.by import By
 from testinfra.host import Host
 from testinfra.modules.file import File
 from tidylib import tidy_document
+
+# ruff: noqa: ANN401
 
 T = TypeVar("T")
 
@@ -66,9 +68,9 @@ class Timer(codetiming.Timer):
         self._extra_text.append(extra)
 
     def __enter__(self) -> "Timer":
-        return cast(Timer, super().__enter__())
+        return super().__enter__()
 
-    def __exit__(self, *exc_info: Any) -> None:
+    def __exit__(self, *exc_info: object) -> None:
         self._update_text()
         super().__exit__(*exc_info)
 
@@ -81,19 +83,19 @@ def timer(f: Callable[..., T]) -> Callable[..., T]:
     has_self = "self" in arg_details
     if has_self:
         del arg_details["self"]
-    inject = arg_details and list(arg_details.values())[0].annotation == Timer
+    inject = arg_details and next(iter(arg_details.values())).annotation == Timer
 
     @wraps(f)
     def inner(*args: Any, **kwargs: Any) -> T:
         with Timer(f.__qualname__) as t:
-            t.set_args(*(args[1:] if has_self else args))  # pylint: disable=no-member
+            t.set_args(*(args[1:] if has_self else args))
             if inject and has_self:
                 retval = f(*((args[0], t) + args[1:]), **kwargs)
             elif inject:
                 retval = f(t, *args, **kwargs)
             else:
                 retval = f(*args, **kwargs)
-            t.set_retval(retval)  # pylint: disable=no-member
+            t.set_retval(retval)
             return retval
 
     return inner
@@ -189,7 +191,7 @@ class Net:
     def traceroute(self, t: Timer, host: str, addr: str) -> list[str]:
         """Gets the hops from host to addr; empty list means unreachable."""
         result = trparse.loads(
-            self._hosts[host].check_output("sudo traceroute -I %s", self._addrs[addr])
+            self._hosts[host].check_output("sudo traceroute -I %s", self._addrs[addr]),
         )
         for hop in result.hops:
             for probe in hop.probes:
@@ -202,7 +204,7 @@ class Net:
                 if probe.ip:
                     ips.add(probe.ip)
             if len(ips) == 1:
-                out.append(list(ips)[0])
+                out.append(next(iter(ips)))
             elif len(ips) > 1:
                 raise ValueError(f"Traceroute {host} -> {addr} returned multiple IPs: {ips}")
             else:
@@ -218,12 +220,16 @@ class Net:
 
     @timer
     def nmap(
-        self, t: Timer, host: str, addr: str, ranges: Sequence[tuple[int, int]]
+        self,
+        t: Timer,
+        host: str,
+        addr: str,
+        ranges: Sequence[tuple[int, int]],
     ) -> dict[str, set[int]]:
         """Gets the open ports on addr as seen from host."""
         ports = ",".join([f"{a}-{b}" for (a, b) in ranges])
         result = self._hosts[host].check_output(
-            f"sudo nmap -p{ports} --open -Pn -oN - -T4 -sU -sS " + self._addrs[addr]
+            f"sudo nmap -p{ports} --open -Pn -oN - -T4 -sU -sS " + self._addrs[addr],
         )
         udp = set()
         tcp = set()
@@ -247,17 +253,14 @@ class Net:
         running_vms = self._vagrant.running_vms()
         if sorted(hosts) != running_vms:
             raise ValueError(
-                (
-                    f"'hosts' must exactly match the running VMs: got {sorted(hosts)}, want "
-                    f"{running_vms}. Either the wrong hosts were passed in , or some VMs are in "
-                    "the wrong state."
-                )
+                f"'hosts' must exactly match the running VMs: got {sorted(hosts)}, want "
+                f"{running_vms}. Either the wrong hosts were passed in , or some VMs are in "
+                "the wrong state.",
             )
 
-        out = []
+        out: list[tuple[str, str]] = []
         for host in sorted(hosts):
-            for addr in sorted(self._addrs):
-                out.append((host, addr))
+            out.extend((host, addr) for addr in sorted(self._addrs))
         return out
 
     def _assert_result(
@@ -269,16 +272,16 @@ class Net:
         expected = [want_fn(host, addr) for host, addr in host_addr_pairs]
         logging.debug("Running %d checks", len(host_addr_pairs))
         with ThreadPoolExecutor() as e:
-            results = e.map(got_fn, *zip(*host_addr_pairs))
+            results = e.map(got_fn, *zip(*host_addr_pairs, strict=True))
         incorrect = []
-        for pair, want, got in zip(host_addr_pairs, expected, results):
+        for pair, want, got in zip(host_addr_pairs, expected, results, strict=True):
             if want != got:
                 host, addr = pair
                 incorrect.append((host, addr, want, got))
         if incorrect:
             lines = [
                 f"{got_fn.__name__} gave the wrong result for the following host/addr "
-                "combinations:"
+                "combinations:",
             ]
             for host, addr, want, got in incorrect:
                 lines.append(f"  {host} -> {addr} ({self._addrs[addr]}): want {want}, got {got}")
@@ -310,7 +313,7 @@ class Net:
         """
 
         def traceroute(host: str, addr: str) -> list[str]:
-            result = self.traceroute(host, addr)  # pylint: disable=no-value-for-parameter
+            result = self.traceroute(host, addr)
             if addr == "external" and result:
                 # External is a special case, in that we don't care where the packets go once they
                 # leave the testbed.
@@ -319,13 +322,13 @@ class Net:
                     if hop not in self._addrs.values():
                         break
                     new_result.append(hop)
-                result = new_result + [self._addrs[addr]]
+                result = [*new_result, self._addrs[addr]]
             return result
 
         self._assert_result(
             lambda host, addr: [
                 (self._addrs[hop] if isinstance(hop, str) else hop)
-                for hop in (list(routes[host][addr]) + [addr] if addr in routes[host] else [])
+                for hop in ([*routes[host][addr], addr] if addr in routes[host] else [])
             ],
             traceroute,
             self._host_addr_pairs(sorted(routes)),
@@ -338,15 +341,12 @@ class Net:
         ranges: Sequence[tuple[int, int]],
     ) -> None:
         """Check that only the given ports are open for the given host/addr pairs."""
-        host_addr_pairs = []
+        host_addr_pairs: list[tuple[str, str]] = []
         for host in ports:
-            for addr in ports[host]:
-                host_addr_pairs.append((host, addr))
+            host_addr_pairs.extend((host, addr) for addr in ports[host])
         self._assert_result(
             lambda host, addr: ports[host][addr],
-            lambda host, addr: self.nmap(  # pylint: disable=no-value-for-parameter
-                host, addr, ranges
-            ),
+            lambda host, addr: self.nmap(host, addr, ranges),
             host_addr_pairs,
         )
 
@@ -365,7 +365,7 @@ class Email:
         r = requests.delete(f"http://{self._host}:{self._PORT}/api/emails", timeout=60)
         r.raise_for_status()
 
-    def _get(self, only_from: Optional[str] = None) -> list[Any]:
+    def _get(self, only_from: str | None = None) -> list[Any]:
         r = requests.get(f"http://{self._host}:{self._PORT}/api/emails", timeout=60)
         r.raise_for_status()
         got_emails = r.json()
@@ -386,8 +386,7 @@ class Email:
         def fail_msg(field_name: str, want: str, got: str) -> str:
             return (
                 f"Email field '{field_name}' doesn't match: want:\n{want}\ngot:\n{got}\n"
-                f"full want:\n{str(expected)}\nfull got:\n"
-                + json.dumps(email, sort_keys=True, indent=2)
+                f"full want:\n{expected}\nfull got:\n" + json.dumps(email, sort_keys=True, indent=2)
             )
 
         def check_field(field_name: str, want: str, got: str) -> str:
@@ -412,7 +411,9 @@ class Email:
         return True, ""
 
     def assert_emails(
-        self, emails: Sequence[Mapping[str, str]], only_from: Optional[str] = None
+        self,
+        emails: Sequence[Mapping[str, str]],
+        only_from: str | None = None,
     ) -> None:
         """Emails must exactly match."""
         got_emails = self._get(only_from)
@@ -420,18 +421,21 @@ class Email:
         if len(got_emails) != len(emails):
             raise ValueError(
                 f"Length of want and got differ ({len(emails)} vs {len(got_emails)}); all "
-                "emails:\n" + json.dumps(got_emails, sort_keys=True, indent=2)
+                "emails:\n" + json.dumps(got_emails, sort_keys=True, indent=2),
             )
         for email, expected in zip(
             sorted(got_emails, key=lambda e: cast(str, e["subject"])),
             sorted(emails, key=lambda e: e["subject_re"]),
+            strict=True,
         ):
             matches, msg = self._matches(expected, email)
             if not matches:
                 pytest.fail(msg)
 
     def assert_has_emails(
-        self, emails: Sequence[Mapping[str, str]], only_from: Optional[str] = None
+        self,
+        emails: Sequence[Mapping[str, str]],
+        only_from: str | None = None,
     ) -> None:
         """Emails must be a subset of what's on the server."""
         got_emails = sorted(self._get(only_from), key=lambda e: cast(str, e["subject"]))
@@ -444,14 +448,14 @@ class Email:
                     break
             if not found:
                 pytest.fail(
-                    f"Found no email matching:\n{str(expected)}\nfull got:\n"
-                    + json.dumps(got_emails, sort_keys=True, indent=2)
+                    f"Found no email matching:\n{expected}\nfull got:\n"
+                    + json.dumps(got_emails, sort_keys=True, indent=2),
                 )
 
 
 class MockServer:
     _PORT = 443
-    _CATCH_ALL = {
+    _CATCH_ALL: Mapping[str, Any] = {
         "httpRequest": {},
         "httpResponse": {
             "statusCode": 404,
@@ -472,7 +476,9 @@ class MockServer:
 
         # Catch-all expectation
         r = requests.put(
-            f"http://{self._host}:{self._PORT}/expectation", json=self._CATCH_ALL, timeout=60
+            f"http://{self._host}:{self._PORT}/expectation",
+            json=self._CATCH_ALL,
+            timeout=60,
         )
         r.raise_for_status()
 
@@ -524,10 +530,8 @@ class ShadowFile:
         if self._path_existed:
             if self._backup_file.exists:
                 raise ValueError(
-                    (
-                        f"Cannot shadow '{self._path}' because backup file '{self._backup_path}' "
-                        "already exists. Fix it manually."
-                    )
+                    f"Cannot shadow '{self._path}' because backup file '{self._backup_path}' "
+                    "already exists. Fix it manually.",
                 )
             with self._host.sudo():
                 self._host.check_output(f"cp -p {self._path} {self._backup_path}")
@@ -539,7 +543,7 @@ class ShadowFile:
             f.clear()
         return f
 
-    def __exit__(self, *exc_info: Any) -> None:
+    def __exit__(self, *exc_info: object) -> None:
         if self._path_existed:
             if self._backup_file.exists:
                 with self._host.sudo():
@@ -564,7 +568,7 @@ class ShadowDir:
         super().__init__()
         self._host = host
         self._path = path
-        self._tmpdir: Optional[str] = None
+        self._tmpdir: str | None = None
 
     def __enter__(self) -> "ShadowDir":
         with self._host.sudo():
@@ -576,7 +580,7 @@ class ShadowDir:
             self._tmpdir = tmpdir
         return self
 
-    def __exit__(self, *exc_info: Any) -> None:
+    def __exit__(self, *exc_info: object) -> None:
         if self._tmpdir:
             with self._host.sudo():
                 self._host.check_output(f"umount {self._path}")
@@ -616,7 +620,7 @@ class Time:
         with self._host.sudo():
             self._host.check_output(f"timedatectl set-time '{date.isoformat()} {time.isoformat()}'")
 
-    def __exit__(self, *exc_info: Any) -> None:
+    def __exit__(self, *exc_info: object) -> None:
         with self._host.sudo():
             self._host.check_output("timedatectl set-ntp true")
             if self._restore_guest_additions:
@@ -638,8 +642,8 @@ class CronRunner:
         self._date = date
         self._cmd_to_watch = cmd_to_watch
         self._disable_sources_list = disable_sources_list
-        self._sources_list: Optional[ShadowFile] = None
-        self._time_control: Optional[Time] = None
+        self._sources_list: ShadowFile | None = None
+        self._time_control: Time | None = None
 
     def __enter__(self) -> None:
         with self._host.sudo():
@@ -653,13 +657,11 @@ class CronRunner:
         # Wait for it to start
         self._time_control.set_time(self._time, self._date)
         self._host.check_output(
-            (
-                "timeout 60 bash -c "
-                f"\"while ! pgrep -x -f '{self._cmd_to_watch}'; do true; done\"; true"
-            )
+            "timeout 60 bash -c "
+            f"\"while ! pgrep -x -f '{self._cmd_to_watch}'; do true; done\"; true",
         )
 
-    def __exit__(self, *exc_info: Any) -> None:
+    def __exit__(self, *exc_info: object) -> None:
         # Wait for cron to finish
         self._host.check_output(f"while pgrep -x -f '{self._cmd_to_watch}'; do true; done")
         if self._time_control:
@@ -671,16 +673,13 @@ class CronRunner:
 
 
 class Lines:
-    def __init__(self, s: str, name: Optional[str] = None) -> None:
+    def __init__(self, s: str, name: str | None = None) -> None:
         super().__init__()
         self._lines = s.split("\n") if s else []
         self._name = name
 
     def contains(self, pattern: str) -> bool:
-        for line in self._lines:
-            if re.fullmatch(pattern, line) is not None:
-                return True
-        return False
+        return any(re.fullmatch(pattern, line) is not None for line in self._lines)
 
     def count(self, pattern: str) -> int:
         i = 0
@@ -724,7 +723,7 @@ class Journal:
 
 class WebDriver(Firefox):
     def click(self, element: Any) -> None:
-        self.execute_script("arguments[0].scrollIntoView();", element)  # type: ignore
+        self.execute_script("arguments[0].scrollIntoView();", element)  # type: ignore[no-untyped-call]
         # Scrolling takes time, so we can't click immediately
         time_lib.sleep(1)
         element.click()
