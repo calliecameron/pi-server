@@ -1,17 +1,17 @@
 collections:
   - name: community.docker
-    version: "3.4.9"
+    version: "3.8.0"
   - name: community.general
-    version: "7.5.0"
+    version: "8.4.0"
   - name: devsec.hardening
-    version: "8.8.0"
+    version: "9.0.1"
   - name: manala.roles
     version: "3.7.0"
 
 roles:
   - src: geerlingguy.docker
-    version: "7.0.1"
+    version: "7.1.0"
   - src: geerlingguy.nodejs
-    version: "6.1.1"
+    version: "7.0.0"
   - src: geerlingguy.swap
-    version: "1.0.2"
+    version: "1.2.0"
