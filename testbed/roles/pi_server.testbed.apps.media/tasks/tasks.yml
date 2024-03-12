@@ -1,0 +1,44 @@
+- name: Media dir
+  become: true
+  ansible.builtin.file:
+    path: "/home/vagrant/media"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: u=rwx,go=rx
+
+- name: Media dir 1
+  become: true
+  ansible.builtin.file:
+    path: "/home/vagrant/media/1"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: u=rwx,go=rx
+
+- name: Image 1
+  become: true
+  ansible.builtin.copy:
+    src: 1.jpg
+    dest: "/home/vagrant/media/1/1.jpg"
+    owner: vagrant
+    group: vagrant
+    mode: u=rw,go=r
+
+- name: Media dir 2
+  become: true
+  ansible.builtin.file:
+    path: "/home/vagrant/media/2"
+    state: directory
+    owner: vagrant
+    group: vagrant
+    mode: u=rwx,go=rx
+
+- name: Image 2
+  become: true
+  ansible.builtin.copy:
+    src: 2.jpg
+    dest: "/home/vagrant/media/2/2.jpg"
+    owner: vagrant
+    group: vagrant
+    mode: u=rw,go=r

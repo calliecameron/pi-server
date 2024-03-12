@@ -103,6 +103,10 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_lan_network: pi_lan_mask,
         pi_server_vpn_network: pi_vpn_mask,
         pi_server_swap_size_mb: "512",
+        pi_server_minidlna_media_dirs: {
+          "/home/vagrant/media/1": "foo",
+          "/home/vagrant/media/2": "bar"
+        },
         pi_server_pihole_web_password: "foobar",
         pi_server_restic_repository: "",
         pi_server_restic_password: "foobar",

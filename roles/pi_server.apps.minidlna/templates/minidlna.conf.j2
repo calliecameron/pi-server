@@ -12,10 +12,10 @@
 #   * "P" for pictures (eg. media_dir=P,/var/lib/minidlna/pictures)
 #   * "V" for video    (eg. media_dir=V,/var/lib/minidlna/videos)
 #   * "PV" for pictures and video (eg. media_dir=PV,/var/lib/minidlna/digital_camera)
-media_dir={{ pi_server_apps_minidlna_media_dir }}
+media_dir=/minidlna/media
 
-db_dir={{ pi_server_apps_minidlna_db_dir }}
-log_dir=/var/log/minidlna
+db_dir=/minidlna/db
+log_dir=/minidlna/log
 log_level=warn
 root_container=B
 network_interface={{ pi_server_lan_iface }}
@@ -32,4 +32,3 @@ album_art_names=Cover.jpg/cover.jpg/AlbumArtSmall.jpg/albumartsmall.jpg/AlbumArt
 strict_dlna=no
 enable_tivo=no
 notify_interval=895
-wide_links=yes

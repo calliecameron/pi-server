@@ -4,8 +4,5 @@
     _private: false
     _run_once: true
     _args: []
-    _host_vars:
-      - pi_server_hostname
-      - pi_server_lan_iface
-      - pi_server_minidlna_media_dirs
+    _host_vars: []
     _export_vars: []

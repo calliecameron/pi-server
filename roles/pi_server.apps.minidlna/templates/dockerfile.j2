@@ -1,0 +1,13 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+FROM ubuntu:{{ pi_server_apps_minidlna_ubuntu_version }}
+RUN apt-get update && apt-get install -y minidlna && rm -rf /var/lib/apt/lists/*
+RUN mkdir /minidlna && \
+    mkdir /minidlna/media && \
+    mkdir /minidlna/db && \
+    chmod ugo=rwx /minidlna/db && \
+    mkdir /minidlna/run && \
+    chmod ugo=rwx /minidlna/run && \
+    mkdir /minidlna/log && \
+    ln -s /dev/stderr /minidlna/log/minidlna.log
+ENTRYPOINT ["/usr/sbin/minidlnad"]
+CMD ["-P", "/minidlna/run/minidlna.pid", "-S"]

@@ -6,92 +6,77 @@
   ansible.builtin.include_role:
     name: pi_server.apps.main_data
 
-- name: Install minidlna
-  become: true
-  ansible.builtin.package:
-    name: minidlna
-    state: present
-
-- name: Media dir
+- name: Etc dir
   become: true
   ansible.builtin.file:
-    path: "{{ pi_server_apps_minidlna_media_dir }}"
+    path: "{{ pi_server_apps_minidlna_etc }}"
     state: directory
-    owner: "{{ pi_server_apps_main_data_user }}"
-    group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,go=
-
-- name: Config dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_minidlna_config_dir }}"
-    state: directory
-    owner: "{{ pi_server_apps_main_data_user }}"
-    group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,go=
-
-- name: DB dir
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_minidlna_db_dir }}"
-    state: directory
-    owner: "{{ pi_server_apps_main_data_user }}"
-    group: "{{ pi_server_apps_main_data_user }}"
-    mode: u=rwx,go=
-
-- name: Systemd user
-  become: true
-  ansible.builtin.lineinfile:
-    path: /lib/systemd/system/minidlna.service
-    line: "User={{ pi_server_apps_main_data_user }}"
-    regexp: "^User=minidlna$"
-  notify: Reload minidlna
-
-- name: Systemd group
-  become: true
-  ansible.builtin.lineinfile:
-    path: /lib/systemd/system/minidlna.service
-    line: "Group={{ pi_server_apps_main_data_user }}"
-    regexp: "^Group=minidlna$"
-  notify: Reload minidlna
-
-- name: Logrotate config
-  become: true
-  ansible.builtin.lineinfile:
-    path: /etc/logrotate.d/minidlna
-    line: "\tcreate 0644 {{ pi_server_apps_main_data_user }} {{ pi_server_apps_main_data_user }}"
-    regexp: "\tcreate 0644"
-  notify: Reload minidlna
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
 
 - name: Config
   become: true
   ansible.builtin.template:
     src: minidlna.conf.j2
-    dest: /etc/minidlna.conf
+    dest: "{{ pi_server_apps_minidlna_config }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Docker dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_minidlna_docker_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: Dockerfile
+  become: true
+  ansible.builtin.template:
+    src: dockerfile.j2
+    dest: "{{ pi_server_apps_minidlna_docker_dir }}/Dockerfile"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Docker compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_minidlna_docker_compose }}"
     owner: root
     group: root
     mode: a=r
   notify: Reload minidlna
 
-- name: Overrides
+- name: Build image
   ansible.builtin.include_role:
-    name: pi_server.utils.systemd_service_overrides
+    name: pi_server.apps.docker.build
   vars:
-    src: minidlna-overrides.j2
-    service: "{{ pi_server_apps_minidlna_service }}"
-    enabled: true
+    name: "{{ pi_server_apps_minidlna_image }}"
+    dir: "{{ pi_server_apps_minidlna_docker_dir }}"
+    notify: Reload minidlna
 
-- name: Monitoring
-  ansible.builtin.include_role:
-    name: pi_server.apps.monitoring.monitor_systemd_service
+- name: Compose
+  ansible.builtin.include_tasks: compose.yml
   vars:
-    systemd_service: "{{ pi_server_apps_minidlna_service }}"
+    restart: false
+
+- name: Monitor containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_minidlna_docker_compose }}"
 
 - name: Pause on cron
   ansible.builtin.include_role:
-    name: pi_server.apps.cron.pause_systemd_on_cron
+    name: pi_server.apps.cron.pause_docker_on_cron
   vars:
-    service: "{{ pi_server_apps_minidlna_service }}"
+    compose_file: "{{ pi_server_apps_minidlna_docker_compose }}"
+    service: minidlna
 
 - name: Expose to traefik network
   ansible.builtin.include_role:

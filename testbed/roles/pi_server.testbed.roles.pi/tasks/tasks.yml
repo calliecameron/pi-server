@@ -20,6 +20,10 @@
 
 - name: Dependency
   ansible.builtin.include_role:
+    name: pi_server.testbed.apps.media
+
+- name: Dependency
+  ansible.builtin.include_role:
     name: pi_server.utils.swap
 
 - name: Dependency

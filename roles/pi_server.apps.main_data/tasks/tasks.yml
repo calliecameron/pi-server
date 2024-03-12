@@ -7,7 +7,15 @@
     name: pi_server.utils.user
   vars:
     user: "{{ pi_server_apps_main_data_user }}"
-    register:
+    register: main_data_user
+
+- name: Export UID
+  ansible.builtin.set_fact:
+    pi_server_apps_main_data_user_uid: "{{ main_data_user.uid }}"
+
+- name: Export GID
+  ansible.builtin.set_fact:
+    pi_server_apps_main_data_user_gid: "{{ main_data_user.group }}"
 
 - name: Config dir
   become: true

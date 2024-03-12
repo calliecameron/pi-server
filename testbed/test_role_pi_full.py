@@ -305,14 +305,8 @@ class TestRolePiFull:
     def test_minidlna(
         self,
         hostname: str,
-        hosts: Mapping[str, Host],
         addrs: Mapping[str, str],
     ) -> None:
-        host = hosts[hostname]
-        assert host.service("minidlna").is_enabled
-        assert host.service("minidlna").is_running
-        assert host.process.filter(user="pi-server-data", comm="minidlnad")
-
         def test(this_addr: str) -> None:
             with WebDriver() as driver:
                 driver.get("http://" + this_addr)

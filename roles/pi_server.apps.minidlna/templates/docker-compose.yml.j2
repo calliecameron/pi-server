@@ -1,0 +1,18 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+services:
+  minidlna:
+    image: "{{ pi_server_apps_minidlna_image }}"
+    restart: always
+    user: "{{ pi_server_apps_main_data_user_uid }}:{{ pi_server_apps_main_data_user_gid }}"
+    volumes:
+      - "{{ pi_server_apps_minidlna_config }}:/etc/minidlna.conf:ro"
+{% for host_path in pi_server_minidlna_media_dirs.keys() | sort %}
+      - type: bind
+        source: "{{ host_path }}"
+        target: "/minidlna/media/{{ pi_server_minidlna_media_dirs[host_path] }}"
+        read_only: true
+{% endfor %}
+    deploy:
+      replicas: 1
+    network_mode: host

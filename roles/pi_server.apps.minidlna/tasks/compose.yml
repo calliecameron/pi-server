@@ -1,0 +1,8 @@
+- name: Docker compose
+  become: true
+  community.docker.docker_compose:
+    project_src: "{{ pi_server_apps_minidlna_etc }}"
+    # TODO set this to yes once pull_policy is supported
+    pull: false
+    remove_orphans: true
+    restarted: "{{ restart }}"
