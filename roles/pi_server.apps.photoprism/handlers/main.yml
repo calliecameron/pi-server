@@ -1,0 +1,5 @@
+- name: Reload photoprism
+  ansible.builtin.include_tasks: compose.yml
+  vars:
+    restart: true
+  listen: "Reload photoprism"

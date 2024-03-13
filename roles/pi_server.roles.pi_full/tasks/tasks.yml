@@ -20,6 +20,10 @@
 
 - name: Dependency
   ansible.builtin.include_role:
+    name: pi_server.apps.photoprism
+
+- name: Dependency
+  ansible.builtin.include_role:
     name: pi_server.apps.pihole
 
 - name: Dependency

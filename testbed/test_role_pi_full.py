@@ -320,6 +320,23 @@ class TestRolePiFull:
         # test(hostname + ".local") # noqa: ERA001
 
     @for_host_types("pi")
+    def test_photoprism(
+        self,
+        hostname: str,
+        addrs: Mapping[str, str],
+    ) -> None:
+        def test(this_addr: str) -> None:
+            with WebDriver() as driver:
+                driver.get("http://" + this_addr)
+                link = driver.find_element(by=By.LINK_TEXT, value="PhotoPrism")
+                assert urlparse(link.get_attribute("href")).hostname == this_addr
+                driver.click(link)
+                assert driver.title.startswith("PhotoPrism")
+
+        test(addrs[hostname])
+        test(hostname + ".local")
+
+    @for_host_types("pi")
     def test_pihole(
         self,
         hostname: str,

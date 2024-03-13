@@ -1,0 +1,63 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+UI:
+  Scrollbar: true
+  Zoom: false
+  Theme: default
+  Language: en
+  TimeZone: ""
+Search:
+  BatchSize: 0
+Maps:
+  Animate: 0
+  Style: ""
+Features:
+  Account: false
+  Albums: true
+  Archive: false
+  Delete: false
+  Download: true
+  Edit: false
+  Estimates: true
+  Favorites: true
+  Files: true
+  Folders: true
+  Import: false
+  Labels: true
+  Library: true
+  Logs: true
+  Moments: true
+  People: true
+  Places: true
+  Private: false
+  Ratings: true
+  Reactions: true
+  Review: false
+  Search: true
+  Services: false
+  Settings: false
+  Share: false
+  Upload: false
+  Videos: true
+Import:
+  Path: /
+  Move: false
+Index:
+  Path: /
+  Convert: true
+  Rescan: false
+  SkipArchived: false
+Stack:
+  UUID: true
+  Meta: true
+  Name: false
+Share:
+  Title: ""
+Download:
+  Name: file
+  Disabled: false
+  Originals: true
+  MediaRaw: false
+  MediaSidecar: false
+Templates:
+  Default: index.gohtml

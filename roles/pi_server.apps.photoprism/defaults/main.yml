@@ -1,0 +1,5 @@
+pi_server_apps_photoprism_etc: "{{ pi_server_etc }}/photoprism"
+pi_server_apps_photoprism_docker_compose: "{{ pi_server_apps_photoprism_etc }}/docker-compose.yml"
+pi_server_apps_photoprism_settings: "{{ pi_server_apps_photoprism_etc }}/settings.yml"
+
+pi_server_apps_photoprism_version: "231128"

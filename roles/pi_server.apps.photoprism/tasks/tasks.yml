@@ -1,0 +1,54 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik
+
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.main_data
+
+- name: Etc dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_photoprism_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: Settings
+  become: true
+  ansible.builtin.copy:
+    src: settings.yml
+    dest: "{{ pi_server_apps_photoprism_settings }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: Reload photoprism
+
+- name: Docker compose file
+  become: true
+  ansible.builtin.template:
+    src: docker-compose.yml.j2
+    dest: "{{ pi_server_apps_photoprism_docker_compose }}"
+    owner: root
+    group: root
+    mode: a=r
+  notify: Reload photoprism
+
+- name: Compose
+  ansible.builtin.include_tasks: compose.yml
+  vars:
+    restart: false
+
+- name: Monitor containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.monitor_docker_compose
+  vars:
+    compose_file: "{{ pi_server_apps_photoprism_docker_compose }}"
+
+- name: Control panel fragment
+  ansible.builtin.include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: photos

@@ -1,0 +1,53 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+services:
+  photoprism:
+    image: "photoprism/photoprism:{{ pi_server_apps_photoprism_version }}"
+    restart: always
+    user: "{{ pi_server_apps_main_data_user_uid }}:{{ pi_server_apps_main_data_user_gid }}"
+    environment:
+      PHOTOPRISM_ADMIN_USER: "admin"
+      PHOTOPRISM_ADMIN_PASSWORD: "password"
+      PHOTOPRISM_AUTH_MODE: "public"
+      PHOTOPRISM_DISABLE_TLS: "true"
+      PHOTOPRISM_DEFAULT_TLS: "false"
+      PHOTOPRISM_HTTP_COMPRESSION: "gzip"
+      PHOTOPRISM_READONLY: "true"
+      PHOTOPRISM_DISABLE_WEBDAV: "true"
+      PHOTOPRISM_DISABLE_SETTINGS: "true"
+      PHOTOPRISM_DISABLE_RESTART: "true"
+      PHOTOPRISM_DETECT_NSFW: "false"
+      PHOTOPRISM_DATABASE_DRIVER: "sqlite"
+      PHOTOPRISM_SITE_URL: "http://localhost:2342/photoprism"
+      PHOTOPRISM_SITE_CAPTION: "PhotoPrism ({{ pi_server_hostname }})"
+      PHOTOPRISM_INIT:
+{% if pi_server_testbed %}
+        ""
+{% else %}
+        "gpu tensorflow"
+{% endif %}
+    working_dir: "/photoprism"
+    volumes:
+      - "{{ pi_server_apps_photoprism_settings }}:/etc/photoprism/settings.yml:ro"
+      - "photoprism-data:/photoprism/storage"
+{% for host_path in pi_server_photoprism_media_dirs.keys() | sort %}
+      - type: bind
+        source: "{{ host_path }}"
+        target: "/photoprism/originals/{{ pi_server_photoprism_media_dirs[host_path] }}"
+        read_only: true
+{% endfor %}
+    networks:
+      - "{{ pi_server_apps_traefik_network }}"
+    deploy:
+      replicas: 1
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.photoprism.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.photoprism.rule=PathPrefix(`/photoprism`)"
+
+volumes:
+  photoprism-data:
+
+networks:
+  "{{ pi_server_apps_traefik_network }}":
+    external: true
