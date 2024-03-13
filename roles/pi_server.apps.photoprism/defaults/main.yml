@@ -3,3 +3,5 @@ pi_server_apps_photoprism_docker_compose: "{{ pi_server_apps_photoprism_etc }}/d
 pi_server_apps_photoprism_settings: "{{ pi_server_apps_photoprism_etc }}/settings.yml"
 
 pi_server_apps_photoprism_version: "231128"
+
+pi_server_apps_photoprism_indexer_user: "pi-server-photoprism-indexer"

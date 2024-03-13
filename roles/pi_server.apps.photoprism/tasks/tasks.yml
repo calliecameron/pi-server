@@ -52,3 +52,28 @@
   vars:
     src: fragment.html.j2
     name: photos
+
+- name: Indexer user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_photoprism_indexer_user }}"
+    register:
+
+- name: Indexer sudoers
+  ansible.builtin.include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
+    src: sudoers.j2
+    name: "{{ pi_server_apps_photoprism_indexer_user }}"
+
+- name: Indexer cronjob
+  ansible.builtin.include_role:
+    name: pi_server.apps.cron.cronjob
+  vars:
+    job: photoprism-indexer
+    src: indexer.j2
+    user: "{{ pi_server_apps_photoprism_indexer_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
+    systemd_overrides: []

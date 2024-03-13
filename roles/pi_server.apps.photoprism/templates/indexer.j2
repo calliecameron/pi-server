@@ -1,0 +1,11 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+# Index photos.
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+sudo docker-compose \
+    -f "{{ pi_server_apps_photoprism_docker_compose }}" \
+    exec -T photoprism photoprism index --cleanup
