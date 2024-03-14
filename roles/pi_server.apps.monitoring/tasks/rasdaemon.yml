@@ -1,0 +1,5 @@
+- name: Install rasdaemon
+  become: true
+  ansible.builtin.package:
+    name: rasdaemon
+    state: present

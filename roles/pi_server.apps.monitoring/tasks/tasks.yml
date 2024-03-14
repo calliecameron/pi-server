@@ -36,6 +36,9 @@
 - name: Webhook
   ansible.builtin.include_tasks: webhook.yml
 
+- name: Rasdaemon
+  ansible.builtin.include_tasks: rasdaemon.yml
+
 - name: Docker compose file
   become: true
   ansible.builtin.template:
