@@ -540,7 +540,9 @@ class TestRolePiFull:
                 host.shadow_file("/mnt/data/pi-server-data/data/foo.txt") as data_file,
             ):
                 with host.sudo():
-                    host.check_output(f"RESTIC_PASSWORD=foobar restic init -r {repo}")
+                    host.check_output(
+                        f"RESTIC_PASSWORD=foobar /etc/pi-server/backup/restic init -r {repo}",
+                    )
                     host.check_output(f"chown -R pi-server-data:pi-server-data {repo}")
                     conf.write(
                         "\n".join(
@@ -548,8 +550,6 @@ class TestRolePiFull:
                                 f"export RESTIC_REPOSITORY='{repo}'",
                                 "export RESTIC_PASSWORD='foobar'",
                                 "export RESTIC_HOSTNAME='main'",
-                                "export B2_ACCOUNT_ID=''",
-                                "export B2_ACCOUNT_KEY=''",
                             ],
                         ),
                     )
@@ -582,7 +582,8 @@ class TestRolePiFull:
                     with host.sudo():
                         raw = json.loads(
                             host.check_output(
-                                f"RESTIC_PASSWORD=foobar restic snapshots -r {repo} --json",
+                                "RESTIC_PASSWORD=foobar /etc/pi-server/backup/restic snapshots -r "
+                                f"{repo} --json",
                             ),
                         )
                     out = {}
@@ -599,8 +600,8 @@ class TestRolePiFull:
                         with host.sudo():
                             host.check_output(f"mkdir {restore}")
                             host.check_output(
-                                f"RESTIC_PASSWORD=foobar restic restore -r {repo} "
-                                f"-t {restore} {snapshot}",
+                                "RESTIC_PASSWORD=foobar /etc/pi-server/backup/restic restore -r "
+                                f"{repo} -t {restore} {snapshot}",
                             )
                             assert (
                                 host.file(f"{restore}/backup/foo.txt").content_string.strip()
@@ -617,7 +618,9 @@ class TestRolePiFull:
                         check_date(date, snapshots[date])
 
                 # When running daily, weekly keeps Sundays; monthly keeps the last day of the month;
-                # both will keep the latest snapshot in an unfinished period
+                # both will keep the latest snapshot in an unfinished period, and all will keep the
+                # oldest snapshot if there aren't enough snapshots to satisfy the number that should
+                # be kept.
                 # So after running from 2021/05/20 (Thu) - 2021/06/19 (Sat), we'd expect to see:
                 #   - 2021/06/19 (Sat, daily, weekly, monthly, yearly)
                 #   - 2021/06/18 (Fri, daily)
@@ -629,6 +632,7 @@ class TestRolePiFull:
                 #   - 2021/06/06 (Sun, weekly)
                 #   - 2021/05/31 (Mon, monthly)
                 #   - 2021/05/30 (Sun, weekly)
+                #   - 2021/05/20 (Thu, oldest for weekly, monthly and yearly)
 
                 run_cron(datetime.date(year=2021, month=5, day=20))
                 check(["2021-05-20"])
@@ -659,6 +663,7 @@ class TestRolePiFull:
 
                 check(
                     [
+                        "2021-05-20",
                         "2021-05-30",
                         "2021-05-31",
                         "2021-06-06",

@@ -1,9 +1,19 @@
 pi_server_apps_backup_etc: "{{ pi_server_etc }}/backup"
 pi_server_apps_backup_config_dir: "{{ pi_server_apps_main_data_data_dir }}/{{ pi_server_hostname }}-backup-config"
+
 pi_server_apps_backup_git_dir: "{{ pi_server_apps_main_storage_data_dir }}/git-backup"
 pi_server_apps_backup_git_config: "{{ pi_server_apps_backup_config_dir }}/git-backup-configuration.txt"
 pi_server_apps_backup_git_ssh: "{{ pi_server_apps_backup_etc }}/git-ssh"
+
+pi_server_apps_backup_restic_archive: "{{ pi_server_apps_backup_etc }}/restic.bz2"
+pi_server_apps_backup_restic_bin: "{{ pi_server_apps_backup_etc }}/restic"
 pi_server_apps_backup_restic_config: "{{ pi_server_apps_backup_etc }}/restic.conf"
 pi_server_apps_backup_restic_config_dir: "{{ pi_server_apps_main_data_config_dir }}/restic"
 pi_server_apps_backup_restic_cache: "{{ pi_server_apps_backup_restic_config_dir }}/cache"
+pi_server_apps_backup_restic_url_map:
+  x86_64: "https://github.com/restic/restic/releases/download/v0.16.4/restic_0.16.4_linux_amd64.bz2"
+  aarch64: "https://github.com/restic/restic/releases/download/v0.16.4/restic_0.16.4_linux_arm64.bz2"
+pi_server_apps_backup_restic_checksum_map:
+  x86_64: "3d4d43c169a9e28ea76303b1e8b810f0dcede7478555fdaa8959971ad499e324"
+  aarch64: "9d2f44538ea0c6309426cb290d3a6b8b0b85de5de7f1496ff40c843b36bf8a8d"
 pi_server_apps_backup_mount_dir: "/backup"
