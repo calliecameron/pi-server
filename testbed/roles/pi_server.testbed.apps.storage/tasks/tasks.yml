@@ -15,6 +15,6 @@
 - name: Create zpool
   become: true
   ansible.builtin.command:
-    cmd: "zpool create -m /mnt/data -o autoexpand=on -O acltype=posix -O atime=off -O compression=on -O xattr=sa '{{ pi_server_storage_zpool }}' '{{ pi_server_testbed_storage_drive }}'"
+    cmd: "zpool create -m /mnt/data -o autoexpand=on -O acltype=posix -O atime=off -O compression=on -O xattr=sa '{{ pi_server_storage_zpool }}' mirror '{{ pi_server_testbed_storage_drive1 }}' '{{ pi_server_testbed_storage_drive2 }}'"
   when: exists.rc != 0
   changed_when: true

@@ -5,6 +5,7 @@
     _run_once: true
     _args: []
     _host_vars:
-      - pi_server_testbed_storage_drive
+      - pi_server_testbed_storage_drive1
+      - pi_server_testbed_storage_drive2
       - pi_server_storage_zpool
     _export_vars: []

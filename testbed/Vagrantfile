@@ -80,7 +80,8 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
       v.memory = 1280
     end
     box.vm.network "private_network", ip: pi_ip
-    box.vm.disk :disk, size: "100MB", name: "external"
+    box.vm.disk :disk, size: "100MB", name: "external1"
+    box.vm.disk :disk, size: "100MB", name: "external2"
     sync_folders(box)
     box.vm.provision "ansible" do |ansible|
       ansible.compatibility_mode = "2.0"
@@ -121,7 +122,8 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         },
         pi_server_testbed_router_ip: router_lan_ip,
         pi_server_testbed_internet_ip: $addrs["internet"],
-        pi_server_testbed_storage_drive: "/dev/sdc",
+        pi_server_testbed_storage_drive1: "/dev/sdc",
+        pi_server_testbed_storage_drive2: "/dev/sdd",
         pi_server_testbed_openvpn_target_name: openvpn_target_name,
         pi_server_testbed_openvpn_target_ip: openvpn_target_ip,
         pi_server_testbed_openvpn_client_name: openvpn_client_name,

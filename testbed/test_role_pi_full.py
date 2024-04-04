@@ -70,8 +70,6 @@ class TestRolePiFull:
 
         with host.disable_login_emails():
             # Test pool status
-            # zed doesn't email when a single-device pool fails, so to test that it can email, we
-            # have to create a temporary mirrored pool, and corrupt one of the mirrors.
             with temp_zpool():
                 email.clear()
                 with host.sudo():
