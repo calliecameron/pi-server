@@ -84,6 +84,12 @@
       - "ReadOnlyPaths={{ pi_server_apps_main_storage_data_dir }}"
       - "ReadWritePaths={{ pi_server_apps_backup_git_dir }}"
 
+- name: Install bzip2
+  become: true
+  ansible.builtin.package:
+    name: bzip2
+    state: present
+
 - name: Download restic
   become: true
   ansible.builtin.get_url:
