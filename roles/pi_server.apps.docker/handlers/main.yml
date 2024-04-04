@@ -1,0 +1,7 @@
+- name: Reload docker
+  become: true
+  ansible.builtin.systemd:
+    name: "docker"
+    enabled: true
+    state: restarted
+  listen: "Reload docker"

@@ -3,17 +3,23 @@
     name: pi_server.apps.firewall
 
 - name: Install docker
-  ansible.builtin.include_role:
-    name: geerlingguy.docker
-    apply:
-      become: true
-  vars:
-    docker_apt_arch: "{{ pi_server_apps_docker_arch_map[ansible_facts['architecture']] }}"
-    docker_install_compose: false
-    docker_daemon_options:
-      log-driver: journald
-      metrics-addr: "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}"
-      experimental: true
+  become: true
+  ansible.builtin.package:
+    name: docker.io
+    state: present
+
+- name: "Ensure handlers are notified now to avoid firewall conflicts"
+  ansible.builtin.meta: flush_handlers
+
+- name: Daemon.json
+  become: true
+  ansible.builtin.template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify: Reload docker
 
 - name: Install pip
   become: true
