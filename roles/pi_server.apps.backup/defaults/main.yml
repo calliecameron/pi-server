@@ -1,7 +1,7 @@
 pi_server_apps_backup_etc: "{{ pi_server_etc }}/backup"
 pi_server_apps_backup_config_dir: "{{ pi_server_apps_main_data_data_dir }}/{{ pi_server_hostname }}-backup-config"
 
-pi_server_apps_backup_git_dir: "{{ pi_server_apps_main_storage_data_dir }}/git-backup"
+pi_server_apps_backup_git_dir: "{{ pi_server_apps_main_data_data_dir }}/git-backup"
 pi_server_apps_backup_git_config: "{{ pi_server_apps_backup_config_dir }}/git-backup-configuration.txt"
 pi_server_apps_backup_git_ssh: "{{ pi_server_apps_backup_etc }}/git-ssh"
 

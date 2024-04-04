@@ -402,12 +402,13 @@ class TestRolePiFull:
     ) -> None:
         host = hosts[hostname]
         journal = host.journal()
-        backup_git_root = "/mnt/data/pi-server-data/git-backup"
         data_root = "/mnt/data/pi-server-data/data"
+        backup_git_root = os.path.join(data_root, "git-backup")
 
-        assert host.file(backup_git_root).exists
-        assert host.file(backup_git_root).user == "pi-server-data"
-        assert host.file(backup_git_root).group == "pi-server-data"
+        with host.sudo():
+            assert host.file(backup_git_root).exists
+            assert host.file(backup_git_root).user == "pi-server-data"
+            assert host.file(backup_git_root).group == "pi-server-data"
 
         with host.shadow_dir(
             os.path.join(data_root, f"{hostname}-backup-config"),
