@@ -1,0 +1,1 @@
+pi_server_apps_certs_etc: "{{ pi_server_etc }}/certs"

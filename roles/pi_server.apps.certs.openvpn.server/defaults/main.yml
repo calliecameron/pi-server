@@ -1,0 +1,3 @@
+pi_server_apps_certs_openvpn_server_cert: "{{ pi_server_apps_certs_etc }}/openvpn.crt"
+pi_server_apps_certs_openvpn_server_key: "{{ pi_server_apps_certs_etc }}/openvpn.key"
+pi_server_apps_certs_openvpn_server_dh_params: "{{ pi_server_apps_certs_etc }}/openvpn-dh2048.pem"

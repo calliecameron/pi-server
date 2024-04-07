@@ -1,0 +1,3 @@
+pi_server_apps_certs_https_cert: "{{ pi_server_apps_certs_etc }}/https.crt"
+pi_server_apps_certs_https_key: "{{ pi_server_apps_certs_etc }}/https.key"
+pi_server_apps_certs_https_key_readers_group: "pi-server-https-key-readers"

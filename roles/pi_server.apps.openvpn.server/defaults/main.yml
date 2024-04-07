@@ -1,6 +1,3 @@
-pi_server_apps_openvpn_server_cert: "{{ pi_server_apps_certs_etc }}/openvpn.crt"
-pi_server_apps_openvpn_server_key: "{{ pi_server_apps_certs_etc }}/openvpn.key"
-pi_server_apps_openvpn_server_dh_params: "{{ pi_server_apps_certs_etc }}/openvpn-dh2048.pem"
 pi_server_apps_openvpn_server_client_config_dir: "{{ pi_server_apps_openvpn_etc }}/client-config.d"
 pi_server_apps_openvpn_server_to_server_config: "{{ pi_server_apps_openvpn_etc }}/server-to-server-clients"
 pi_server_apps_openvpn_server_login_email_script: "{{ pi_server_apps_openvpn_etc }}/email-on-login"

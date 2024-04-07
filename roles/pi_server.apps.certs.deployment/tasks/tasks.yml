@@ -1,0 +1,38 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.base
+
+- name: Deployment key readers group
+  become: true
+  ansible.builtin.group:
+    name: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
+
+- name: Check that deployment public key exists
+  ansible.builtin.include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_deployment_key_pub }}"
+    msg: "deployment public key ({{ pi_server_apps_certs_deployment_key_pub }}) doesn't exist"
+
+- name: Check that deployment key exists
+  ansible.builtin.include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_deployment_key }}"
+    msg: "deployment key ({{ pi_server_apps_certs_deployment_key }}) doesn't exist"
+
+- name: Deployment public key
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_deployment_key_pub }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Deployment key
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_deployment_key }}"
+    owner: root
+    group: "{{ pi_server_apps_certs_deployment_key_readers_group }}"
+    mode: ug=r,o=

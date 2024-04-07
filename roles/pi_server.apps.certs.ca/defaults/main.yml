@@ -1,0 +1,2 @@
+pi_server_apps_certs_ca: "{{ pi_server_apps_certs_etc }}/ca.crt"
+pi_server_apps_certs_crl: "{{ pi_server_apps_certs_etc }}/crl"

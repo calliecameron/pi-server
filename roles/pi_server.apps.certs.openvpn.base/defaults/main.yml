@@ -1,0 +1,1 @@
+pi_server_apps_certs_openvpn_tls_auth: "{{ pi_server_apps_certs_etc }}/openvpn-tls-auth.key"

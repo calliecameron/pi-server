@@ -1,0 +1,66 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.base
+
+- name: Check that ca cert exists
+  ansible.builtin.include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_ca }}"
+    msg: "CA cert ({{ pi_server_apps_certs_ca }}) doesn't exist"
+
+- name: Check that crl exists
+  ansible.builtin.include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_crl }}"
+    msg: "CRL ({{ pi_server_apps_certs_crl }}) doesn't exist"
+
+- name: CA cert
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_ca }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: CRL
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_crl }}"
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Certs size script
+  become: true
+  ansible.builtin.copy:
+    src: certs-size
+    dest: /etc/ca-certificates/update.d/pi-server-certs-size
+    owner: root
+    group: root
+    mode: a=rx
+
+- name: Copy ca cert
+  become: true
+  ansible.builtin.copy:
+    remote_src: true
+    src: "{{ pi_server_apps_certs_ca }}"
+    dest: /usr/local/share/ca-certificates/ca.crt
+    owner: root
+    group: root
+    mode: a=r
+
+- name: Cert database size
+  become: true
+  ansible.builtin.stat:
+    path: /etc/ssl/certs/ca-certificates.crt
+  register: stat_result
+  changed_when: false
+
+- name: Generate certs database
+  become: true
+  ansible.builtin.command:
+    cmd: update-ca-certificates
+  register: update_result
+  changed_when: update_result.stdout | regex_search('pi-server [0-9]+') | regex_search('[0-9]+') != stat_result.stat.size | string()

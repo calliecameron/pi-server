@@ -1,0 +1,18 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.ca
+
+- name: Check that tls auth exists
+  ansible.builtin.include_role:
+    name: pi_server.utils.require_file
+  vars:
+    path: "{{ pi_server_apps_certs_openvpn_tls_auth }}"
+    msg: "openvpn tls auth ({{ pi_server_apps_certs_openvpn_tls_auth }}) doesn't exist"
+
+- name: Openvpn tls auth
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_openvpn_tls_auth }}"
+    owner: root
+    group: root
+    mode: u=r,go=

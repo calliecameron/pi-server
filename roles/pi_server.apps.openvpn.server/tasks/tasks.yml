@@ -6,50 +6,9 @@
   ansible.builtin.include_role:
     name: pi_server.apps.email
 
-- name: Check that openvpn cert exists
+- name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.utils.require_file
-  vars:
-    path: "{{ pi_server_apps_openvpn_server_cert }}"
-    msg: "openvpn cert ({{ pi_server_apps_openvpn_server_cert }}) doesn't exist"
-
-- name: Check that openvpn key exists
-  ansible.builtin.include_role:
-    name: pi_server.utils.require_file
-  vars:
-    path: "{{ pi_server_apps_openvpn_server_key }}"
-    msg: "openvpn key ({{ pi_server_apps_openvpn_server_key }}) doesn't exist"
-
-- name: Check that dh params exist
-  ansible.builtin.include_role:
-    name: pi_server.utils.require_file
-  vars:
-    path: "{{ pi_server_apps_openvpn_server_dh_params }}"
-    msg: "openvpn dh params ({{ pi_server_apps_openvpn_server_dh_params }}) doesn't exist"
-
-- name: Openvpn cert
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_openvpn_server_cert }}"
-    owner: root
-    group: root
-    mode: a=r
-
-- name: Openvpn key
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_openvpn_server_key }}"
-    owner: root
-    group: root
-    mode: u=r,go=
-
-- name: Openvpn dh params
-  become: true
-  ansible.builtin.file:
-    path: "{{ pi_server_apps_openvpn_server_dh_params }}"
-    owner: root
-    group: root
-    mode: u=r,go=
+    name: pi_server.apps.certs.openvpn.server
 
 - name: Client config dir
   become: true

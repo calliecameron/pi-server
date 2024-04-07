@@ -1,0 +1,34 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.base
+
+- name: User
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_certs_cron_user }}"
+    register:
+
+- name: Cronjob
+  ansible.builtin.include_role:
+    name: pi_server.apps.cron.cronjob
+  vars:
+    job: certs
+    src: certs.j2
+    user: "{{ pi_server_apps_certs_cron_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
+    systemd_overrides: []
+
+- name: Dashboard
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.custom_dashboard
+  vars:
+    src: certs.json
+
+- name: Alerts
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.custom_alerts
+  vars:
+    src: certs-alerts-custom.yml
+    job: certs

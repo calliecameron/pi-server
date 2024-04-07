@@ -8,7 +8,7 @@ ca {{ pi_server_apps_certs_ca }}
 cert {{ pi_server_apps_openvpn_server_to_server_client_cert }}
 key {{ pi_server_apps_openvpn_server_to_server_client_key }}
 crl-verify {{ pi_server_apps_certs_crl }}
-tls-auth {{ pi_server_apps_openvpn_tls_auth }}
+tls-auth {{ pi_server_apps_certs_openvpn_tls_auth }}
 
 # Host port
 remote {{ args.addr }} {{ pi_server_apps_openvpn_port }}

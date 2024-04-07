@@ -1,0 +1,12 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.base
+
+- name: Etc dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_certs_etc }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx

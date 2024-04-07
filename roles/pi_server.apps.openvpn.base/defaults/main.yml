@@ -1,5 +1,4 @@
 pi_server_apps_openvpn_etc: "{{ pi_server_etc }}/openvpn"
-pi_server_apps_openvpn_tls_auth: "{{ pi_server_apps_certs_etc }}/openvpn-tls-auth.key"
 pi_server_apps_openvpn_config_dir: "/etc/openvpn"
 pi_server_apps_openvpn_autostart_file: "/etc/default/openvpn"
 pi_server_apps_openvpn_service: "openvpn"
