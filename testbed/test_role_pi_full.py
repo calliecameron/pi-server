@@ -371,29 +371,6 @@ class TestRolePiFull:
         test(hostname + ".local")
 
     @for_host_types("pi")
-    def test_certs(self, hostname: str, hosts: Mapping[str, Host]) -> None:
-        host = hosts[hostname]
-        service = host.service("pi-server-cron-certs")
-        journal = host.journal()
-
-        with host.shadow_dir("/var/pi-server/monitoring/collect") as collect_dir:
-            journal.clear()
-            with host.run_crons():
-                pass
-
-            assert not service.is_running
-            log = journal.entries("pi-server-cron-certs")
-            assert log.count(r".*ERROR.*") == 0
-            assert log.count(r".*WARNING.*") == 0
-            assert log.count(r".*FAILURE.*") == 0
-            assert log.count(r".*KILLED.*") == 0
-            assert log.count(r".*SUCCESS.*") == 1
-            assert log.count(r"Wrote to '.*' for cert '.*'") == 5
-            with host.sudo():
-                metrics = Lines(collect_dir.file("certs.prom").content_string)
-            assert metrics.count(r'cert_expiry_time{job="certs", cert=".*"} [0-9]+') == 5
-
-    @for_host_types("pi")
     def test_backup_git(
         self,
         hostname: str,

@@ -6,7 +6,7 @@ set -eu
 
 {{ cron_wrapper_line }}
 
-CRL='{{ pi_server_apps_certs_crl }}'
+CRL='{{ pi_server_apps_certs_etc }}/crl'
 OUTPUT_DIR='{{ pi_server_apps_monitoring_node_exporter_collect }}'
 OUTPUT_FILE="${OUTPUT_DIR}/certs.prom"
 TMP_FILE="${OUTPUT_FILE}.tmp"
@@ -39,7 +39,9 @@ find '{{ pi_server_apps_certs_etc }}' -name '*.crt' | while read -r line; do
     write-timestamp "${line}" "$(date --date="$(openssl x509 -enddate -noout -in "${line}" | cut -d= -f 2)" +%s)"
 done
 
-write-timestamp "${CRL}" "$(date --date="$(openssl crl -nextupdate -noout -in "${CRL}" | cut -d= -f 2)" +%s)"
+if [ -e "${CRL}" ]; then
+    write-timestamp "${CRL}" "$(date --date="$(openssl crl -nextupdate -noout -in "${CRL}" | cut -d= -f 2)" +%s)"
+fi
 
 if mv "${TMP_FILE}" "${OUTPUT_FILE}"; then
     echo "wrote metrics to '${OUTPUT_FILE}'"

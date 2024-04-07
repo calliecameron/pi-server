@@ -48,4 +48,8 @@
 
 - name: Dependency
   ansible.builtin.include_role:
+    name: pi_server.apps.certs.monitoring
+
+- name: Dependency
+  ansible.builtin.include_role:
     name: pi_server.apps.updates

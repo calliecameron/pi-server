@@ -4,10 +4,6 @@
 
 - name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.certs
-
-- name: Dependency
-  ansible.builtin.include_role:
     name: pi_server.apps.syncthing.system_wide
 
 - name: Etc dir
@@ -37,6 +33,12 @@
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=r,go=
 
+- name: Git user can read deployment key
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.deployment_key_reader
+  vars:
+    user: "{{ pi_server_apps_main_data_user }}"
+
 - name: Git configuration file
   ansible.builtin.include_role:
     name: pi_server.utils.create_file
@@ -63,12 +65,6 @@
     owner: root
     group: root
     mode: a=rx
-
-- name: Git user can read deployment key
-  ansible.builtin.include_role:
-    name: pi_server.apps.certs.deployment_key_reader
-  vars:
-    user: "{{ pi_server_apps_main_data_user }}"
 
 - name: Git cronjob
   ansible.builtin.include_role:

@@ -1,8 +1,0 @@
-- name: Define role
-  ansible.builtin.include_tasks: "{{ define_role }}"
-  vars:
-    _private: false
-    _run_once: true
-    _args: []
-    _host_vars: []
-    _export_vars: []
