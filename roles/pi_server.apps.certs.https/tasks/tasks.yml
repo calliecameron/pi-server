@@ -1,6 +1,6 @@
 - name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.certs.base
+    name: pi_server.apps.certs.https_paths
 
 - name: Https key readers group
   become: true

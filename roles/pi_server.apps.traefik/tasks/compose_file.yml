@@ -5,21 +5,6 @@
   register: raw_ports
   changed_when: false
 
-- name: "Check if https is enabled"
-  become: true
-  ansible.builtin.command:
-    cmd: "ls {{ pi_server_apps_traefik_https_enabled_file }}"
-  register: exists
-  failed_when: false
-  changed_when: false
-
-- name: Traefik user can read https key
-  ansible.builtin.include_role:
-    name: pi_server.apps.certs.https_key_reader
-  vars:
-    user: "{{ pi_server_apps_traefik_user }}"
-  when: exists.rc == 0
-
 - name: Compose file
   become: true
   ansible.builtin.template:
@@ -30,5 +15,4 @@
     mode: a=r
   vars:
     ports: "{{ raw_ports.stdout_lines }}"
-    https_enabled: "{{ exists.rc == 0 }}"
   notify: Reload traefik

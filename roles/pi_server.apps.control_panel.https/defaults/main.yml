@@ -1,0 +1,2 @@
+pi_server_apps_control_panel_https_traefik_port: "8082"
+pi_server_apps_control_panel_https_entrypoint: "control_panel_https"

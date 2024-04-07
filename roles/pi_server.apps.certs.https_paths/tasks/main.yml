@@ -6,5 +6,5 @@
     _args: []
     _host_vars: []
     _export_vars:
-      - pi_server_apps_certs_https_key_readers_group
-      - pi_server_apps_certs_https_key_readers_group_gid
+      - pi_server_apps_certs_https_cert
+      - pi_server_apps_certs_https_key

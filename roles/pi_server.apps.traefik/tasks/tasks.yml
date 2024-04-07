@@ -10,6 +10,39 @@
   ansible.builtin.include_role:
     name: pi_server.apps.traefik.base
 
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.https_paths
+
+- name: "Check if https should be enabled"
+  become: true
+  ansible.builtin.command:
+    cmd: "ls {{ pi_server_apps_certs_https_cert }}"
+  register: exists
+  failed_when: false
+  changed_when: false
+
+- name: Enable https
+  ansible.builtin.set_fact:
+    pi_server_apps_traefik_https_enabled: "{{ exists.rc == 0 }}"
+
+- name: "Configure https"
+  become: true
+  ansible.builtin.template:
+    src: https.yml.j2
+    dest: "{{ pi_server_apps_traefik_discovery_dir }}/https.yml"
+    owner: root
+    group: root
+    mode: a=r
+  when: pi_server_apps_traefik_https_enabled
+
+- name: Traefik user can read https key
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.https_key_reader
+  vars:
+    user: "{{ pi_server_apps_traefik_user }}"
+  when: pi_server_apps_traefik_https_enabled
+
 - name: Config file
   ansible.builtin.include_tasks: config_file.yml
 

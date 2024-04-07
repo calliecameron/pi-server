@@ -100,6 +100,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_zoneedit_username: "",
         pi_server_zoneedit_password: "",
         pi_server_control_panel_port: "80",
+        pi_server_control_panel_https_port: "443",
         pi_server_storage_zpool: "data",
         pi_server_lan_network: pi_lan_mask,
         pi_server_vpn_network: pi_vpn_mask,

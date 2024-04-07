@@ -1,0 +1,33 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.certs.ca
+
+- name: Copy CA cert
+  ansible.builtin.include_role:
+    name: pi_server.apps.control_panel.asset
+  vars:
+    src: "{{ pi_server_apps_certs_ca }}"
+    remote_src: true
+    dest: "ca.crt"
+
+- name: Control panel fragment
+  ansible.builtin.include_role:
+    name: pi_server.apps.control_panel.fragment
+  vars:
+    src: fragment.html.j2
+    name: certificates
+
+- name: Entrypoint
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik.https_entrypoint
+  vars:
+    name: "{{ pi_server_apps_control_panel_https_entrypoint }}"
+    port: "{{ pi_server_apps_control_panel_https_traefik_port }}"
+
+- name: Open port
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik.publish_port
+  vars:
+    container_port: "{{ pi_server_apps_control_panel_https_traefik_port }}"
+    host_port: "{{ pi_server_control_panel_https_port }}"
+  when: pi_server_control_panel_https_port

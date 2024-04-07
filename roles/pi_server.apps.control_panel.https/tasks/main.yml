@@ -1,0 +1,9 @@
+- name: Define role
+  ansible.builtin.include_tasks: "{{ define_role }}"
+  vars:
+    _private: false
+    _run_once: true
+    _args: []
+    _host_vars:
+      - pi_server_control_panel_https_port
+    _export_vars: []

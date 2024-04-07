@@ -1,7 +1,4 @@
 {{ args.name }}:
   address: ":{{ args.port }}"
   http:
-    tls:
-      certificates:
-        - certFile: "{{ pi_server_apps_traefik_https_cert_mount_point }}"
-          keyFile: "{{ pi_server_apps_traefik_https_key_mount_point }}"
+    tls: {}
