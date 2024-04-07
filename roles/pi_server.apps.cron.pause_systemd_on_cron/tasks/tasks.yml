@@ -10,3 +10,4 @@
     owner: root
     group: root
     mode: a=r
+    create_notify:

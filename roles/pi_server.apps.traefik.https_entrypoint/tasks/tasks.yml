@@ -1,0 +1,23 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.traefik
+
+- name: Enable https
+  ansible.builtin.include_role:
+    name: pi_server.utils.create_file
+  vars:
+    path: "{{ pi_server_apps_traefik_https_enabled_file }}"
+    owner: root
+    group: root
+    mode: a=r
+    create_notify: Reload traefik compose file
+
+- name: Entrypoint
+  become: true
+  ansible.builtin.template:
+    src: entrypoint.yml.j2
+    dest: "{{ pi_server_apps_traefik_entrypoints_dir }}/{{ args.name }}.yml"
+    owner: root
+    group: root
+    mode: a=r
+  notify: Reload traefik config file

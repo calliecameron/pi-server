@@ -7,3 +7,6 @@
     _host_vars: []
     _export_vars:
       - pi_server_apps_traefik_metrics_port
+      - pi_server_apps_traefik_https_enabled_file
+      - pi_server_apps_traefik_https_cert_mount_point
+      - pi_server_apps_traefik_https_key_mount_point

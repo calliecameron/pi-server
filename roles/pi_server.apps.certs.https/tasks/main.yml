@@ -9,3 +9,4 @@
       - pi_server_apps_certs_https_cert
       - pi_server_apps_certs_https_key
       - pi_server_apps_certs_https_key_readers_group
+      - pi_server_apps_certs_https_key_readers_group_gid

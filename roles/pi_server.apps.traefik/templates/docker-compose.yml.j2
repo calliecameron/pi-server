@@ -17,9 +17,17 @@ services:
     image: "traefik:{{ pi_server_apps_traefik_version }}"
     restart: always
     user: "{{ traefik_user.uid }}:{{ traefik_user.group }}"
+{% if https_enabled %}
+    group_add:
+      - "{{ pi_server_apps_certs_https_key_readers_group_gid }}"
+{% endif %}
     volumes:
       - "{{ pi_server_apps_traefik_config }}:/etc/traefik/traefik.yml:ro"
       - "{{ pi_server_apps_traefik_discovery_dir }}:/etc/traefik/discovery.d:ro"
+{% if https_enabled %}
+      - "{{ pi_server_apps_certs_https_cert }}:{{ pi_server_apps_traefik_https_cert_mount_point }}"
+      - "{{ pi_server_apps_certs_https_key }}:{{ pi_server_apps_traefik_https_key_mount_point }}"
+{% endif %}
 {% if ports %}
     ports:
 {% for port in ports %}

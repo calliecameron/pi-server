@@ -6,6 +6,11 @@
   become: true
   ansible.builtin.group:
     name: "{{ pi_server_apps_certs_https_key_readers_group }}"
+  register: readers_group
+
+- name: Export GID
+  ansible.builtin.set_fact:
+    pi_server_apps_certs_https_key_readers_group_gid: "{{ readers_group.gid }}"
 
 - name: Check that https cert exists
   ansible.builtin.include_role:

@@ -86,6 +86,7 @@
     owner: "{{ pi_server_apps_shutdownd_user }}"
     group: "{{ pi_server_apps_shutdownd_writers_group }}"
     mode: ug=rw,o=r
+    create_notify:
 
 - name: Inotify
   become: true

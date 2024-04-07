@@ -19,3 +19,12 @@
     group: "{{ args.group }}"
     mode: "{{ args.mode }}"
   when: exists.rc != 0
+  register: create_result
+
+- name: Notify
+  ansible.builtin.assert:
+    that:
+      - true
+  when: args.create_notify and create_result.changed
+  changed_when: true
+  notify: "{{ args.create_notify }}"
