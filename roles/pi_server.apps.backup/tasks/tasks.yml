@@ -47,7 +47,6 @@
     owner: "{{ pi_server_apps_main_data_user }}"
     group: "{{ pi_server_apps_main_data_user }}"
     mode: u=rw,go=
-    create_notify:
 
 - name: Git backup dir
   become: true

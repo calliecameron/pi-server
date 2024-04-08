@@ -87,7 +87,6 @@
     owner: root
     group: root
     mode: a=r
-    create_notify:
 
 - name: Monitored docker services
   ansible.builtin.include_role:
@@ -97,7 +96,6 @@
     owner: root
     group: root
     mode: a=r
-    create_notify:
 
 - name: System dashboard
   ansible.builtin.include_tasks: system_dashboard.yml

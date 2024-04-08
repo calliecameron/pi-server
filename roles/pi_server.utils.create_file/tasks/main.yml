@@ -8,6 +8,5 @@
       - owner
       - group
       - mode
-      - create_notify
     _host_vars: []
     _export_vars: []

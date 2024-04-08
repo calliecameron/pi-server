@@ -35,7 +35,6 @@
     owner: root
     group: root
     mode: a=r
-    create_notify:
 
 - name: Discovery dir
   become: true

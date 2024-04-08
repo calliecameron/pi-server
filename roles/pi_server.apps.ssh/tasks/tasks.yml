@@ -33,7 +33,6 @@
     owner: root
     group: root
     mode: u=rw,go=r
-    create_notify:
 
 - name: Email on login script
   become: true
