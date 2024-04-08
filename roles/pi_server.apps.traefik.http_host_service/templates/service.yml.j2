@@ -5,31 +5,46 @@ http:
     "{{ args.name }}":
       entryPoints:
         - "{{ args.entrypoint }}"
+{% if args.https %}
+      middlewares:
+        - "{{ args.name }}_https_redirect"
+{% else %}
 {% if args.strip_prefix %}
       middlewares:
-        - "{{ args.name }}"
+        - "{{ args.name }}_strip_prefix"
+{% endif %}
+{%endif %}
+      service: "{{ args.name }}"
+      rule: "PathPrefix(`/{{ args.path_prefix }}`)"
+{% if args.https %}
+    "{{ args.name }}_https":
+      entryPoints:
+        - "{{ args.https_entrypoint }}"
+      tls: {}
+{% if args.strip_prefix %}
+      middlewares:
+        - "{{ args.name }}_strip_prefix"
 {% endif %}
       service: "{{ args.name }}"
       rule: "PathPrefix(`/{{ args.path_prefix }}`)"
+{% endif %}
 
-{% if args.strip_prefix %}
   middlewares:
-    "{{ args.name }}":
+{% if args.strip_prefix %}
+    "{{ args.name }}_strip_prefix":
       stripPrefix:
         prefixes:
           - "/{{ args.path_prefix }}"
         forceSlash: false
+{% endif %}
+{% if args.https %}
+    "{{ args.name }}_https_redirect":
+      redirectScheme:
+        scheme: "https"
 {% endif %}
 
   services:
     "{{ args.name }}":
       loadBalancer:
         servers:
-          - url: "http{% if args.https %}s{% endif %}://host.docker.internal:{{ args.port }}"
-{% if args.https %}
-        serversTransport: "{{ args.name }}"
-
-  serversTransports:
-    "{{ args.name }}":
-      insecureSkipVerify: true
-{% endif %}
+          - url: "http://host.docker.internal:{{ args.port }}"

@@ -246,6 +246,7 @@ class TestBase:
                             22,  # SSH
                             53,  # DNS
                             80,  # Control panel
+                            443,  # Control panel HTTPS
                             1194,  # OpenVPN
                             22000,  # Syncthing
                         },
@@ -260,6 +261,7 @@ class TestBase:
                             22,  # SSH
                             53,  # DNS
                             80,  # Control panel
+                            443,  # Control panel HTTPS
                             1194,  # OpenVPN
                             22000,  # Syncthing
                         },

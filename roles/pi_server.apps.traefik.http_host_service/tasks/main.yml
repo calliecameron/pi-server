@@ -10,5 +10,6 @@
       - strip_prefix
       - port
       - https
+      - https_entrypoint
     _host_vars: []
     _export_vars: []

@@ -94,6 +94,7 @@
     strip_prefix: true
     port: "{{ pi_server_apps_minidlna_http_port }}"
     https: false
+    https_entrypoint:
 
 - name: Control panel fragment
   ansible.builtin.include_role:

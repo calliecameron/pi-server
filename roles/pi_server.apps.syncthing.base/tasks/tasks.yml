@@ -4,7 +4,7 @@
 
 - name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.control_panel
+    name: pi_server.apps.control_panel.https
 
 - name: Apt key
   become: true
@@ -123,7 +123,8 @@
     path_prefix: "syncthing"
     strip_prefix: true
     port: "{{ pi_server_apps_syncthing_web_port }}"
-    https: false
+    https: true
+    https_entrypoint: "{{ pi_server_apps_control_panel_https_entrypoint }}"
 
 - name: Control panel fragment
   ansible.builtin.include_role:
