@@ -13,7 +13,7 @@ http:
       middlewares:
         - "{{ args.name }}_strip_prefix"
 {% endif %}
-{%endif %}
+{% endif %}
       service: "{{ args.name }}"
       rule: "PathPrefix(`/{{ args.path_prefix }}`)"
 {% if args.https %}
