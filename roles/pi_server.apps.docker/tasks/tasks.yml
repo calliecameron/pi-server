@@ -27,6 +27,13 @@
     name: python3-pip
     state: present
 
+- name: Install requests
+  become: true
+  ansible.builtin.pip:
+    name: requests
+    umask: "0022"
+    version: "{{ pi_server_apps_docker_requests_version }}"
+
 - name: Install compose
   become: true
   ansible.builtin.pip:

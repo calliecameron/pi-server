@@ -4,6 +4,6 @@
 export RESTIC_REPOSITORY='{{ pi_server_restic_repository }}'
 export RESTIC_PASSWORD='{{ pi_server_restic_password }}'
 export RESTIC_HOSTNAME='{{ pi_server_restic_hostname }}'
-{% for var_name in pi_server_restic_env.keys() | sort %}
-export {{ var_name }}='{{ pi_server_restic_env[var_name] }}'
+{% for var_name in (pi_server_restic_env | string | from_yaml).keys() | sort %}
+export {{ var_name }}='{{ (pi_server_restic_env | string | from_yaml)[var_name] }}'
 {% endfor %}
