@@ -88,7 +88,7 @@ On the dev machine:
 
 ## VPN
 
-Forward TPC port 1194 to the server on the server's LAN's router.
+Forward TCP port 1194 to the server on the server's LAN's router.
 
 Set static routes on the server's LAN's router:
 
