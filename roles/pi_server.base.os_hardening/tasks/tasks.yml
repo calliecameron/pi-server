@@ -11,6 +11,7 @@
     ufw_default_forward_policy: "{% if pi_server_firewall_forwarding == 'yes' %}ACCEPT{% else %}DROP{% endif %}"
     hidepid_option: 0
     os_auth_pw_max_age: -1
+    os_chmod_home_folders: false
     sysctl_overwrite:
       net.ipv4.ip_forward: 1
       net.ipv4.icmp_ratelimit: "{{ pi_server_base_os_hardening_icmp_ratelimit_map[pi_server_testbed | default(False)] }}"

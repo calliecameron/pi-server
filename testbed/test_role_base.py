@@ -37,6 +37,13 @@ class TestRoleBase:
             assert host.user("messagebus").shell == "/usr/sbin/nologin"
             assert host.user("messagebus").password == "*"
 
+        assert host.file("/home/vagrant").exists
+        assert host.file("/home/vagrant").user == "vagrant"
+        assert host.file("/home/vagrant").group == "vagrant"
+        assert host.file("/home/vagrant").mode == 0o700
+
+        assert not host.file("/nonexistent").exists
+
     @for_host_types("pi", "ubuntu")
     def test_email(self, email: Email, hostname: str, hosts: Mapping[str, Host]) -> None:
         host = hosts[hostname]

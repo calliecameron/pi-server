@@ -16,6 +16,15 @@
     path: /etc/sudoers.d/90-cloud-init-users
     state: absent
 
+- name: Set permissions on default user home directory
+  become: true
+  ansible.builtin.file:
+    path: "/home/{{ ansible_user }}"
+    state: directory
+    owner: "{{ ansible_user }}"
+    group: "{{ ansible_user }}"
+    mode: u=rwx,go=
+
 - name: Lock root
   become: true
   ansible.builtin.user:
