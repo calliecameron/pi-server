@@ -57,6 +57,7 @@
   ansible.builtin.file:
     path: /etc/resolv.conf
     state: link
+    follow: false
     src: /run/systemd/resolve/resolv.conf
     owner: root
     group: root
