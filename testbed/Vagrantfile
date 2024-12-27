@@ -72,7 +72,7 @@ def router(config, name, wan_ip, lan_ip, pi_ip, pi_vpn_mask, other_lan_mask, oth
 end
 
 
-def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_target_name, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_client_vpn_mask, openvpn_role)
+def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, shutdownd_pi_message, openvpn_target_name, openvpn_target_ip, openvpn_client_name, openvpn_client_lan_mask, openvpn_client_vpn_mask, openvpn_role)
   config.vm.define name do |box|
     box.vm.box = "ubuntu/jammy64"
     box.vm.hostname = name
@@ -101,6 +101,7 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, openvpn_tar
         pi_server_zoneedit_password: "",
         pi_server_control_panel_port: "80",
         pi_server_control_panel_https_port: "443",
+        pi_server_shutdownd_pi_message: shutdownd_pi_message,
         pi_server_storage_zpool: "data",
         pi_server_lan_network: pi_lan_mask,
         pi_server_vpn_network: pi_vpn_mask,
@@ -179,8 +180,8 @@ Vagrant.configure("2") do |config|
   router config, "router1", $addrs["router1_wan"], $addrs["router1_lan"], $addrs["pi1"], $masks["pi1_vpn"], $masks["lan2"], $masks["pi2_vpn"]
   router config, "router2", $addrs["router2_wan"], $addrs["router2_lan"], $addrs["pi2"], $masks["pi2_vpn"], $masks["lan1"], $masks["pi1_vpn"]
 
-  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"], $masks["lan1"], $masks["pi1_vpn"], "pi2", $addrs["router2_wan"], "pi2", $masks["lan2"], $masks["pi2_vpn"], "client"
-  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"], $masks["lan2"], $masks["pi2_vpn"], "pi1", $addrs["router1_wan"], "pi1", $masks["lan1"], $masks["pi1_vpn"], "server"
+  pi config, "pi1", $addrs["pi1"], $addrs["router1_lan"], $masks["lan1"], $masks["pi1_vpn"], true, "pi2", $addrs["router2_wan"], "pi2", $masks["lan2"], $masks["pi2_vpn"], "client"
+  pi config, "pi2", $addrs["pi2"], $addrs["router2_lan"], $masks["lan2"], $masks["pi2_vpn"], false, "pi1", $addrs["router1_wan"], "pi1", $masks["lan1"], $masks["pi1_vpn"], "server"
 
   ubuntu config
 end

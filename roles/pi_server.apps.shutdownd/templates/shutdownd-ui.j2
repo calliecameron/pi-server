@@ -32,9 +32,14 @@ MAIN_PAGE_BODY = """
 SHUTTING_DOWN_BODY = """
 <h1>Shut down</h1>
 <p>The server is now shutting down.</p>
+{% if pi_server_shutdownd_pi_message %}
 <p>Once all the lights except the red one are off, then it is safe to
 disconnect the power.</p>
 <p>Reconnect the power to start the Pi up again.</p>
+{% else %}
+<p>Once the power light is off, then it is safe to disconnect the power.</p>
+<p>Press the power button to start the server up again.</p>
+{% endif %}
 """
 
 RESTARTING_BODY = """

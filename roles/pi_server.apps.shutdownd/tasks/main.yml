@@ -6,4 +6,5 @@
     _args: []
     _host_vars:
       - pi_server_hostname
+      - pi_server_shutdownd_pi_message
     _export_vars: []
