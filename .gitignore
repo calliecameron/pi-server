@@ -6,5 +6,6 @@ __pycache__/
 .cache/
 /deps-graph.txt
 /deps-graph.svg
+.ansible
 .ansible-galaxy
 /.vscode/

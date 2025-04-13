@@ -108,3 +108,11 @@
     name: pi_server.apps.firewall.udp_port
   vars:
     port: "{{ pi_server_apps_minidlna_port }}"
+
+# Note that this needs to be externally visible, despite being served through
+# traefik on the control panel, otherwise DLNA clients can't connect.
+- name: HTTP port
+  ansible.builtin.include_role:
+    name: pi_server.apps.firewall.tcp_port
+  vars:
+    port: "{{ pi_server_apps_minidlna_http_port }}"

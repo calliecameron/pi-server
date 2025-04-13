@@ -248,6 +248,7 @@ class TestBase:
                             80,  # Control panel
                             443,  # Control panel HTTPS
                             1194,  # OpenVPN
+                            8200,  # MiniDLNA HTTP
                             22000,  # Syncthing
                         },
                         "udp": {
@@ -263,6 +264,7 @@ class TestBase:
                             80,  # Control panel
                             443,  # Control panel HTTPS
                             1194,  # OpenVPN
+                            8200,  # MiniDLNA http
                             22000,  # Syncthing
                         },
                         "udp": {
