@@ -1,0 +1,16 @@
+ansible==9.3.0
+ansible-lint==24.2.0
+codetiming==1.4.0
+cryptography==42.0.5
+mypy==1.9.0
+pytest-testinfra==10.1.0
+python-vagrant==1.0.0
+pytidylib==0.3.2
+pyyaml==6.0.1
+requests==2.31.0
+ruff==0.3.2
+selenium==4.18.1
+trparse==0.3.0
+types-pyyaml==6.0.12.12
+types-requests==2.31.0.20240218
+types-selenium==3.141.9

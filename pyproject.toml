@@ -1,5 +1,6 @@
 [tool.mypy]
 mypy_path = "stubs"
+python_version = "3.10"
 
 [tool.ruff]
 line-length = 100
@@ -24,3 +25,7 @@ ignore = [
     "T20",
     "TRY003",
 ]
+
+[tool.pip-tools]
+generate-hashes = true
+strip-extras = true
