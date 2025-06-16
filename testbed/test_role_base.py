@@ -62,7 +62,7 @@ class TestRoleBase:
                     "to": "fake@fake.testbed",
                     "subject_re": rf"\[{hostname}\] SSH login: vagrant from {client_ip}",
                     "body_re": (
-                        r"(.*\n)*PAM_USER=vagrant\n(.*\n)*PAM_RHOST=%s\n(.*\n)*"
+                        r"(.*\n)*PAM_USER=vagrant\n(.*\n)*PAM_RHOST=%s\n(.*\n)*"  # noqa: UP031
                         % client_ip.replace(".", r"\.")
                     ),
                 },
@@ -778,7 +778,7 @@ echo bar
                 with host.sudo():
                     sources_list.write(
                         "deb [trusted=yes check-date=no date-max-future=86400] "
-                        f'http://{addrs["internet"]}:8080/ main main',
+                        f"http://{addrs['internet']}:8080/ main main",
                     )
                     host.check_output("apt-get update")
                     host.check_output("apt-get install pi-server-test")
@@ -835,7 +835,7 @@ echo bar
         finally:
             # Cleanup
             with host.sudo():
-                host.check_output(f'apt-get -y remove {" ".join(known_packages)}')
+                host.check_output(f"apt-get -y remove {' '.join(known_packages)}")
 
             internet.check_output("aptly repo remove main 'Name (% *)'")
             internet.check_output("aptly publish update main")

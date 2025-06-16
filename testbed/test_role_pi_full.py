@@ -398,7 +398,7 @@ class TestRolePiFull:
             def write_git_config(repos: Sequence[str]) -> None:
                 with host.sudo():
                     git_config_file.write(
-                        "\n".join([f'vagrant@{addrs["internet"]}:git/{r}' for r in repos]),
+                        "\n".join([f"vagrant@{addrs['internet']}:git/{r}" for r in repos]),
                     )
                     host.check_output(
                         f"chown pi-server-data:pi-server-data '{git_config_file.path}'",

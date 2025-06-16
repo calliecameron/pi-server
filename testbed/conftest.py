@@ -262,14 +262,14 @@ def for_host_types(*args: str) -> MarkDecorator:
 def addrs() -> dict[str, str]:
     """Returns all IP addresses by name."""
     with open("config.json", encoding="utf-8") as f:
-        return cast(dict[str, str], json.load(f)["addrs"])
+        return cast("dict[str, str]", json.load(f)["addrs"])
 
 
 @pytest.fixture(scope="session")
 def masks() -> dict[str, str]:
     """Returns all net masks by name."""
     with open("config.json", encoding="utf-8") as f:
-        return cast(dict[str, str], json.load(f)["masks"])
+        return cast("dict[str, str]", json.load(f)["masks"])
 
 
 @pytest.fixture(scope="session")

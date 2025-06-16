@@ -79,12 +79,12 @@ class Role:
             raise ValueError(f"task in main.yml must have keys {want_keys}; got {task.keys()}")
         want_name = "Define role"
         if task["name"] != want_name:
-            raise ValueError(f'task in main.yml must have name {want_name}; got {task["name"]}')
+            raise ValueError(f"task in main.yml must have name {want_name}; got {task['name']}")
         want_include = "{{ define_role }}"
         if task["ansible.builtin.include_tasks"] != want_include:
             raise ValueError(
                 f"task in main.yml must have ansible.builtin.include_tasks {want_include}; "
-                f'got {task["ansible.builtin.include_tasks"]}',
+                f"got {task['ansible.builtin.include_tasks']}",
             )
 
         task_vars = task["vars"]
@@ -92,11 +92,11 @@ class Role:
         if task_vars.keys() != want_keys:
             raise ValueError(f"vars in main.yml must have keys {want_keys}; got {task_vars.keys()}")
 
-        self._private = cast(bool, task_vars["_private"])
-        self._run_once = cast(bool, task_vars["_run_once"])
-        self._args = cast(list[str], task_vars["_args"])
-        self._host_vars = cast(list[str], task_vars["_host_vars"])
-        self._export_vars = cast(list[str], task_vars["_export_vars"])
+        self._private = cast("bool", task_vars["_private"])
+        self._run_once = cast("bool", task_vars["_run_once"])
+        self._args = cast("list[str]", task_vars["_args"])
+        self._host_vars = cast("list[str]", task_vars["_host_vars"])
+        self._export_vars = cast("list[str]", task_vars["_export_vars"])
 
     def _parse_includes(self) -> None:
         includes = set()

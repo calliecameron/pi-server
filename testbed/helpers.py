@@ -270,7 +270,7 @@ class Net:
         host_addr_pairs: Sequence[tuple[str, str]],
     ) -> None:
         expected = [want_fn(host, addr) for host, addr in host_addr_pairs]
-        logging.debug("Running %d checks", len(host_addr_pairs))
+        logging.debug("Running %d checks", len(host_addr_pairs))  # noqa: LOG015
         with ThreadPoolExecutor() as e:
             results = e.map(got_fn, *zip(*host_addr_pairs, strict=True))
         incorrect = []
@@ -376,7 +376,7 @@ class Email:
                 if e["from"]["value"][0]["address"] == f"notification@{only_from}.testbed"
                 or not e["from"]["value"][0]["address"]
             ]
-        return cast(list[Any], got_emails)
+        return cast("list[Any]", got_emails)
 
     @staticmethod
     def _matches(
@@ -424,7 +424,7 @@ class Email:
                 "emails:\n" + json.dumps(got_emails, sort_keys=True, indent=2),
             )
         for email, expected in zip(
-            sorted(got_emails, key=lambda e: cast(str, e["subject"])),
+            sorted(got_emails, key=lambda e: cast("str", e["subject"])),
             sorted(emails, key=lambda e: e["subject_re"]),
             strict=True,
         ):
@@ -438,7 +438,7 @@ class Email:
         only_from: str | None = None,
     ) -> None:
         """Emails must be a subset of what's on the server."""
-        got_emails = sorted(self._get(only_from), key=lambda e: cast(str, e["subject"]))
+        got_emails = sorted(self._get(only_from), key=lambda e: cast("str", e["subject"]))
 
         for expected in sorted(emails, key=lambda e: e["subject_re"]):
             found = False
@@ -737,7 +737,7 @@ class WebDriver(Firefox):
         this_addr = urlparse(self.current_url).hostname
 
         def elems(tag: str) -> list[Any]:
-            e = cast(list[Any], self.find_elements(By.TAG_NAME, tag))
+            e = cast("list[Any]", self.find_elements(By.TAG_NAME, tag))
             assert e
             return e
 

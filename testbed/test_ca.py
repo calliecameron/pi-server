@@ -1,12 +1,14 @@
 import datetime
 import os.path
 from collections.abc import Mapping, Sequence
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 from cryptography.x509 import load_pem_x509_certificate, load_pem_x509_crl
-from cryptography.x509.extensions import BasicConstraints
 from cryptography.x509.oid import ExtensionOID
 from testinfra.host import Host
+
+if TYPE_CHECKING:
+    from cryptography.x509.extensions import BasicConstraints
 
 # ruff: noqa: DTZ002
 
@@ -73,7 +75,7 @@ class TestCA:
             assert ca.issuer.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert ca.subject.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert cast(
-                BasicConstraints,
+                "BasicConstraints",
                 ca.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value,
             ).ca
             assert ca.not_valid_before.date() == today
@@ -86,7 +88,7 @@ class TestCA:
             assert c1.issuer.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert c1.subject.rfc4514_string() == "CN=C1,O=pi-server,C=GB"
             assert not cast(
-                BasicConstraints,
+                "BasicConstraints",
                 c1.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value,
             ).ca
             assert c1.not_valid_before.date() == today
@@ -96,7 +98,7 @@ class TestCA:
             assert c2.issuer.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert c2.subject.rfc4514_string() == "CN=C2,O=pi-server,C=GB"
             assert not cast(
-                BasicConstraints,
+                "BasicConstraints",
                 c2.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value,
             ).ca
             assert c2.not_valid_before.date() == today
@@ -106,7 +108,7 @@ class TestCA:
             assert openvpn.issuer.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert openvpn.subject.rfc4514_string() == "CN=192.168.0.1 OpenVPN,O=pi-server,C=GB"
             assert not cast(
-                BasicConstraints,
+                "BasicConstraints",
                 openvpn.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value,
             ).ca
             assert openvpn.not_valid_before.date() == today
@@ -116,7 +118,7 @@ class TestCA:
             assert https.issuer.rfc4514_string() == "CN=Test CA,O=pi-server,C=GB"
             assert https.subject.rfc4514_string() == "CN=192.168.0.1,O=pi-server,C=GB"
             assert not cast(
-                BasicConstraints,
+                "BasicConstraints",
                 https.extensions.get_extension_for_oid(ExtensionOID.BASIC_CONSTRAINTS).value,
             ).ca
             assert https.not_valid_before.date() == today

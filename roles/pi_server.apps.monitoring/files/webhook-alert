@@ -16,11 +16,11 @@ EMAIL_SCRIPT = "/send-email"
 def _send(subject: str, body: str, retval: int) -> NoReturn:
     """Send an email."""
     try:
-        sys.stderr.write("Sending email '%s'\n" % subject)
+        sys.stderr.write(f"Sending email '{subject}'\n")
         subprocess.run([EMAIL_SCRIPT, subject, body], check=True)
-        sys.stderr.write("Sent email '%s'\n" % subject)
+        sys.stderr.write(f"Sent email '{subject}'\n")
     except subprocess.CalledProcessError as inst:
-        sys.stderr.write("Failed to send email '%s'\n" % subject)
+        sys.stderr.write(f"Failed to send email '{subject}'\n")
         sys.exit(inst.returncode)
     sys.exit(retval)
 
@@ -38,11 +38,11 @@ def send_bad(subject: str, body: str) -> NoReturn:
 def process_args() -> dict[str, Any]:
     """Validate and process args."""
     if len(sys.argv) != 2:  # noqa: PLR2004
-        send_bad("Malformed alert", "Wrong args passed to webhook-alert:\n\n%s" % str(sys.argv))
+        send_bad("Malformed alert", f"Wrong args passed to webhook-alert:\n\n{sys.argv}")
     try:
-        return cast(dict[str, Any], json.loads(sys.argv[1]))
+        return cast("dict[str, Any]", json.loads(sys.argv[1]))
     except json.JSONDecodeError:
-        send_bad("Malformed alert", "Data passed to webhook-alert is not json:\n\n%s" % sys.argv[1])
+        send_bad("Malformed alert", f"Data passed to webhook-alert is not json:\n\n{sys.argv[1]}")
 
 
 def pair(key: str, value: str) -> str:
@@ -107,12 +107,12 @@ def pretty_format_time(raw: str | None) -> str:
 
 def get_subject(j: Mapping[str, Any]) -> str:
     """Get the email subject."""
-    subject = cast(str, j.get("commonLabels", {}).get("alertname"))
+    subject = cast("str", j.get("commonLabels", {}).get("alertname"))
     if subject:
         return subject
     alerts = j.get("alerts", [])
     if alerts:
-        subject = alerts[0].get("labels", {}).get("alertname")
+        subject = cast("str", alerts[0].get("labels", {}).get("alertname"))
         if subject:
             return subject
     return "[NO ALERTNAME]"
@@ -128,7 +128,7 @@ def main() -> None:
     for i, alert in enumerate(alerts):
         body += [
             "",
-            "Alert %d of %d:" % (i + 1, len(alerts)),
+            f"Alert {i + 1} of {len(alerts)}:",
             pair("Status", alert.get("status", "[UNKNOWN]")),
             pair("Firing since", pretty_format_time(alert.get("startsAt"))),
         ]

@@ -85,7 +85,7 @@ class TestOpenVPNClients:
                                 "to": "fake@fake.testbed",
                                 "subject_re": (
                                     rf"\[pi2\] OpenVPN connection: pi1-client from "
-                                    rf'{addrs["router1_wan"]}'
+                                    rf"{addrs['router1_wan']}"
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
                             },
@@ -187,7 +187,7 @@ class TestOpenVPNClients:
                                 "to": "fake@fake.testbed",
                                 "subject_re": (
                                     rf"\[pi2\] OpenVPN connection: pi1-client from "
-                                    rf'{addrs["router1_wan"]}'
+                                    rf"{addrs['router1_wan']}"
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
                             },
@@ -278,7 +278,7 @@ class TestOpenVPNClients:
                                 "to": "fake@fake.testbed",
                                 "subject_re": (
                                     rf"\[pi2\] OpenVPN connection: ubuntu-client from "
-                                    rf'{addrs["ubuntu"]}'
+                                    rf"{addrs['ubuntu']}"
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
                             },
@@ -371,7 +371,7 @@ class TestOpenVPNClients:
                                 "to": "fake@fake.testbed",
                                 "subject_re": (
                                     rf"\[pi2\] OpenVPN connection: ubuntu-client from "
-                                    rf'{addrs["ubuntu"]}'
+                                    rf"{addrs['ubuntu']}"
                                 ),
                                 "body_re": r"Connected at .*\n(.*\n)*",
                             },
@@ -408,7 +408,7 @@ class TestOpenVPNClients:
                                     "to": "fake@fake.testbed",
                                     "subject_re": (
                                         rf"\[pi2\] OpenVPN connection: pi1-client from "
-                                        rf'{addrs["router1_wan"]}'
+                                        rf"{addrs['router1_wan']}"
                                     ),
                                     "body_re": r"Connected at .*\n(.*\n)*",
                                 },
