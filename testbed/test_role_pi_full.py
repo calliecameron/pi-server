@@ -60,12 +60,12 @@ class TestRolePiFull:
         def clear_prometheus() -> None:
             with host.sudo():
                 host.check_output(
-                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml down",
+                    "docker compose -f /etc/pi-server/monitoring/docker-compose.yml down",
                 )
                 host.check_output("docker volume rm monitoring_prometheus-data")
                 host.check_output("docker volume rm monitoring_alertmanager-data")
                 host.check_output(
-                    "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml up -d",
+                    "docker compose -f /etc/pi-server/monitoring/docker-compose.yml up -d",
                 )
 
         with host.disable_login_emails():

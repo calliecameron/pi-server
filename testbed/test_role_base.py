@@ -124,7 +124,6 @@ class TestRoleBase:
         host = hosts[hostname]
         assert host.service("docker").is_enabled
         assert host.service("docker").is_running
-        assert host.exists("docker-compose")
 
     # Traefik is tested by being able to access dashboards later on.
 
@@ -230,7 +229,7 @@ groups:
                         host.check_output("pkill -HUP prometheus")  # reload rules
                         host.check_output("systemctl stop cron.service")
                         host.check_output(
-                            "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml stop "
+                            "docker compose -f /etc/pi-server/monitoring/docker-compose.yml stop "
                             "grafana",
                         )
 
@@ -265,7 +264,7 @@ groups:
                     host.check_output("pkill -HUP prometheus")  # reload rules
                     host.check_output("systemctl start cron.service")
                     host.check_output(
-                        "docker-compose -f /etc/pi-server/monitoring/docker-compose.yml start "
+                        "docker compose -f /etc/pi-server/monitoring/docker-compose.yml start "
                         "grafana",
                     )
 

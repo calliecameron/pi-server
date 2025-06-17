@@ -21,25 +21,17 @@
     mode: u=rw,go=r
   notify: Reload docker
 
+- name: Install compose
+  become: true
+  ansible.builtin.package:
+    name: docker-compose-v2
+    state: present
+
 - name: Install pip
   become: true
   ansible.builtin.package:
     name: python3-pip
     state: present
-
-- name: Install requests
-  become: true
-  ansible.builtin.pip:
-    name: requests
-    umask: "0022"
-    version: "{{ pi_server_apps_docker_requests_version }}"
-
-- name: Install compose
-  become: true
-  ansible.builtin.pip:
-    name: docker-compose
-    umask: "0022"
-    version: "{{ pi_server_apps_docker_compose_version }}"
 
 - name: Install python SDK
   become: true

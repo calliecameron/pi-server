@@ -17,12 +17,10 @@
 
 - name: Docker compose
   become: true
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ args.compose_dir }}"
-    # TODO set this to yes once pull_policy is supported
-    pull: false
     remove_orphans: true
-    restarted: false
+    state: "present"
 
 - name: Monitoring
   ansible.builtin.include_role:

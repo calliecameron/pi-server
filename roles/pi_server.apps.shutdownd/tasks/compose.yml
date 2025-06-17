@@ -1,8 +1,6 @@
 - name: Docker compose
   become: true
-  community.docker.docker_compose:
+  community.docker.docker_compose_v2:
     project_src: "{{ pi_server_apps_shutdownd_etc }}"
-    # TODO set this to yes once pull_policy is supported
-    pull: false
     remove_orphans: true
-    restarted: "{{ restart }}"
+    state: "{% if restart %}restarted{% else %}present{% endif %}"
