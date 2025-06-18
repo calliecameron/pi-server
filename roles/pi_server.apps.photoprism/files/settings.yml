@@ -13,25 +13,25 @@ Maps:
   Style: ""
 Features:
   Account: false
-  Albums: true
+  Albums: false
   Archive: false
   Delete: false
   Download: true
   Edit: false
   Estimates: true
-  Favorites: true
+  Favorites: false
   Files: true
   Folders: true
   Import: false
-  Labels: true
+  Labels: false
   Library: true
   Logs: true
   Moments: true
-  People: true
+  People: false
   Places: true
   Private: false
-  Ratings: true
-  Reactions: true
+  Ratings: false
+  Reactions: false
   Review: false
   Search: true
   Services: false

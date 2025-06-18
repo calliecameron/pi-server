@@ -16,6 +16,7 @@ services:
       PHOTOPRISM_DISABLE_WEBDAV: "true"
       PHOTOPRISM_DISABLE_SETTINGS: "true"
       PHOTOPRISM_DISABLE_RESTART: "true"
+      PHOTOPRISM_DISABLE_TENSORFLOW: "true"
       PHOTOPRISM_DETECT_NSFW: "false"
       PHOTOPRISM_DATABASE_DRIVER: "sqlite"
       PHOTOPRISM_SITE_URL: "http://localhost:2342/photoprism"
@@ -24,7 +25,7 @@ services:
 {% if pi_server_testbed %}
         ""
 {% else %}
-        "gpu tensorflow"
+        "gpu"
 {% endif %}
     working_dir: "/photoprism"
     volumes:
