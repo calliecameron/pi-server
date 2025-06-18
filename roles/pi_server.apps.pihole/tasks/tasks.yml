@@ -54,11 +54,9 @@
 
 - name: Resolv.conf
   become: true
-  ansible.builtin.file:
-    path: /etc/resolv.conf
-    state: link
-    follow: false
-    src: /run/systemd/resolve/resolv.conf
+  ansible.builtin.copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
     owner: root
     group: root
     mode: u=rw,go=r

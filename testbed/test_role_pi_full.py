@@ -345,17 +345,9 @@ class TestRolePiFull:
 
         # Good domain
         assert not Lines(host.check_output("nslookup google.com")).contains(r"Address: 0\.0\.0\.0")
-        assert not Lines(host.check_output("nslookup google.com localhost")).contains(
-            r"Address: 0\.0\.0\.0",
-        )
 
         # Ad-serving domain
-        # Note that this will fail if pihole is enabled on your network -
-        # disable it before running the test.
-        assert not Lines(host.check_output("nslookup ads.google.com")).contains(
-            r"Address: 0\.0\.0\.0",
-        )
-        assert Lines(host.check_output("nslookup ads.google.com localhost")).contains(
+        assert Lines(host.check_output("nslookup ads.google.com")).contains(
             r"Address: 0\.0\.0\.0",
         )
 
