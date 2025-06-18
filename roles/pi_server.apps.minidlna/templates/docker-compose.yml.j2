@@ -13,6 +13,8 @@ services:
         target: "/minidlna/media/{{ pi_server_minidlna_media_dirs[host_path] }}"
         read_only: true
 {% endfor %}
+    tmpfs:
+      - "/minidlna/run"
     deploy:
       replicas: 1
     network_mode: host
