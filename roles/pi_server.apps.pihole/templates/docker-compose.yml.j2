@@ -2,7 +2,7 @@
 
 services:
   pihole:
-    image: "pihole/pihole:{{ pi_server_apps_pihole_version }}"
+    image: "{{ pi_server_apps_pihole_image }}:{{ pi_server_apps_pihole_version }}"
     hostname: "{{ pi_server_hostname }}"
     restart: always
     ports:

@@ -10,6 +10,15 @@
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.https
 
+# Pull the image first, so compose won't have to try to in the middle of things
+# when DNS lookup might not be working.
+- name: Pull pihole image
+  become: true
+  community.docker.docker_image_pull:
+    name: "{{ pi_server_apps_pihole_image }}"
+    tag: "{{ pi_server_apps_pihole_version }}"
+    pull: "not_present"
+
 - name: Etc dir
   become: true
   ansible.builtin.file:
