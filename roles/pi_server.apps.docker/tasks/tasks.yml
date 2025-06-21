@@ -8,7 +8,7 @@
     name: docker.io
     state: present
 
-- name: "Ensure handlers are notified now to avoid firewall conflicts"
+- name: Ensure handlers are notified now to avoid firewall conflicts
   ansible.builtin.meta: flush_handlers
 
 - name: Daemon.json
@@ -20,6 +20,9 @@
     group: root
     mode: u=rw,go=r
   notify: Reload docker
+
+- name: Restart docker if needed
+  ansible.builtin.meta: flush_handlers
 
 - name: Install compose
   become: true
