@@ -1,6 +1,30 @@
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
 services:
+  cloudflared:
+    image: "{{ pi_server_apps_pihole_cloudflared_image }}:{{ pi_server_apps_pihole_cloudflared_version }}"
+    restart: always
+    user:
+      "{{ cloudflared_user.uid }}:{{ cloudflared_user.group }}"
+    command:
+      - "proxy-dns"
+    environment:
+      TUNNEL_DNS_ADDRESS: "0.0.0.0"
+      TUNNEL_METRICS: "0.0.0.0:{{ pi_server_apps_pihole_cloudflared_metrics_port }}"
+      TUNNEL_DNS_UPSTREAM: "{{ pi_server_pihole_doh_upstream }}"
+      TUNNEL_DNS_BOOTSTRAP: "{{ pi_server_pihole_doh_bootstrap | join(",") }}"
+    networks:
+      "{{ pi_server_apps_docker_external_network }}":
+        gw_priority: 1
+      "{{ pi_server_apps_monitoring_network }}: {}
+      pihole:
+        ipv4_address: "{{ pi_server_apps_pihole_cloudflared_ip }}"
+    dns:
+      # Disable system dns, to force use of bootstrap
+      - "127.0.0.1"
+    deploy:
+      replicas: 1
+
   pihole:
     image: "{{ pi_server_apps_pihole_image }}:{{ pi_server_apps_pihole_version }}"
     hostname: "{{ pi_server_hostname }}"
@@ -10,14 +34,17 @@ services:
       - "53:53/udp"
     environment:
       TZ: "{{ pi_server_timezone }}"
-      WEBPASSWORD: "{{ pi_server_pihole_web_password }}"
-      FTLCONF_LOCAL_IPV4: "{{ pi_server_lan_ip }}"
-      FTLCONF_BLOCK_IPV4: "{{ pi_server_lan_ip }}"
-      DNSMASQ_LISTENING: "all"
+      FTLCONF_WEBSERVER_API_PASSWORD: "{{ pi_server_pihole_web_password }}"
+      FTLCONF_WEBSERVER_PATHS_PREFIX: "/pihole"
+      FTLCONF_DNS_REPLY_HOST_FORCE4: "true"
+      FTLCONF_DNS_REPLY_HOST_IPV4: "{{ pi_server_lan_ip }}"
+      FTLCONF_DNS_REPLY_BLOCKING_FORCE4: "true"
+      FTLCONF_DNS_REPLY_BLOCKING_IPV4: "{{ pi_server_lan_ip }}"
+      FTLCONF_DNS_LISTENINGMODE: "all"
+      FTLCONF_DNS_UPSTREAMS: "{{ pi_server_apps_pihole_cloudflared_ip }}"
+      FTLCONF_DNS_DNSSEC: "true"
       PIHOLE_UID: "{{ pihole_user.uid }}"
       PIHOLE_GID: "{{ pihole_user.group }}"
-      WEB_UID: "{{ pihole_web_user.uid }}"
-      WEB_GID: "{{ pihole_web_user.group }}"
     volumes:
       - pihole-etc:/etc/pihole
       - pihole-dnsmasq-etc:/etc/dnsmasq.d
@@ -25,20 +52,23 @@ services:
       "{{ pi_server_apps_docker_external_network }}":
         gw_priority: 1
       "{{ pi_server_apps_traefik_network }}": {}
+      pihole:
+        ipv4_address: "{{ pi_server_apps_pihole_ip }}"
+    dns:
+      - "{{ pi_server_apps_pihole_cloudflared_ip }}"
     deploy:
       replicas: 1
     labels:
       - "traefik.enable=true"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
       - "traefik.http.routers.pihole.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
-      - "traefik.http.routers.pihole.rule=PathPrefix(`/pihole/`)"
+      - "traefik.http.routers.pihole.rule=PathPrefix(`/pihole`)"
       - "traefik.http.middlewares.pihole-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.pihole.middlewares=pihole-https-redirect"
       - "traefik.http.routers.pihole-https.entrypoints={{ pi_server_apps_control_panel_https_entrypoint }}"
-      - "traefik.http.routers.pihole-https.rule=PathPrefix(`/pihole/`)"
+      - "traefik.http.routers.pihole-https.rule=PathPrefix(`/pihole`)"
       - "traefik.http.routers.pihole-https.tls=true"
-      - "traefik.http.middlewares.pihole-path.replacepathregex.regex=^/pihole/(.*)"
-      - "traefik.http.middlewares.pihole-path.replacepathregex.replacement=/admin/$$1"
+      - "traefik.http.middlewares.pihole-path.stripprefix.prefixes=/pihole"
       - "traefik.http.routers.pihole-https.middlewares=pihole-path"
 
 volumes:
@@ -50,3 +80,11 @@ networks:
     external: true
   "{{ pi_server_apps_traefik_network }}":
     external: true
+  "{{ pi_server_apps_monitoring_network }}":
+    external: true
+  pihole:
+    driver: bridge
+    internal: true
+    ipam:
+      config:
+        - subnet: "{{ pi_server_apps_pihole_subnet }}"

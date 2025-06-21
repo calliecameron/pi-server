@@ -1,8 +1,17 @@
+pi_server_apps_pihole_subnet: "172.16.255.0/24"
+
 pi_server_apps_pihole_image: "pihole/pihole"
-pi_server_apps_pihole_version: "2023.10.0"
+pi_server_apps_pihole_version: "2025.06.2"
+pi_server_apps_pihole_user: "pi-server-pihole"
+pi_server_apps_pihole_ip: "172.16.255.3"
+
+pi_server_apps_pihole_cloudflared_image: "cloudflare/cloudflared"
+pi_server_apps_pihole_cloudflared_version: "2025.6.1"
+pi_server_apps_pihole_cloudflared_user: "pi-server-cloudflared"
+pi_server_apps_pihole_cloudflared_metrics_port: "8080"
+pi_server_apps_pihole_cloudflared_ip: "172.16.255.2"
+
 pi_server_apps_pihole_etc: "{{ pi_server_etc }}/pihole"
 pi_server_apps_pihole_docker_compose: "{{ pi_server_apps_pihole_etc }}/docker-compose.yml"
-pi_server_apps_pihole_user: "pi-server-pihole"
-pi_server_apps_pihole_web_user: "pi-server-pihole-web"
 pi_server_apps_pihole_resolved_dir: "/etc/systemd/resolved.conf.d"
 pi_server_apps_pihole_resolved_overrides: "{{ pi_server_apps_pihole_resolved_dir }}/00-overrides.conf"
