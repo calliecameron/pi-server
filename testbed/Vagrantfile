@@ -115,6 +115,11 @@ def pi(config, name, pi_ip, router_lan_ip, pi_lan_mask, pi_vpn_mask, shutdownd_p
           "/home/vagrant/media/2": "bar"
         },
         pi_server_pihole_web_password: "foobar",
+        pi_server_pihole_doh_upstream: "https://dns.quad9.net/dns-query",
+        pi_server_pihole_doh_bootstrap: [
+          "https://9.9.9.9/dns-query",
+          "https://149.112.112.112/dns-query",
+        ],
         pi_server_restic_repository: "",
         pi_server_restic_password: "foobar",
         pi_server_restic_hostname: "main",

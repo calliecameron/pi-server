@@ -9,4 +9,6 @@
       - pi_server_lan_ip
       - pi_server_timezone
       - pi_server_pihole_web_password
+      - pi_server_pihole_doh_upstream
+      - pi_server_pihole_doh_bootstrap
     _export_vars: []
