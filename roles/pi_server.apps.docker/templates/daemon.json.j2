@@ -4,8 +4,8 @@
     "metrics-addr": "0.0.0.0:{{ pi_server_apps_docker_metrics_port }}",
     "default-address-pools": [
         {
-            "base": "172.16.0.0/16",
-            "size": 24
+            "base": "{{ pi_server_apps_docker_address_pool_base }}",
+            "size": {{ pi_server_apps_docker_address_pool_size }}
         }
     ]
 }
