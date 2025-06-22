@@ -44,7 +44,7 @@ services:
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.dashboard.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
-      - "traefik.http.routers.dashboard.rule=PathPrefix(`/api`) || PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.dashboard.rule=PathPrefix(`/traefik`)"
       - "traefik.http.routers.dashboard.service=api@internal"
 
 networks:
