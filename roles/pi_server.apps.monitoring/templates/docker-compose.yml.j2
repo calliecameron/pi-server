@@ -18,9 +18,11 @@ services:
       - "{{ pi_server_apps_monitoring_prometheus_rules }}:/rules.d:ro"
       - prometheus-data:/prometheus
     extra_hosts:
-      - host.docker.internal:host-gateway
+      - "host.docker.internal:{{ pi_server_apps_monitoring_network_host }}"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
+      - "{{ pi_server_apps_monitoring_network }}"
+      - "{{ pi_server_apps_monitoring_internal_network }}"
     deploy:
       replicas: 1
     labels:
@@ -54,6 +56,7 @@ services:
       - grafana-data:/var/lib/grafana
     networks:
       - "{{ pi_server_apps_traefik_network }}"
+      - "{{ pi_server_apps_monitoring_internal_network }}"
     deploy:
       replicas: 1
     labels:
@@ -74,6 +77,7 @@ services:
       - alertmanager-data:/alertmanager
     networks:
       - "{{ pi_server_apps_traefik_network }}"
+      - "{{ pi_server_apps_monitoring_internal_network }}"
     deploy:
       replicas: 1
     labels:
@@ -98,6 +102,7 @@ services:
       - "/dev/kmsg:/dev/kmsg"
     networks:
       - "{{ pi_server_apps_traefik_network }}"
+      - "{{ pi_server_apps_monitoring_internal_network }}"
     environment:
       CADVISOR_HEALTHCHECK_URL: "http://localhost:{{ pi_server_apps_monitoring_cadvisor_port }}/cadvisor/healthz"
     deploy:
@@ -116,7 +121,9 @@ services:
       - "{{ pi_server_apps_email_script }}:/send-email:ro"
       - "/etc/passwd:/etc/passwd:ro"
     networks:
-      - "{{ pi_server_apps_traefik_network }}"
+      "{{ pi_server_apps_docker_external_network }}":
+        gw_priority: 1
+      "{{ pi_server_apps_monitoring_internal_network }}": {}
     deploy:
       replicas: 1
 
@@ -126,5 +133,12 @@ volumes:
   alertmanager-data:
 
 networks:
+  "{{ pi_server_apps_docker_external_network }}":
+    external: true
   "{{ pi_server_apps_traefik_network }}":
     external: true
+  "{{ pi_server_apps_monitoring_network }}":
+    external: true
+  "{{ pi_server_apps_monitoring_internal_network }}":
+    driver: bridge
+    internal: true

@@ -18,3 +18,5 @@
       - pi_server_apps_monitoring_monitored_systemd
       - pi_server_apps_monitoring_monitored_docker
       - pi_server_apps_monitoring_writers_group
+      - pi_server_apps_monitoring_network
+      - pi_server_apps_monitoring_network_host

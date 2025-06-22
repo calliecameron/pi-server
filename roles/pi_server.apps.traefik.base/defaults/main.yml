@@ -4,3 +4,5 @@ pi_server_apps_traefik_entrypoints_dir: "{{ pi_server_apps_traefik_etc }}/entryp
 pi_server_apps_traefik_discovery_dir: "{{ pi_server_apps_traefik_etc }}/discovery.d"
 pi_server_apps_traefik_user: "pi-server-traefik"
 pi_server_apps_traefik_network: "traefik"
+pi_server_apps_traefik_network_subnet: "172.17.1.0/24"
+pi_server_apps_traefik_network_host: "172.17.1.1"

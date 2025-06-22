@@ -7,7 +7,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - traefik_docker_proxy
+      - "{{ pi_server_apps_traefik_docker_proxy_network }}"
     environment:
       CONTAINERS: 1
     deploy:
@@ -35,10 +35,13 @@ services:
 {% endfor %}
 {% endif %}
     extra_hosts:
-      - host.docker.internal:host-gateway
+      - "host.docker.internal:{{ pi_server_apps_traefik_network_host }}"
     networks:
-      - "{{ pi_server_apps_traefik_network }}"
-      - traefik_docker_proxy
+      "{{ pi_server_apps_docker_external_network }}": {}
+      "{{ pi_server_apps_traefik_network }}":
+        gw_priority: 1
+      "{{ pi_server_apps_monitoring_network }}": {}
+      "{{ pi_server_apps_traefik_docker_proxy_network }}": {}
     deploy:
       replicas: 1
     labels:
@@ -48,8 +51,12 @@ services:
       - "traefik.http.routers.dashboard.service=api@internal"
 
 networks:
-  traefik_docker_proxy:
-    driver: bridge
-    internal: true
+  "{{ pi_server_apps_docker_external_network }}":
+    external: true
   "{{ pi_server_apps_traefik_network}}":
     external: true
+  "{{ pi_server_apps_monitoring_network }}":
+    external: true
+  "{{ pi_server_apps_traefik_docker_proxy_network }}":
+    driver: bridge
+    internal: true

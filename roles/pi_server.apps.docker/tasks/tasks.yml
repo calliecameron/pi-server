@@ -69,9 +69,9 @@
   vars:
     systemd_service: docker
 
-- name: Expose docker metrics to traefik network
+- name: Expose docker metrics to monitoring network
   ansible.builtin.include_role:
-    name: pi_server.apps.traefik.open_host_port_to_containers
+    name: pi_server.apps.monitoring.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_docker_metrics_port }}"
 

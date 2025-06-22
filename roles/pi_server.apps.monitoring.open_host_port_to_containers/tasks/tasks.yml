@@ -1,0 +1,10 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.base
+
+- name: Expose port to containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.firewall.open_host_port_to_containers
+  vars:
+    network: "{{ pi_server_apps_monitoring_network }}"
+    port: "{{ args.port }}"

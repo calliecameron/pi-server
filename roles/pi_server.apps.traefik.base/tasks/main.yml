@@ -12,3 +12,4 @@
       - pi_server_apps_traefik_discovery_dir
       - pi_server_apps_traefik_user
       - pi_server_apps_traefik_network
+      - pi_server_apps_traefik_network_host

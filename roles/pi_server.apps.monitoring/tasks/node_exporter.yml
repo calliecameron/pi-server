@@ -33,6 +33,6 @@
 
 - name: Expose node exporter port to containers
   ansible.builtin.include_role:
-    name: pi_server.apps.traefik.open_host_port_to_containers
+    name: pi_server.apps.monitoring.open_host_port_to_containers
   vars:
     port: "{{ pi_server_apps_monitoring_node_exporter_port }}"

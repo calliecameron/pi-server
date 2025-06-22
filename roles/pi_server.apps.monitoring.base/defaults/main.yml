@@ -10,3 +10,6 @@ pi_server_apps_monitoring_node_exporter_collect: "{{ pi_server_apps_monitoring_v
 pi_server_apps_monitoring_monitored_systemd: "{{ pi_server_apps_monitoring_etc }}/monitored-systemd-services.txt"
 pi_server_apps_monitoring_monitored_docker: "{{ pi_server_apps_monitoring_etc }}/monitored-docker-containers.txt"
 pi_server_apps_monitoring_writers_group: "pi-server-monitoring-writers"
+pi_server_apps_monitoring_network: "monitoring"
+pi_server_apps_monitoring_network_subnet: "172.17.2.0/24"
+pi_server_apps_monitoring_network_host: "172.17.2.1"

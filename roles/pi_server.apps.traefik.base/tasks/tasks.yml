@@ -51,3 +51,7 @@
     name: "{{ pi_server_apps_traefik_network }}"
     driver_options:
       com.docker.network.bridge.name: "{{ pi_server_apps_traefik_network }}"
+    ipam_config:
+      - subnet: "{{ pi_server_apps_traefik_network_subnet }}"
+        iprange: "{{ pi_server_apps_traefik_network_subnet }}"
+        gateway: "{{ pi_server_apps_traefik_network_host }}"

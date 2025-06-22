@@ -99,3 +99,15 @@
 
 - name: System dashboard
   ansible.builtin.include_tasks: system_dashboard.yml
+
+- name: Monitoring network
+  become: true
+  community.docker.docker_network:
+    name: "{{ pi_server_apps_monitoring_network }}"
+    internal: true
+    driver_options:
+      com.docker.network.bridge.name: "{{ pi_server_apps_monitoring_network }}"
+    ipam_config:
+      - subnet: "{{ pi_server_apps_monitoring_network_subnet }}"
+        iprange: "{{ pi_server_apps_monitoring_network_subnet }}"
+        gateway: "{{ pi_server_apps_monitoring_network_host }}"
