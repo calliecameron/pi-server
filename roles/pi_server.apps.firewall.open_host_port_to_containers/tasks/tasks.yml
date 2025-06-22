@@ -1,0 +1,12 @@
+- name: Dependency
+  ansible.builtin.include_role:
+    name: pi_server.apps.firewall
+
+- name: "Allow containers on the {{ args.network }} network to access host port {{ args.port }}"
+  become: true
+  community.general.ufw:
+    interface_in: "{{ args.network }}"
+    to_port: "{{ args.port }}"
+    proto: tcp
+    rule: allow
+  notify: Reload firewall

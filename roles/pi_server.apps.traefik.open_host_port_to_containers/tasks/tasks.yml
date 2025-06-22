@@ -1,16 +1,10 @@
 - name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.firewall
-
-- name: Dependency
-  ansible.builtin.include_role:
     name: pi_server.apps.traefik.base
 
-- name: "Allow containers on the traefik network to access host port {{ args.port }}"
-  become: true
-  community.general.ufw:
-    interface_in: "{{ pi_server_apps_traefik_network }}"
-    to_port: "{{ args.port }}"
-    proto: tcp
-    rule: allow
-  notify: Reload firewall
+- name: Expose port to containers
+  ansible.builtin.include_role:
+    name: pi_server.apps.firewall.open_host_port_to_containers
+  vars:
+    network: "{{ pi_server_apps_traefik_network }}"
+    port: "{{ args.port }}"
