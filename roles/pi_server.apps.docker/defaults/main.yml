@@ -2,3 +2,4 @@ pi_server_apps_docker_metrics_port: "9323"
 pi_server_apps_docker_python_sdk_version: "6.1.3"
 pi_server_apps_docker_address_pool_base: "172.16.0.0/16"
 pi_server_apps_docker_address_pool_size: 24
+pi_server_apps_docker_external_network: "external"

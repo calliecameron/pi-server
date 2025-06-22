@@ -24,6 +24,13 @@
 - name: Restart docker if needed
   ansible.builtin.meta: flush_handlers
 
+- name: External network
+  become: true
+  community.docker.docker_network:
+    name: "{{ pi_server_apps_docker_external_network }}"
+    driver_options:
+      com.docker.network.bridge.name: "{{ pi_server_apps_docker_external_network }}"
+
 - name: Install compose
   become: true
   ansible.builtin.package:

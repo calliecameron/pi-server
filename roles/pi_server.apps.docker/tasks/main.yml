@@ -5,4 +5,5 @@
     _run_once: true
     _args: []
     _host_vars: []
-    _export_vars: []
+    _export_vars:
+      - pi_server_apps_docker_external_network
