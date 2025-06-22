@@ -1,1 +1,2 @@
 pi_server_utils_nginx_version: "1.24.0-alpine"
+pi_server_utils_nginx_port: "8080"

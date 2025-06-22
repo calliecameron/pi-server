@@ -15,7 +15,7 @@ metrics:
 
 providers:
   docker:
-    endpoint: "tcp://traefik_docker_proxy:2375"
+    endpoint: "tcp://traefik_docker_proxy:{{ pi_server_apps_traefik_docker_proxy_port }}"
     network: "{{ pi_server_apps_traefik_network }}"
     exposedByDefault: false
   file:

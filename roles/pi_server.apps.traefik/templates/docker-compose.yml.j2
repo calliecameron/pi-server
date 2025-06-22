@@ -46,9 +46,9 @@ services:
       replicas: 1
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.dashboard.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
-      - "traefik.http.routers.dashboard.rule=PathPrefix(`/traefik`)"
-      - "traefik.http.routers.dashboard.service=api@internal"
+      - "traefik.http.routers.traefik.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
+      - "traefik.http.routers.traefik.rule=PathPrefix(`/traefik`)"
+      - "traefik.http.routers.traefik.service=api@internal"
 
 networks:
   "{{ pi_server_apps_docker_external_network }}":

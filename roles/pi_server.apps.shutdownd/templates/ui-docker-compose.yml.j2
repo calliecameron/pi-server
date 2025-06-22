@@ -16,6 +16,7 @@ services:
       replicas: 1
     labels:
       - "traefik.enable=true"
+      - "traefik.http.services.shutdownd.loadbalancer.server.port={{ pi_server_apps_shutdownd_ui_port }}"
       - "traefik.http.routers.shutdownd.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
       - "traefik.http.routers.shutdownd.rule=PathPrefix(`/shutdownd`)"
 

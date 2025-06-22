@@ -11,6 +11,7 @@ services:
       PHOTOPRISM_AUTH_MODE: "public"
       PHOTOPRISM_DISABLE_TLS: "true"
       PHOTOPRISM_DEFAULT_TLS: "false"
+      PHOTOPRISM_HTTP_PORT: "{{ pi_server_apps_photoprism_port }}"
       PHOTOPRISM_HTTP_COMPRESSION: "gzip"
       PHOTOPRISM_READONLY: "true"
       PHOTOPRISM_DISABLE_WEBDAV: "true"
@@ -19,7 +20,7 @@ services:
       PHOTOPRISM_DISABLE_TENSORFLOW: "true"
       PHOTOPRISM_DETECT_NSFW: "false"
       PHOTOPRISM_DATABASE_DRIVER: "sqlite"
-      PHOTOPRISM_SITE_URL: "http://localhost:2342/photoprism"
+      PHOTOPRISM_SITE_URL: "http://localhost:{{ pi_server_apps_photoprism_port }}/photoprism"
       PHOTOPRISM_SITE_CAPTION: "PhotoPrism ({{ pi_server_hostname }})"
       PHOTOPRISM_INIT:
 {% if pi_server_testbed %}
@@ -43,6 +44,7 @@ services:
       replicas: 1
     labels:
       - "traefik.enable=true"
+      - "traefik.http.services.photoprism.loadbalancer.server.port={{ pi_server_apps_photoprism_port }}"
       - "traefik.http.routers.photoprism.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
       - "traefik.http.routers.photoprism.rule=PathPrefix(`/photoprism`)"
 

@@ -49,6 +49,7 @@
   become: true
   community.docker.docker_network:
     name: "{{ pi_server_apps_traefik_network }}"
+    internal: true
     driver_options:
       com.docker.network.bridge.name: "{{ pi_server_apps_traefik_network }}"
     ipam_config:
