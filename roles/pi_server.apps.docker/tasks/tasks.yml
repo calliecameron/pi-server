@@ -30,6 +30,10 @@
     name: "{{ pi_server_apps_docker_external_network }}"
     driver_options:
       com.docker.network.bridge.name: "{{ pi_server_apps_docker_external_network }}"
+    ipam_config:
+      - subnet: "{{ pi_server_apps_docker_external_network_subnet }}"
+        iprange: "{{ pi_server_apps_docker_external_network_subnet }}"
+        gateway: "{{ pi_server_apps_docker_external_network_host }}"
 
 - name: Install compose
   become: true
