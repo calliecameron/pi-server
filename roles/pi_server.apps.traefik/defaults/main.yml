@@ -4,5 +4,5 @@ pi_server_apps_traefik_entrypoints_file: "{{ pi_server_apps_traefik_etc }}/entry
 pi_server_apps_traefik_https_cert_mount_point: "/https.crt"
 pi_server_apps_traefik_https_key_mount_point: "/https.key"
 pi_server_apps_traefik_metrics_port: "8080"
-pi_server_apps_traefik_version: "2.10.5"
+pi_server_apps_traefik_version: "v3.4.1"
 pi_server_apps_traefik_docker_proxy_version: "0.1.1"
