@@ -12,19 +12,11 @@
 
 # Pull the images first, so compose won't have to try to in the middle of things
 # when DNS lookup might not be working.
-- name: Pull pihole image
+- name: Pull images
   become: true
-  community.docker.docker_image_pull:
-    name: "{{ pi_server_apps_pihole_image }}"
-    tag: "{{ pi_server_apps_pihole_version }}"
-    pull: "not_present"
-
-- name: Pull cloudflared image
-  become: true
-  community.docker.docker_image_pull:
-    name: "{{ pi_server_apps_pihole_cloudflared_image }}"
-    tag: "{{ pi_server_apps_pihole_cloudflared_version }}"
-    pull: "not_present"
+  community.docker.docker_compose_v2_pull:
+    project_src: "{{ pi_server_apps_pihole_etc }}"
+    policy: "missing"
 
 - name: Etc dir
   become: true
