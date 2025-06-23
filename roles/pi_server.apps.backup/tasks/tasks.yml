@@ -4,7 +4,7 @@
 
 - name: Dependency
   ansible.builtin.include_role:
-    name: pi_server.apps.syncthing.system_wide
+    name: pi_server.apps.syncthing
 
 - name: Etc dir
   become: true

@@ -1,2 +1,0 @@
-pi_server_apps_syncthing_user_specific_home: "/home/{{ ansible_user }}"
-pi_server_apps_syncthing_user_specific_config_dir: "{{ pi_server_apps_syncthing_user_specific_home }}/.pi-server-syncthing"
