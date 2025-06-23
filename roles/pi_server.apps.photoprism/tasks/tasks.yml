@@ -46,6 +46,15 @@
   vars:
     compose_file: "{{ pi_server_apps_photoprism_docker_compose }}"
 
+- name: Scrape job
+  ansible.builtin.include_role:
+    name: pi_server.apps.monitoring.scrape_job
+  vars:
+    job: photoprism
+    host: photoprism
+    port: "{{ pi_server_apps_photoprism_port }}"
+    metrics_path: /photoprism/api/v1/metrics
+
 - name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment

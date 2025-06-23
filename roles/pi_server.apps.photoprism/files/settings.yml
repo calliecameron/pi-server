@@ -5,12 +5,16 @@ UI:
   Zoom: false
   Theme: default
   Language: en
-  TimeZone: ""
+  TimeZone: Local
+  StartPage: default
 Search:
-  BatchSize: 0
+  BatchSize: -1
+  ListView: true
+  ShowTitles: true
+  ShowCaptions: true
 Maps:
   Animate: 0
-  Style: ""
+  Style: default
 Features:
   Account: false
   Albums: false
@@ -26,6 +30,7 @@ Features:
   Labels: false
   Library: true
   Logs: true
+  Calendar: true
   Moments: true
   People: false
   Places: true

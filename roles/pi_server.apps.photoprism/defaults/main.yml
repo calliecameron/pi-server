@@ -2,7 +2,7 @@ pi_server_apps_photoprism_etc: "{{ pi_server_etc }}/photoprism"
 pi_server_apps_photoprism_docker_compose: "{{ pi_server_apps_photoprism_etc }}/docker-compose.yml"
 pi_server_apps_photoprism_settings: "{{ pi_server_apps_photoprism_etc }}/settings.yml"
 
-pi_server_apps_photoprism_version: "231128"
-pi_server_apps_photoprism_port: "2342"
+pi_server_apps_photoprism_version: "250426"
+pi_server_apps_photoprism_port: "8080"
 
 pi_server_apps_photoprism_indexer_user: "pi-server-photoprism-indexer"
