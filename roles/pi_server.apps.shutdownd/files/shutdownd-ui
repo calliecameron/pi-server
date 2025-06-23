@@ -1,15 +1,13 @@
 #!/usr/bin/env python3
 # MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
 
+import argparse
 import http.server
 import sys
 import time
 
 WEBPAGE_HEADER = "/etc/shutdownd/00-header.html"
 WEBPAGE_FOOTER = "/etc/shutdownd/zz-footer.html"
-# Though this is really an int, we keep it as a string here so the linter
-# doesn't complain about the templating
-PORT = "{{ pi_server_apps_shutdownd_ui_port }}"
 COMMAND_FILE = "/var/shutdownd/command"
 SHUTDOWN_URL = "/shutdownd/shutdown"
 RESTART_URL = "/shutdownd/restart"
@@ -29,17 +27,19 @@ MAIN_PAGE_BODY = """
 </form>
 """
 
-SHUTTING_DOWN_BODY = """
+SHUTTING_DOWN_BODY_START = """
 <h1>Shut down</h1>
-<p>The server is now shutting down.</p>
-{% if pi_server_shutdownd_pi_message %}
+<p>The server is now shutting down.</p>"""
+
+SHUTTING_DOWN_BODY_PI = """
 <p>Once all the lights except the red one are off, then it is safe to
 disconnect the power.</p>
 <p>Reconnect the power to start the Pi up again.</p>
-{% else %}
+"""
+
+SHUTTING_DOWN_BODY_DEFAULT = """
 <p>Once the power light is off, then it is safe to disconnect the power.</p>
 <p>Press the power button to start the server up again.</p>
-{% endif %}
 """
 
 RESTARTING_BODY = """
@@ -47,6 +47,8 @@ RESTARTING_BODY = """
 <p>The server is now restarting.</p>
 <p>This will take a few minutes.</p>
 """
+
+pi_message = False
 
 
 class Responder(http.server.BaseHTTPRequestHandler):
@@ -107,19 +109,37 @@ class Responder(http.server.BaseHTTPRequestHandler):
 
     def do_POST(self) -> None:  # noqa: N802
         if self.path == SHUTDOWN_URL:
-            self.respond("Shut down", SHUTTING_DOWN_BODY)
-            time.sleep(1)
+            body = SHUTTING_DOWN_BODY_START
+            if pi_message:
+                body += SHUTTING_DOWN_BODY_PI
+            else:
+                body += SHUTTING_DOWN_BODY_DEFAULT
+            self.respond("Shut down", body)
+            time.sleep(2)
             self.do_command("shutdown")
             sys.exit(0)
         elif self.path == RESTART_URL:
             self.respond("Restart", RESTARTING_BODY)
-            time.sleep(1)
+            time.sleep(2)
             self.do_command("reboot")
             sys.exit(0)
         else:
             self.fail()
 
 
-server_address = ("", int(PORT))
-httpd = http.server.HTTPServer(server_address, Responder)
-httpd.serve_forever()
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--port", type=int)
+    parser.add_argument("--pi-message", action="store_true")
+
+    args = parser.parse_args()
+
+    global pi_message  # noqa: PLW0603
+    pi_message = args.pi_message
+
+    httpd = http.server.HTTPServer(("", args.port), Responder)
+    httpd.serve_forever()
+
+
+if __name__ == "__main__":
+    main()

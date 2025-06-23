@@ -119,8 +119,8 @@
 
 - name: UI script
   become: true
-  ansible.builtin.template:
-    src: shutdownd-ui.j2
+  ansible.builtin.copy:
+    src: shutdownd-ui
     dest: "{{ pi_server_apps_shutdownd_ui_script }}"
     owner: root
     group: root

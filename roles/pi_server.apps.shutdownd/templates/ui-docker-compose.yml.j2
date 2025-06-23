@@ -7,6 +7,12 @@ services:
     user: "{{ ui_user.uid }}:{{ ui_user.group }}"
     group_add:
       - "{{ writers_group.gid }}"
+    command:
+      - "--port"
+      - "{{ pi_server_apps_shutdownd_ui_port }}"
+{% if pi_server_shutdownd_pi_message %}
+      - "--pi-message"
+{% endif %}
     volumes:
       - "{{ pi_server_apps_shutdownd_ui_templates_dir }}:/etc/shutdownd:ro"
       - "{{ pi_server_apps_shutdownd_var }}:/var/shutdownd"
