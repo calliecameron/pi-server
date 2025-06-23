@@ -4,7 +4,7 @@ pi_server_apps_minidlna_config: "{{ pi_server_apps_minidlna_etc }}/minidlna.conf
 
 pi_server_apps_minidlna_docker_compose: "{{ pi_server_apps_minidlna_etc }}/docker-compose.yml"
 pi_server_apps_minidlna_image: "pi-server-minidlna"
-pi_server_apps_minidlna_ubuntu_version: "22.04"
+pi_server_apps_minidlna_ubuntu_version: "24.04"
 
 pi_server_apps_minidlna_port: "1900"
 pi_server_apps_minidlna_http_port: "8200"
