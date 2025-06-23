@@ -4,6 +4,10 @@ services:
   prometheus:
     image: "prom/prometheus:{{ pi_server_apps_monitoring_prometheus_version }}"
     restart: always
+    user: "{{ prometheus_user.uid }}:{{ prometheus_user.group }}"
+    group_add:
+      # Data directory is group-writable by this group
+      - 65534
     command:
       - "--config.file=/etc/prometheus/prometheus.yml"
       - "--storage.tsdb.path=/prometheus"
@@ -38,7 +42,7 @@ services:
     command:
       - "--path.rootfs=/host"
       - "--collector.textfile.directory=/collect"
-      - "--web.listen-address=:{{ pi_server_apps_monitoring_node_exporter_port }}"
+      - "--web.listen-address=0.0.0.0:{{ pi_server_apps_monitoring_node_exporter_port }}"
     network_mode: host
     pid: host
     volumes:
@@ -73,7 +77,7 @@ services:
       - "--config.file=/etc/alertmanager/alertmanager.yml"
       - "--storage.path=/alertmanager"
       - "--web.external-url=http://{{ pi_server_lan_ip }}:{{ pi_server_monitoring_entrypoint_port }}/alertmanager"
-      - "--web.listen-address=:{{ pi_server_apps_monitoring_alertmanager_port }}"
+      - "--web.listen-address=0.0.0.0:{{ pi_server_apps_monitoring_alertmanager_port }}"
     volumes:
       - "{{ pi_server_apps_monitoring_alertmanager_config }}:/etc/alertmanager/alertmanager.yml:ro"
       - alertmanager-data:/alertmanager

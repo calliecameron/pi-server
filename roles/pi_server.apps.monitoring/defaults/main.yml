@@ -1,30 +1,31 @@
 pi_server_apps_monitoring_docker_compose: "{{ pi_server_apps_monitoring_etc }}/docker-compose.yml"
 
-pi_server_apps_monitoring_prometheus_port: "9090"
+pi_server_apps_monitoring_prometheus_user: "pi-server-prometheus"
+pi_server_apps_monitoring_prometheus_port: "8080"
 pi_server_apps_monitoring_prometheus_config: "{{ pi_server_apps_monitoring_etc }}/prometheus.yml"
-pi_server_apps_monitoring_prometheus_version: "v2.47.2"
+pi_server_apps_monitoring_prometheus_version: "v3.4.1"
 
 pi_server_apps_monitoring_node_exporter_user: "pi-server-node-exporter"
 pi_server_apps_monitoring_node_exporter_port: "9100"
-pi_server_apps_monitoring_node_exporter_version: "v1.6.1"
+pi_server_apps_monitoring_node_exporter_version: "v1.9.1"
 
 pi_server_apps_monitoring_grafana_user: "pi-server-grafana"
-pi_server_apps_monitoring_grafana_port: "3000"
+pi_server_apps_monitoring_grafana_port: "8080"
 pi_server_apps_monitoring_grafana_config: "{{ pi_server_apps_monitoring_etc }}/grafana.ini"
-pi_server_apps_monitoring_grafana_version: "8.5.0"
+pi_server_apps_monitoring_grafana_version: "8.5.27"
 
-pi_server_apps_monitoring_alertmanager_port: "9093"
+pi_server_apps_monitoring_alertmanager_port: "8080"
 pi_server_apps_monitoring_alertmanager_config: "{{ pi_server_apps_monitoring_etc }}/alertmanager.yml"
-pi_server_apps_monitoring_alertmanager_version: "v0.26.0"
+pi_server_apps_monitoring_alertmanager_version: "v0.28.1"
 
 pi_server_apps_monitoring_cadvisor_port: "8080"
-pi_server_apps_monitoring_cadvisor_version: "v0.47.2"
+pi_server_apps_monitoring_cadvisor_version: "v0.52.1"
 
 pi_server_apps_monitoring_webhook_user: "pi-server-webhook"
 pi_server_apps_monitoring_webhook_dir: "{{ pi_server_apps_monitoring_etc }}/webhook"
-pi_server_apps_monitoring_webhook_port: "9000"
+pi_server_apps_monitoring_webhook_port: "8080"
 pi_server_apps_monitoring_webhook_id: "alert"
-pi_server_apps_monitoring_webhook_image: "pi_server_webhook"
-pi_server_apps_monitoring_webhook_python_version: "3.10.13-bookworm"
+pi_server_apps_monitoring_webhook_image: "pi-server-webhook"
+pi_server_apps_monitoring_webhook_python_version: "3.10.18-bookworm"
 
 pi_server_apps_monitoring_internal_network: "monitoring_internal"

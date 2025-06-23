@@ -1,3 +1,10 @@
+- name: Prometheus user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_monitoring_prometheus_user }}"
+    register: prometheus_user
+
 - name: Prometheus config
   become: true
   ansible.builtin.template:
