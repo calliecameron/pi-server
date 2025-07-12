@@ -357,7 +357,7 @@ class TestRolePiFull:
                 link = driver.find_element(by=By.LINK_TEXT, value="Pi-hole")
                 assert urlparse(link.get_attribute("href")).hostname == this_addr
                 driver.click(link)
-                assert driver.title == f"Pi-hole - {hostname}"
+                assert driver.title == f"Pi-hole {hostname}"
 
         test(addrs[hostname])
         test(hostname + ".local")
