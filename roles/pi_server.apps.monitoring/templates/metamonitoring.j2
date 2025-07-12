@@ -1,0 +1,30 @@
+#!/bin/bash
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+set -eu
+
+{{ cron_wrapper_line }}
+
+EMAIL_SCRIPT='{{ pi_server_apps_email_script }}'
+FILTER="{{ '{{' }}.State.Running{{ '}}' }}"
+MISSING=''
+
+function check-container() {
+    if [ "$(sudo docker container inspect -f "${FILTER}" "${1}")" = 'true' ]; then
+        echo "${1} is running"
+    else
+        MISSING="$(printf '%s%s\n' "${MISSING}" "${1}")"
+        echo "${1} is missing"
+    fi
+}
+
+{% for name in container_names.stdout_lines | sort %}
+check-container '{{ name }}'
+{% endfor %}
+
+if [ -n "${MISSING}" ]; then
+    "${EMAIL_SCRIPT}" 'Monitoring jobs missing' "$(printf 'Jobs missing:\n\n%s\n' "${MISSING}")"
+    echo 'Sent email'
+else
+    echo 'All jobs running'
+fi

@@ -1,3 +1,4 @@
+import datetime
 import time
 from collections.abc import Mapping
 
@@ -266,6 +267,67 @@ groups:
                     host.check_output(
                         "docker compose -f /etc/pi-server/monitoring/docker-compose.yml start "
                         "grafana",
+                    )
+
+            # Metamonitoring cronjob
+            journal = host.journal()
+            service = host.service("pi-server-cron-metamonitoring")
+
+            # All running
+            journal.clear()
+            with host.run_crons(
+                datetime.time(hour=0, minute=16, second=50),
+                "/bin/bash /etc/cron.hourly/pi-server-metamonitoring",
+            ):
+                pass
+
+            assert not service.is_running
+            log = journal.entries("pi-server-cron-metamonitoring")
+            assert log.count(r".*ERROR.*") == 0
+            assert log.count(r".*WARNING.*") == 0
+            assert log.count(r".*FAILURE.*") == 0
+            assert log.count(r".*KILLED.*") == 0
+            assert log.count(r".*SUCCESS.*") == 1
+            assert log.count(r"All jobs running") == 1
+            assert log.count(r"/monitoring-prometheus-1 is missing") == 0
+            assert log.count(r"Sent email") == 0
+
+            # Some missing
+            email.clear()
+            journal.clear()
+            try:
+                with host.sudo():
+                    host.check_output(
+                        "docker compose -f /etc/pi-server/monitoring/docker-compose.yml stop "
+                        "prometheus",
+                    )
+                    host.check_output("systemctl start --wait pi-server-cron-metamonitoring")
+
+                assert not service.is_running
+                log = journal.entries("pi-server-cron-metamonitoring")
+                assert log.count(r".*ERROR.*") == 0
+                assert log.count(r".*WARNING.*") == 0
+                assert log.count(r".*FAILURE.*") == 0
+                assert log.count(r".*KILLED.*") == 0
+                assert log.count(r".*SUCCESS.*") == 1
+                assert log.count(r"All jobs running") == 0
+                assert log.count(r"/monitoring-prometheus-1 is missing") == 1
+                assert log.count(r"Sent email") == 1
+                email.assert_has_emails(
+                    [
+                        {
+                            "from": f"notification@{hostname}.testbed",
+                            "to": "fake@fake.testbed",
+                            "subject_re": rf"\[{hostname}\] Monitoring jobs missing",
+                            "body_re": (r"Jobs missing:(.*\n)+/monitoring-prometheus-1(.*\n)+"),
+                        },
+                    ],
+                )
+            finally:
+                with host.sudo():
+                    host.check_output(
+                        "docker compose -f /etc/pi-server/monitoring/docker-compose.yml start "
+                        "prometheus",
                     )
 
     @for_host_types("pi", "ubuntu")

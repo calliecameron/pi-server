@@ -28,4 +28,8 @@ pi_server_apps_monitoring_webhook_id: "alert"
 pi_server_apps_monitoring_webhook_image: "pi-server-webhook"
 pi_server_apps_monitoring_webhook_python_version: "3.10.18-bookworm"
 
+pi_server_apps_monitoring_metamonitoring_user: "pi-server-metamonitoring"
+pi_server_apps_monitoring_metamonitoring_dir: "{{ pi_server_apps_monitoring_etc }}/metamonitoring"
+pi_server_apps_monitoring_metamonitoring_systemd_unit: "pi-server-cron-metamonitoring"
+
 pi_server_apps_monitoring_internal_network: "monitoring_internal"

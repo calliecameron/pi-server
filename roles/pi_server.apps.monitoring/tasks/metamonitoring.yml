@@ -1,0 +1,57 @@
+- name: Metamonitoring user
+  ansible.builtin.include_role:
+    name: pi_server.utils.user
+  vars:
+    user: "{{ pi_server_apps_monitoring_metamonitoring_user }}"
+    register:
+
+- name: Metamonitoring dir
+  become: true
+  ansible.builtin.file:
+    path: "{{ pi_server_apps_monitoring_metamonitoring_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: Get container IDs
+  become: true
+  ansible.builtin.command:
+    cmd: "docker compose -f {{ pi_server_apps_monitoring_docker_compose }} ps -q"
+  register: container_ids
+  changed_when: false
+
+- name: Get container names
+  become: true
+  ansible.builtin.command:
+    cmd: "docker inspect --format '{{ '{{' }} .Name {{ '}}' }}' {{ container_ids.stdout }}"
+  register: container_names
+  changed_when: false
+
+- name: Sudoers
+  ansible.builtin.include_role:
+    name: pi_server.utils.sudoers_fragment
+  vars:
+    src: metamonitoring-sudoers.j2
+    name: "{{ pi_server_apps_monitoring_metamonitoring_user }}"
+
+- name: Script
+  ansible.builtin.include_role:
+    name: pi_server.apps.cron.cronjob_script
+  vars:
+    job: metamonitoring
+    src: metamonitoring.j2
+    dest_dir: "{{ pi_server_apps_monitoring_metamonitoring_dir }}"
+    user: "{{ pi_server_apps_monitoring_metamonitoring_user }}"
+    systemd_conflicts: []
+    docker_conflicts: []
+    systemd_overrides: []
+
+- name: Hourly cronjob
+  become: true
+  ansible.builtin.template:
+    src: metamonitoring-hourly.j2
+    dest: "/etc/cron.hourly/pi-server-metamonitoring"
+    owner: root
+    group: root
+    mode: a=rx

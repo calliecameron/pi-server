@@ -60,6 +60,9 @@
   vars:
     compose_file: "{{ pi_server_apps_monitoring_docker_compose }}"
 
+- name: Metamonitoring
+  ansible.builtin.include_tasks: metamonitoring.yml
+
 - name: Control panel fragment
   ansible.builtin.include_role:
     name: pi_server.apps.control_panel.fragment

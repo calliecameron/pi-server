@@ -1,0 +1,5 @@
+# MANAGED BY ANSIBLE, CHANGES WILL BE OVERWRITTEN
+
+{% for name in container_names.stdout_lines | sort %}
+{{ pi_server_apps_monitoring_metamonitoring_user }} {{ pi_server_hostname }} = (root) NOPASSWD: /usr/bin/docker container inspect -f {{ '{{' }}.State.Running{{ '}}' }} {{ name }}
+{% endfor %}
