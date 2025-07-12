@@ -18,6 +18,8 @@ function setup() {
     # (host {{ pi_server_testbed_nonexistent_wan_ip }} must not exist).
     ip route add '{{ pi_server_testbed_lan1_mask }}/24' via '{{ pi_server_testbed_nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
     ip route add '{{ pi_server_testbed_lan2_mask }}/24' via '{{ pi_server_testbed_nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
+    ip route add '{{ pi_server_testbed_pi1_vpn_mask }}/24' via '{{ pi_server_testbed_nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
+    ip route add '{{ pi_server_testbed_pi2_vpn_mask }}/24' via '{{ pi_server_testbed_nonexistent_wan_ip }}' dev "${INTERNET_IFACE}"
 
     if first-time; then
         iptables -t nat -A POSTROUTING -o "${VAGRANT_IFACE}" -j MASQUERADE

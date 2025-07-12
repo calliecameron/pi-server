@@ -35,6 +35,8 @@ def internet(config)
         pi_server_testbed_nonexistent_wan_ip: $addrs["nonexistent_wan"],
         pi_server_testbed_lan1_mask: $masks["lan1"],
         pi_server_testbed_lan2_mask: $masks["lan2"],
+        pi_server_testbed_pi1_vpn_mask: $masks["pi1_vpn"],
+        pi_server_testbed_pi2_vpn_mask: $masks["pi2_vpn"],
         pi_server_testbed_pi1_ip: $addrs["pi1"],
         pi_server_testbed_pi2_ip: $addrs["pi2"],
         pi_server_testbed_ubuntu_ip: $addrs["ubuntu"],
