@@ -35,7 +35,8 @@ services:
     environment:
       TZ: "{{ pi_server_timezone }}"
       FTLCONF_WEBSERVER_API_PASSWORD: "{{ pi_server_pihole_web_password }}"
-      FTLCONF_WEBSERVER_PATHS_PREFIX: "/pihole"
+      # TODO re-enable prefix once it works
+      # FTLCONF_WEBSERVER_PATHS_PREFIX: "/pihole"
       FTLCONF_DNS_REPLY_HOST_FORCE4: "true"
       FTLCONF_DNS_REPLY_HOST_IPV4: "{{ pi_server_lan_ip }}"
       FTLCONF_DNS_REPLY_BLOCKING_FORCE4: "true"
@@ -62,14 +63,19 @@ services:
       - "traefik.enable=true"
       - "traefik.http.services.pihole.loadbalancer.server.port=80"
       - "traefik.http.routers.pihole.entrypoints={{ pi_server_apps_control_panel_entrypoint }}"
-      - "traefik.http.routers.pihole.rule=PathPrefix(`/pihole`)"
+      - "traefik.http.routers.pihole.rule=PathPrefix(`/admin`) || PathPrefix(`/api`)"
+      # TODO re-enable prefix once it works
+      # - "traefik.http.routers.pihole.rule=PathPrefix(`/pihole`)"
       - "traefik.http.middlewares.pihole-https-redirect.redirectscheme.scheme=https"
       - "traefik.http.routers.pihole.middlewares=pihole-https-redirect"
       - "traefik.http.routers.pihole-https.entrypoints={{ pi_server_apps_control_panel_https_entrypoint }}"
-      - "traefik.http.routers.pihole-https.rule=PathPrefix(`/pihole`)"
+      - "traefik.http.routers.pihole-https.rule=PathPrefix(`/admin`) || PathPrefix(`/api`)"
+      # TODO re-enable prefix once it works
+      # - "traefik.http.routers.pihole-https.rule=PathPrefix(`/pihole`)"
       - "traefik.http.routers.pihole-https.tls=true"
-      - "traefik.http.middlewares.pihole-path.stripprefix.prefixes=/pihole"
-      - "traefik.http.routers.pihole-https.middlewares=pihole-path"
+      # TODO re-enable prefix once it works
+      # - "traefik.http.middlewares.pihole-path.stripprefix.prefixes=/pihole"
+      # - "traefik.http.routers.pihole-https.middlewares=pihole-path"
 
 volumes:
   pihole-etc:
