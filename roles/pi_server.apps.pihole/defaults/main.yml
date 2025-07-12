@@ -1,15 +1,15 @@
-pi_server_apps_pihole_subnet: "172.17.0.0/24"
+pi_server_apps_pihole_subnet: "172.17.3.0/24"
 
 pi_server_apps_pihole_image: "pihole/pihole"
 pi_server_apps_pihole_version: "2025.06.2"
 pi_server_apps_pihole_user: "pi-server-pihole"
-pi_server_apps_pihole_ip: "172.17.0.3"
+pi_server_apps_pihole_ip: "172.17.3.3"
 
 pi_server_apps_pihole_cloudflared_image: "cloudflare/cloudflared"
 pi_server_apps_pihole_cloudflared_version: "2025.6.1"
 pi_server_apps_pihole_cloudflared_user: "pi-server-cloudflared"
 pi_server_apps_pihole_cloudflared_metrics_port: "8080"
-pi_server_apps_pihole_cloudflared_ip: "172.17.0.2"
+pi_server_apps_pihole_cloudflared_ip: "172.17.3.2"
 
 pi_server_apps_pihole_etc: "{{ pi_server_etc }}/pihole"
 pi_server_apps_pihole_docker_compose: "{{ pi_server_apps_pihole_etc }}/docker-compose.yml"
