@@ -18,7 +18,9 @@
 - name: Add aptly repo
   become: true
   ansible.builtin.apt_repository:
-    repo: deb http://repo.aptly.info/ squeeze main
+    repo: "deb http://repo.aptly.info/ squeeze main"
+    filename: aptly
+    mode: "0644"
 
 - name: Install aptly
   become: true

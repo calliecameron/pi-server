@@ -2,3 +2,5 @@
   become: true
   ansible.builtin.apt_repository:
     repo: "deb [trusted=yes check-date=no date-max-future=86400] http://{{ pi_server_testbed_internet_ip }}:8080/ certs certs"
+    filename: testbed
+    mode: "0644"
