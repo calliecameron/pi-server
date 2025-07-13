@@ -28,14 +28,14 @@
   register: container_names
   changed_when: false
 
-- name: Sudoers
+- name: Metamonitoring sudoers
   ansible.builtin.include_role:
     name: pi_server.utils.sudoers_fragment
   vars:
     src: metamonitoring-sudoers.j2
     name: "{{ pi_server_apps_monitoring_metamonitoring_user }}"
 
-- name: Script
+- name: Metamonitoring script
   ansible.builtin.include_role:
     name: pi_server.apps.cron.cronjob_script
   vars:
@@ -47,7 +47,7 @@
     docker_conflicts: []
     systemd_overrides: []
 
-- name: Hourly cronjob
+- name: Metamonitoring hourly cronjob
   become: true
   ansible.builtin.template:
     src: metamonitoring-hourly.j2
