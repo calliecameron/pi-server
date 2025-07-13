@@ -43,12 +43,6 @@
     user: "{{ pi_server_apps_traefik_user }}"
   when: pi_server_apps_traefik_https_enabled
 
-- name: Config file
-  ansible.builtin.include_tasks: config_file.yml
-
-- name: Compose file
-  ansible.builtin.include_tasks: compose_file.yml
-
 - name: Compose
   ansible.builtin.include_tasks: compose.yml
   vars:

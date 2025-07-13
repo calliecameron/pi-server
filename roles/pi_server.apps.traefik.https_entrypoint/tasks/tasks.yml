@@ -14,4 +14,4 @@
     owner: root
     group: root
     mode: a=r
-  notify: Reload traefik config file
+  notify: Reload traefik
