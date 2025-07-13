@@ -831,7 +831,10 @@ echo bar
                 )
 
         try:
-            with host.shadow_file("/etc/apt/sources.list") as sources_list:
+            with (
+                host.shadow_file("/etc/apt/sources.list") as sources_list,
+                host.shadow_dir("/etc/apt/sources.list.d"),
+            ):
                 internet.check_output("aptly repo add main aptly/pi-server-test_1_all.deb")
                 internet.check_output("aptly publish update main")
                 known_packages.append("pi-server-test")
