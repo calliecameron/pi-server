@@ -58,4 +58,4 @@ cp "${CA_DIR}/ca/crl" "${CERT_DIR}"
 cp "${CA_DIR}/ca/openvpn-tls-auth.key" "${CERT_DIR}"
 
 # The deployment key needs no password, since it will only give read-only access
-ssh-keygen -t rsa -N '' -f "${CERT_DIR}/deployment-key"
+ssh-keygen -t ed25519 -N '' -f "${CERT_DIR}/deployment-key"

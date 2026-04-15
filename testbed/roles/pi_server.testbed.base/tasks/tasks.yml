@@ -61,5 +61,5 @@
 - name: SSH keygen
   become: false
   ansible.builtin.command:
-    cmd: ssh-keygen -t rsa -f /home/vagrant/.ssh/id_rsa -N ""
-    creates: /home/vagrant/.ssh/id_rsa
+    cmd: ssh-keygen -t ed25519 -f /home/vagrant/.ssh/id_ed25519 -N ""
+    creates: /home/vagrant/.ssh/id_ed25519
